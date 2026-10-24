@@ -274,7 +274,7 @@ class FrontendManifestTests(unittest.TestCase):
             self.assertNotIn("preact", manifest.get(section, {}))
         config = json.loads(re.sub(r"^\s*//.*$", "", (FRONTEND / "tsconfig.json")
                                    .read_text(encoding="utf-8"), flags=re.M))
-        self.assertNotIn("jsxImportSource", config["compilerOptions"])
+        self.assertEqual(config['compilerOptions'].get('jsxImportSource'), '@peach/i18n')
 
     def test_dependabot_watches_the_frontend_manifest(self):
         dependabot = (ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")

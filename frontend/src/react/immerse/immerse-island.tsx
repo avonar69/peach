@@ -402,7 +402,7 @@ function handleTap(clientX: number): void {
   const now = Date.now();
   if (lastTap && lastTap.side === side && now - lastTap.at <= DOUBLE_TAP_MS) {
     clearTap();
-    seekVideoBy(video, immerseHost().seekSeconds() * side);
+    seekVideoBy(video, immerseHost().seekSeconds(side) * side);
     return;
   }
   // 两次点在不同半区时，第一下仍是一次完整的单击；立即兑现后再等当前点击。

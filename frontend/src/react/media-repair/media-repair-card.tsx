@@ -10,6 +10,7 @@ import { Button } from '@/components/base/buttons/button';
 import { Select, SelectItem } from '@/components/base/select/select';
 
 import { apiSend } from '../../api';
+import { translate } from '../../i18n';
 import { REPAIR_CARD_TEXT } from '../../management';
 import { JOB_RUNNING_POLL_MS } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
@@ -48,9 +49,9 @@ export function MediaRepairCard() {
     if (!selected) return;
     void confirmModal({
       title: `修复媒体库「${selected.name}」`,
-      body: '缺时间戳表的片子另存一份修好的头，原文件不动；缺索引的片子重建后替换原文件，'
-        + '坏原件改名成同目录的隐藏文件（.文件名.peach-original）留着。'
-        + (selected.metered ? '这个库在计费来源上，每修一部都要把片子完整拉一遍。' : ''),
+      body: translate('缺时间戳表的片子另存一份修好的头，原文件不动；缺索引的片子重建后替换原文件，')
+        + ' ' + translate('坏原件改名成同目录的隐藏文件（.文件名.peach-original）留着。')
+        + (selected.metered ? ' ' + translate('这个库在计费来源上，每修一部都要把片子完整拉一遍。') : ''),
       confirmLabel: '修复媒体库',
       onConfirm: async () => replace(await apiSend<MediaRepairState>(MEDIA_REPAIR_URL,
         { library: selected.id, restart: true })),

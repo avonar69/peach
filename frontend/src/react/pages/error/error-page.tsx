@@ -3,6 +3,7 @@
  * 服务端只给状态码（`data-status`）与已换成中文的说明（`data-detail`）；标题按状态码取，404 不显示
  * 说明，按钮回首页。标签页标题跟着标题走。 */
 import { useEffect } from 'react';
+import { translate } from '../../../i18n';
 
 import { ButtonLink } from '@/components/base/buttons/button';
 
@@ -22,7 +23,7 @@ export function errorTitle(status: string | undefined): string {
 export function ErrorPage({ data }: { data: PageData }) {
   const title = errorTitle(data.status);
   useEffect(() => {
-    document.title = `Peach · ${title}`;
+    document.title = `Peach · ${translate(title)}`;
   }, [title]);
   return (
     <AuthCard title={title} lede={data.status === '404' ? undefined : data.detail}>

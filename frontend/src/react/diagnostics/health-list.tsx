@@ -9,6 +9,7 @@ import { Note } from '../components/note';
 import { Disclosure, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import type { LibraryGroup, LibraryItem } from './diagnostics';
+import { formatTranslation, translate } from '../../i18n';
 
 const identity = (item: LibraryItem) => item.title || item.name || item.code || `作品 #${item.id}`;
 const listText = (items: LibraryItem[]) => [
@@ -43,7 +44,7 @@ export function HealthList({ group, openItem, receipt }: {
     { id: 'size', label: '大小', value: item => item.size ?? 0,
       render: item => item.size !== null ? fmtSize(item.size) : '未取得' },
   ];
-  return <Disclosure summary={`${group.label} · ${group.count === null ? '未取得' : `${group.count.toLocaleString()} 项`}`}>
+  return <Disclosure summary={`${translate(group.label)} · ${group.count === null ? translate('未取得') : formatTranslation('{0} 项', group.count.toLocaleString())}`}>
     {group.count === null ? <Note tone="neutral">清单未取得，请重新检查。</Note> : !group.items.length
       ? <EmptyState icon={RiFileListLine} title="清单为空" shell="plain">没有需要处理的作品。</EmptyState>
       : <Stack>

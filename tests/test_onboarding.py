@@ -843,6 +843,61 @@ class SetupJsonContractTests(_SetupHttpCase):
 
 
 class StandaloneConfigurationTests(_Case):
+    def test_native_interface_language_roundtrips_with_configuration_access_guards(self):
+        path = '/api/configuration/interface-language'
+        headers = {'X-Token': 'test-token'}
+        with self.client() as client:
+            self.assertEqual(client.post(path, json={'language': 'en'}).status_code, 401)
+            self.assertEqual(client.post(path, headers=dict(headers, Origin='https://evil.example'), json={'language': 'en'}).status_code, 403)
+            self.assertEqual(client.post(path, headers=headers, json={'language': 'unknown'}).status_code, 400)
+            self.assertEqual(client.post(path, headers=headers, json={'language': 'fr'}).json(), {'language': 'fr'})
+            from peach import native_i18n
+            self.assertEqual(native_i18n.language(), 'fr')
+        with self.client(address='192.0.2.9') as client:
+            self.assertEqual(client.post(path, headers=headers, json={'language': 'en'}).status_code, 403)
+
+    def test_stashdb_settings_keep_api_keys_private_and_enforce_access_boundaries(self):
+        path = '/api/configuration/stashdb/settings'
+        headers = {'X-Token': 'test-token'}
+        with self.client() as client:
+            self.assertEqual(client.post(path, json={}).status_code, 401)
+            self.assertEqual(client.post(path, headers=dict(headers, Origin='https://evil.example'), json={}).status_code, 403)
+            saved = client.post(path, headers=headers, json={'enabled': True, 'api_key': 'test-stashdb-secret', 'actor_images': True, 'correct_cast': False})
+            self.assertEqual(saved.status_code, 200, saved.text)
+            self.assertTrue(saved.json()['api_key_set'])
+            self.assertNotIn('api_key', saved.json())
+            snapshot = client.get('/api/configuration', headers=headers)
+            self.assertNotIn('test-stashdb-secret', snapshot.text)
+            self.assertTrue(snapshot.json()['stashdb']['enabled'])
+            with mock.patch('peach.stashdb_client.Client') as factory:
+                factory.return_value.check.return_value = {'name': 'Test account'}
+                checked = client.post('/api/configuration/stashdb/check', headers=headers, json={})
+                self.assertEqual(checked.json(), {'ok': True, 'account': 'Test account'})
+                factory.return_value.close.assert_called_once()
+            self.assertEqual(client.post('/api/configuration/stashdb/preview', headers=headers, json={'asset_id': 'bad'}).status_code, 400)
+            client.app.state.sync = type('ReadOnly', (), {'read_only': True})()
+            self.assertEqual(client.post('/api/configuration/stashdb/apply', headers=headers, json={'asset_id': 1}).status_code, 403)
+            self.assertEqual(client.post(path, headers=headers, json={'api_key': '', 'enabled': False}).status_code, 200)
+        with self.client(address='192.0.2.9') as client:
+            self.assertEqual(client.post(path, headers=headers, json={}).status_code, 403)
+
+    def test_filename_matching_settings_roundtrip_and_boundaries(self):
+        path = '/api/configuration/filename-matching'
+        headers = {'X-Token': 'test-token'}
+        with self.client() as client:
+            self.assertEqual(client.post(path, json={'actors': True, 'studios': True}).status_code, 401)
+            self.assertEqual(client.post(path, headers=dict(headers, Origin='https://evil.example'),
+                json={'actors': True, 'studios': True}).status_code, 403)
+            for policy in ({'actors': True, 'studios': False}, {'actors': False, 'studios': True},
+                           {'actors': False, 'studios': False}):
+                saved = client.post(path, headers=headers, json=policy)
+                self.assertEqual(saved.status_code, 200, saved.text)
+                self.assertEqual(saved.json(), policy)
+                self.assertEqual(client.get('/api/configuration', headers=headers).json()['filename_matching'], policy)
+            self.assertEqual(client.post(path, headers=headers, json={'actors': 'yes', 'studios': True}).status_code, 400)
+        with self.client(address='192.0.2.9') as client:
+            self.assertEqual(client.post(path, headers=headers, json={'actors': True, 'studios': True}).status_code, 403)
+
     def test_automatic_update_settings_roundtrip_and_access_boundaries(self):
         from peach.automatic_updates import AutomaticUpdates
         path = "/api/configuration/automatic-updates"
@@ -882,6 +937,26 @@ class StandaloneConfigurationTests(_Case):
                 fact = next((row for row in runtime_fact_entries(self.config) if row['term'] == 'FFmpeg'), {})
                 self.assertEqual(fact.get('download_url') == 'https://ffmpeg.org/download.html',
                                  missing_ffmpeg or missing_probe)
+
+    def test_standalone_network_scope_can_be_enabled_and_disabled(self):
+        from peach.routes_configuration import revision
+        import tomllib
+        with self.client() as client:
+            headers = {'X-Token': 'test-token'}
+            for host in ('0.0.0.0', '127.0.0.1'):
+                response = client.post('/api/configuration', headers=headers, json={
+                    'revision': revision(settings_file.load_config()), 'media_dirs': [str(self.media)],
+                    'port': '9123', 'host': host})
+                self.assertEqual(response.status_code, 200, response.text)
+                saved = tomllib.loads(self.config.path.read_text(encoding='utf-8'))
+                self.assertEqual(saved['server']['host'], host)
+                self.assertEqual(client.get('/api/configuration', headers=headers).json()['host'], host)
+            before = self.config.path.read_bytes()
+            response = client.post('/api/configuration', headers=headers, json={
+                'revision': revision(settings_file.load_config()), 'media_dirs': [str(self.media)],
+                'port': '9123', 'host': 'example.org'})
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(before, self.config.path.read_bytes())
 
     def test_mount_downloads_follow_os_and_detected_installation(self):
         from peach.media_configuration import mount_dependencies

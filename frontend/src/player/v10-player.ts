@@ -1,5 +1,9 @@
 /* Peach 播放会话：Video.js 10 的媒体、原生事件与自有控制条共用同一枚 video。 */
 import type { PlayerEvents, PlayerSource, QualityLevelList, VideojsFactory, VjsPlayer } from './types';
+import { getLanguage } from '../i18n';
+import { mountFullscreenSizing } from './fullscreen-sizing';
+import { wheelVolume } from './playback-preferences';
+import { playerHost } from './host';
 
 interface HlsEngine {
   bandwidthEstimate: number;
@@ -22,7 +26,9 @@ export const createV10Player: VideojsFactory = (video, options) => {
   const provider = document.createElement('video-player');
   root.className = 'video-js vjs-paused vjs-user-active';
   root.id = video.id || `peach-player-${crypto.randomUUID()}`;
-  root.setAttribute('lang', 'zh-CN');
+  root.setAttribute('lang', getLanguage());
+  const disposeSizing = mountFullscreenSizing(root);
+  const disposeWheel = wheelVolume(root, video, () => playerHost().settings().scrollVolume === true);
   const container = document.createElement('media-container');
   let media = document.createElement('hlsjs-video') as MediaElement;
   const parent = video.parentNode;
@@ -141,7 +147,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
     isDisposed: () => disposed,
     dispose: () => {
       if (disposed) return;
-      emit('dispose'); disposed = true; cleanup.abort(); if (idle) clearTimeout(idle);
+      emit('dispose'); disposed = true; disposeSizing(); disposeWheel(); cleanup.abort(); if (idle) clearTimeout(idle);
       media.adapter.destroy(); video.pause(); video.removeAttribute('src'); video.load(); root.remove();
     },
     trigger: emit,

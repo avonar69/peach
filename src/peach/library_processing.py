@@ -2457,6 +2457,11 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 active=active, update=update, issue=issue, watermark=entity_watermark, covered=covered)
             summary['auto_applied'] = summary.get('auto_applied', 0) + state['auto_applied']
             summary['auto_rejected'] = summary.get('auto_rejected', 0) + state['auto_rejected']
+            from . import stashdb
+            stash_result = stashdb.scan_assets(config, database, rows, progress=update, issue=issue, active=active)
+            summary['stashdb_applied'] = stash_result['applied']
+            summary['stashdb_review'] = stash_result['review']
+            summary['stashdb_skipped'] = stash_result.get('skipped', 0)
             finish_step('collect')
             update(status='failed' if state['issue_count'] else 'complete', stage='处理结束',
                    checked=len(rows), total=len(rows),

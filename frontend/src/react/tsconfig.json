@@ -10,6 +10,7 @@
     // `isolatedModules` 仍开着，转译时只被当类型用的 import 照常剥掉。
     "verbatimModuleSyntax": false,
     "paths": {
+      "@peach/i18n/*": ["../i18n/*"],
       "next/link": ["./components/board-navigation-link.tsx"],
       // EvilCharts 源码按 shadcn 项目的路径写 import；最长前缀优先，排在 `@/*` 之前命中。
       "@/registry/*": ["./evilcharts/registry/*"],

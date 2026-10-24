@@ -1,6 +1,9 @@
+import '../browser-compat';
 import './styles.css';
 import { installErrorReporting } from '../error-reporting';
 import { mountApplication } from './application';
+import { installDomLocalization } from '../i18n/dom';
+installDomLocalization();
 installErrorReporting();
 const host = document.getElementById('appRoot');
 if (!host) throw new Error('主界面宿主缺失');

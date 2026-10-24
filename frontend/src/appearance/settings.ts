@@ -5,6 +5,7 @@
 import { api } from '@peach/legacy/core';
 
 import { normalizeJavPreferences } from '../jav-artwork';
+import { seekConfig, type SeekConfig } from '../player/playback-preferences';
 import { boundedPreference } from '../number-setting';
 import { createSettingsStore, type SettingsStore } from '../settings-store';
 import { DEFAULT_SIDEBAR_ORDER, normalizeSidebarOrder } from '../sidebar';
@@ -31,6 +32,8 @@ export interface AppSettings {
   sortDefaultsVersion: number;
   hoverDelaySeconds: number;
   seekSeconds: number;
+  playerSeek?: SeekConfig;
+  scrollVolume?: boolean;
   searchHistoryLimit: number;
   relatedLimit: number;
   javLayout: string;
@@ -89,6 +92,8 @@ export function normalizeAppSettings(raw: unknown): { settings: AppSettings; mig
   settings.defaultSort = allowedSetting(settings.defaultSort, SORT_KEYS, 'seed');
   settings.hoverDelaySeconds = boundedPreference(+(settings.hoverDelaySeconds as number), 0, 60, 5);
   settings.seekSeconds = boundedPreference(+(settings.seekSeconds as number), 1, 300, 10);
+  settings.playerSeek = seekConfig(settings.playerSeek, settings.seekSeconds as number);
+  settings.scrollVolume = settings.scrollVolume === true;
   delete settings.loginDays;
   delete settings.metadataRefreshDays;
   settings.ambientMode = settings.ambientMode !== false;

@@ -54,13 +54,23 @@ export async function launch(): Promise<Browser> {
     args.push(`--log-net-log=${join(networkLogs, filename)}`, '--net-log-capture-mode=HeavilyRedacted');
     console.info(`浏览器网络事件日志：${filename}`);
   }
-  return chromium.launch({
+  const browser = await chromium.launch({
     headless: true,
     executablePath: requiredEnv('PEACH_E2E_CHROME'),
     args,
     // Windows 首次加载浏览器与系统组件使用独立的启动预算，页面等待由各用例限定。
     timeout: 60_000,
   });
+  // 既有端到端夹具使用中文；英文场景可显式指定 PEACH_E2E_LANGUAGE=en。
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (options) => {
+    const context = await newContext(options);
+    await context.addInitScript((language) => {
+      try { if (!localStorage.getItem('peach.language')) localStorage.setItem('peach.language', language); } catch { /* 空白页没有存储。 */ }
+    }, process.env.PEACH_E2E_LANGUAGE || 'zh-CN');
+    return context;
+  };
+  return browser;
 }
 
 /** 等待态以 `aria-busy="true"` 与 `data-skeleton` 为准；超时就是等待态卡住了。
@@ -132,7 +142,9 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   });
   // 详情页默认自动播放；这台机器旁边有人，冒烟不出声。
   await context.addInitScript(() => {
-    localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false }));
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('peach.settings.v1') || '{}'); } catch { /* 夹具使用空偏好。 */ }
+    localStorage.setItem('peach.settings.v1', JSON.stringify({ ...saved, detailAutoplay: false }));
   });
   const page = await context.newPage();
   const problems: string[] = [];

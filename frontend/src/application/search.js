@@ -20,6 +20,7 @@ import { immerseApi, settingsPanelApi, stageApi } from '../react/application-res
 import { openDrawer } from './layout.js';
 import { setSelectMode } from './selection.js';
 import { clickPlayerControl, seekVideoBy, toggleVideoPlayback } from './../player/index';
+import { seekDelta } from '../player/playback-preferences';
 export const searchState = { searchControl: undefined, searchActions: undefined, searchHelpers: undefined, searchMorph: undefined, searchMorphViewport: undefined };
 
 export function hideSearchMenu(){searchState.searchControl?.close()}
@@ -153,21 +154,20 @@ applicationEffects.listen(document, 'keydown', e=>{
     return;
   }
   // 输入态不抢键：搜索框、标签弹窗和任何可编辑区域里的按键归它们自己处理。
-  if(isTypingTarget(e.target)||e.ctrlKey||e.metaKey||e.altKey)return;
-  if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+  if(isTypingTarget(e.target)||e.defaultPrevented||e.target.closest?.('[role="menu"],[role="listbox"],[role="slider"],.vjs-peach-panel'))return;
+  if(settingsPanelApi()?.isOpen()||e.target.closest?.('dialog:not(#stage),[role="dialog"]:not(#stage)'))return;
+  if(!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){
     const imageStep=document.querySelector(`#stage[open] [data-media-carousel]:not([data-carousel-video-active]) [data-follow-image-step="${e.key==='ArrowRight'?1:-1}"]`);
     if(imageStep){e.preventDefault();imageStep.click();return}
   }
   const video=activeVideo();
   if(video){
+    const delta=seekDelta(e,preferencesState.appSettings.playerSeek,preferencesState.appSettings.seekSeconds);
+    if(delta!==null){e.preventDefault();seekVideoBy(video,delta);return}
+    if(e.ctrlKey||e.metaKey||e.altKey)return;
     if(e.key==='t'||e.key==='T'){
       // 影院模式是详情舞台的版式，小窗里没有这个东西可切。
       e.preventDefault();stageApi()?.toggleTheater();return;
-    }
-    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
-      e.preventDefault();
-      seekVideoBy(video,preferencesState.appSettings.seekSeconds*(e.key==='ArrowRight'?1:-1));
-      return;
     }
     if(e.key===' '||e.key==='k'||e.key==='K'){
       e.preventDefault();          // 不加这句空格会把页面滚下去

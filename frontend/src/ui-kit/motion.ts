@@ -5,6 +5,7 @@
    来源与取值。这一层只负责
    「什么时候换」：动画本身一律交给 CSS，JS 不读也不写具体的毫秒数。 */
 import { esc, icon } from '../core';
+import { translate } from '../i18n';
 
 /**
  * 两枚字形叠在一格里，换态只改容器上的 `data-icon-state`。
@@ -60,7 +61,7 @@ export function swapText(el:any,text:unknown,{html=false}={}):void{
  */
 export function popCount(el:any,text:unknown):void{
   if(!el)return;
-  const next=String(text??''),previous=el.dataset.popCount;
+  const next=translate(String(text??'')),previous=el.dataset.popCount;
   if(previous===next&&el.firstElementChild)return;
   el.dataset.popCount=next;
   let at=-1;

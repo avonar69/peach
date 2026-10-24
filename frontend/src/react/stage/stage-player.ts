@@ -11,6 +11,7 @@
  * `attached`（展开），不会同时在两处。 */
 import { api, fmtClock, realDuration } from '@peach/legacy/core';
 import { iconSwapHtml, setIconSwap } from '@peach/legacy/ui';
+import { seekConfig } from '../../player/playback-preferences';
 
 import {
   attachPlayerChrome, cancelDetailStream, closePlayerMenu, configurePlayer, configurePlayerMenu, detailPlayer,
@@ -298,14 +299,16 @@ function syncTime(): void {
   dom.time.textContent = `${fmtClock(player.currentTime())} / ${total ? fmtClock(total) : '0:00'}`;
 }
 
-const seekStep = (): number => Math.max(1, Number(stageHost().player.settings().seekSeconds) || 10);
+const seekStep = (side: 1 | -1 = 1): number => {
+  const settings = stageHost().player.settings();
+  return seekConfig(settings.playerSeek, settings.seekSeconds)[side > 0 ? 'smallForward' : 'smallRewind'].seconds;
+};
 
 /* 步长跟设置走，标签里带着这个数：读屏用户按之前听得到自己会跳多远。每次接手播放器时重写
    一遍，设置改完开的下一个小窗就是新的秒数。 */
 function syncSeekLabels(): void {
   if (!dom || !host) return;
-  const step = seekStep();
-  for (const [button, text] of [[dom.back, `后退 ${step} 秒`], [dom.ahead, `前进 ${step} 秒`]] as const) {
+  for (const [button, text] of [[dom.back, `后退 ${seekStep(-1)} 秒`], [dom.ahead, `前进 ${seekStep(1)} 秒`]] as const) {
     button.setAttribute('aria-label', text);
     button.title = text;
   }
@@ -395,7 +398,7 @@ export function seekMiniplayer(side: 1 | -1): void {
   const player = held?.player;
   if (!player || player.isDisposed()) return;
   const total = realDuration(player.duration()) || realDuration(held?.item.duration) || 0;
-  const at = Math.max(0, (Number(player.currentTime()) || 0) + seekStep() * side);
+  const at = Math.max(0, (Number(player.currentTime()) || 0) + seekStep(side) * side);
   player.currentTime(total ? Math.min(total, at) : at);
 }
 

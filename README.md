@@ -121,6 +121,8 @@ macOS 可在本机构建独立 `.app` 与 DMG，运行不需要 Python、源码�
 
 [运行与配置](docs/OPERATIONS.md) · [来源采集](docs/SOURCING.md) · [外部播放器](docs/EXTERNAL_PLAYERS.md) · [变更日志](CHANGELOG.md)
 
+界面语言、StashDB 与播放选项：[功能变更](docs/CUSTOM-CHANGELOG.en.md) · [测试包使用说明](TEST-PACKAGE.en.md) · [StashDB 配置](docs/STASHDB.md)
+
 参与开发：[开发约定](AGENTS.md) · [测试与依赖](docs/TESTING.md)
 
 ## 相关项目

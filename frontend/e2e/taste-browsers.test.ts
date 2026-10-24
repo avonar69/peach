@@ -5,7 +5,12 @@ import { launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
 
 describe('口味浏览器来源', () => {
   let browser: Browser;
-  before(async () => { browser = await launch(); });
+  before(async () => {
+    browser = await launch();
+    // 日期夹具与断言使用 UTC，不随运行测试的电脑时区变化。
+    const newContext = browser.newContext.bind(browser);
+    browser.newContext = options => newContext({ ...options, timezoneId: 'UTC' });
+  });
   after(async () => { await browser?.close(); });
   for (const viewport of VIEWPORTS) it(`${viewport.name}：添加、停止和恢复读取保留已导入记录`, { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/taste', viewport);

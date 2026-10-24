@@ -1,5 +1,6 @@
 /* loading 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
 import { followState } from './follow.js';
+import { translate } from '../i18n';
 import { managementSkeletonHtml, pageSkeletonHtml, skeletonKeyOf } from './../management-placeholder';
 import { photoSize } from './../appearance/layout';
 import { $, ROUTE_ENTITIES } from '../core';
@@ -152,7 +153,7 @@ loadingState.syncPageTitle = path=>{
   const url=new URL(path,location.origin);
   const pathname=decodeURIComponent(url.pathname);
   const label=routeMetaOf(pathname)?.title;
-  document.title=label?`${label} · Peach`:'Peach · 蜜桃';
+  document.title=label?`${translate(label)} · Peach`:translate('Peach · 蜜桃');
   document.body.dataset.surface=url.pathname;
   paintNav();
 };

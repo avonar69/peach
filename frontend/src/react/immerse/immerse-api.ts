@@ -4,8 +4,8 @@
 export interface ImmerseHost {
   /** 首页当前的筛选（壳的 `state`）：片单按它随机抽样，画幅不算。 */
   filters(): Record<string, string | number | null | undefined>;
-  /** 双击左右半区快退快进的秒数（`appSettings.seekSeconds`）。 */
-  seekSeconds(): number;
+  /** 双击左右半区的独立小幅跳转秒数。 */
+  seekSeconds(side?: 1 | -1): number;
   /** 来源脱盘：这样的片子拉不到流，进了片单就是一条黑屏加载中。 */
   sourceOffline(location: string): boolean;
   /** 标题那一行的纯文本（遗留层 `javDisplayName`）。 */

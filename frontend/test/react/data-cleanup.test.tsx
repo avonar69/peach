@@ -145,6 +145,13 @@ describe('读数卡', () => {
       .toBe('视频 4 · 网址 1 · 已忽略 2');
   });
 
+  it('translates category names before combining summary counts', () => {
+    localStorage.setItem('peach.language', 'en');
+    expect(reviewSummary({ counts: { metadata_fields: 65 } }).meta).toBe('Metadata fields 65');
+    expect(junkBreakdown({ pending_total: 4, dismissed_total: 0, counts: { video: 4 } }))
+      .toBe('Video 4');
+  });
+
   it('五张卡各读各的；点一张就换到那一页', async () => {
     const { host, open, server } = await openPage();
     expect(entry(host, 'review')?.textContent).toContain('18 条待复核');

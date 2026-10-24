@@ -2,6 +2,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
+import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { LinkButton } from '@/components/base/buttons/link-button';
 import { ApiError, apiSend, errorMessage } from '../../api';
 import { CONFIGURATION_URL } from '../../configuration-endpoints';
@@ -13,6 +14,7 @@ import { busyProps, useAction } from './use-action';
 
 export function PortSettings({ data, receipt }: ConfigurationGroupProps) {
   const [port, setPort] = useState(String(data.port));
+  const [lan, setLan] = useState(data.host === '0.0.0.0');
   const [fieldError, setFieldError] = useState('');
   const [saved, setSaved] = useState<{ url: string } | null>(null);
   const action = useAction();
@@ -27,11 +29,12 @@ export function PortSettings({ data, receipt }: ConfigurationGroupProps) {
     void action.run('save', (signal) => apiSend<{ url: string }>(CONFIGURATION_URL, {
       revision: data.revision, media_dirs: data.media_dirs,
       ...(data.media_sources ? { media_sources: data.media_sources } : {}),
-      port, scan_now: false,
+      port, host: lan ? '0.0.0.0' : '127.0.0.1', scan_now: false,
     }, 'POST', signal), (result) => { setSaved(result); receipt('已保存配置'); }, (cause) => {
       const fields = cause instanceof ApiError && cause.status === 400
-        ? (cause.body as { errors?: { port?: string } } | null)?.errors : null;
-      if (fields?.port) setFieldError(fields.port);
+        ? (cause.body as { errors?: { port?: string; host?: string }; detail?: { errors?: { port?: string; host?: string } } } | null) : null;
+      const errors = fields?.errors || fields?.detail?.errors;
+      if (errors?.port || errors?.host) setFieldError(errors.port || errors.host || '');
       else action.setError(errorMessage(cause));
     });
   };
@@ -41,6 +44,8 @@ export function PortSettings({ data, receipt }: ConfigurationGroupProps) {
     </Note>
   </Stack></Section>;
   return <Section title="本机访问端口" onSubmit={submit}><Stack>
+    <Checkbox isSelected={lan} onChange={setLan}>允许局域网连接</Checkbox>
+    <p className="text-body-2-regular text-text-secondary">局域网 HTTP 访问可直接使用；请只向可信网络开放。</p>
     <Input id="configPort" label="端口" inputMode="numeric" value={port} onChange={setPort}
       validationBehavior="aria" isInvalid={Boolean(fieldError)} hint={fieldError || undefined} />
     {action.error ? <Note tone="error" title="没有保存">{action.error}</Note> : null}

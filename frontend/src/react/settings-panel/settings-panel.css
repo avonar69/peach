@@ -420,3 +420,11 @@ html[class~=board-high-contrast] [data-settings-panel] [data-settings-card][data
 @keyframes settings-backdrop-out{from{opacity:1}to{opacity:0}}
 @keyframes settings-dialog-in{from{transform:translate3d(0,-40px,0);opacity:0}to{transform:translate3d(0,0,0);opacity:1}}
 @keyframes settings-dialog-out{from{transform:translate3d(0,0,0);opacity:1}to{transform:translate3d(0,-40px,0);opacity:0}}
+[data-settings-panel] [data-setting-row][data-seek-setting-row]{grid-template-columns:minmax(0,1fr);gap:12px}
+[data-settings-panel] [data-seek-settings]{display:flex;flex-direction:column;gap:16px;min-width:0}
+[data-settings-panel] [data-seek-action]{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+[data-settings-panel] [data-seek-action]>label{flex:1 1 140px}
+[data-settings-panel] [data-seek-action]>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0}
+[data-settings-panel] [data-seek-action] input{height:var(--control-h);min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);padding:6px 8px}
+[data-settings-panel] [data-seek-action] input[type="number"]{width:76px}
+[data-settings-panel] [data-seek-action] input[readonly]{width:140px;cursor:pointer}

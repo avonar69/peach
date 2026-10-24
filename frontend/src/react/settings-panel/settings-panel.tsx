@@ -33,6 +33,7 @@ import type { Choice, PanelSettings, SettingsPanelApi, SettingsPanelHost } from 
 import { refreshPanelData, useSaveSettings } from './settings-data';
 import { SidebarOrder } from './sidebar-order';
 import { SettingsDialogClose } from '../components/settings-dialog-close';
+import { PlaybackSeekSettings } from './playback-seek-settings';
 
 /* 左栏的分区，顺序即右边各组的顺序。字形按条目自己的名字取：整列取自 Remix，一家画的笔画
    才一样粗。 */
@@ -267,10 +268,11 @@ function ToggleRow({ id, title, description, describedBy = `${id.replace(/Settin
 }
 
 function Row({ title, description, kind, children }: {
-  title: string; description?: ReactNode; kind?: 'sort' | 'related'; children: ReactNode;
+  title: string; description?: ReactNode; kind?: 'sort' | 'related' | 'seek'; children: ReactNode;
 }) {
   return (
     <div data-setting-row="" data-setting-sort={kind === 'sort' ? '' : undefined}
+      data-seek-setting-row={kind === 'seek' ? '' : undefined}
       data-setting-related={kind === 'related' ? '' : undefined}>
       <span><b>{title}</b>{typeof description === 'string' ? <small>{description}</small> : description}</span>
       {children}
@@ -503,12 +505,9 @@ function PlaybackRows({ host: current, epoch }: Omit<GroupProps, 'tab'>) {
         onToggle={(on) => { settings.detailAutoplay = on; save() }} />
       <ToggleRow id="miniplayerSetting" title="离开详情后小窗播放" checked={settings.miniplayer}
         onToggle={(on) => { settings.miniplayer = on; save(); current.changed('miniplayer') }} />
-      <Row title="快进 / 快退步长">
-        <div id="seekSecondsSetting">
-          <NumberSetting key={epoch} id="seekSecondsSetting" label="快进 / 快退" value={settings.seekSeconds}
-            onApply={(value) => { settings.seekSeconds = value || 10; save(); current.changed('seekSeconds') }} />
-        </div>
-      </Row>
+      <Row title="Seek controls" kind="seek"><PlaybackSeekSettings key={epoch} settings={settings} save={save} /></Row>
+      <ToggleRow id="scrollVolumeSetting" title="Mouse wheel changes volume over video" checked={settings.scrollVolume === true}
+        onToggle={(on) => { settings.scrollVolume = on; save(); }} />
     </>
   );
 }

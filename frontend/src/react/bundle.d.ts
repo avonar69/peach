@@ -239,6 +239,8 @@ export interface ConfigurationFact {
 }
 
 export interface ConfigurationData {
+  stashdb?: import('./settings/stashdb-settings').StashDBPolicy;
+  filename_matching?: import('./settings/filename-matching-settings').FilenameMatchingPolicy;
   remote_reporting?: import('./settings/remote-reporting-settings').RemoteReportingState;
   library_sharing?: import('./settings/library-sharing-settings').LibrarySharingState;
   ledger_read_only?: boolean;
@@ -264,6 +266,7 @@ export interface ConfigurationData {
   library_count: number;
   windows?: boolean;
   port: number;
+  host?: string;
   port_editable?: boolean;
   mount_dependencies?: { name: string; available: boolean; download_url: string }[];
   facts: ConfigurationFact[];

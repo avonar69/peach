@@ -152,6 +152,7 @@ const chipOf = (root: ParentNode, key: string, value: string) =>
 beforeEach(() => {
   sessionStorage.clear();
   localStorage.clear();
+  localStorage.setItem('peach.language', 'zh-CN');
   document.body.replaceChildren();
 });
 

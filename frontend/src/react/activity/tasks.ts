@@ -3,6 +3,7 @@
  * 分三次取会出现「在跑那段是新的、完成那段是旧的」这种自相矛盾的一屏，所以只有一个
  * queryKey。首屏由 `prefetchTasks` 写进 Query 缓存，组件挂上去读的就是它。 */
 import { apiGet } from '../../api';
+import { translate } from '../../i18n';
 import { queryClient } from '../query';
 
 export const TASKS_URL = '/api/tasks';
@@ -93,8 +94,7 @@ const STATUS_LABELS: Record<string, string> = {
 /** 状态的中文名。表里的状态集是封闭的，认不出来只可能是表先改了，那就原样显示。 */
 export const statusLabel = (status: string): string => STATUS_LABELS[status] || status;
 
-/* 摘要里的键来自各域自己的状态字典，是英文标识；能认出来的翻成中文，认不出的原样
-   显示——瞎猜一个中文名比留着英文键更难查。 */
+/* 摘要只展示登记的业务读数；调度字段与内部标识留在日志。 */
 const SUMMARY_LABELS: Record<string, string> = {
   checked: '已检查', total: '总数', scanned: '已扫描', identified: '已识别',
   candidates: '资料结果', covers: '封面', changed: '已改动', operation: '操作',
@@ -103,6 +103,11 @@ const SUMMARY_LABELS: Record<string, string> = {
   followups: '派出后继', followups_duplicate: '已在排队', followups_truncated: '超上限未派',
   followups_depth_exceeded: '超深度未派', outcome: '结果', name: '档案名称',
   matched: '图库命中', size: '尺寸', source: '来源', cover_network: '封面连不上图片主机',
+  stashdb_applied: 'StashDB applied', stashdb_review: 'StashDB awaiting review', stashdb_skipped: 'StashDB already up to date',
+  auto_applied: 'Saved automatically', auto_rejected: 'Skipped automatically',
+  performer_aliases: 'Actor aliases', performer_avatars: 'Actor photos',
+  performer_profile_conflicts: 'Actor identity conflicts', performer_profile_failed: 'Actor photos unavailable',
+  previews: 'Video previews', probed: 'Media properties', message: 'Message',
 };
 
 /** 把一批任务按 `parent_run_id` 归到各自的父任务下。没有父的那些留在外面。 */
@@ -167,12 +172,12 @@ export function followupDetail(row: TaskRunPayload): string {
 export function elapsedText(seconds: number | null | undefined): string {
   if (typeof seconds !== 'number' || !Number.isFinite(seconds) || seconds < 0) return '';
   const whole = Math.floor(seconds);
-  if (whole < 60) return `${whole} 秒`;
+  if (whole < 60) return translate(`${whole} 秒`);
   const minutes = Math.floor(whole / 60);
-  if (minutes < 60) return `${minutes} 分 ${whole % 60} 秒`;
+  if (minutes < 60) return translate(`${minutes} 分 ${whole % 60} 秒`);
   const hours = Math.floor(minutes / 60);
-  if (hours < 48) return `${hours} 小时 ${minutes % 60} 分`;
-  return `${Math.floor(hours / 24).toLocaleString()} 天 ${hours % 24} 小时`;
+  if (hours < 48) return translate(`${hours} 小时 ${minutes % 60} 分`);
+  return translate(`${Math.floor(hours / 24).toLocaleString()} 天 ${hours % 24} 小时`);
 }
 
 /** 进度读数「已做 / 总数」：服务端偶尔报出超过总数的已做数，按总数封顶。 */
@@ -209,9 +214,9 @@ const SUMMARY_HIDDEN = new Set([
 /** 摘要压成一行。只取标量：明细留在各域自己的页面和日志里。 */
 export function summaryText(summary: Record<string, unknown>): string {
   return Object.entries(summary || {})
-    .filter(([key, value]) => !SUMMARY_HIDDEN.has(key)
+    .filter(([key, value]) => Object.hasOwn(SUMMARY_LABELS, key) && !SUMMARY_HIDDEN.has(key)
       && (typeof value === 'number' || typeof value === 'string')
       && String(value) !== '')
-    .map(([key, value]) => `${SUMMARY_LABELS[key] || key} ${typeof value === 'number' ? value.toLocaleString() : value}`)
+    .map(([key, value]) => `${translate(SUMMARY_LABELS[key]!)} ${typeof value === 'number' ? value.toLocaleString() : translate(String(value))}`)
     .join(' · ');
 }

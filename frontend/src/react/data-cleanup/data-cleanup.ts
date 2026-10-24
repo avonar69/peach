@@ -12,6 +12,7 @@
  * 各卡各自失败各自算：复核接口出错不该把回收站那张卡也变成「读取失败」，所以是五个
  * `useQuery`，不是一次 `Promise.all`。 */
 import type { QueryKey } from '@tanstack/react-query';
+import { translate } from '../../i18n';
 
 import { apiGet } from '../../api';
 import { DUPLICATES_KEY, fetchDuplicates } from '../duplicates/duplicates';
@@ -74,9 +75,9 @@ export function reviewSummary(data: ReviewCounts | undefined): { figure: string;
     .filter(([, value]) => value > 0)
     .sort((a, b) => b[1] - a[1]);
   const total = counts.reduce((sum, [, value]) => sum + value, 0);
-  const top = counts.slice(0, 3).map(([label, value]) => `${label} ${value.toLocaleString()}`);
+  const top = counts.slice(0, 3).map(([label, value]) => `${translate(label)} ${value.toLocaleString()}`);
   const rest = counts.slice(3).reduce((sum, [, value]) => sum + value, 0);
-  if (rest) top.push(`其余 ${rest.toLocaleString()}`);
+  if (rest) top.push(translate(`其余 ${rest.toLocaleString()}`));
   return { figure: `${total.toLocaleString()} 条待复核`, meta: top.join(' · ') };
 }
 
@@ -85,8 +86,8 @@ export function junkBreakdown(summary: JunkSummary | undefined): string {
   if (!summary) return '';
   const parts = JUNK_KINDS
     .filter(([key]) => Number(summary.counts?.[key]) > 0)
-    .map(([key, label]) => `${label} ${count(summary.counts[key])}`);
-  if (Number(summary.dismissed_total) > 0) parts.push(`已忽略 ${count(summary.dismissed_total)}`);
+    .map(([key, label]) => `${translate(label)} ${count(summary.counts[key])}`);
+  if (Number(summary.dismissed_total) > 0) parts.push(translate(`已忽略 ${count(summary.dismissed_total)}`));
   return parts.join(' · ');
 }
 

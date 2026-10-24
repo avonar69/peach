@@ -4,6 +4,7 @@
  * 轮询也由 Query 合成一份，进度、失败与完成状态由服务端统一提供。
  * 端点在 `frontend/src` 里只在这里声明一次（`tests/test_frontend_build.py` 盯着）。 */
 import { apiGet } from '../../api';
+import { formatTranslation, translate } from '../../i18n';
 import { elapsedText, progressText } from '../activity/tasks';
 import { queryClient } from '../query';
 
@@ -44,6 +45,9 @@ export interface LibraryProcessingData {
   identified?: number;
   candidates?: number;
   auto_applied?: number;
+  stashdb_applied?: number;
+  stashdb_review?: number;
+  stashdb_skipped?: number;
   covers?: number;
   previews?: number;
   /* 落库之后补齐女优资料那一步的四个读数：别名、头像、交回人工的冲突、没取到的头像。 */
@@ -103,8 +107,9 @@ export function remainingTime(state: LibraryProcessingData): string {
   const start = Math.max(1 / precision, Math.floor(low / unit * precision) / precision);
   const end = Math.max(start, Math.ceil(high / unit * precision) / precision);
   const span = start === end ? `${end}` : `${start}–${end}`;
-  const rough = state.eta_initial || state.eta_kind !== 'measured' ? '（粗估）' : '';
-  return `预计剩余约 ${span} ${label}${rough}${state.eta_scope ? ` · ${state.eta_scope}` : ''}`;
+  const rough = state.eta_initial || state.eta_kind !== 'measured' ? translate('（粗估）') : '';
+  return formatTranslation('预计剩余约 {0} {1}{2}{3}', span, translate(label), rough,
+    state.eta_scope ? ` · ${translate(state.eta_scope)}` : '');
 }
 
 export const fetchLibraryProcessing = (signal?: AbortSignal) =>
@@ -161,16 +166,16 @@ export function notesLine(notes: Record<string, number>): string {
 export function currentLine(state: LibraryProcessingData): string {
   if (state.status === 'paused') return '已暂停';
   if (state.status === 'pausing') return '正在暂停';
-  const action = ACTION_LABELS[state.current_action || ''] || state.stage || '正在处理';
-  const waited = state.waited_seconds ? ` · 已等待 ${elapsedText(state.waited_seconds)}` : '';
+  const action = translate(ACTION_LABELS[state.current_action || ''] || state.stage || '正在处理');
+  const waited = state.waited_seconds ? ` · ${translate('Waiting {0}').replace('{0}', elapsedText(state.waited_seconds))}` : '';
   return state.current_asset_name
-    ? `当前：${state.current_asset_name} · ${action}${waited}`
+    ? formatTranslation('当前：{0} · {1}{2}', state.current_asset_name, action, waited)
     : action + waited;
 }
 
 /** 已知总量显示实际完成数；扫描目录期间显示持续发现的文件数。 */
 export function processingLine(state: LibraryProcessingData): string {
-  const count = state.total ? `${progressText(state.checked, state.total)} 项`
+  const count = state.total ? formatTranslation('{0} 项', progressText(state.checked, state.total))
     : state.current_action === 'scanning_files' || state.stage === '扫描文件'
       ? `已发现 ${(state.scanned || 0).toLocaleString()} 个文件` : '';
   return currentLine(state) + (count ? ` · ${count}` : '');

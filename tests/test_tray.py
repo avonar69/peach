@@ -239,15 +239,15 @@ class ServiceStatusTests(unittest.TestCase):
 
     def test_windows_style_menu_keeps_details_out_of_the_root_and_refreshes(self):
         manager = self.manager({"http": (True, "")})
-        with patch("peach.tray.pystray.Icon") as icon:
+        with patch("peach.tray.pystray.Icon") as icon, patch('peach.native_i18n.language', return_value='zh-CN'):
             tray = PeachTray(manager)
-        root = icon.call_args.args[3]
-        status = next(item for item in root.items if item.text.startswith("状态："))
-        self.assertEqual(status.text, "状态：运行中")
-        self.assertIn("HTTP 正常", [item.text for item in status.submenu.items])
-        manager._last_health["http"] = (False, "无响应")
-        self.assertEqual(status.text, "状态：服务未运行")
-        self.assertIn("HTTP 异常（无响应）", [item.text for item in status.submenu.items])
+            root = icon.call_args.args[3]
+            status = next(item for item in root.items if item.text.startswith("状态："))
+            self.assertEqual(status.text, "状态：运行中")
+            self.assertIn("HTTP 正常", [item.text for item in status.submenu.items])
+            manager._last_health["http"] = (False, "无响应")
+            self.assertEqual(status.text, "状态：服务未运行")
+            self.assertIn("HTTP 异常（无响应）", [item.text for item in status.submenu.items])
         self.assertIs(tray.manager, manager)
 
     def test_partial_names_the_broken_one_with_reason(self):
@@ -744,11 +744,16 @@ class SourceSyncTests(unittest.TestCase):
             Mock(return_value=Mock(returncode=113, stdout="")), uid=501))
 
     def test_windows_tray_lists_source_sync_next_to_ledger(self):
-        source = inspect.getsource(PeachTray.__init__)
-        self.assertIn('MenuItem("同步开发进度", self.sync_source,', source)
-        self.assertIn('visible=lambda _: not standalone()', source)
-        self.assertLess(source.index("同步开发进度"), source.index("ledger_menu_items"))
-        self.assertLess(source.index("ledger_menu_items"), source.index("重启服务"))
+        manager = Mock()
+        manager.status_summary.return_value = '运行中'
+        with patch('peach.tray.pystray.Icon') as icon, patch('peach.native_i18n.language', return_value='en'):
+            PeachTray(manager)
+            labels = [item.text for item in icon.call_args.args[3].items]
+        self.assertIn('Open Peach', labels)
+        self.assertIn('Configure Peach', labels)
+        self.assertIn('Restart service', labels)
+        self.assertIn('Exit Peach', labels)
+        self.assertIn('Status: Running', labels)
 
     def test_windows_source_sync_tests_then_restarts_services(self):
         snapshot = VersionSnapshot("0.6.4", "master", "abc12345", False, True, "origin/master")

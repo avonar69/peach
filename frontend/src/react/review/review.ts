@@ -32,6 +32,7 @@ export const REVIEW_LABELS = {
   fc2_markings: 'FC2 评论标记',
   fc2_similarity: 'FC2 跨号相似',
   video_endcards: '片尾/出处证据',
+  stashdb: 'StashDB matches',
 } as const;
 
 export type ReviewCategory = keyof typeof REVIEW_LABELS;

@@ -25,6 +25,7 @@ import { useHorizontalScroller } from '../components/use-horizontal-scroller';
 import { BulkToolbar } from './bulk-toolbar';
 import { GenreTagList } from './candidate-form';
 import { ReviewCard } from './review-card';
+import { StashDBReview } from './stashdb-review';
 import type { DecisionStatus, ReviewCategory, ReviewData, ReviewGrouping, ReviewRow, RowChoice } from './review';
 import {
   canApprove, currentReviewRow, DEFAULT_CATEGORY, decisionPayload, decisionReceipt, defaultChoice,
@@ -63,6 +64,7 @@ function Pagination(
 }
 
 export function ReviewPage(props: ReviewProps) {
+  const [stashCount, setStashCount] = useState<number | null>(null);
   const [narrow, setNarrow] = useState(() => matchMedia('(max-width:900px)').matches);
   const categoryScroll = useHorizontalScroller<HTMLDivElement>(undefined, narrow);
   useEffect(() => {
@@ -251,7 +253,7 @@ export function ReviewPage(props: ReviewProps) {
           <TabList ref={categoryScroll} aria-labelledby="reviewcategories" data-section-items
             className="flex review-split:flex-col review-split:items-stretch">
             {REVIEW_CATEGORIES.map((key) => {
-              const count = Number(data.counts[key] || 0);
+              const count = key === 'stashdb' ? (stashCount ?? Number(data.counts[key] || 0)) : Number(data.counts[key] || 0);
               return (
                 <Tab key={key} id={key} className={TAB_CLASS}>
                   {REVIEW_LABELS[key]}
@@ -268,6 +270,7 @@ export function ReviewPage(props: ReviewProps) {
         </div>
 
         <TabPanel id={category} className="flex min-w-0 flex-1 flex-col gap-5">
+          {category === 'stashdb' ? <StashDBReview readOnly={locked} receipt={toast} onCount={setStashCount} /> : <>
           {queue.length && !locked ? (
             <BulkToolbar groupOptions={groupOptions} groupBy={activeGroupBy}
               onGroupBy={(next) => { setGroupBy(next); setFilter(''); setPage(1) }}
@@ -339,6 +342,7 @@ export function ReviewPage(props: ReviewProps) {
           )}
 
           <Pagination page={win.page} pages={win.pages} onPage={setPage} />
+          </>}
         </TabPanel>
       </Tabs>
       </div>

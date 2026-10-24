@@ -412,6 +412,8 @@ it('时长与摘要的折算各自成立', () => {
     status: 'complete', run_id: 351, started_at: 1790138114.86, checked: 83, total: 83,
     request_id: '417dab8d', completed_at: 1790138495.48,
   })).toBe('已检查 83 · 总数 83');
+  expect(summaryText({ eta_scope: 'full_job', speed_mode: 'standard', stage: 'dashboard', scanned: 7 }))
+    .toBe('已扫描 7');
 });
 
 it('报错在列表里只露一行：traceback 取最后一行，别的取第一行非空', () => {

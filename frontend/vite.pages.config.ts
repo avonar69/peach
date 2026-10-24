@@ -16,6 +16,7 @@ export default defineConfig({
   plugins: [tailwindcss()],
   resolve: {
     alias: {
+      '@peach/i18n': fileURLToPath(new URL('./src/i18n', import.meta.url)),
       '@peach/legacy/ui': fileURLToPath(new URL('./src/react/pages/legacy-ui.ts', import.meta.url)),
       '@': fileURLToPath(new URL('./src/react/boardui', import.meta.url)),
     },

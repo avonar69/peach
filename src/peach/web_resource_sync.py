@@ -33,6 +33,7 @@ from .media_sources import SCANNABLE_LOCATIONS
 from .personal_records import VANISHED, mark_vanished, record_holders
 from .platform import is_unmapped, root_online, translate_ledger_path, within_root
 from .record_rehome import reattach_vanished
+from .resource_presence import scan_directory_presence as _scan_resource_directory
 
 #: 「同步删除」回执里，记录已接到另一个版本、旧行已删的那一条。
 REATTACHED = "reattached"
@@ -79,36 +80,6 @@ def configured_resource_locations() -> tuple[str, ...]:
     """核对已声明的媒体来源，离线状态由扫描阶段报告。"""
     return tuple(location for location, roots in LOCATION_ROOT_DECLARATIONS.items()
                  if location in SCANNABLE_LOCATIONS and roots)
-
-
-def _scan_resource_directory(
-    item: tuple[Path, dict[str, list[int]]],
-) -> tuple[list[int], int]:
-    parent, expected = item
-    present: set[str] = set()
-    unreadable = 0
-    try:
-        with os.scandir(parent) as entries:
-            for entry in entries:
-                key = entry.name.casefold()
-                if key not in expected:
-                    continue
-                try:
-                    if entry.is_file():
-                        present.add(key)
-                except OSError:
-                    # The name was returned but its type could not be read.  Preserve the
-                    # ledger row and report it as unreadable instead of declaring deletion.
-                    present.add(key)
-                    unreadable += len(expected[key])
-    except FileNotFoundError:
-        return [asset_id for ids in expected.values() for asset_id in ids], 0
-    except OSError:
-        return [], sum(len(ids) for ids in expected.values())
-    return (
-        [asset_id for key, ids in expected.items() if key not in present for asset_id in ids],
-        unreadable,
-    )
 
 
 def _directory_key(path: str | os.PathLike[str]) -> str:

@@ -1074,40 +1074,41 @@ class PeachTray:
         self._diagnostics_lock = threading.Lock()
         self._build_checked_at = time.monotonic()
         self._build_attempted_head: str | None = None
+        from . import native_i18n
         version_menu = pystray.Menu(
-            pystray.MenuItem(lambda _item: f"Peach {self.version.package_version}", None, enabled=False),
-            pystray.MenuItem(lambda _item: self.version.build_label, None, enabled=False),
-            pystray.MenuItem(lambda _item: self.version.channel_label, None, enabled=False),
+            native_i18n.menu_item(lambda _item: f"Peach {self.version.package_version}", None, enabled=False),
+            native_i18n.menu_item(lambda _item: self.version.build_label, None, enabled=False),
+            native_i18n.menu_item(lambda _item: self.version.channel_label, None, enabled=False),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("检查更新", self.check_updates),
+            native_i18n.menu_item("检查更新", self.check_updates),
         )
         self.icon = pystray.Icon(
             "Peach",
             # macOS 菜单栏要单色 template image，Windows 托盘要彩色品牌图。
             create_icon(template=sys.platform == "darwin"),
-            "Peach · 蜜桃",
+            native_i18n.translate("Peach · 蜜桃"),
             pystray.Menu(
-                pystray.MenuItem(lambda _item: self.gate.open_label(), self.open, default=True),
-                pystray.MenuItem("配置 Peach", lambda *_: webbrowser.open(self.gate.open_url() + "configuration")),
-                pystray.MenuItem(lambda _item: f"状态：{self.gate.status_line()}", pystray.Menu(
+                native_i18n.menu_item(lambda _item: self.gate.open_label(), self.open, default=True),
+                native_i18n.menu_item("配置 Peach", lambda *_: webbrowser.open(self.gate.open_url() + "configuration")),
+                native_i18n.menu_item(lambda _item: f"状态：{self.gate.status_line()}", pystray.Menu(
                     lambda: (
-                        *(pystray.MenuItem(line, None, enabled=False)
+                        *(native_i18n.menu_item(line, None, enabled=False)
                           for line in self.manager.status_details()),
-                        pystray.MenuItem(menu_text(f"地址：{self.gate.open_url()}"), self.open),
-                        pystray.MenuItem("查看完整配置", lambda *_: webbrowser.open(
+                        native_i18n.menu_item(menu_text(f"地址：{self.gate.open_url()}"), self.open),
+                        native_i18n.menu_item("查看完整配置", lambda *_: webbrowser.open(
                             self.gate.open_url() + "configuration")),
                     ))),
                 pystray.Menu.SEPARATOR,
-                pystray.MenuItem("同步开发进度", self.sync_source,
+                native_i18n.menu_item("同步开发进度", self.sync_source,
                                  visible=lambda _: not standalone()),
                 *ledger_menu_items(
-                    pystray.MenuItem, self.sync_ledger, self.take_ownership),
-                pystray.MenuItem("重启服务", self.restart),
-                pystray.MenuItem("查看日志", self.open_logs),
-                pystray.MenuItem("导出诊断报告", self.export_diagnostics),
-                pystray.MenuItem("版本与更新", version_menu),
+                    native_i18n.menu_item, self.sync_ledger, self.take_ownership),
+                native_i18n.menu_item("重启服务", self.restart),
+                native_i18n.menu_item("查看日志", self.open_logs),
+                native_i18n.menu_item("导出诊断报告", self.export_diagnostics),
+                native_i18n.menu_item("版本与更新", version_menu),
                 pystray.Menu.SEPARATOR,
-                pystray.MenuItem("退出 Peach", self.exit),
+                native_i18n.menu_item("退出 Peach", self.exit),
             ),
         )
 

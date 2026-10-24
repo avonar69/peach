@@ -1,5 +1,25 @@
 # 复用清单
 
+## StashDB 与播放器操作
+
+StashDB 复用 [Stash-Box 的只读 GraphQL 协议](https://github.com/stashapp/stash-box/tree/master/graphql/schema)，2026-10-23 核对认证、作品、演员、厂牌、图片和过滤条件。未复制上游实现，不新增 Stash 或第三方 GraphQL 运行时。HTTP 复用已固定的 httpx 0.28.1（BSD-3-Clause），有界流读取与固定端点拒绝重定向；图片验证复用 Pillow、头像和封面安装入口，事务复用 LedgerDatabase，字段保护及规范身份复用现有实体入口。跨 Windows 和 Linux，不新增依赖体积。通用 GraphQL SDK 对这些固定读查询不提供额外身份判据，未引入；多线索排序、复核、归属和采集预算保留为 Peach 领域策略。凭据、限流和来源规则见 [StashDB 来源](STASHDB.md)，假 API 与临时账本覆盖歧义、截断、凭据隔离、图片、字段保护及只读权限。
+
+四种跳转共用既有偏好 store、原生 KeyboardEvent 与 seekVideoBy，默认大幅前进/后退分别为上/下键，小幅前进/后退分别为右/左键。跳转范围为 1–3600 秒，重复快捷键不保存；编辑框、菜单、滑块与设置弹层保持自己的键盘行为。滚轮音量使用原生 WheelEvent 与 HTMLMediaElement.volume，默认关闭，只在视频表面阻止页面滚动；控件、横向滚动和浏览器缩放保持自身用途。卸载移除监听，不新增依赖。
+
+## 界面语言、HTTP 随机标识与文件名归属
+
+语言目录覆盖英文、简体与繁体中文、西班牙语、法语、德语、巴西葡萄牙语、日语、韩语和越南语。公开源代码清单纳入 `library_processing`、`library_diagnostics` 与 `media_probe` 的界面文字，离线检查覆盖各语言的缺词条与参数保留。新增语言由公开文案和通用界面标签生成，机器译文允许后续措辞修订，不读取馆藏数据；运行时不发翻译请求。
+
+演员与厂牌文件名匹配分别由 `state/filename-matching.json` 中的布尔开关控制，默认关闭，配置读写复用现有本机认证及同源入口。厂牌匹配复用 `studio_identity_ids`、规范实体写入及 `write_owned_fields`，日期前缀是领域约定，不新增解析依赖。日期无效、别名不唯一、已有不同归属以及用户确认字段均跳过；本来源的关系和扁平字段同步。关闭开关只停止后续匹配，不撤回既有归属。临时账本验证别名复用、独立开关、重复扫描、字段保护及扫描推送入口。
+
+界面呈现复用 React 19.3.1 的自动 JSX 运行时与浏览器 MutationObserver，翻译登记文字、命令式 HTML、弹层和辅助技术标签。语言选择按浏览器保存，支持英文和简体中文。表单值、协议字段、可编辑内容、标记的媒体标题和数据库内容不翻译。`frontend/src/i18n/` 保存生成目录、人工优先词条和公开源代码位置清单；首启、登录、错误与主界面共用。生成候选仅使用公开上游 Git revision，运行时不访问翻译服务；没有新增依赖。提取复用已锁定的 Oxc parser，React 与 DOM 已覆盖呈现基础能力，因此仅保留 Peach 的词条、模板和语言选择。
+
+全屏画面复用 CSS `object-fit: contain`、`scale-down` 与 `cover`，分别对应完整画面、原始分辨率和裁剪铺满；选择按浏览器保存，由文档事件同步当前播放器。设置项复用现有播放器子菜单，播放器卸载时移除监听。真实 Chromium 的 5120×1440 视口验证全屏、三档切换及重载保留；不改媒体文件、码率或流清晰度。
+
+HTTP 下 UUID v4 使用 Web Crypto `getRandomValues()`，该方法可用于非安全上下文；原生 `randomUUID()` 存在时保留。依据 [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues)，不使用弱随机源，不改身份验证或 HTTPS 配置。两个浏览器入口在渲染前安装兼容实现。
+
+演员检索复用已锁定的 pyahocorasick 2.3.1 与规范实体写入入口。姓名、别名只接受唯一身份和完整边界，重叠时取长名；来源为 `scan:filename-actors`，同步兼容演员标签。`Studio.YY.MM.DD.First.Last.And.First.Last` 与 `[actors=First Last; First Last]` 是明确的文件名字段，可创建规范演员；一般标题不猜姓名。日期使用标准库校验，常见画质后缀不属于演员名。文件名是领域约定，通用分词库无法确定标题与演员边界，因此解析留在 Peach，不新增依赖。扫描及推送共用，重扫只重建本来源关系，手动来源保留。回归仅使用临时账本，没有真实媒体、生产服务或真实 ledger 写入。
+
 ## 检查输入与源码文案
 
 测试差异复用 Git 文件快照、Python AST、标准库 TOML/JSON 解析器及现有 filelock。Python 注释和清单说明字段通过有效内容比较识别；真实依赖、执行模式和无法解析的输入保留完整验证。完整批次按测试文件保存结果，仅补齐受影响范围，不延长结果有效期。
@@ -714,3 +734,5 @@ Python 复用 MIT 许可的 [Ruff](https://docs.astral.sh/ruff/) 0.17.0，版本
 站点强调色检查覆盖进度、焦点、选中态、操作按钮与流光：旧 `--feedback-success` 引用既有强调色色阶；RSS 订阅保留橙色，信息、成功、警告、错误、品牌与图表分类保留语义色。
 
 普通 Toast 与扫描任务卡共用 Agent Progress 外框，16px 半径由通知栈内的既有 token 解析，细边框与接触阴影分别复用 `border-button-default`、`elevation-xs`，不改变内容排版。浏览器回归核对桌面、手机和明暗主题下的外框一致性，并以同一任务、同一内容回放外框基线生成对比图。
+
+StashDB 的手工查找与排队复核复用人工复核页的分类导航、BoardUI 控件、确认弹层与 Query 缓存；来源页负责凭据、选项与任务启动。图片安装复用正式的 `generated/avatars`、`generated/covers` 与头像／封面安装链，缓存导入只复制本来源且正式目录尚未存在的文件组。已完成作品以语义线索、选项和图片存在性判定，已绑定演员优先使用规范外部身份，避免同一批及后续扫描重复查人或下图。Windows 原生菜单复用同一组离线语言目录，资源根使用 `settings_file.PROJECT_ROOT`，语言偏好以既有配置鉴权边界保存。无新增依赖。

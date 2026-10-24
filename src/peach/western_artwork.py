@@ -37,10 +37,12 @@ def artwork_cast_size(cover: Path, ledger_count: int) -> int:
         evidence = json.loads(cover.with_suffix('.scraping.json').read_text(encoding='utf8'))
     except (OSError, ValueError):
         return ledger_count
-    names = evidence.get('performers') if isinstance(evidence, dict) and evidence.get('provider') == 'western-official' else None
+    names = evidence.get('performers') if isinstance(evidence, dict) and evidence.get('provider') in ('western-official', 'stashdb') else None
     if not isinstance(names, list):
         return ledger_count
-    return max(ledger_count, len({_name(n) for n in names if isinstance(n, str) and _name(n)}))
+    cast_size = evidence.get('cast_size')
+    declared = cast_size if type(cast_size) is int and cast_size > 0 else 0
+    return max(ledger_count, declared, len({_name(n) for n in names if isinstance(n, str) and _name(n)}))
 
 
 def _name(name: str) -> str:

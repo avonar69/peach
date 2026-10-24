@@ -14,7 +14,7 @@ it('保存端口保留已保存的媒体目录与来源映射', async () => {
   await submit(host.querySelector('form'));
   await settle();
   expect(sentBody(fetcher)).toEqual({ revision: 'rev-1', media_dirs: data.media_dirs,
-    media_sources: data.media_sources, port: '9124', scan_now: false });
+    media_sources: data.media_sources, port: '9124', host: '127.0.0.1', scan_now: false });
   expect(receipt).toHaveBeenCalledWith('已保存配置');
   expect(host.querySelector('a')?.getAttribute('href')).toBe('http://127.0.0.1:9124/');
 });

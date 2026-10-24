@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p src/react",
     "lint": "oxlint -c .oxlintrc.json src test e2e",
     "check:copy": "node scripts/copy-check.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "node --test --test-concurrency=1 --test-reporter=tap \"e2e/**/*.test.ts\""

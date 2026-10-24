@@ -31,6 +31,8 @@ export interface PanelSettings {
   detailAutoplay: boolean;
   miniplayer: boolean;
   seekSeconds: number;
+  playerSeek?: import('../../player/playback-preferences').SeekConfig;
+  scrollVolume?: boolean;
   relatedLimit: number;
   searchHistoryLimit: number;
   followInitialDays: number;

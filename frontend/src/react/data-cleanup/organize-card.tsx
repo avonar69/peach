@@ -13,6 +13,7 @@ import { Input } from '@/components/base/input/input';
 import { Select, SelectItem } from '@/components/base/select/select';
 
 import { errorMessage } from '../../api';
+import { translate } from '../../i18n';
 import { useBackgroundJob } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
@@ -101,7 +102,7 @@ export function OrganizeCard(
   const plan = preview.data;
   const changes = Number(plan?.counts?.change || 0);
   const name = LOC[location] || location;
-  const hint = (data?.placeholders ?? []).map((item) => `{${item.key}} ${item.label}`).join(' · ');
+  const hint = (data?.placeholders ?? []).map((item) => `{${item.key}} ${translate(item.label)}`).join(' · ');
 
   const runPreview = () => {
     if (preview.isPending || !location) return;
@@ -199,7 +200,8 @@ export function OrganizeCard(
             </div>
           : null}
         <p className="text-caption-1-regular leading-4.5 text-text-secondary">
-          {`${hint ? `${hint}；` : ''}方括号里的内容在字段为空时整段省略。`}
+          {hint ? <><span data-i18n-ignore="">{hint}</span> · </> : null}
+          <span>方括号里的内容在字段为空时整段省略。</span>
         </p>
       </div>
       <div aria-live="polite" className="mt-3 flex flex-col gap-2 empty:hidden">{state}</div>

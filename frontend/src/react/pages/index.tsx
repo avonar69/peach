@@ -6,6 +6,7 @@
  * 直接打进来。三页都用浏览器原生滚动条。弹出层落在 body 上，body 本身就是 `.peach-react` 容器。
  *
  * 这个包不要会话就能取（ADR-0094）：不得 import 别的产物，不得内嵌数据库、配置或凭据派生的数据。 */
+import '../../browser-compat';
 import './pages.css';
 import { installErrorReporting } from '../../error-reporting';
 
@@ -16,6 +17,7 @@ import { ErrorPage } from './error/error-page';
 import { LoginPage } from './login/login-page';
 import type { PageData } from './page-data';
 import { SetupPage } from './setup/setup-page';
+import { installDomLocalization } from '../../i18n/dom';
 
 const PAGES: Readonly<Record<string, ComponentType<{ data: PageData }>>> = {
   setup: SetupPage,
@@ -23,6 +25,7 @@ const PAGES: Readonly<Record<string, ComponentType<{ data: PageData }>>> = {
   error: ErrorPage,
 };
 
+installDomLocalization();
 installErrorReporting();
 const mount = document.getElementById('peach-page');
 const Page = mount ? PAGES[mount.dataset.page ?? ''] : undefined;

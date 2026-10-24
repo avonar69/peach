@@ -9,6 +9,9 @@ import { detailPlayer, resizeSoon } from './registry';
 import { PLAYER_PANEL_EVENT } from './stats';
 import type { PlayerItem, SourceQuality, VjsPlayer } from './types';
 import { SubtitleControls, subtitleIcon } from './subtitles';
+import { fullscreenSizing, setFullscreenSizing, type FullscreenSizing } from './fullscreen-sizing';
+import { seekConfig } from './playback-preferences';
+import { translate } from '../i18n';
 
 type TooltipSync = (label?: string, aria?: string) => void;
 
@@ -25,8 +28,8 @@ export function playerControlTooltip(button: Element | null | undefined, label: 
   const text = tip.querySelector('.vjs-peach-tooltip-text')!, key = tip.querySelector('kbd')!;
   if (shortcut) button.setAttribute('aria-keyshortcuts', shortcut);
   const sync: TooltipSync = (nextLabel = label, aria = '') => {
-    text.textContent = nextLabel; key.textContent = shortcut; key.hidden = !shortcut;
-    button.setAttribute('aria-label', aria || nextLabel); button.removeAttribute('title');
+    text.textContent = translate(nextLabel); key.textContent = shortcut; key.hidden = !shortcut;
+    button.setAttribute('aria-label', translate(aria || nextLabel)); button.removeAttribute('title');
   };
   sync(); return sync;
 }
@@ -219,7 +222,10 @@ export function mountPlayerQualityControl(
   };
   const button = (panel: HTMLElement, selector: string) => panel.querySelector<HTMLElement>(selector)!;
   /** 菜单此刻摆的是哪一面；轨道与尺寸变化只就地改这一面（`refreshPanel`）。 */
-  let view: 'main' | 'speed' | 'quality' | 'subtitles' = 'main';
+  let view: 'main' | 'speed' | 'quality' | 'subtitles' | 'sizing' = 'main';
+  const SIZING_LABELS: Readonly<Record<FullscreenSizing, string>> = {
+    fit: '适应屏幕（保持比例）', original: '原始分辨率（不放大）', fill: '铺满屏幕（裁剪）',
+  };
   const showMain = (direction = 0) => {
     view = 'main';
     const { active } = qualityRows(), speed = Number(player.playbackRate()) || 1;
@@ -227,11 +233,24 @@ export function mountPlayerQualityControl(
       ${icon('player-ambient')}<span>氛围模式</span><i class="vjs-peach-switch" aria-hidden="true"></i></button>
       <button type="button" class="vjs-peach-menu-row" role="menuitem" data-player-speed>${icon('player-speed')}<span>播放速度</span><b>${speed === 1 ? '正常' : `${speed}×`}</b>${icon('player-menu-next')}</button>
       <button type="button" class="vjs-peach-menu-row" role="menuitem" data-player-subtitles><span class="vjs-peach-menu-cc" aria-hidden="true">${subtitleIcon()}</span><span>字幕</span><b>${esc(subtitleControls?.label() || '关闭')}</b>${icon('player-menu-next')}</button>
-      <button type="button" class="vjs-peach-menu-row" role="menuitem" data-player-quality-view>${icon('player-quality')}<span>清晰度</span><b>${esc(active.label)}</b>${icon('player-menu-next')}</button></div>`, direction);
+      <button type="button" class="vjs-peach-menu-row" role="menuitem" data-player-quality-view>${icon('player-quality')}<span>清晰度</span><b>${esc(active.label)}</b>${icon('player-menu-next')}</button>
+      <button type="button" class="vjs-peach-menu-row" role="menuitem" data-player-sizing-view>${icon('player-fullscreen-enter')}<span>全屏画面</span><b>${esc(translate(SIZING_LABELS[fullscreenSizing()]))}</b>${icon('player-menu-next')}</button></div>`, direction);
     button(panel, '[data-player-ambient]').onclick = () => { applyAmbientMode(!playerHost().settings().ambientMode); showMain() };
     button(panel, '[data-player-speed]').onclick = () => showSpeed();
     button(panel, '[data-player-subtitles]').onclick = () => subtitleControls?.show();
     button(panel, '[data-player-quality-view]').onclick = () => showQuality();
+    button(panel, '[data-player-sizing-view]').onclick = () => showSizing();
+  };
+  const showSizing = (direction = 1) => {
+    view = 'sizing';
+    const current = fullscreenSizing();
+    const panel = renderPanel(`<div class="vjs-peach-panel-header"><button type="button" class="vjs-peach-menu-back" data-player-menu-back aria-label="返回上一个菜单">${icon('player-menu-back')}</button><strong>${esc(translate('全屏画面'))}</strong></div>
+      <div class="vjs-peach-panel-menu">${(Object.entries(SIZING_LABELS) as [FullscreenSizing, string][]).map(([key, label]) =>
+        `<button type="button" class="vjs-peach-menu-option" role="menuitemradio" aria-checked="${current === key}" data-player-sizing="${key}"><span>${esc(translate(label))}</span>${icon('check')}</button>`).join('')}</div>`, direction);
+    button(panel, '[data-player-menu-back]').onclick = () => showMain(-1);
+    panel.querySelectorAll<HTMLButtonElement>('[data-player-sizing]').forEach(option => {
+      option.onclick = () => { setFullscreenSizing(option.dataset.playerSizing as FullscreenSizing); showMain(-1); };
+    });
   };
   /* 播放速度面板照 YouTube delhi-modern（player 9470c977 的 base.js）：滑条两端取播放器
      支持的最低与最高倍速，步进 0.05，加减键各动 0.05 并按两位小数收敛，读数写成 1.00x。
@@ -602,12 +621,15 @@ export function mountPlayerMediaSession(player: VjsPlayer, item: PlayerItem): vo
     const duration = total();
     player.currentTime(Math.max(0, duration ? Math.min(duration, seconds) : seconds));
   };
-  const step = () => Math.max(1, Number(playerHost().settings().seekSeconds) || 10);
+  const step = (forward: boolean) => {
+    const settings = playerHost().settings();
+    return seekConfig(settings.playerSeek, settings.seekSeconds)[forward ? 'smallForward' : 'smallRewind'].seconds;
+  };
   const handlers: [MediaSessionAction, MediaSessionActionHandler][] = [
     ['play', () => { void player.play() }],
     ['pause', () => player.pause()],
-    ['seekbackward', (details) => seekTo(player.currentTime() - (details?.seekOffset || step()))],
-    ['seekforward', (details) => seekTo(player.currentTime() + (details?.seekOffset || step()))],
+    ['seekbackward', (details) => seekTo(player.currentTime() - (details?.seekOffset || step(false)))],
+    ['seekforward', (details) => seekTo(player.currentTime() + (details?.seekOffset || step(true)))],
     ['seekto', (details) => { if (typeof details?.seekTime === 'number') seekTo(details.seekTime) }],
   ];
   const registered: MediaSessionAction[] = [];

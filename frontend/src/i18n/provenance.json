@@ -1,0 +1,31 @@
+{
+  "public_source": "https://github.com/peach-mitao/peach",
+  "public_base_commit": "de22796c04919aaa057d77930c33c81313765569",
+  "audit_date": "2026-10-23",
+  "audited_source_candidates": 3937,
+  "authored_interface_strings": 122,
+  "generation": "Offline catalogs generated using Google Translate from the unchanged public revision and listed generic authored interface labels. English has curated terminology; additional languages are machine-generated with limited terminology overrides. Simplified Chinese also covers the authored English controls.",
+  "privacy": "Only immutable public git-show source literals and explicitly listed generic authored interface labels were submitted. No user files, credentials, database content or real library filenames were included.",
+  "runtime": "All translations are bundled locally. The application does not call a translation service.",
+  "reviewed_surfaces": [
+    "setup",
+    "tutorial",
+    "top bar",
+    "settings tabs",
+    "dropdowns",
+    "tooltips",
+    "notifications",
+    "detail controls",
+    "player context menu",
+    "fullscreen sizing",
+    "scan stages",
+    "orientation filters",
+    "system diagnostics",
+    "StashDB source settings",
+    "seek and volume preferences",
+    "browser tab titles",
+    "Windows tray menu",
+    "scan outcome counts",
+    "StashDB connection feedback"
+  ]
+}

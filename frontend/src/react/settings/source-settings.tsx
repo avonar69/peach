@@ -11,12 +11,14 @@ import { groupRoot } from './configuration-panel';
 import { EntryLinksForm } from './entry-links-settings';
 import { IndexerSettings } from './indexer-settings';
 import { FollowPreferenceRows } from './service-preferences';
+import { StashDBSettings } from './stashdb-settings';
 
 export function SourceSettings({ data, receipt, panel }: ConfigurationGroupProps) {
   const credentials = useQuery({ queryKey: FOLLOW_CREDENTIALS_KEY,
     queryFn: ({ signal }) => fetchCredentials(signal), enabled: panel?.active !== false, refetchOnMount: 'always' });
   return <div {...groupRoot(panel)}>
     <div><ButtonLink href="/sources" variant="secondary">采集来源与登录状态</ButtonLink></div>
+    {data.stashdb ? <StashDBSettings initial={data.stashdb} receipt={receipt} readOnly={Boolean(data.ledger_read_only)} /> : null}
     {credentials.data
       ? <Credentials data={credentials.data} readOnly={Boolean(data.ledger_read_only)} toast={receipt} embedded />
       : credentials.error

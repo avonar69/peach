@@ -121,6 +121,8 @@ Check [user feedback](https://github.com/peach-mitao/peach/issues), or [open an 
 
 [Operations](docs/OPERATIONS.md) · [Sourcing](docs/SOURCING.md) · [External players](docs/EXTERNAL_PLAYERS.md) · [Changelog](CHANGELOG.md)
 
+Interface languages, StashDB and playback options: [Feature changelog](docs/CUSTOM-CHANGELOG.en.md) · [Test package guide](TEST-PACKAGE.en.md) · [StashDB setup](docs/STASHDB.md)
+
 Contributing: [Development guide](AGENTS.md) · [Testing and dependencies](docs/TESTING.md)
 
 ## Related projects

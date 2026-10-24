@@ -3,6 +3,8 @@
 本文件讲 Peach 怎样从外部站点取作品资料、女优与厂牌身份、头像和标识：每个来源怎么接、要什么前提、
 会撞上什么限制、出错看哪里。只写现在怎么做，改动经过见 Git 与 ADR。
 
+StashDB 的 API key、作品与演员复核、图片选项及自动匹配边界见 [StashDB 来源](STASHDB.md)。
+
 - 批处理的限流、续跑与流量预算见 `.claude/skills/peach-batch-jobs/SKILL.md`。
 - 参考外部产品时的取证登记见 `.claude/skills/peach-reference-evidence/SKILL.md`。
 - 真正写账本之前读 `.claude/skills/peach-ledger-write/SKILL.md`。

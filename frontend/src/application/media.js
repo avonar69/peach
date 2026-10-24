@@ -19,6 +19,7 @@ import { currentBarsContext, entityState, openEntity, revealForIsland, syncForIs
 import { openAddToPlaylist, rereadPlaylists, saveMixAsPlaylist } from './playlists.js';
 import { releaseHoverPreviews } from './../card-art/hover';
 import { applicationEffects } from './effects';
+import { seekConfig } from '../player/playback-preferences';
 export const mediaState = { total: undefined, facets: undefined, stageHost: undefined, stageOpen: undefined, itemDetailHelpers: undefined, itemDetailActions: undefined, immerseHost: undefined, immerseOpen: undefined, requestedImmerseId: undefined };
 
 export function urlResume(){
@@ -265,7 +266,7 @@ mediaState.itemDetailActions = {
 };
 mediaState.immerseHost = {
   filters:()=>state,
-  seekSeconds:()=>preferencesState.appSettings.seekSeconds,
+  seekSeconds:(side=1)=>seekConfig(preferencesState.appSettings.playerSeek,preferencesState.appSettings.seekSeconds)[side>0?'smallForward':'smallRewind'].seconds,
   sourceOffline:key=>preferencesState.sourceOffline(key),
   displayName:it=>javDisplayName(it),
   /* 每换一条用 replace 写地址：每划一下都往历史里塞一条，后退键就废了。 */

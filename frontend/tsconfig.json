@@ -6,6 +6,7 @@
     "resolveJsonModule": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
+    "jsxImportSource": "@peach/i18n",
 
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -22,6 +23,7 @@
     "types": ["vite/client"],
 
     "paths": {
+      "@peach/i18n/*": ["./src/i18n/*"],
       "@peach/legacy/core": ["./src/core/index.ts"],
       "@peach/legacy/ui": ["./src/ui-kit/index.ts"],
       "@peach/legacy/jav-title": ["./src/core/jav-title.ts"],

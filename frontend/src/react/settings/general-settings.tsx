@@ -12,12 +12,14 @@ import { AutomaticUpdates } from './maintenance-settings';
 import { ReleaseUpdates } from './release-updates';
 import { RemoteReportingSettings } from './remote-reporting-settings';
 import { LibrarySharingSettings } from './library-sharing-settings';
+import { LanguageSelect } from '../components/language-select';
 import { ErrorText, Footer, Help, Rows, Section, Stack } from './section';
 import { busyProps, useAction } from './use-action';
 
 export function GeneralSettings({ data, receipt, panel }: ConfigurationGroupProps) {
   return (
     <div {...groupRoot(panel)}>
+      <Section title="Language / 语言"><Rows><SettingsRow label="Interface language"><LanguageSelect /></SettingsRow></Rows></Section>
       {data.remote_reporting || data.library_sharing ? <Section title="数据上传">
         {data.remote_reporting ? <RemoteReportingSettings initial={data.remote_reporting} receipt={receipt} /> : null}
         {data.library_sharing ? <div className="border-t border-separator-border">

@@ -20,6 +20,7 @@ import { Chip } from '@/components/base/badges/chip';
 import { Button } from '@/components/base/buttons/button';
 
 import { errorMessage } from '../../api';
+import { translate } from '../../i18n';
 import { cardClass } from '../components/card';
 import { EmptyState } from '../components/empty-state';
 import { LoadingDots } from '../components/loading-dots';
@@ -115,7 +116,7 @@ function RunningRun({ run, followups }: { run: TaskRunPayload; followups?: TaskR
   const label = run.progress_label || '正在进行';
   const elapsed = elapsedText(run.elapsed_seconds);
   const meta = [TRIGGER_LABELS[run.trigger] || run.trigger, elapsed && `已跑 ${elapsed}`]
-    .filter(Boolean).join(' · ');
+    .filter(Boolean).map(value => translate(String(value))).join(' · ');
   return (
     <RunCard run={run} meta={meta} followups={followups}>
       {total > 0
@@ -140,7 +141,7 @@ function SettledRun(
     ? [TRIGGER_LABELS[run.trigger] || run.trigger, `近 ${runs!.length} 轮`,
        `${momentText(oldest.finished_at)} – ${momentText(run.finished_at)}`]
     : [TRIGGER_LABELS[run.trigger] || run.trigger, momentText(run.finished_at),
-       elapsed && `用时 ${elapsed}`]).filter(Boolean).join(' · ');
+       elapsed && `用时 ${elapsed}`]).filter(Boolean).map(value => translate(String(value))).join(' · ');
   return (
     <RunCard run={run} meta={meta} footer={run.error} followups={followups}>
       {summary ? <p className="text-caption-1-regular text-text-secondary wrap-anywhere">{summary}</p> : null}

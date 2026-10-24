@@ -15,7 +15,7 @@ import os
 import sqlite3
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stdout, closing
 from pathlib import Path, PureWindowsPath
 from unittest.mock import patch
 
@@ -57,6 +57,32 @@ class _ScanCase(unittest.TestCase):
 @unittest.skipUnless(os.name == "nt", "本用例需要真实存在的 Windows 盘符目录")
 class WindowsShapeTests(_ScanCase):
     """Windows：配置的路径前缀就是真实目录，路径原样保存到数据库。"""
+
+    def test_local_sync_hides_missing_renamed_paths_and_keeps_saved_records(self):
+        declared = {'local': (str(self.media),)}
+        original = self.media/'创作者/sub/a.mp4'
+        renamed = original.with_name('renamed.mp4')
+        self._scan(str(self.media), declared_roots=declared, windows=True)
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            asset_id = connection.execute('SELECT id FROM asset WHERE path=?', (str(original),)).fetchone()[0]
+            connection.execute('UPDATE asset SET rating=5 WHERE id=?', (asset_id,))
+        original.rename(renamed)
+        self._scan(str(self.media), declared_roots=declared, windows=True)
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            self.assertEqual(connection.execute("SELECT COUNT(*) FROM asset WHERE medium='video' AND disposal IS NULL").fetchone()[0], 1)
+            self.assertEqual(connection.execute('SELECT disposal,rating FROM asset WHERE id=?', (asset_id,)).fetchone(), ('vanished', 5))
+        renamed.unlink()
+        self._scan(str(self.media), declared_roots=declared, windows=True)
+        original.write_bytes(b'restored')
+        self._scan(str(self.media), declared_roots=declared, windows=True)
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            self.assertEqual(connection.execute('SELECT disposal,rating FROM asset WHERE id=?', (asset_id,)).fetchone(), (None, 5))
+
+    def test_local_sync_keeps_rows_when_root_cannot_be_read(self):
+        self._scan(str(self.media), declared_roots={'local': (str(self.media),)}, windows=True)
+        with closing(sqlite3.connect(self.db)) as connection, patch('peach.scan.root_online', return_value=False):
+            scan._hide_missing_local(connection, 'local', PureWindowsPath(self.media), self.media)
+            self.assertEqual(connection.execute('SELECT COUNT(*) FROM asset WHERE disposal IS NOT NULL').fetchone()[0], 0)
 
     def test_rows_are_written_under_the_declared_root(self):
         declared = {"local": (str(self.media),)}
@@ -119,11 +145,12 @@ class PosixShapeTests(_ScanCase):
         with self.assertRaises(InterruptedError):
             self._scan('R:\\media', save_checkpoint=save, **options)
         visited = []
-        scandir = os.scandir
-        def walk(path):
-            visited.append(Path(path))
-            return scandir(path)
-        with patch.object(scan.os, 'scandir', side_effect=walk):
+        enumerate_tree = scan._walk
+        def walk(top, pending=None):
+            for directory, entries in enumerate_tree(top, pending):
+                visited.append(Path(directory))
+                yield directory, entries
+        with patch.object(scan, '_walk', side_effect=walk):
             result, _ = self._scan('R:\\media', resume_state=saved, **options)
         self.assertNotIn(self.media, visited)
         self.assertEqual((result.files, result.total_bytes, result.subtitles), (4, 22, 1))

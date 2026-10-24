@@ -255,6 +255,9 @@ def _get_review(contract, args):
         "review", lambda: q_review(contract),
         candidate_root_version(contract.candidate_root),
         path_version(contract.cover_root), path_version(contract.avatar_root))
+    from .stashdb import review_queue
+    stash_count = len(review_queue(None, contract.database, state_root=contract.follow_state_root, limit=None))
+    payload = {**payload, 'counts': {**payload.get('counts', {}), 'stashdb': stash_count}}
     # 数据管理页只要一个待复核条数。完整 payload 带着每条候选的全文，实测是
     # 兆级；卡片上的一个数字不值这趟传输，但计数本身仍来自同一份缓存快照，
     # 不另立一套口径。

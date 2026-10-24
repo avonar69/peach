@@ -1,7 +1,7 @@
 """扫描一个来源的目录，把文件元数据写进账本。
 
 这是摄取入口，不是复核写入：它新增行、刷新 `size`／`mtime`／`last_seen`，不改任何
-真相字段——本次没扫到的文件只会在 `last_seen` 上落后，由资源同步对账决定去留。
+真相字段。本机目录扫描完成后，确认已缺失的文件标为已消失，保留记录；远程来源由资源同步对账决定去留。
 
 文件消失、带着个人记录的行由资源同步标 `disposal='vanished'`（ADR-0087）。登记时把它们接回：
 同一路径的文件回来了，upsert 清掉那一行的 `disposal`；新登记的行由 `record_rehome.reattach`
@@ -41,10 +41,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path, PureWindowsPath
 from filelock import FileLock
 
-from . import folder_rules, record_rehome, subtitles, wants
+from . import filename_matching, folder_rules, record_rehome, subtitles, wants
 from .platform import is_windows_path, resolve_location, resolve_root
 from .processing_control import checkpoint
 from .fsutil import atomic_write_text
+from .personal_records import mark_vanished
+from .resource_presence import scan_directory_presence
+from .platform import root_online
 
 VIDEO = {".mp4", ".m4v", ".mkv", ".avi", ".wmv", ".mov", ".ts", ".flv", ".rmvb", ".mpg",
          ".m2ts", ".strm", ".iso"}
@@ -94,6 +97,23 @@ def medium_of(name: str) -> str:
     if suffix in ARCHIVE:
         return "archive"
     return "other"
+
+
+def _hide_missing_local(connection, location, ledger_root, walk_root):
+    """本机根可读时，对齐在库路径；缺失行只标记，不删除记录。"""
+    if location != 'local' or not root_online(walk_root):
+        return
+    directories = {}
+    for asset_id, path in connection.execute('SELECT id,path FROM asset WHERE location=? AND disposal IS NULL', (location,)):
+        recorded = PureWindowsPath(path)
+        if not recorded.is_relative_to(ledger_root):
+            continue
+        actual = walk_root.joinpath(*recorded.relative_to(ledger_root).parts)
+        expected = directories.setdefault(actual.parent, {})
+        expected.setdefault(actual.name.casefold(), []).append(asset_id)
+    missing = [asset_id for item in directories.items() for asset_id in scan_directory_presence(item)[0]]
+    if root_online(walk_root):
+        mark_vanished(connection, missing, time.time())
 
 
 def video_stems(names) -> frozenset[str]:
@@ -305,6 +325,7 @@ def ingest_path(
         reattached = len(record_rehome.reattach(connection, [asset_id] if new else [], now=now))
         acquired = len(wants.reconcile(connection, [asset_id] if new else []))
         folder_rules.apply_new(connection, [asset_id] if new else [])
+        filename_matching.apply(connection, [asset_id], db_path)
         connection.commit()
     finally:
         connection.close()
@@ -514,12 +535,15 @@ def _scan_location(
         if batch:
             connection.executemany(_UPSERT, batch)
         connection.commit()
+        _hide_missing_local(connection, location, ledger_root, walk_root)
         # 只有 INSERT 那一支写 `first_seen`，等于本次时刻的就是这一轮新建的行。
         new_ids = tuple(row[0] for row in connection.execute(
             "SELECT id FROM asset WHERE location=? AND first_seen=? ORDER BY id", (location, now)))
         reattached = len(record_rehome.reattach(connection, new_ids, now=now))
         acquired = len(wants.reconcile(connection, new_ids))
         folder_rules.apply_new(connection, new_ids)
+        filename_matching.apply(connection, (row[0] for row in connection.execute(
+            'SELECT id FROM asset WHERE location=? AND last_seen=?', (location, now))), db_path)
         connection.commit()
         gone =connection.execute(
             "SELECT COUNT(*) FROM asset WHERE location=? AND last_seen<?",
