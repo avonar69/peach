@@ -4,28 +4,44 @@ kind: changelog
 
 # English-first interface, StashDB and playback changes
 
-- **Interface languages:** English by default, with Simplified/Traditional Chinese, Spanish, French, German, Brazilian Portuguese, Japanese, Korean and Vietnamese available offline.
-- **Complete interface text:** Localizes menus, settings, onboarding, browser titles, Windows tray menus, scan popups, diagnostics, Taste, Organize, Task center and repair confirmations. Dynamic action labels, estimate units/scopes and unavailable diagnostic counts are translated before values are inserted.
-- **LAN access:** Adds an explicit network-access option and a random UUID fallback for ordinary HTTP origins where browsers do not expose `crypto.randomUUID()`.
-- **Filename actors:** Optional matching and creation of actors from known names/aliases and supported dated filenames or explicit actor fields.
-- **Filename studios:** Independently optional studio matching/creation from the prefix before a filename's release date.
-- **StashDB source:** Adds API-key setup and connection feedback under Sources & subscriptions, using read-only GraphQL queries and paced requests with cooldowns.
-- **Scene matching:** Combines studio, date, actors/aliases, title and duration; ambiguous, conflicting or truncated results require review.
-- **Matching controls:** Adds literal filename-ignore rules and a configurable 50–100% automatic-match threshold, retaining uniqueness and conflicting-detail checks.
-- **Images and cast:** Separate actor-photo, scene-picture and cast-correction settings; preserves manual assignments and existing actor identities/pictures. Images install in Peach's displayed folders and earlier custom-build downloads can be recovered safely.
-- **Incremental matching:** Skips unchanged completed scenes and installed actor pictures, reuses known actor identities and pending reviews, and caches successful empty searches for a day.
-- **Scan policy:** Optional skipping of failed/unmatched StashDB searches and matching only media added after enabling the setting. Manual previews remain available.
-- **Unified review:** StashDB candidates and manual scene/actor searches share Review; candidates appear in Data management's Manual review counts and support apply/dismiss.
-- **Local library reconciliation:** Full local scans hide confirmed missing paths while preserving records, preventing renamed old paths from remaining active. Unreadable/offline roots remain protected; returning files restore their records.
-- **Fullscreen sizing:** Saved fit-to-screen, original-resolution and crop choices preserve the intended aspect ratio on ultrawide monitors.
-- **Seeking:** Separate big/small forward and rewind durations with customizable shortcuts; defaults use Up/Down for big jumps and Right/Left for small jumps.
-- **Wheel volume:** Optional volume adjustment while the pointer is over the video, preserving menu and control scrolling.
-- **Portable packaging:** Bundles offline catalogs and scraper resources in Windows builds, with a source/Docker test recipe and upgrade instructions.
+- **Offline interface languages:** English is the default, with nine additional languages available from setup or settings. All catalogs are bundled locally, so normal use does not contact a translation service.
+
+- **Complete interface translations:** Localizes menus, onboarding, settings, browser titles, Windows tray menus, diagnostics and management pages. Dynamic scan actions, estimate units/scopes and unavailable diagnostic counts are translated before filenames and numbers are inserted.
+
+- **LAN and ordinary HTTP access:** Adds an explicit option to accept connections outside localhost. A UUID fallback keeps the frontend working on ordinary LAN HTTP addresses where crypto.randomUUID() is unavailable.
+
+- **Actors from filenames:** Optionally matches known actor names and aliases, or creates actors from supported dated filenames and explicit actor fields. The switch is independent of studio matching and starts disabled.
+
+- **Studios from filenames:** Optionally matches or creates a studio from the filename prefix before the release date. Unique existing names and aliases are reused while ambiguous identities and protected assignments remain unchanged.
+
+- **StashDB source configuration:** Adds API-key setup, explicit connection-test feedback and scan initiation under Sources & subscriptions. Requests use the read-only GraphQL API with pacing, bounded results and server-directed cooldowns.
+
+- **Multi-signal scene matching:** Combines studio, release date, actor names/aliases, title and duration instead of relying on the full filename. Ambiguous, conflicting or truncated searches remain available for manual review.
+
+- **Filename ignores and match confidence:** Adds literal characters, words or phrases to ignore when deriving filename hints, without renaming files. The automatic-match threshold is adjustable from 50–100%, while uniqueness and conflicting-detail checks remain required.
+
+- **Actor photos, scene pictures and cast correction:** Provides separate settings for actor photos, scene pictures and scene cast corrections. Existing actor identities and pictures are preserved, and unrelated manual assignments remain protected.
+
+- **Picture installation and recovery:** Installs StashDB images in the folders served by Peach's picture endpoints. Earlier custom-build downloads can be copied into missing destinations safely, without overwriting installed pictures or removing the original cache.
+
+- **Incremental StashDB matching:** Skips unchanged completed scenes and installed StashDB actor photos, and reuses known actor identities and pending review results. Successful searches with no candidates are cached for one day to avoid repeated requests.
+
+- **Failed-search and new-media policies:** Adds optional skipping of failed/unmatched StashDB searches and matching only media registered after the setting is enabled. Both options start disabled, and manual preview can still request a fresh search.
+
+- **Unified manual review:** Places queued StashDB results and manual scene/actor searches in Review with apply and dismiss actions. StashDB candidates contribute to Data management's Manual review count and update after decisions.
+
+- **Missing and renamed local files:** Completed local scans hide confirmed missing paths from active browsing and processing while retaining their saved records. Unreadable/offline roots are protected, and files returning to their original paths restore their records.
+
+- **Ultrawide fullscreen sizing:** Adds saved fit-to-screen, original-resolution and fill/crop choices to the player. Fit and original-resolution modes preserve the video's aspect ratio on ultrawide displays.
+
+- **Seek shortcuts and wheel volume:** Separates big/small forward and rewind durations with a customizable shortcut for each action; defaults use Up/Down for big jumps and Right/Left for small jumps. Optional mouse-wheel volume applies over the video while preserving menu and control scrolling.
+
+- **Portable and Docker test resources:** Bundles offline language catalogs and required scraper resources in portable builds. Includes a Docker test recipe, safe environment example, bilingual README links and upgrade instructions.
 
 ## Scan behavior
 
-Full sync enumerates all configured files and refreshes registration. Valid existing previews are reused; missing/invalid previews are generated as needed. **Only scan files** is the quickest discovery mode: it registers files and probes missing measurements, without generating previews or scraping metadata. **Metadata-only** skips file discovery. New-media-only is a StashDB matching policy, not a filesystem watcher or a shortcut around directory enumeration.
+Full sync enumerates configured files and reuses valid existing previews; missing or invalid previews are generated as needed. **Only scan files** registers files and probes missing measurements without generating previews or scraping metadata. Metadata-only skips file discovery. New-media-only limits StashDB matching; folder enumeration remains necessary.
 
 ## Verification limits
 
-Automated tests use temporary libraries and simulated authenticated StashDB responses. Docker-specific translated status examples are exercised in browser tests; the Docker image itself, GPU playback and a second physical LAN client require deployment testing. Additional-language wording is machine translated with selected manual corrections.
+Authenticated StashDB tests use simulated responses and temporary libraries. Docker image execution, GPU playback and a second physical LAN client were not verified; additional-language wording is machine translated with selected manual corrections.
