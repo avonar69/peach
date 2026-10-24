@@ -1,5 +1,6 @@
 /* ── 主区：满屏，大图 ── */
-main{position:relative;z-index:1;padding:14px 16px 90px}
+main{position:relative;z-index:1;padding:14px 16px calc(90px + var(--processing-toast-space,0px))}
+html{scroll-padding-bottom:var(--processing-toast-space,0px)}
 #catalogPageHeading,#javLibraryHeader,#listTitle{padding:20px 16px 0;margin:0 0 20px}
 #catalogPageHeading[hidden],#javLibraryHeader[hidden]{display:none}
 #catalogPageHeading h2{margin:0;font:var(--board-title)}

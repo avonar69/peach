@@ -448,6 +448,15 @@ it('暂停与继续使用同一个任务号，暂停不是完成，暂停时仍�
   expect(buttonNamed('暂停', host)).not.toBeNull();
 });
 
+it('停止扫描按当前任务号提交并保留取消回执', async () => {
+  const served = await open({ status: 'running', job_id: 'one' }, () => ({ status: 'cancelled', job_id: 'one' }));
+  const host = await mount(card({ toast: vi.fn() }));
+  await click(buttonNamed('停止扫描', host));
+  expect(served.posts()).toEqual([{ action: 'stop', job_id: 'one' }]);
+  expect(host.textContent).toContain('已保留完成的工作。');
+  expect(buttonNamed('停止扫描', host)).toBeNull();
+});
+
 it('首屏暂停状态在卡片和横幅中保留进度与继续入口', async () => {
   await open({ status: 'paused', job_id: 'one', checked: 2, total: 10 });
   const host = await mount(card({ toast: vi.fn() }));

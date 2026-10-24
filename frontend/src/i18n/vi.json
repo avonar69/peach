@@ -4112,5 +4112,15 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} nguồn dữ liệu",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; Nhấp vào \"Khởi động lại dịch vụ\" trên khay để khởi động lại toàn bộ khay và đồng bộ hóa các phụ thuộc",
   "；跳过 {0}": ";Bỏ qua {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Chuyển mã, thông tin phương tiện và hình thu nhỏ yêu cầu bộ công cụ FFmpeg."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Chuyển mã, thông tin phương tiện và hình thu nhỏ yêu cầu bộ công cụ FFmpeg.",
+  "Stop scan": "Dừng quét",
+  "Stopping scan…": "Đang dừng quét…",
+  "Scan stopped": "Đã dừng quét",
+  "Completed work has been kept. Start a new scan when ready.": "Các công việc đã hoàn tất được giữ lại. Bắt đầu lượt quét mới khi sẵn sàng.",
+  "StashDB actor and studio matching": "Đối chiếu diễn viên và hãng phim StashDB",
+  "Correct filename actor assignments using matched StashDB scenes": "Sửa diễn viên từ tên tệp bằng cảnh khớp trên StashDB",
+  "Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Khi tắt ảnh cảnh: chỉ đối chiếu diễn viên và hãng phim hiện có, mỗi danh tính một lần. Tìm cảnh và sửa dàn diễn viên yêu cầu bật ảnh cảnh.",
+  "Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "Đối chiếu tên tệp đọc tên diễn viên và hãng phim từ tệp cục bộ. Sửa dàn diễn viên StashDB dùng cảnh đã khớp để sửa các liên kết đó.",
+  "Wait for the scan to stop.": "Vui lòng đợi lượt quét dừng.",
+  "Review the conflicting StashDB identity before matching this actor or studio.": "Xem lại danh tính StashDB bị xung đột trước khi đối chiếu diễn viên hoặc hãng phim này."
 }

@@ -72,6 +72,90 @@ class StashDBTests(unittest.TestCase):
         self.addCleanup(client.close)
         return client
 
+    def test_actor_and_studio_mode_never_queries_scenes_and_reuses_shared_identities(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'scene_images': False,
+            'actor_images': False, 'correct_cast': True})
+        with self.database.write_transaction() as connection:
+            for kind, name in [('performer', 'Jane Doe'), ('studio', 'Evil Angel')]:
+                upsert_asset_entity(connection, kind=kind, name=name, asset_id=1, role=kind,
+                    source='scan:filename-actors')
+        issues = []
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()):
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}] * 20,
+                progress=lambda **_: None, issue=lambda *args, **kwargs: issues.append(args))
+        self.assertEqual(result['applied'], 2)
+        self.assertEqual(issues, [])
+        queries = [json.loads(call.body)['query'] for call in self.calls]
+        self.assertEqual(len(queries), 2)
+        self.assertFalse(any('Scene' in query for query in queries))
+        self.calls.clear()
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()):
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}],
+                progress=lambda **_: None, issue=lambda *_, **__: None)
+        self.assertEqual(result['skipped'], 2)
+        self.assertEqual(self.calls, [])
+
+    def test_actor_only_mode_installs_actor_photo_without_scene_queries(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'scene_images': False})
+        with self.database.write_transaction() as connection:
+            upsert_asset_entity(connection, kind='performer', name='Jane Doe', asset_id=1,
+                role='performer', source='scan:filename-actors')
+        image = io.BytesIO()
+        Image.new('RGB', (500, 800), 'gray').save(image, format='JPEG')
+        client = self.client()
+        client.image = mock.Mock(return_value=image.getvalue())
+        with mock.patch('peach.stashdb_client.Client', return_value=client):
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}],
+                progress=lambda **_: None, issue=lambda *_, **__: None)
+        self.assertEqual(result['applied'], 1)
+        self.assertEqual(client.image.call_count, 1)
+        self.assertEqual(len(list((self.root / 'generated/avatars').glob('performer-*.img'))), 1)
+        self.assertFalse(any('Scene' in json.loads(call.body)['query'] for call in self.calls))
+        self.calls.clear()
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()):
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}],
+                progress=lambda **_: None, issue=lambda *_, **__: None)
+        self.assertEqual(result['skipped'], 1)
+        self.assertEqual(self.calls, [])
+
+    def test_stopping_after_stashdb_response_prevents_further_requests(self):
+        from peach.processing_control import control_for
+        control = control_for(self.config)
+        client = self.client()
+        original = client.transport
+        def stop_after_response(*args):
+            response = original(*args)
+            control.request('stop', 'cancel-test')
+            return response
+        client.transport = stop_after_response
+        with control.bind('cancel-test', publish=lambda **_: None, active=lambda: True,
+                          db_path=self.database.db_path, mode='high'):
+            with self.assertRaises(InterruptedError):
+                stashdb.preview(self.config, self.database, {'asset_id': 1}, client=client)
+        self.assertEqual(len(self.calls), 1)
+
+    def test_actor_only_failures_retry_unless_failed_search_skipping_is_enabled(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'scene_images': False})
+        with self.database.write_transaction() as connection:
+            upsert_asset_entity(connection, kind='performer', name='Jane Doe', asset_id=1,
+                role='performer', source='scan:filename-actors')
+        client = self.client()
+        client.performers = mock.Mock(side_effect=ValueError('temporary failure'))
+        def scan():
+            with mock.patch('peach.stashdb_client.Client', return_value=client):
+                return stashdb.scan_assets(self.config, self.database, [{'id': 1}],
+                    progress=lambda **_: None, issue=lambda *_, **__: None)
+        scan()
+        scan()
+        self.assertEqual(client.performers.call_count, 2)
+        stashdb_client.save_settings(self.config, {'skip_failed': True})
+        self.assertEqual(scan()['skipped'], 1)
+        self.assertEqual(client.performers.call_count, 2)
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE entity SET canonical_name='Jane Alias' WHERE kind='performer'")
+        self.assertEqual(scan()['skipped'], 0)
+        self.assertEqual(client.performers.call_count, 3)
+
     def test_structured_queries_match_date_studio_and_cast_without_scene_title(self):
         result = stashdb.preview(self.config, self.database, {'asset_id': 1}, client=self.client())
         self.assertEqual(result['automatic_match'], SCENE)
@@ -242,9 +326,9 @@ class StashDBTests(unittest.TestCase):
 
     def test_completed_scan_skips_network_until_local_evidence_or_options_change(self):
         stashdb_client.save_settings(self.config, {'enabled': True, 'auto_apply': True,
-            'actor_images': False, 'scene_images': False, 'correct_cast': True})
+            'actor_images': False, 'scene_images': True, 'correct_cast': True})
         client = self.client()
-        with mock.patch('peach.stashdb_client.Client', return_value=client):
+        with mock.patch('peach.stashdb_client.Client', return_value=client), mock.patch('peach.stashdb._image', return_value=None):
             first = stashdb.scan_assets(self.config, self.database, [{'id': 1}], progress=lambda **_: None, issue=lambda *_, **__: None)
         self.assertEqual(first['applied'], 1)
         count = len(self.calls)
@@ -369,9 +453,9 @@ class StashDBTests(unittest.TestCase):
 
     def test_new_media_scan_only_searches_new_scene_and_failed_applications_stay_retryable(self):
         stashdb_client.save_settings(self.config, {'enabled': True, 'auto_apply': True,
-            'actor_images': False, 'scene_images': False, 'correct_cast': True})
+            'actor_images': False, 'scene_images': True, 'correct_cast': True})
         def scan(rows):
-            with mock.patch('peach.stashdb_client.Client', return_value=self.client()):
+            with mock.patch('peach.stashdb_client.Client', return_value=self.client()), mock.patch('peach.stashdb._image', return_value=None):
                 return stashdb.scan_assets(self.config, self.database, rows, progress=lambda **_: None, issue=lambda *_, **__: None)
         self.assertEqual(scan([{'id': 1}])['applied'], 1)
         with self.database.write_transaction() as connection:
@@ -381,7 +465,7 @@ class StashDBTests(unittest.TestCase):
             result = scan([{'id': 1}, {'id': 2}])
         self.assertEqual(result, {'applied': 1, 'review': 0, 'skipped': 1})
         self.assertEqual([call.args[2]['asset_id'] for call in preview.call_args_list], [2])
-        stashdb_client.save_settings(self.config, {'scene_images': True})
+        stashdb_client.save_settings(self.config, {'actor_images': True})
         with mock.patch('peach.stashdb.apply_scene', side_effect=ValueError('temporary image failure')) as apply:
             scan([{'id': 2}])
             scan([{'id': 2}])

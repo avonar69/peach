@@ -123,6 +123,8 @@ macOS 可在本机构建独立 `.app` 与 DMG，运行不需要 Python、源码�
 
 界面语言、StashDB 与播放选项：[功能变更](docs/CUSTOM-CHANGELOG.en.md) · [测试包使用说明](TEST-PACKAGE.en.md) · [StashDB 配置](docs/STASHDB.md)
 
+扫描与采集提供停止按钮，已完成的工作会保留。关闭 StashDB 作品图片时，自动采集只匹配已有演员与厂牌；文件名识别与作品演员纠正的用途见配置说明。
+
 参与开发：[开发约定](AGENTS.md) · [测试与依赖](docs/TESTING.md)
 
 ## 相关项目

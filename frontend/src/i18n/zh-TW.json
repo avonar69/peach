@@ -4112,5 +4112,15 @@
   "；{0} 个{1}；{2} 个资料来源": "；{0} 個{1}；{2} 個資料來源",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "；點托盤「重啟服務」會整體重啟托盤並同步依賴",
   "；跳过 {0}": "；跳過 {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "；轉碼、媒體資訊與縮圖需要 FFmpeg 工具包。"
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "；轉碼、媒體資訊與縮圖需要 FFmpeg 工具包。",
+  "Stop scan": "停止掃描",
+  "Stopping scan…": "正在停止掃描…",
+  "Scan stopped": "掃描已停止",
+  "Completed work has been kept. Start a new scan when ready.": "已保留完成的工作。準備就緒後可啟動新掃描。",
+  "StashDB actor and studio matching": "StashDB 演員與片商比對",
+  "Correct filename actor assignments using matched StashDB scenes": "使用比對的 StashDB 作品修正檔名演員歸屬",
+  "Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "關閉作品圖片：僅比對現有演員與片商，每個身分查詢一次。作品搜尋和演員修正需要開啟作品圖片。",
+  "Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "媒體庫檔名比對從本機檔名讀取演員與片商名稱。StashDB 演員修正使用比對作品的名單校正這些歸屬。",
+  "Wait for the scan to stop.": "請等待掃描停止。",
+  "Review the conflicting StashDB identity before matching this actor or studio.": "比對此演員或片商前，請檢閱衝突的 StashDB 身分。"
 }

@@ -26,7 +26,7 @@ export interface LibraryProcessingIssue {
 /** 一趟扫描与采集的快照。字段以 `q_library_processing`（`src/peach/web_library_processing.py`）为准。 */
 export interface LibraryProcessingData {
   metadata_only?: boolean;
-  /** `idle` | `running` | `pausing` | `paused` | `complete` | `failed`。 */
+  /** `idle` | `running` | `pausing` | `paused` | `stopping` | `cancelled` | `complete` | `failed`。 */
   status: string;
   speed_mode?: ProcessingSpeed;
   eta_seconds_min?: number | null;
@@ -84,16 +84,17 @@ export interface LibraryProcessingCommand {
   speed_mode?: ProcessingSpeed;
 }
 export type ProcessingControlCommand =
-  | { action: 'pause' | 'resume'; job_id: string }
+  | { action: 'pause' | 'resume' | 'stop'; job_id: string }
   | { action: 'set_speed'; speed_mode: ProcessingSpeed; job_id?: string };
 
 /** 暂停中的任务仍占用同一份处理范围，可继续并持续读取状态。 */
 export const processingActive = (state?: LibraryProcessingData) =>
-  !!state && ['running', 'pausing', 'paused'].includes(state.status);
+  !!state && ['running', 'pausing', 'paused', 'stopping'].includes(state.status);
 
 /** 时间向分钟取整；区间两端始终使用同一单位。 */
 export function remainingTime(state: LibraryProcessingData): string {
   if (!processingActive(state)) return '';
+  if (state.status === 'stopping') return 'Stopping scan…';
   if (state.status === 'paused') return '已暂停，继续后更新预估';
   if (state.status === 'pausing') return '正在暂停，当前步骤结束后暂停';
   if (state.stalled) return '等待当前文件响应，剩余时间待更新';
@@ -221,12 +222,16 @@ export function freshProcessingResult(state: LibraryProcessingData): boolean {
 export function announceCompletion(
   state: LibraryProcessingData, toast: (message: string) => void, witnessed: boolean,
 ): void {
-  if (state.status !== 'complete') return;
+  if (state.status !== 'complete' && state.status !== 'cancelled') return;
   if (!witnessed && !freshProcessingResult(state)) return;
   try {
     if (state.job_id && localStorage.getItem(ANNOUNCED_KEY) === state.job_id) return;
     if (state.job_id) localStorage.setItem(ANNOUNCED_KEY, state.job_id);
   } catch { /* 存储不可用时照常提示，最多重复一次 */ }
+  if (state.status === 'cancelled') {
+    toast('Scan stopped');
+    return;
+  }
   if (state.requested_stage === 'previews') {
     toast(`视频预览已生成：${state.previews || 0} 部`);
     return;

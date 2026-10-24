@@ -1,5 +1,6 @@
 """统一处理任务的启动、只读状态查询与失败项重试。"""
 import json
+import time
 
 from . import settings_file
 from .library_processing import (ALL_STAGES, COLLECT_STAGE, SCAN_STAGE, STAGES,
@@ -7,7 +8,7 @@ from .library_processing import (ALL_STAGES, COLLECT_STAGE, SCAN_STAGE, STAGES,
                                 decorate, issues_path, process_library, snapshot)
 from .processing_control import control_for, initial_estimate, valid_mode, mode_ratio
 
-ACTIVE = ('running', 'pausing', 'paused')
+ACTIVE = ('running', 'pausing', 'paused', 'stopping')
 
 
 def _current(contract):
@@ -35,11 +36,10 @@ def q_library_processing(contract, _args):
     return state
 
 
-def _control_action(contract, config, body):
+def _validate_control(previous, body):
     action = body['action']
-    if action not in ('pause', 'resume', 'set_speed'):
+    if action not in ('pause', 'resume', 'stop', 'set_speed'):
         raise ValueError('处理动作无效')
-    previous = _current(contract)
     job_id = body.get('job_id')
     if action != 'set_speed' and not job_id:
         raise ValueError('请选择正在处理的任务')
@@ -47,10 +47,20 @@ def _control_action(contract, config, body):
         raise ValueError('任务已变化，请刷新页面后重试')
     if action != 'set_speed' and previous.get('status') not in ACTIVE:
         raise ValueError('当前没有可暂停或继续的任务')
+    if previous.get('status') == 'stopping' and action != 'stop':
+        raise ValueError('Wait for the scan to stop.')
+    return action, job_id
+
+
+def _control_action(contract, config, body):
+    previous = _current(contract)
+    action, job_id = _validate_control(previous, body)
     control = control_for(config)
     control.refresh(force=True)
     if job_id:
         control.select_job(str(job_id))
+    if action == 'stop':
+        return _stop_scan(contract, config, previous, str(job_id), control)
     if action == 'set_speed':
         mode = valid_mode(body.get('speed_mode'))
         control.request(action, mode=mode)
@@ -85,6 +95,21 @@ def _control_action(contract, config, body):
     if not live and result.get('status') in ACTIVE:
         result['status'] = status
     return result
+
+
+def _stop_scan(contract, config, previous, job_id, control):
+    from .job_recovery import cancel
+    from .library_processing import _save, state_path
+    _announce_control(contract.library_processing_job, job_id, 'stopping')
+    control.request('stop', job_id)
+    cancel(contract.db_path, 'library-processing')
+    thread = getattr(contract.library_processing_job, 'thread', None)
+    if not _writer_active(config) and not (thread and thread.is_alive()):
+        previous.update(status='cancelled', error='', completed_at=time.time(), followups=[])
+        _save(state_path(config), previous)
+        contract.library_processing_job.update(job_id, status='cancelled', error='',
+            completed_at=previous['completed_at'], followups=[])
+    return q_library_processing(contract, {})
 
 
 def _announce_control(job, job_id, status):
@@ -194,6 +219,14 @@ def w_library_processing(contract, body, *, resume=False):
                 active=lambda: (contract.library_processing_job.snapshot() or {}).get('job_id') == job_id,
                 report=lambda state: contract.library_processing_job.update(job_id, **{
                     key: value for key, value in state.items() if key != 'job_id'}))
+            contract.library_processing_job.update(job_id, **{key: value for key, value in result.items() if key != 'job_id'})
+        except InterruptedError:
+            if not control_for(config).cancelled:
+                raise
+            from .library_processing import _save, state_path
+            result = snapshot(config)
+            result.update(job_id=job_id, status='cancelled', error='', completed_at=time.time(), followups=[])
+            _save(state_path(config), result)
             contract.library_processing_job.update(job_id, **{key: value for key, value in result.items() if key != 'job_id'})
         finally:
             contract.cache_bust()

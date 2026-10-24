@@ -134,6 +134,8 @@ class Client:
             self.client.close()
 
     def _request(self, request, limit):
+        from .processing_control import checkpoint
+        checkpoint('network')
         global _LAST
         with _LOCK:
             try:
@@ -149,6 +151,7 @@ class Client:
                 raise ValueError('StashDB connection failed. Check the source settings and try again.') from from_error
             finally:
                 _LAST = time.monotonic()
+            checkpoint()
             if response.status == 429:
                 delay = retry_delay(response.headers.get('retry-after'))
                 atomic_write_text(self.cooldown, json.dumps({'until': time.time() + delay}))

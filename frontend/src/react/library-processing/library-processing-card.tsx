@@ -123,6 +123,9 @@ function Outcome(
       {settled?.status === 'complete'
         ? <Note tone="success" title="处理完成">{receiptText(settled)}</Note>
         : null}
+      {settled?.status === 'cancelled'
+        ? <Note tone="neutral" title="Scan stopped">Completed work has been kept. Start a new scan when ready.</Note>
+        : null}
       {!processingActive(state) && notes
         ? <Note tone="neutral"
             extra={state.issues_log

@@ -21221,7 +21221,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fuentes de datos",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Haga clic en \"Reiniciar servicio\" en la bandeja para reiniciar la bandeja en su totalidad y sincronizar las dependencias.",
 	"；跳过 {0}": ";Omitir {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";La transcodificación, la información multimedia y las miniaturas requieren el kit de herramientas FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";La transcodificación, la información multimedia y las miniaturas requieren el kit de herramientas FFmpeg.",
+	"Stop scan": "Detener análisis",
+	"Stopping scan…": "Deteniendo análisis…",
+	"Scan stopped": "Análisis detenido",
+	"Completed work has been kept. Start a new scan when ready.": "Se ha conservado el trabajo completado. Inicia otro análisis cuando quieras.",
+	"StashDB actor and studio matching": "Coincidencia de actores y estudios de StashDB",
+	"Correct filename actor assignments using matched StashDB scenes": "Corregir los actores del nombre de archivo con escenas coincidentes de StashDB",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Imágenes de escenas desactivadas: buscar solo actores y estudios existentes, una vez por identidad. La búsqueda de escenas y la corrección del reparto requieren activar las imágenes de escenas.",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "La coincidencia de nombres de archivo lee los actores y estudios de los archivos locales. La corrección de reparto de StashDB usa una escena coincidente para corregir esas asignaciones.",
+	"Wait for the scan to stop.": "Espera a que se detenga el análisis.",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "Revisa la identidad de StashDB en conflicto antes de buscar este actor o estudio."
 }, $o = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -25336,7 +25346,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}\xA0; {2}\xA0sources de données",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Cliquez sur \"Redémarrer le service\" sur le bac pour redémarrer le bac dans son ensemble et synchroniser les dépendances",
 	"；跳过 {0}": "; sauter {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg.",
+	"Stop scan": "Arrêter l’analyse",
+	"Stopping scan…": "Arrêt de l’analyse…",
+	"Scan stopped": "Analyse arrêtée",
+	"Completed work has been kept. Start a new scan when ready.": "Le travail terminé a été conservé. Lancez une nouvelle analyse quand vous le souhaitez.",
+	"StashDB actor and studio matching": "Correspondance des acteurs et studios StashDB",
+	"Correct filename actor assignments using matched StashDB scenes": "Corriger les acteurs du nom de fichier avec les scènes correspondantes de StashDB",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Images de scènes désactivées : rechercher uniquement les acteurs et studios existants, une fois par identité. La recherche de scènes et la correction de la distribution nécessitent les images de scènes.",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "La correspondance des fichiers lit les noms des acteurs et studios dans les fichiers locaux. La correction de distribution StashDB utilise une scène correspondante pour corriger ces associations.",
+	"Wait for the scan to stop.": "Attendez l’arrêt de l’analyse.",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "Vérifiez le conflit d’identité StashDB avant de rechercher cet acteur ou studio."
 }, es = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -29451,7 +29471,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} Datenquellen",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Klicken Sie in der Taskleiste auf „Dienst neu starten“, um die Taskleiste als Ganzes neu zu starten und Abhängigkeiten zu synchronisieren",
 	"；跳过 {0}": ";Überspringen {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transkodierung, Medieninformationen und Miniaturansichten erfordern das FFmpeg-Toolkit."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transkodierung, Medieninformationen und Miniaturansichten erfordern das FFmpeg-Toolkit.",
+	"Stop scan": "Scan stoppen",
+	"Stopping scan…": "Scan wird gestoppt…",
+	"Scan stopped": "Scan gestoppt",
+	"Completed work has been kept. Start a new scan when ready.": "Abgeschlossene Arbeit wurde gespeichert. Starte bei Bedarf einen neuen Scan.",
+	"StashDB actor and studio matching": "StashDB-Abgleich von Darstellern und Studios",
+	"Correct filename actor assignments using matched StashDB scenes": "Darsteller aus Dateinamen anhand passender StashDB-Szenen korrigieren",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Szenenbilder aus: Nur vorhandene Darsteller und Studios einmal pro Identität abgleichen. Szenensuche und Besetzungskorrektur erfordern aktivierte Szenenbilder.",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "Der Dateinamenabgleich liest Darsteller und Studios aus lokalen Dateinamen. Die StashDB-Besetzungskorrektur verwendet eine passende Szene zur Korrektur dieser Zuordnungen.",
+	"Wait for the scan to stop.": "Warte, bis der Scan gestoppt wurde.",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "Prüfe den StashDB-Identitätskonflikt vor dem Abgleich dieses Darstellers oder Studios."
 }, ts = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -33566,7 +33596,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fontes de dados",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Clique em \"Reiniciar serviço\" na bandeja para reiniciar a bandeja como um todo e sincronizar as dependências",
 	"；跳过 {0}": ";Pular {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg.",
+	"Stop scan": "Parar varredura",
+	"Stopping scan…": "Parando varredura…",
+	"Scan stopped": "Varredura parada",
+	"Completed work has been kept. Start a new scan when ready.": "O trabalho concluído foi mantido. Inicie outra varredura quando quiser.",
+	"StashDB actor and studio matching": "Correspondência de atores e estúdios do StashDB",
+	"Correct filename actor assignments using matched StashDB scenes": "Corrigir atores do nome do arquivo usando cenas correspondentes do StashDB",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Imagens de cenas desativadas: buscar apenas atores e estúdios existentes, uma vez por identidade. A busca de cenas e a correção do elenco exigem imagens de cenas ativadas.",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "A correspondência de nomes de arquivo lê atores e estúdios dos arquivos locais. A correção de elenco do StashDB usa uma cena correspondente para corrigir essas atribuições.",
+	"Wait for the scan to stop.": "Aguarde a varredura parar.",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "Revise o conflito de identidade do StashDB antes de buscar este ator ou estúdio."
 }, ns = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -37681,7 +37721,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} データソース",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": ";トレイ上の「サービスの再起動」をクリックしてトレイ全体を再起動し、依存関係を同期します。",
 	"；跳过 {0}": ";{0}をスキップ",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "トランスコーディング、メディア情報、およびサムネイルには、FFmpegツールキットが必要である。"
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "トランスコーディング、メディア情報、およびサムネイルには、FFmpegツールキットが必要である。",
+	"Stop scan": "スキャンを停止",
+	"Stopping scan…": "スキャンを停止中…",
+	"Scan stopped": "スキャンを停止しました",
+	"Completed work has been kept. Start a new scan when ready.": "完了した処理は保存されています。準備ができたら新しいスキャンを開始できます。",
+	"StashDB actor and studio matching": "StashDB の出演者・スタジオ照合",
+	"Correct filename actor assignments using matched StashDB scenes": "一致する StashDB シーンでファイル名の出演者割り当てを修正",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "シーン画像がオフの場合、既存の出演者とスタジオのみを各人物・組織につき一度照合します。シーン検索と出演者の修正にはシーン画像の有効化が必要です。",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "ライブラリのファイル名照合はローカルのファイル名から出演者とスタジオ名を読み取ります。StashDB の出演者修正は一致したシーンの情報で割り当てを修正します。",
+	"Wait for the scan to stop.": "スキャンが停止するまでお待ちください。",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "この出演者またはスタジオの照合前に、競合する StashDB の識別情報を確認してください。"
 }, rs = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -41796,7 +41846,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} 소스",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; 트레이에서 \"서비스 다시 시작\"을 클릭하면 트레이 전체가 다시 시작되고 종속성이 동기화됩니다.",
 	"；跳过 {0}": "; {0} 건너뛰기",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";트랜스코딩, 미디어 정보 및 썸네일에는 FFmpeg 툴킷이 필요합니다."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";트랜스코딩, 미디어 정보 및 썸네일에는 FFmpeg 툴킷이 필요합니다.",
+	"Stop scan": "스캔 중지",
+	"Stopping scan…": "스캔 중지 중…",
+	"Scan stopped": "스캔이 중지되었습니다",
+	"Completed work has been kept. Start a new scan when ready.": "완료된 작업은 보존되었습니다. 준비되면 새 스캔을 시작하세요.",
+	"StashDB actor and studio matching": "StashDB 배우 및 스튜디오 매칭",
+	"Correct filename actor assignments using matched StashDB scenes": "일치하는 StashDB 장면으로 파일명의 배우 배정 수정",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "장면 이미지가 꺼져 있으면 기존 배우와 스튜디오만 각 항목당 한 번 매칭합니다. 장면 검색 및 출연진 수정에는 장면 이미지를 켜야 합니다.",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "라이브러리 파일명 매칭은 로컬 파일명에서 배우 및 스튜디오 이름을 읽습니다. StashDB 출연진 수정은 일치하는 장면을 사용해 해당 배정을 수정합니다.",
+	"Wait for the scan to stop.": "스캔이 중지될 때까지 기다려 주세요.",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "이 배우 또는 스튜디오를 매칭하기 전에 충돌하는 StashDB 신원을 검토하세요."
 }, is = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -45911,7 +45971,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} nguồn dữ liệu",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Nhấp vào \"Khởi động lại dịch vụ\" trên khay để khởi động lại toàn bộ khay và đồng bộ hóa các phụ thuộc",
 	"；跳过 {0}": ";Bỏ qua {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Chuyển mã, thông tin phương tiện và hình thu nhỏ yêu cầu bộ công cụ FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Chuyển mã, thông tin phương tiện và hình thu nhỏ yêu cầu bộ công cụ FFmpeg.",
+	"Stop scan": "Dừng quét",
+	"Stopping scan…": "Đang dừng quét…",
+	"Scan stopped": "Đã dừng quét",
+	"Completed work has been kept. Start a new scan when ready.": "Các công việc đã hoàn tất được giữ lại. Bắt đầu lượt quét mới khi sẵn sàng.",
+	"StashDB actor and studio matching": "Đối chiếu diễn viên và hãng phim StashDB",
+	"Correct filename actor assignments using matched StashDB scenes": "Sửa diễn viên từ tên tệp bằng cảnh khớp trên StashDB",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Khi tắt ảnh cảnh: chỉ đối chiếu diễn viên và hãng phim hiện có, mỗi danh tính một lần. Tìm cảnh và sửa dàn diễn viên yêu cầu bật ảnh cảnh.",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "Đối chiếu tên tệp đọc tên diễn viên và hãng phim từ tệp cục bộ. Sửa dàn diễn viên StashDB dùng cảnh đã khớp để sửa các liên kết đó.",
+	"Wait for the scan to stop.": "Vui lòng đợi lượt quét dừng.",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "Xem lại danh tính StashDB bị xung đột trước khi đối chiếu diễn viên hoặc hãng phim này."
 }, as = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -50026,7 +50096,17 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "；{0} 個{1}；{2} 個資料來源",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "；點托盤「重啟服務」會整體重啟托盤並同步依賴",
 	"；跳过 {0}": "；跳過 {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "；轉碼、媒體資訊與縮圖需要 FFmpeg 工具包。"
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "；轉碼、媒體資訊與縮圖需要 FFmpeg 工具包。",
+	"Stop scan": "停止掃描",
+	"Stopping scan…": "正在停止掃描…",
+	"Scan stopped": "掃描已停止",
+	"Completed work has been kept. Start a new scan when ready.": "已保留完成的工作。準備就緒後可啟動新掃描。",
+	"StashDB actor and studio matching": "StashDB 演員與片商比對",
+	"Correct filename actor assignments using matched StashDB scenes": "使用比對的 StashDB 作品修正檔名演員歸屬",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "關閉作品圖片：僅比對現有演員與片商，每個身分查詢一次。作品搜尋和演員修正需要開啟作品圖片。",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "媒體庫檔名比對從本機檔名讀取演員與片商名稱。StashDB 演員修正使用比對作品的名單校正這些歸屬。",
+	"Wait for the scan to stop.": "請等待掃描停止。",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "比對此演員或片商前，請檢閱衝突的 StashDB 身分。"
 }, os = {
 	Actor: "演员",
 	"Actor aliases": "演员别名",
@@ -50165,7 +50245,17 @@ var Xo = {
 	"方括号里的内容在字段为空时整段省略。": "方括号里的内容在字段为空时整段省略。",
 	本趟处理: "本趟处理",
 	"本趟处理（已登记文件，未含未知新增）": "本趟处理（已登记文件，未含未知新增）",
-	"（粗估）": "（粗估）"
+	"（粗估）": "（粗估）",
+	"Stop scan": "停止扫描",
+	"Stopping scan…": "正在停止扫描…",
+	"Scan stopped": "扫描已停止",
+	"Completed work has been kept. Start a new scan when ready.": "已保留完成的工作。准备就绪后可启动新扫描。",
+	"StashDB actor and studio matching": "StashDB 演员与厂牌匹配",
+	"Correct filename actor assignments using matched StashDB scenes": "使用匹配的 StashDB 作品纠正文件名演员归属",
+	"Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "关闭作品图片：仅匹配已有演员与厂牌，每个身份查询一次。作品搜索和演员纠正需要开启作品图片。",
+	"Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "媒体库文件名匹配从本地文件名读取演员与厂牌名称。StashDB 演员纠正使用匹配作品的名单校正这些归属。",
+	"Wait for the scan to stop.": "请等待扫描停止。",
+	"Review the conflicting StashDB identity before matching this actor or studio.": "匹配此演员或厂牌前，请复核冲突的 StashDB 身份。"
 }, ss = [
 	["en", "English"],
 	["zh-CN", "简体中文"],
@@ -82677,10 +82767,12 @@ var kF = /*#__PURE__*/ w.forwardRef(function(e, t) {
 }), AF = "/api/library-processing", jF = ["library-processing"], MF = (e) => !!e && [
 	"running",
 	"pausing",
-	"paused"
+	"paused",
+	"stopping"
 ].includes(e.status);
 function NF(e) {
 	if (!MF(e)) return "";
+	if (e.status === "stopping") return "Stopping scan…";
 	if (e.status === "paused") return "已暂停，继续后更新预估";
 	if (e.status === "pausing") return "正在暂停，当前步骤结束后暂停";
 	if (e.stalled) return "等待当前文件响应，剩余时间待更新";
@@ -82747,12 +82839,12 @@ function BF(e) {
 	return !!e.job_id && t >= 0 && t < ASe;
 }
 function jSe(e, t, n) {
-	if (e.status === "complete" && (n || BF(e))) {
+	if ((e.status === "complete" || e.status === "cancelled") && (n || BF(e))) {
 		try {
 			if (e.job_id && localStorage.getItem(zF) === e.job_id) return;
 			e.job_id && localStorage.setItem(zF, e.job_id);
 		} catch {}
-		e.requested_stage === "previews" ? t(`视频预览已生成：${e.previews || 0} 部`) : t(`扫描与资料采集已完成：识别 ${e.identified || 0} 个番号，整理 ${e.candidates || 0} 组资料结果，自动保存 ${e.auto_applied || 0} 条` + (e.previews ? `，生成 ${e.previews} 部视频预览` : ""));
+		e.status === "cancelled" ? t("Scan stopped") : e.requested_stage === "previews" ? t(`视频预览已生成：${e.previews || 0} 部`) : t(`扫描与资料采集已完成：识别 ${e.identified || 0} 个番号，整理 ${e.candidates || 0} 组资料结果，自动保存 ${e.auto_applied || 0} 条` + (e.previews ? `，生成 ${e.previews} 部视频预览` : ""));
 	}
 }
 //#endregion
@@ -83024,31 +83116,47 @@ function JF({ state: e, disabled: t = !1 }) {
 		"data-processing-controls": "",
 		children: [/* @__PURE__ */ K("div", {
 			className: "flex flex-wrap items-center gap-2",
-			children: [/* @__PURE__ */ G(FSe, {
-				value: e.speed_mode || "standard",
-				busy: t || !!n.busy,
-				animate: e.status !== "paused" && e.status !== "pausing",
-				onChange: (t) => a({
-					action: "set_speed",
-					speed_mode: t,
-					...r ? { job_id: e.job_id } : {}
-				})
-			}), r ? /* @__PURE__ */ G(q, {
-				size: "small",
-				variant: "secondary",
-				iconOnly: !0,
-				leadingIcon: e.status === "paused" ? $k : D_e,
-				"aria-label": i,
-				title: i,
-				disabled: t || !e.job_id || e.status === "pausing",
-				...Y(n.busy === "pause" || n.busy === "resume"),
-				onClick: () => {
-					e.job_id && a({
-						action: e.status === "paused" ? "resume" : "pause",
-						job_id: e.job_id
-					});
-				}
-			}) : null]
+			children: [
+				/* @__PURE__ */ G(FSe, {
+					value: e.speed_mode || "standard",
+					busy: t || !!n.busy || e.status === "stopping",
+					animate: e.status !== "paused" && e.status !== "pausing",
+					onChange: (t) => a({
+						action: "set_speed",
+						speed_mode: t,
+						...r ? { job_id: e.job_id } : {}
+					})
+				}),
+				r ? /* @__PURE__ */ G(q, {
+					size: "small",
+					variant: "secondary",
+					iconOnly: !0,
+					leadingIcon: e.status === "paused" ? $k : D_e,
+					"aria-label": i,
+					title: i,
+					disabled: t || !e.job_id || e.status === "pausing" || e.status === "stopping",
+					...Y(n.busy === "pause" || n.busy === "resume"),
+					onClick: () => {
+						e.job_id && a({
+							action: e.status === "paused" ? "resume" : "pause",
+							job_id: e.job_id
+						});
+					}
+				}) : null,
+				r ? /* @__PURE__ */ G(q, {
+					size: "small",
+					variant: "secondary",
+					disabled: t || !e.job_id || e.status === "stopping",
+					...Y(n.busy === "stop"),
+					onClick: () => {
+						e.job_id && a({
+							action: "stop",
+							job_id: e.job_id
+						});
+					},
+					children: e.status === "stopping" ? "Stopping scan…" : "Stop scan"
+				}) : null
+			]
 		}), n.error ? /* @__PURE__ */ G("p", {
 			role: "alert",
 			className: "text-caption-1-regular text-text-error-primary",
@@ -83071,7 +83179,8 @@ function YF({ toast: e, mode: t, monitor: n }) {
 		let r = !!n && [
 			"running",
 			"pausing",
-			"paused"
+			"paused",
+			"stopping"
 		].includes(n) && !MF(c);
 		r && o(c), (r || t === "notice") && jSe(c, e, r);
 	}, [
@@ -94871,6 +94980,11 @@ function FOe({ state: e, problem: t, settled: n, onRetry: r, toast: i }) {
 				tone: "success",
 				title: "处理完成",
 				children: POe(n)
+			}) : null,
+			n?.status === "cancelled" ? /* @__PURE__ */ G(J, {
+				tone: "neutral",
+				title: "Scan stopped",
+				children: "Completed work has been kept. Start a new scan when ready."
 			}) : null,
 			!MF(e) && s ? /* @__PURE__ */ G(J, {
 				tone: "neutral",
@@ -112393,7 +112507,7 @@ var cK = [
 	["enabled", "Enable StashDB during metadata scans"],
 	["actor_images", "Scrape actor photos"],
 	["scene_images", "Scrape scene pictures"],
-	["correct_cast", "Correct actor assignments from filenames"],
+	["correct_cast", "Correct filename actor assignments using matched StashDB scenes"],
 	["auto_apply", "Automatically apply strong, unique scene matches"],
 	["skip_failed", "Skip previously failed or unmatched StashDB searches"],
 	["only_new_media", "Only match newly added media"]
@@ -112415,26 +112529,31 @@ function RIe({ initial: e, receipt: t, readOnly: n = !1 }) {
 			});
 		},
 		children: [
-			/* @__PURE__ */ K($A, { children: [/* @__PURE__ */ G(WP, {
-				label: "StashDB API key",
-				"aria-label": "StashDB API key",
-				type: "password",
-				autoComplete: "new-password",
-				placeholder: r.api_key_set ? "Key saved; leave blank to keep it" : "Enter your StashDB API key",
-				value: a,
-				onChange: o
-			}), /* @__PURE__ */ G(tj, { children: /* @__PURE__ */ G("a", {
-				href: "https://guidelines.stashdb.org/docs/faq_getting-started/stashdb/accessing-stashdb/",
-				target: "_blank",
-				rel: "noreferrer",
-				children: "Get your StashDB API key"
-			}) })] }),
+			/* @__PURE__ */ K($A, { children: [
+				/* @__PURE__ */ G(tj, { children: "Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled." }),
+				/* @__PURE__ */ G(tj, { children: "Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments." }),
+				/* @__PURE__ */ G(WP, {
+					label: "StashDB API key",
+					"aria-label": "StashDB API key",
+					type: "password",
+					autoComplete: "new-password",
+					placeholder: r.api_key_set ? "Key saved; leave blank to keep it" : "Enter your StashDB API key",
+					value: a,
+					onChange: o
+				}),
+				/* @__PURE__ */ G(tj, { children: /* @__PURE__ */ G("a", {
+					href: "https://guidelines.stashdb.org/docs/faq_getting-started/stashdb/accessing-stashdb/",
+					target: "_blank",
+					rel: "noreferrer",
+					children: "Get your StashDB API key"
+				}) })
+			] }),
 			/* @__PURE__ */ G(QA, { children: cK.map(([e, t]) => /* @__PURE__ */ G(JA, {
 				label: t,
 				children: /* @__PURE__ */ G(KU, {
 					"aria-label": t,
 					isSelected: !!r[e],
-					isDisabled: n,
+					isDisabled: n || e === "correct_cast" && !r.scene_images,
 					onChange: (t) => i((n) => ({
 						...n,
 						[e]: t

@@ -4112,5 +4112,15 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fontes de dados",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; Clique em \"Reiniciar serviço\" na bandeja para reiniciar a bandeja como um todo e sincronizar as dependências",
   "；跳过 {0}": ";Pular {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg.",
+  "Stop scan": "Parar varredura",
+  "Stopping scan…": "Parando varredura…",
+  "Scan stopped": "Varredura parada",
+  "Completed work has been kept. Start a new scan when ready.": "O trabalho concluído foi mantido. Inicie outra varredura quando quiser.",
+  "StashDB actor and studio matching": "Correspondência de atores e estúdios do StashDB",
+  "Correct filename actor assignments using matched StashDB scenes": "Corrigir atores do nome do arquivo usando cenas correspondentes do StashDB",
+  "Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Imagens de cenas desativadas: buscar apenas atores e estúdios existentes, uma vez por identidade. A busca de cenas e a correção do elenco exigem imagens de cenas ativadas.",
+  "Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "A correspondência de nomes de arquivo lê atores e estúdios dos arquivos locais. A correção de elenco do StashDB usa uma cena correspondente para corrigir essas atribuições.",
+  "Wait for the scan to stop.": "Aguarde a varredura parar.",
+  "Review the conflicting StashDB identity before matching this actor or studio.": "Revise o conflito de identidade do StashDB antes de buscar este ator ou estúdio."
 }

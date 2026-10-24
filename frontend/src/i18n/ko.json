@@ -4112,5 +4112,15 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} 소스",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; 트레이에서 \"서비스 다시 시작\"을 클릭하면 트레이 전체가 다시 시작되고 종속성이 동기화됩니다.",
   "；跳过 {0}": "; {0} 건너뛰기",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";트랜스코딩, 미디어 정보 및 썸네일에는 FFmpeg 툴킷이 필요합니다."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";트랜스코딩, 미디어 정보 및 썸네일에는 FFmpeg 툴킷이 필요합니다.",
+  "Stop scan": "스캔 중지",
+  "Stopping scan…": "스캔 중지 중…",
+  "Scan stopped": "스캔이 중지되었습니다",
+  "Completed work has been kept. Start a new scan when ready.": "완료된 작업은 보존되었습니다. 준비되면 새 스캔을 시작하세요.",
+  "StashDB actor and studio matching": "StashDB 배우 및 스튜디오 매칭",
+  "Correct filename actor assignments using matched StashDB scenes": "일치하는 StashDB 장면으로 파일명의 배우 배정 수정",
+  "Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "장면 이미지가 꺼져 있으면 기존 배우와 스튜디오만 각 항목당 한 번 매칭합니다. 장면 검색 및 출연진 수정에는 장면 이미지를 켜야 합니다.",
+  "Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "라이브러리 파일명 매칭은 로컬 파일명에서 배우 및 스튜디오 이름을 읽습니다. StashDB 출연진 수정은 일치하는 장면을 사용해 해당 배정을 수정합니다.",
+  "Wait for the scan to stop.": "스캔이 중지될 때까지 기다려 주세요.",
+  "Review the conflicting StashDB identity before matching this actor or studio.": "이 배우 또는 스튜디오를 매칭하기 전에 충돌하는 StashDB 신원을 검토하세요."
 }

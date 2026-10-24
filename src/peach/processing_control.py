@@ -64,6 +64,8 @@ def checkpoint_values(values):
 
 
 def interrupted_state(control):
+    if control is not None and control.cancelled:
+        return dict(status='cancelled', error='', completed_at=time.time(), followups=[])
     return dict(status='paused', error='', completed_at=None) if control is not None and control.paused else {}
 
 
@@ -147,6 +149,7 @@ class ProcessingControl:
         self.mode = data.get('speed_mode') if data.get('speed_mode') in MODES else 'standard'
         self.job_id = data.get('job_id')
         self.paused = data.get('paused') is True
+        self.cancelled = data.get('cancelled') is True
         self.event = threading.Event()
         self.event.set()
         self.publish = None
@@ -166,6 +169,7 @@ class ProcessingControl:
             if data.get('job_id') == self.job_id or self.publish is None:
                 self.job_id = data.get('job_id', self.job_id)
                 self.paused = data.get('paused', self.paused)
+                self.cancelled = data.get('cancelled', self.cancelled)
                 mode = data.get('speed_mode', self.mode)
                 if mode in MODES and self.mode != mode:
                     self.mode = mode
@@ -173,7 +177,7 @@ class ProcessingControl:
 
     def _save(self):
         atomic_write_text(self.path, json.dumps(dict(
-            speed_mode=self.mode, job_id=self.job_id, paused=self.paused)) + '\n')
+            speed_mode=self.mode, job_id=self.job_id, paused=self.paused, cancelled=self.cancelled)) + '\n')
 
     def request(self, action, job_id=None, mode=None):
         with self.lock:
@@ -184,6 +188,7 @@ class ProcessingControl:
                 self.next_work.clear()
             else:
                 self.paused = action == 'pause'
+                self.cancelled = action == 'stop'
             self._save()
             self.event.set()
 
@@ -192,6 +197,7 @@ class ProcessingControl:
         with self.lock:
             if self.job_id != job_id:
                 self.job_id, self.paused, self.paused_seconds = job_id, False, 0.0
+                self.cancelled = False
 
     @contextmanager
     def bind(self, job_id, *, publish, active, db_path, mode=None):
@@ -215,7 +221,7 @@ class ProcessingControl:
         while True:
             check_pause(self.db_path)
             self.refresh()
-            if not self.active():
+            if self.cancelled or not self.active():
                 raise InterruptedError('处理任务已停止')
             with self.lock:
                 paused, mode = self.paused, self.mode

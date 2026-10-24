@@ -16,7 +16,7 @@ export interface StashDBPolicy {
 }
 const OPTIONS = [
   ['enabled', 'Enable StashDB during metadata scans'], ['actor_images', 'Scrape actor photos'],
-  ['scene_images', 'Scrape scene pictures'], ['correct_cast', 'Correct actor assignments from filenames'],
+  ['scene_images', 'Scrape scene pictures'], ['correct_cast', 'Correct filename actor assignments using matched StashDB scenes'],
   ['auto_apply', 'Automatically apply strong, unique scene matches'],
   ['skip_failed', 'Skip previously failed or unmatched StashDB searches'],
   ['only_new_media', 'Only match newly added media'],
@@ -39,12 +39,14 @@ export function StashDBSettings({ initial, receipt, readOnly = false }: {
   };
   return <Section title="StashDB" onSubmit={save}>
     <Stack>
+      <Help>Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.</Help>
+      <Help>Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.</Help>
       <Input label="StashDB API key" aria-label="StashDB API key" type="password" autoComplete="new-password"
         placeholder={policy.api_key_set ? 'Key saved; leave blank to keep it' : 'Enter your StashDB API key'} value={apiKey} onChange={setApiKey} />
       <Help><a href="https://guidelines.stashdb.org/docs/faq_getting-started/stashdb/accessing-stashdb/" target="_blank" rel="noreferrer">Get your StashDB API key</a></Help>
     </Stack>
     <Rows>{OPTIONS.map(([key, label]) => <SettingsRow key={key} label={label}>
-      <Switch aria-label={label} isSelected={Boolean(policy[key])} isDisabled={readOnly}
+      <Switch aria-label={label} isSelected={Boolean(policy[key])} isDisabled={readOnly || key === 'correct_cast' && !policy.scene_images}
         onChange={value => setPolicy(previous => ({ ...previous, [key]: value }))} />
     </SettingsRow>)}</Rows>
     <Stack>

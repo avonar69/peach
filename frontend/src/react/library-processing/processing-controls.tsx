@@ -27,17 +27,23 @@ export function ProcessingControls({ state, disabled = false }: {
   };
   return <div className="flex min-w-0 flex-col gap-2" data-processing-controls="">
     <div className="flex flex-wrap items-center gap-2">
-      <ProcessingMode value={state.speed_mode || 'standard'} busy={disabled || !!action.busy}
+      <ProcessingMode value={state.speed_mode || 'standard'} busy={disabled || !!action.busy || state.status === 'stopping'}
         animate={state.status !== 'paused' && state.status !== 'pausing'}
         onChange={speed_mode => change({ action: 'set_speed', speed_mode, ...(active ? { job_id: state.job_id } : {}) })} />
       {active ? <Button size="small" variant="secondary" iconOnly
         leadingIcon={state.status === 'paused' ? RiPlayLine : RiPauseLine}
         aria-label={controlLabel} title={controlLabel}
-        disabled={disabled || !state.job_id || state.status === 'pausing'}
+        disabled={disabled || !state.job_id || state.status === 'pausing' || state.status === 'stopping'}
         {...busyProps(action.busy === 'pause' || action.busy === 'resume')}
         onClick={() => {
           if (state.job_id) change({ action: state.status === 'paused' ? 'resume' : 'pause', job_id: state.job_id });
         }} /> : null}
+      {active ? <Button size="small" variant="secondary"
+        disabled={disabled || !state.job_id || state.status === 'stopping'}
+        {...busyProps(action.busy === 'stop')}
+        onClick={() => { if (state.job_id) change({ action: 'stop', job_id: state.job_id }); }}>
+        {state.status === 'stopping' ? 'Stopping scan…' : 'Stop scan'}
+      </Button> : null}
     </div>
     {action.error ? <p role="alert" className="text-caption-1-regular text-text-error-primary">{action.error}</p> : null}
   </div>;

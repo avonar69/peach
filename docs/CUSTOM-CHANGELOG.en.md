@@ -40,6 +40,8 @@ kind: changelog
 
 ## Scan behavior
 
+**Stop scan and actor/studio-only matching:** Stop an active or paused scan from Data management or its popup while keeping completed work. Disabling scene pictures limits automatic StashDB requests to unique existing actors and studios, with completed identities reused across scans.
+
 Full sync enumerates configured files and reuses valid existing previews; missing or invalid previews are generated as needed. **Only scan files** registers files and probes missing measurements without generating previews or scraping metadata. Metadata-only skips file discovery. New-media-only limits StashDB matching; folder enumeration remains necessary.
 
 ## Verification limits

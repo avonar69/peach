@@ -4,7 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import type { Browser, Page } from 'playwright-core';
-import { launch, requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
+import { launch, layout, requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
 import { stubServer } from './settings-fixture.ts';
 
 const screenshots = process.env.PEACH_E2E_SCREENSHOTS || path.resolve('../build/localization-screenshots');
@@ -123,6 +123,35 @@ describe('English interface and ultrawide fullscreen', () => {
       await audit(page, '.ui-configpage');
       assert.doesNotMatch(await page.title(), /[\u3400-\u9fff]/);
       await page.screenshot({ path: path.join(screenshots, `diagnostics-${viewport.name}.png`), fullPage: true });
+      assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
+    } finally { await opened.close(); }
+  });
+
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: stop scan is shared by the page and popup`, async () => {
+    let state = { status: 'running', job_id: 'stop-test', stage: 'StashDB actor and studio matching', checked: 2, total: 10 };
+    const posts: unknown[] = [];
+    const opened = await visit(browser, '/data-cleanup', viewport, async page => {
+      await stubServer(page);
+      await page.route('**/api/library-processing', async route => {
+        if (route.request().method() === 'POST') {
+          posts.push(route.request().postDataJSON());
+          state = { ...state, status: 'cancelled' };
+        }
+        await route.fulfill({ json: state });
+      });
+    });
+    try {
+      const { page } = opened;
+      await page.locator('#main').getByRole('button', { name: 'Stop scan', exact: true }).waitFor();
+      await page.locator('[data-processing-dock]').getByRole('button', { name: 'Stop scan', exact: true }).waitFor();
+      await page.locator('#main').getByRole('button', { name: 'Stop scan', exact: true }).click();
+      await page.getByText('Completed work has been kept. Start a new scan when ready.', { exact: true }).waitFor();
+      assert.deepEqual(posts, [{ action: 'stop', job_id: 'stop-test' }]);
+      await page.locator('[data-processing-dock]').waitFor({ state: 'hidden' });
+      assert.equal(await page.getByRole('button', { name: 'Stop scan', exact: true }).count(), 0);
+      const geometry = await layout(page);
+      assert.ok(geometry.scrollWidth <= viewport.width + 1);
+      await audit(page, '#main');
       assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
     } finally { await opened.close(); }
   });

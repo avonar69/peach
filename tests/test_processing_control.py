@@ -32,6 +32,22 @@ class ProcessingControlTests(unittest.TestCase):
                 connection.execute('INSERT INTO asset(location,path,name,medium,size) VALUES(?,?,?,?,?)',
                                    ('local', f'R:\\Media\\{index}.mp4', f'{index}.mp4', 'video', 1024**3))
 
+    def test_stop_releases_paused_checkpoint_and_is_persisted_for_other_processes(self):
+        control = control_for(self.config)
+        with control.bind('one', publish=lambda **_: None, active=lambda: True, db_path=self.db):
+            control.request('pause', 'one')
+            control.request('stop', 'one')
+            other = ProcessingControl(control.path)
+            with self.assertRaises(InterruptedError):
+                other.checkpoint()
+            with self.assertRaises(InterruptedError):
+                checkpoint()
+            from peach.processing_control import interrupted_state
+            self.assertEqual(interrupted_state(control)['status'], 'cancelled')
+        with control.bind('two', publish=lambda **_: None, active=lambda: True, db_path=self.db):
+            checkpoint()
+            self.assertFalse(control.cancelled)
+
     def test_start_estimate_uses_known_count_size_and_scoped_selection(self):
         self.seed()
         estimate = initial_estimate(self.config, self.db, 'all')
@@ -46,6 +62,41 @@ class ProcessingControlTests(unittest.TestCase):
         self.assertLess(high['eta_seconds_max'], estimate['eta_seconds_max'])
         self.assertTrue(estimate['eta_initial'])
         self.assertIn('未含未知新增', estimate['eta_scope'])
+
+    def test_stop_api_cancels_paused_job_without_resuming_or_scheduling_followups(self):
+        from peach.jobs import BackgroundJob
+        from peach.library_processing import _save, state_path
+        from peach.repository import LedgerDatabase
+        from peach.task_runs import TaskRunStore
+        self.config.directory('database').mkdir(parents=True)
+        self.db = fresh_ledger(self.config.directory('database'))
+        job = BackgroundJob('library-processing', runs=TaskRunStore(LedgerDatabase(self.db)))
+        contract = SimpleNamespace(db_path=self.db, library_processing_job=job,
+            candidate_root=self.root / 'candidates', cover_root=self.root / 'covers',
+            database=job.runs.database, cache_bust=lambda: None)
+        entered = threading.Event()
+        def process(*_args, **kwargs):
+            control = control_for(self.config)
+            with control.bind(kwargs['job_id'], publish=lambda **values: kwargs['report'](values),
+                              active=lambda: True, db_path=self.db):
+                _save(state_path(self.config), dict(job_id=kwargs['job_id'], status='running'))
+                control.request('pause', kwargs['job_id'])
+                entered.set()
+                checkpoint()
+                self.fail('A stopped job must not continue processing.')
+        with patch('peach.web_library_processing.settings_file.active', return_value=self.config), \
+                patch('peach.web_library_processing.process_library', side_effect=process):
+            initial = w_library_processing(contract, {'stage': 'metadata'})
+            self.assertTrue(entered.wait(2))
+            reply = w_library_processing(contract, {'action': 'stop', 'job_id': initial['job_id']})
+            self.assertIn(reply['status'], ('stopping', 'cancelled'))
+            job.thread.join(2)
+            self.assertFalse(job.thread.is_alive())
+            self.assertEqual(job.snapshot()['status'], 'cancelled')
+            from peach.web_library_processing import q_library_processing
+            self.assertEqual(q_library_processing(contract, {})['status'], 'cancelled')
+            self.assertEqual(job.runs.get(initial['run_id']).status, 'cancelled')
+            self.assertEqual(job_recovery.read(self.db, 'library-processing'), {})
 
     def test_new_directory_reports_counting_without_invented_time(self):
         estimate = initial_estimate(self.config, self.db, 'scan')

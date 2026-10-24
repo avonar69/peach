@@ -67,7 +67,11 @@ Enable **Mouse wheel changes volume over video** to adjust volume by five percen
 
 Open Configuration → Sources & subscriptions → StashDB. Enter your own API key, save, and test the connection. [StashDB's account and API-key guide](https://guidelines.stashdb.org/docs/faq_getting-started/stashdb/accessing-stashdb/) explains how to obtain it. The key is stored only on the Peach server; the browser shows whether a key is saved.
 
-Actor photos, scene pictures, cast corrections, and automatic application are separate options. The source and automatic application start off; cast correction also starts off. To try a manual match, find a scene or actor in your local library, select it, and choose **Preview StashDB matches**. Review the title, studio, release date, cast and match reasons before applying the selected result.
+With scene pictures disabled, automatic StashDB scans only match existing actors and studios, once per identity; completed lookups and installed photos are reused. Scene searches and scene-based cast correction require scene pictures to be enabled. Actor photos have their own switch. Manual scene preview remains available in Review.
+
+Stop an active or paused scan with **Stop scan** in Data management or the scan popup. Completed work is retained; the current request finishes or times out before the scan stops. To continue scanning later, start a new scan. Pause and Resume temporarily suspend the same task instead.
+
+Filename matching in Libraries & import reads actor and studio names locally. StashDB cast correction uses a matched scene to correct filename-based actors, while manual assignments stay intact.
 
 Matching combines title, date, studio/parent studio, actors and aliases, and duration. It can find dated studio/actor filenames without knowing the scene title. A filename by itself is not treated as proof. Automatic application requires a strong, unique result supported by multiple signals. Conflicts, ties, approximate dates and truncated searches stay for review. **Review matches from metadata scans** opens queued scene results.
 

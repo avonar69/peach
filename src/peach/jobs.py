@@ -581,7 +581,7 @@ class BackgroundJob:
                 self.state = None
                 thread = self.thread
                 self.thread = None
-            if job_id and state is not None and state["status"] in ('running', 'pausing', 'paused'):
+            if job_id and state is not None and state["status"] in ('running', 'pausing', 'paused', 'stopping'):
                 self._stop_run(job_id, resume=resume)
         if thread is not None and thread.is_alive():
             thread.join(timeout)
@@ -699,6 +699,9 @@ class BackgroundJob:
         所以这里收的是调用方手上那一份，不重新读。
         """
         status = state.get("status")
+        if status == 'cancelled':
+            self._close_run(job_id, 'cancelled', summary=self._summary(state))
+            return
         if status == "failed":
             # 声明了后继就是结算到了底，只是留下了要人处理的项（ADR-0053）：后继照派。
             # 中途抛异常的那一轮走不到声明那一步，一条都不派。

@@ -4112,5 +4112,15 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1} ; {2} sources de données",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; Cliquez sur \"Redémarrer le service\" sur le bac pour redémarrer le bac dans son ensemble et synchroniser les dépendances",
   "；跳过 {0}": "; sauter {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg.",
+  "Stop scan": "Arrêter l’analyse",
+  "Stopping scan…": "Arrêt de l’analyse…",
+  "Scan stopped": "Analyse arrêtée",
+  "Completed work has been kept. Start a new scan when ready.": "Le travail terminé a été conservé. Lancez une nouvelle analyse quand vous le souhaitez.",
+  "StashDB actor and studio matching": "Correspondance des acteurs et studios StashDB",
+  "Correct filename actor assignments using matched StashDB scenes": "Corriger les acteurs du nom de fichier avec les scènes correspondantes de StashDB",
+  "Scene pictures off: match existing actors and studios only, once per identity. Scene searches and cast correction require scene pictures to be enabled.": "Images de scènes désactivées : rechercher uniquement les acteurs et studios existants, une fois par identité. La recherche de scènes et la correction de la distribution nécessitent les images de scènes.",
+  "Library filename matching reads actor and studio names from local filenames. StashDB cast correction uses a matched scene to correct those actor assignments.": "La correspondance des fichiers lit les noms des acteurs et studios dans les fichiers locaux. La correction de distribution StashDB utilise une scène correspondante pour corriger ces associations.",
+  "Wait for the scan to stop.": "Attendez l’arrêt de l’analyse.",
+  "Review the conflicting StashDB identity before matching this actor or studio.": "Vérifiez le conflit d’identité StashDB avant de rechercher cet acteur ou studio."
 }

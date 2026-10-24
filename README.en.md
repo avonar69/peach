@@ -123,6 +123,8 @@ Check [user feedback](https://github.com/peach-mitao/peach/issues), or [open an 
 
 Interface languages, StashDB and playback options: [Feature changelog](docs/CUSTOM-CHANGELOG.en.md) · [Test package guide](TEST-PACKAGE.en.md) · [StashDB setup](docs/STASHDB.md)
 
+Scanning and acquisition includes a Stop scan button that preserves completed work. With StashDB scene pictures disabled, automatic matching only looks up existing actors and studios; the setup guide explains filename recognition and scene-based cast correction.
+
 Contributing: [Development guide](AGENTS.md) · [Testing and dependencies](docs/TESTING.md)
 
 ## Related projects

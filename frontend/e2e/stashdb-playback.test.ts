@@ -59,7 +59,7 @@ describe('StashDB review and playback preferences', () => {
       for (const label of ['Skip previously failed or unmatched StashDB searches', 'Only match newly added media']) {
         await page.getByRole('switch', { name: label, exact: true }).locator('xpath=ancestor::label[1]').click();
       }
-      const correction = page.getByRole('switch', { name: 'Correct actor assignments from filenames', exact: true }).locator('xpath=ancestor::label[1]');
+      const correction = page.getByRole('switch', { name: 'Correct filename actor assignments using matched StashDB scenes', exact: true }).locator('xpath=ancestor::label[1]');
       await correction.evaluate(node => node.scrollIntoView({ block: 'center' }));
       await correction.click();
       await page.getByRole('switch', { name: 'Enable StashDB during metadata scans', exact: true }).locator('xpath=ancestor::label[1]').click();

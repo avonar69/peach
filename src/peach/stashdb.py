@@ -134,7 +134,7 @@ def _image(client, images, *, portrait=False):
     for item in ordered[:3]:
         try:
             body = client.image(item['url'])
-        except stashdb_client.RateLimited:
+        except (InterruptedError, stashdb_client.RateLimited):
             raise
         except (OSError, ValueError):
             failed = True
@@ -355,6 +355,9 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True)
     applied = review = skipped = 0
     client = stashdb_client.Client(config)
     try:
+        if not policy['scene_images']:
+            from .stashdb_entities import scan
+            return scan(config, database, rows, client=client, progress=progress, issue=issue, active=active)
         for position, row in enumerate(rows):
             if not active():
                 break
@@ -386,6 +389,8 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True)
                     applied += 1
                 elif result['candidates']:
                     review += 1
+            except InterruptedError:
+                raise
             except stashdb_client.RateLimited as exc:
                 issue(row, str(exc), paused=True, retryable=True)
                 break
