@@ -32,6 +32,7 @@ import {
 } from './section';
 import { busyProps, useAction } from './use-action';
 import { JavBrowserSettings } from './jav-browser-settings';
+import { DebridSettings } from './debrid-settings';
 
 export const DOWNLOADS_URL = '/api/configuration/downloads';
 const CHECK_URL = '/api/configuration/downloads/check';
@@ -50,6 +51,7 @@ export function DownloadGroup({ initial, receipt, panel }: {
   return (
     <div {...groupRoot(panel)}>
       <DownloadSettings initial={initial} receipt={receipt} />
+      <DebridSettings receipt={receipt} />
     </div>
   );
 }

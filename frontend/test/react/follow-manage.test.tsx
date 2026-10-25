@@ -692,7 +692,7 @@ it('一条来源都没有时空态给出添加关注的去处', async () => {
 it('各栏按做事的先后排，缺凭据的数挂在最后一栏上', async () => {
   const { host } = await open({ creds: { root: 'C:\\creds', providers: [credential({ provider: 'fanbox' })] } });
   expect([...host.querySelectorAll('[role="tab"]')].map((tab) => tab.textContent))
-    .toEqual(['关注列表', '添加关注', 'JAV 订阅源']);
+    .toEqual(['关注列表', '添加关注', 'JAV 订阅源', 'RSS下载']);
   expect(buttonNamed('来源与订阅设置（1）', host)).not.toBeNull();
 });
 

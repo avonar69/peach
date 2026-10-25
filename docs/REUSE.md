@@ -1,5 +1,11 @@
 # 复用清单
 
+## RSS 与 debrid 下载
+
+RSS/Atom 解析复用 [feedparser 6.0.12](https://pypi.org/project/feedparser/6.0.12/)（BSD-2-Clause）及其 sgmllib3k 1.0.0（BSD）依赖，版本精确固定。解析器只接收有界字节，网络与重定向检查复用 httpx 0.28.1 和既有公开地址验证。订阅复用 feed_source、feed_item、条件请求与调度；无番号条目不生成资产。磁力识别、原子状态写入、磁盘余量检查和界面控件沿用项目入口。
+
+AllDebrid 与 Real-Debrid 依据[官方 AllDebrid API](https://docs.alldebrid.com/)和[官方 Real-Debrid API](https://api.real-debrid.com/)实现有限 REST 适配，使用 Bearer 认证、固定官方地址、单渠道间隔与 429 冷却。未引入非官方账号 SDK：既有 HTTP 客户端已覆盖所需请求，远端身份、取消和本地文件发布是 Peach 的领域策略。标准库文件与线程接口承担任务恢复、ETag/Range 续传及排他发布；Windows 包保留解析依赖元数据与许可，测试不使用真实账号。行为与边界见 [ADR-0116](adr/0116-rss-debrid-downloads.md)。
+
 ## StashDB 与播放器操作
 
 StashDB 复用 [Stash-Box 的只读 GraphQL 协议](https://github.com/stashapp/stash-box/tree/master/graphql/schema)，2026-10-23 核对认证、作品、演员、厂牌、图片和过滤条件。未复制上游实现，不新增 Stash 或第三方 GraphQL 运行时。HTTP 复用已固定的 httpx 0.28.1（BSD-3-Clause），有界流读取与固定端点拒绝重定向；图片验证复用 Pillow、头像和封面安装入口，事务复用 LedgerDatabase，字段保护及规范身份复用现有实体入口。跨 Windows 和 Linux，不新增依赖体积。通用 GraphQL SDK 对这些固定读查询不提供额外身份判据，未引入；多线索排序、复核、归属和采集预算保留为 Peach 领域策略。凭据、限流和来源规则见 [StashDB 来源](STASHDB.md)，假 API 与临时账本覆盖歧义、截断、凭据隔离、图片、字段保护及只读权限。

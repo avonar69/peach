@@ -1,0 +1,189 @@
+"""可恢复的链接准备与目录下载队列；任务状态保存在本机 state。"""
+import hashlib
+import json
+import threading
+import time
+from pathlib import Path
+
+from . import debrid_client, debrid_transfer
+from .fsutil import atomic_write_text
+
+ACTIVE = ('queued', 'preparing', 'downloading')
+
+
+class Service:
+    def __init__(self, config, *, available=True):
+        self.config, self.available = config, available
+        self.path = config.directory('state') / 'debrid-jobs.json'
+        self.lock, self.event, self.stopped = threading.RLock(), threading.Event(), threading.Event()
+        self.thread = None
+        self.last_saved = 0
+        try:
+            data = json.loads(self.path.read_text(encoding='utf-8'))
+            self.jobs = data if isinstance(data, dict) else {}
+        except (OSError, ValueError):
+            self.jobs = {}
+        for task in self.jobs.values():
+            if task.get('status') in ACTIVE:
+                task.update(status='queued', next_poll=0)
+
+    def _save(self):
+        atomic_write_text(self.path, json.dumps(self.jobs))
+
+    def _update(self, identity, **values):
+        with self.lock:
+            job = self.jobs[identity]
+            if job.get('status') == 'cancelled':
+                if 'remote_id' in values:
+                    job['remote_id'] = values['remote_id']
+                    self._save()
+                raise InterruptedError('Download cancelled.')
+            job.update(values, updated_at=time.time())
+            if 'bytes' not in values or 'status' in values or time.monotonic() - self.last_saved >= 1:
+                self._save()
+                self.last_saved = time.monotonic()
+
+    def active(self, identity):
+        with self.lock:
+            return not self.stopped.is_set() and self.jobs[identity]['status'] != 'cancelled'
+
+    def snapshot(self):
+        stamps = {key: debrid_client.key_stamp(self.config, key) for key in debrid_client.PROVIDERS}
+        with self.lock:
+            return [{key: value for key, value in job.items() if key not in ('key_stamp', 'remote_id')}
+                for job in self.jobs.values() if job.get('key_stamp') == stamps.get(job['provider'])]
+
+    def submit(self, entry_id, link, provider):
+        if not self.available:
+            raise ValueError('This library is read-only.')
+        if not debrid_client.saved(self.config).get(provider, {}).get('api_key'):
+            raise ValueError('Save the debrid API key in Download providers first.')
+        identity = hashlib.sha256(f"{entry_id}:{provider}:{link['url']}".encode()).hexdigest()[:32]
+        stamp = debrid_client.key_stamp(self.config, provider)
+        with self.lock:
+            old = self.jobs.get(identity, {})
+            if old.get('key_stamp') != stamp:
+                old = {}
+            if old.get('status') in ACTIVE or (old.get('status') == 'ready' and time.time() - old['updated_at'] < 3600):
+                return old
+            if len(self.jobs) >= 1000 and not old:
+                raise ValueError('The debrid task queue is full.')
+            self.jobs[identity] = {**old, 'id': identity, 'entry_id': entry_id, 'provider': provider,
+                'source': link, 'kind': 'resolve', 'status': 'queued', 'error': '',
+                'files': old.get('files', []) if old.get('status') != 'ready' else [],
+                'key_stamp': stamp, 'next_poll': 0, 'updated_at': time.time()}
+            self._save()
+        self.start()
+        self.event.set()
+        return self.jobs[identity]
+
+    def download(self, identity, index):
+        with self.lock:
+            source = self.jobs.get(identity, {})
+            if source.get('key_stamp') != debrid_client.key_stamp(self.config, source.get('provider')):
+                raise ValueError('Generate a current debrid link first.')
+            files = source.get('files', [])
+            if type(index) is not int or index < 0 or index >= len(files) or not files[index].get('url'):
+                raise ValueError('Choose a ready debrid download link.')
+            folder = debrid_client.saved(self.config).get(source['provider'], {}).get('download_folder')
+            if not folder:
+                raise ValueError('Set a download folder in Download providers first.')
+            key = hashlib.sha256(f'{identity}:{index}:download'.encode()).hexdigest()[:32]
+            old = self.jobs.get(key, {})
+            if old.get('status') in ACTIVE or (old.get('status') == 'complete' and Path(old.get('path', '')).is_file()):
+                return old
+            self.jobs[key] = {**old, **files[index], 'id': key, 'kind': 'download', 'folder': folder,
+                'entry_id': source['entry_id'], 'provider': source['provider'], 'key_stamp': source['key_stamp'],
+                'status': 'queued', 'error': '', 'next_poll': 0, 'updated_at': time.time()}
+            self._save()
+        self.start()
+        self.event.set()
+        return self.jobs[key]
+
+    def cancel(self, identity):
+        with self.lock:
+            job = self.jobs.get(identity)
+            if not job:
+                raise ValueError('Choose an existing debrid task.')
+            if job['status'] in ACTIVE:
+                job.update(status='cancelled', updated_at=time.time())
+                self._save()
+        self.event.set()
+        return {'ok': True}
+
+    def start(self):
+        with self.lock:
+            if not self.available or (self.thread and self.thread.is_alive()):
+                return
+            self.stopped.clear()
+            self.thread = threading.Thread(target=self._loop, name='PeachDebrid', daemon=True)
+            self.thread.start()
+
+    def stop(self):
+        self.stopped.set()
+        self.event.set()
+        if self.thread:
+            self.thread.join(2)
+
+    def _loop(self):
+        while not self.stopped.is_set():
+            with self.lock:
+                task = next((dict(job) for job in self.jobs.values() if job['status'] in ACTIVE
+                             and job.get('next_poll', 0) <= time.time()), None)
+            if task:
+                self._run(task)
+            else:
+                self.event.wait(1)
+                self.event.clear()
+
+    def _run(self, task):
+        identity = task['id']
+        try:
+            if task['key_stamp'] != debrid_client.key_stamp(self.config, task['provider']):
+                raise ValueError('The provider account changed. Generate a new link.')
+            self._update(identity, status='downloading' if task['kind'] == 'download' else 'preparing')
+            if task['kind'] == 'download':
+                debrid_transfer.transfer(task, update=lambda **values: self._update(identity, **values),
+                                         active=lambda: self.active(identity))
+            else:
+                self._resolve(task)
+        except InterruptedError:
+            pass
+        except ValueError as error:
+            with self.lock:
+                if self.jobs[identity]['status'] != 'cancelled':
+                    self.jobs[identity].update(status='failed', error=str(error)[:400], updated_at=time.time())
+                    self._save()
+        except Exception:
+            with self.lock:
+                if self.jobs[identity]['status'] != 'cancelled':
+                    # 异常文本可能带有签名 URL；任务只保留固定提示。
+                    self.jobs[identity].update(status='failed', error='The debrid task failed. Check the provider account, link and download folder.', updated_at=time.time())
+                    self._save()
+
+    def _resolve(self, task):
+        identity = task['id']
+        client = debrid_client.Client(self.config, task['provider'], active=lambda: self.active(identity))
+        try:
+            if task['source']['kind'] != 'link' and not task.get('remote_id'):
+                task['remote_id'] = client.create_torrent(task['source'])
+                self._update(identity, remote_id=task['remote_id'])
+            hosts = client.torrent_links(task['remote_id']) if task.get('remote_id') else [task['source']['url']]
+            if hosts is None:
+                self._update(identity, next_poll=time.time() + 60)
+                return
+            if not hosts or len(hosts) > 100:
+                raise ValueError('This torrent contains no downloadable files or exceeds the file limit.')
+            with self.lock:
+                previous = {row['host_link']: row for row in self.jobs[identity].get('files', [])}
+            files = []
+            for host in hosts:
+                row = dict(previous.get(host, {'host_link': host}))
+                result = client.unlock(host, previous=row, persist=lambda values, row=row: row.update(values)) if not row.get('url') else row
+                row.update(result or {})
+                files.append(row)
+                self._update(identity, files=files)
+            ready = all(row.get('url') for row in files)
+            self._update(identity, status='ready' if ready else 'preparing', files=files, next_poll=time.time() + 60)
+        finally:
+            client.close()

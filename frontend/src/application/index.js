@@ -52,7 +52,7 @@ export function openFollowAuthorFromIndex(key){indexState.controller.openFollowA
 export function openFollowTagFromIndex(tag){indexState.controller.openFollowTag(tag)}
 
 export function installIndex16() {
-followState.FOLLOW_MANAGE_TABS = ['list','add','feeds'];
+followState.FOLLOW_MANAGE_TABS = ['list','add','feeds','rss'];
 applicationEffects.listen(document, 'click', event=>{
   if(event.target.closest?.('[data-empty-settings]')){openConfigurationSection('媒体库与入库');return}
   const link=event.target.closest?.('a[href="/subscriptions?tab=add"]');

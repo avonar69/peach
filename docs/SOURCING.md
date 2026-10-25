@@ -5,6 +5,8 @@
 
 StashDB 的 API key、作品与演员复核、图片选项及自动匹配边界见 [StashDB 来源](STASHDB.md)。
 
+用户提供的公开 HTTP/HTTPS RSS/Atom 下载订阅在关注管理的「RSS 下载」独立展示，不要求番号。列表获取不触发下载；原始链接旁的 AllDebrid 或 Real-Debrid 图标由用户点击后才准备下载。密钥、本机目录、取消及恢复边界见 [ADR-0116](adr/0116-rss-debrid-downloads.md)。
+
 - 批处理的限流、续跑与流量预算见 `.claude/skills/peach-batch-jobs/SKILL.md`。
 - 参考外部产品时的取证登记见 `.claude/skills/peach-reference-evidence/SKILL.md`。
 - 真正写账本之前读 `.claude/skills/peach-ledger-write/SKILL.md`。

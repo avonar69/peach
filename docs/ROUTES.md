@@ -1,5 +1,7 @@
 # 页面路由
 
+`/subscriptions?tab=rss` 展示 RSS 下载订阅与新条目，`/settings/downloads` 配置 AllDebrid 和 Real-Debrid。`GET /api/rss` 分页返回条目、来源和本机任务；`POST /api/rss/{source,check,resolve,download,cancel}` 分别管理来源、更新列表、准备链接、目录下载和取消。链接准备只接受已保存的 RSS 条目与链接序号。渠道配置通过 `GET /api/configuration/debrid` 和 `POST /api/configuration/debrid/{provider}/{settings,check}`，不返回密钥。全部接口要求登录，写操作检查同源与只读状态，渠道配置沿用配置页访问边界。
+
 列表使用一层路径，详情使用两层路径。查询参数表达筛选、排序与播放上下文；名称只用于展示和检索。
 
 ## 详情对象

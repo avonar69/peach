@@ -64,6 +64,9 @@ def poll_source(contract, transport, source) -> dict:
     四条返回路径（请求失败、304、解析失败、正常）都经 `feeds.settle` 写下次时间，
     所以任何一种结局都不会让这个源卡住不再排队。
     """
+    if source['kind'] == 'rss':
+        from .web_rss import poll_source as poll_rss
+        return poll_rss(contract, source)
     source_id = int(source["id"])
     interval = int(source["interval_minutes"])
     # `ok` 与 `added` 两个键名跟着 `follow_scheduler` 读结果的那一套写：它按
@@ -194,13 +197,27 @@ def _execute_check(contract, body, job_id: str) -> dict:
             results.append(report)
             codes.extend(report.get("codes") or [])
             if not contract.feed_job.checkpoint(job_id, results=results, checked=len(results),
-                                                total=len(rows), added=len(set(codes))):
+                                                total=len(rows), added=_count_added(results)):
                 raise InterruptedError('订阅检查已停止')
     finally:
         close = getattr(transport, "close", None)
         if close:
             close()
     contract.cache_bust()
+    if rows and all(source['kind'] == 'rss' for source in rows):
+        return {'ok': True, 'checked': len(rows), 'total': len(rows), 'results': results,
+                'added': _count_added(results), 'followups': []}
+    planned = _plan_feed_followups(contract, body, codes)
+    return {"ok": True, "checked": len(rows), "total": len(rows), "results": results,
+            "added": _count_added(results),
+            "followups": [dict(key=item.key, task_key=item.task_key, label=item.label) for item in planned]}
+
+
+def _count_added(results):
+    return sum(int(row.get('added', len(row.get('codes') or [])) or 0) for row in results)
+
+
+def _plan_feed_followups(contract, body, codes):
     # 新发现的先排，余下名额给还缺资料或封面的旧壳：同一批一条后继。定时那一轮只带
     # 到了重试时间的，手动点的那一轮全带。
     retry_after = feed_followup.RETRY_AFTER if body.get("automatic") else timedelta(0)
@@ -215,11 +232,7 @@ def _execute_check(contract, body, job_id: str) -> dict:
         planned += avatar_followup.stock(
             connection, contract.avatar_root, Attempts(attempts_root(contract.candidate_root)),
             limit=MAX_FOLLOWUPS - len(planned))
-    return {"ok": True, "checked": len(rows), "total": len(rows), "results": results,
-            "added": len(codes),
-            # 后继由结果声明，调度端统一派（ADR-0040）：这里只把清单交出去。
-            "followups": [dict(key=item.key, task_key=item.task_key, label=item.label)
-                          for item in planned]}
+    return planned
 
 
 def w_feed_check(contract, body) -> dict:
@@ -260,7 +273,7 @@ def q_feeds(contract, args) -> dict:
     hidden = web_settings.hidden_compilations(contract.database)
     with contract.database.read_connection() as connection:
         feeds.register_functions(connection, hidden)
-        rows = feeds.sources(connection)
+        rows = [row for row in feeds.sources(connection) if row['kind'] != 'rss']
         # 表里名字前面那个圆框：有图走 `/entity-image`，判据与取景都取自身份引用那一份。
         for row in rows:
             ref = web_catalog.entity_ref(contract, "performer", row["entity_id"], row["name"])

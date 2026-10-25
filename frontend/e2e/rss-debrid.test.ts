@@ -1,0 +1,84 @@
+/* RSS 下载图标、直链、容器目录与凭据隔离的桌面和手机验证。 */
+import assert from 'node:assert/strict';
+import { after, before, describe, it } from 'node:test';
+import type { Browser } from 'playwright-core';
+import { launch, layout, visit, VIEWPORTS } from './harness.ts';
+import { stubServer } from './settings-fixture.ts';
+
+describe('RSS and debrid downloads', () => {
+  let browser: Browser;
+  before(async () => { process.env.PEACH_E2E_LANGUAGE = 'en'; browser = await launch(); });
+  after(async () => { await browser?.close(); });
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: RSS link icons prepare and download to the configured folder`, async () => {
+    const posts: Array<{ path: string; body: Record<string, unknown> }> = [];
+    const source = { url: 'https://rg.to/file/example', kind: 'link' };
+    const state = { providers: [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '/downloads', hosts: ['rg.to'] }],
+      sources: [{ id: 1, name: 'Example RSS', enabled: true, last_error: null }],
+      items: [{ id: 1, title: 'A new studio video without a release code', feed_name: 'Example RSS', published_at: '2026-10-24T10:00:00Z',
+        links: [source, { url: 'https://unsupported.example.org/item', kind: 'link' }] }],
+      jobs: [] as Array<Record<string, unknown>>, total: 1, offset: 0 };
+    const opened = await visit(browser, '/subscriptions?tab=rss', viewport, async page => {
+      await stubServer(page);
+      await page.route('**/api/rss**', async route => {
+        const path = new URL(route.request().url()).pathname;
+        if (route.request().method() === 'POST') {
+          const body = route.request().postDataJSON(); posts.push({ path, body });
+          if (path.endsWith('/resolve')) state.jobs = [{ id: 'ready-job', kind: 'resolve', provider: 'alldebrid', entry_id: 1,
+            source, status: 'ready', files: [{ filename: 'example.mp4', url: 'https://cdn.example.org/example.mp4', size: 1000 }] }];
+          if (path.endsWith('/download')) state.jobs.push({ id: 'local-job', kind: 'download', provider: 'alldebrid', entry_id: 1,
+            status: 'downloading', filename: 'example.mp4', bytes: 500, total: 1000 });
+          await route.fulfill({ json: { id: 'ready-job', ok: true } });
+        } else await route.fulfill({ json: state });
+      });
+    });
+    try {
+      const page = opened.page;
+      const icon = page.getByRole('button', { name: 'Download with AllDebrid', exact: true });
+      await icon.waitFor({ timeout: 10000 }).catch(async error => {
+        assert.fail(`${String(error)}\n${(await page.locator('body').innerText()).slice(0, 4000)}\n${JSON.stringify(opened.problems)}`);
+      });
+      assert.equal(await icon.count(), 1);
+      assert.ok((await icon.locator('..').innerText()).includes('rg.to'));
+      await icon.click();
+      await page.getByRole('progressbar', { name: 'Download progress', exact: true }).waitFor();
+      assert.ok(posts.some(post => post.path === '/api/rss/resolve' && post.body.entry_id === 1 && post.body.link_index === 0));
+      assert.ok(posts.some(post => post.path === '/api/rss/download' && post.body.id === 'ready-job'));
+      assert.equal(await page.getByRole('link', { name: 'example.mp4', exact: true }).count(), 1);
+      const geometry = await layout(page);
+      assert.ok(geometry.scrollWidth <= geometry.viewportWidth + 1, JSON.stringify(geometry));
+      assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
+    } finally { await opened.close(); }
+  });
+
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: download provider cards save a container folder and show connection success`, async () => {
+    const posts: Array<Record<string, unknown>> = [];
+    const providers = [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '', hosts: ['rg.to'] },
+      { id: 'realdebrid', label: 'Real-Debrid', configured: false, download_folder: '', hosts: [] }];
+    const opened = await visit(browser, '/settings/downloads', viewport, async page => {
+      await stubServer(page);
+      await page.route('**/api/configuration/debrid**', async route => {
+        const path = new URL(route.request().url()).pathname;
+        if (route.request().method() === 'POST') {
+          const body = route.request().postDataJSON(); posts.push(body);
+          if (path.endsWith('/settings')) providers[0].download_folder = body.download_folder;
+          await route.fulfill({ json: path.endsWith('/check') ? { ok: true, account: 'Example account' } : { providers } });
+        } else await route.fulfill({ json: { providers } });
+      });
+    });
+    try {
+      const page = opened.page;
+      const region = page.getByRole('form', { name: 'AllDebrid', exact: true });
+      await region.getByRole('textbox', { name: /download folder/i }).fill('/downloads/videos', { timeout: 10000 }).catch(async error => {
+        assert.fail(`${String(error)}\n${await region.ariaSnapshot()}\n${JSON.stringify(opened.problems)}`);
+      });
+      await region.getByRole('button', { name: 'Save debrid settings', exact: true }).click();
+      await page.waitForFunction(() => !document.querySelector('[data-action-busy="true"]'));
+      await region.getByRole('button', { name: 'Test connection', exact: true }).click();
+      await region.getByRole('status').filter({ hasText: 'Connected to AllDebrid.' }).waitFor();
+      assert.ok(posts.some(body => body.download_folder === '/downloads/videos'));
+      const geometry = await layout(page);
+      assert.ok(geometry.scrollWidth <= geometry.viewportWidth + 1, JSON.stringify(geometry));
+      assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
+    } finally { await opened.close(); }
+  });
+});

@@ -54,6 +54,7 @@ dependencies = [
   "uvicorn==0.54.0",
   "watchdog==6.0.0",
   "zeroconf==0.151.5",
+  "feedparser==6.0.12",
 ]
 
 [project.urls]

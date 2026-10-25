@@ -4,6 +4,16 @@ kind: howto
 
 # Peach custom test build
 
+## RSS and debrid downloads
+
+Open **Manage following → RSS downloads**, add a public HTTP/HTTPS RSS/Atom feed, and use **Check feeds now** to fetch new items. Items show their original links, including supported hoster links such as rg.to. Feed refreshes preserve saved items and do not start paid downloads automatically.
+
+In **Peach configuration → Download providers**, save an AllDebrid or Real-Debrid API key, then use **Test connection** to confirm access and load supported hostnames. Click the cloud-download icon beside an RSS link to prepare and start its download with that provider. Single-file links start directly; torrents with multiple files offer a choice after preparation. The prepared direct link also remains available below the item.
+
+For browser downloads, leave **Download folder** blank. For Docker downloads, mount a writable host folder to `/downloads` and enter `/downloads` in the provider settings; the folder must already exist inside the container. A click then queues a server download with progress and cancellation. Partial files remain available for validated resume; cancellation does not remove tasks from the provider account. Completed filenames include a short task identifier to avoid overwriting existing files.
+
+Provider APIs are covered with simulated responses; testing a real subscription and the Docker volume permissions requires your configured account and deployment.
+
 This cumulative revision hides confirmed missing paths after a completed local-library scan, retaining their saved records. Renaming a file therefore leaves only its current path in the active library. Returning a file to its original path restores that record. Unreadable or offline folders are preserved; remote-source cleanup remains in Resource sync. Run a full **Synchronize media library** scan after installing; metadata-only scans do not discover filename changes.
 
 StashDB now has **Skip previously failed or unmatched StashDB searches** and **Only match newly added media**, both initially off. New-media-only begins when enabled and saved; older videos remain available for manual preview. Turn it off to include older videos. Failed-search skipping persists while matching hints/options stay unchanged, including successful searches with no candidates. Turn it off to retry failures. Source-wide rate limits still use cooldowns. Manual preview always permits a fresh search. The repair confirmation uses translated text throughout.

@@ -230,7 +230,7 @@ def normalize_url(value: object) -> str:
 
 
 def add_source(connection: sqlite3.Connection, *, url: str, name: str = "",
-               entity_id: int | None = None) -> int:
+               entity_id: int | None = None, kind: str = KIND_JAVDB_ACTOR) -> int:
     """登记一条 JavDB 演员页订阅。地址重复直接拒绝——同一个源订两遍只会让同一条新作出现两次。"""
     address = normalize_url(url)
     if connection.execute("SELECT 1 FROM feed_source WHERE url=?", (address,)).fetchone():
@@ -238,7 +238,7 @@ def add_source(connection: sqlite3.Connection, *, url: str, name: str = "",
     cursor = connection.execute(
         "INSERT INTO feed_source(kind,name,url,entity_id,enabled,interval_minutes,"
         "created_at) VALUES(?,?,?,?,1,?,?)",
-        (KIND_JAVDB_ACTOR, str(name or "").strip(), address, entity_id,
+        (kind, str(name or "").strip(), address, entity_id,
          DEFAULT_INTERVAL_MINUTES, stamp()))
     return int(cursor.lastrowid)
 

@@ -29,6 +29,7 @@ import { AddSource } from './add-source';
 import { AliasManager } from './alias-manager';
 import { Button } from '@/components/base/buttons/button';
 import { FeedSources } from './feed-sources';
+import { RSSDownloads } from './rss-downloads';
 import {
   credentialDone, DEFAULT_SORT, FEEDS_KEY, fetchCredentials, fetchFeeds, fetchFollow, FOLLOW_CREDENTIALS_KEY,
   FOLLOW_MANAGE_KEY, groupByAuthor, isBroken, isLayout, keepSelected, pageSizeOf,
@@ -37,7 +38,7 @@ import {
 import { SourceList } from './source-list';
 
 const TABS = [
-  ['list', '关注列表'], ['add', '添加关注'], ['feeds', 'JAV 订阅源'],
+  ['list', '关注列表'], ['add', '添加关注'], ['feeds', 'JAV 订阅源'], ['rss', 'RSS downloads'],
 ] as const;
 type TabKey = (typeof TABS)[number][0];
 
@@ -186,6 +187,9 @@ export function FollowManagePage(props: FollowManageProps) {
 
         <TabPanel id="feeds" className="flex flex-col gap-4">
           <FeedSources readOnly={readOnly} toast={toast} />
+        </TabPanel>
+        <TabPanel id="rss" className="flex flex-col gap-4">
+          <RSSDownloads readOnly={readOnly} toast={toast} />
         </TabPanel>
 
       </Tabs>

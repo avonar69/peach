@@ -10,7 +10,6 @@ from __future__ import annotations
 from dataclasses import replace
 from collections import deque
 import hashlib
-import ipaddress
 import os
 import shutil
 import threading
@@ -26,6 +25,7 @@ from . import (access, distribution, entry_links, folder_picker, media_libraries
                push_discovery, settings_file, media_configuration, tunnel, web_downloads)
 from .routes_auth import require_auth, require_authenticated_client, same_origin
 from .web_entry import runtime_fact_entries
+from .web_configuration_access import local_client, local_only, managed_configuration, tunnel_forwarded as tunnel_forwarded
 from . import release_updates, standalone_update, peach_proxy, desktop_startup, desktop_uninstall
 
 router = APIRouter()
@@ -33,12 +33,6 @@ _SAVE_LOCK = threading.Lock()
 RELOAD_NAME = onboarding.RELOAD_NAME
 #: 直接由 CLI 管理的服务使用设置文件。
 FILE_MANAGED_NOTICE = "这个部署由配置文件管理服务；在本机编辑下方的设置文件。"
-
-
-def managed_configuration() -> bool:
-    """托盘或无桌面入口负责消费配置保存后的重载标记。"""
-    return (distribution.standalone() or os.environ.get("PEACH_TRAY_MANAGED") == "1"
-            or os.environ.get("PEACH_HEADLESS_MANAGED") == "1")
 
 
 def dev_environment() -> bool:
@@ -53,54 +47,6 @@ def dev_environment() -> bool:
 
 def revision(config) -> str:
     return hashlib.sha256(config.path.read_bytes()).hexdigest()
-
-
-def tunnel_forwarded(request: Request) -> bool:
-    """隧道在跑时，带 Cloudflare 转发头的请求一律按公网来源处理。
-
-    cloudflared 从本机回环连进来，源 IP 与本机浏览器完全一样；转发头是唯一能把
-    两者分开的证据，宁可把伪造了这些头的本机请求挡在配置页外面。
-    """
-    return tunnel.from_edge(getattr(request.app.state, "tunnel", None), request.headers)
-
-
-def local_client(request: Request) -> bool:
-    """按 IP 检查管理请求；桌面限本机，Docker 允许本机与私有网络，拒绝代理转发。"""
-    if not request.client or tunnel_forwarded(request):
-        return False
-    server = request.scope.get("server")
-    try:
-        peer = ipaddress.ip_address(request.client.host)
-        bound = ipaddress.ip_address(server[0]) if server else None
-    except ValueError:
-        # ASGI 测试或非 IP 绑定没有可比较的服务端 IP；回环客户端仍可识别。
-        bound = None
-        try:
-            peer = ipaddress.ip_address(request.client.host)
-        except ValueError:
-            return False
-    if os.environ.get("PEACH_HEADLESS_MANAGED") == "1":
-        if any(header.startswith("x-forwarded-") or header in {"forwarded", "cf-connecting-ip"}
-               for header in request.headers):
-            return False
-        return peer.is_loopback or (peer.is_private and not any((
-            peer.is_link_local, peer.is_reserved, peer.is_unspecified, peer.is_multicast,
-        )))
-    if not peer.is_loopback and (peer != bound or peer.is_unspecified):
-        return False
-    if managed_configuration():
-        name = request.app.state.settings.mdns_name.lower().removesuffix(".local")
-        hosts = {"127.0.0.1", "localhost", "::1", f"{name}.local"}
-        if bound and not bound.is_unspecified:
-            hosts.add(str(bound))
-        if (request.url.hostname or "").lower().rstrip(".") not in hosts:
-            return False
-    return True
-
-
-def local_only(request: Request) -> None:
-    if not local_client(request):
-        raise HTTPException(403, "请在运行 Peach 的电脑上打开配置")
 
 
 @router.get("/api/diagnostics")

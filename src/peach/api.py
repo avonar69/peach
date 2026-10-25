@@ -337,6 +337,8 @@ def create_app(
         (sync is None or not sync.read_only) and contract.task_runs.available())
     from .library_sharing import Service as LibrarySharing
     from . import settings_file
+    from .debrid_service import Service as DebridService
+    contract.debrid = DebridService(settings_file.active(), available=_writer(sync))
     sharing = LibrarySharing(settings_file.active(), contract)
     from .automatic_updates import AutomaticUpdates
     from .routes_configuration import managed_configuration
@@ -373,7 +375,7 @@ def create_app(
         ledger_ready = False
         if settings.configured:
             ledger_ready = _start_ledger_services(settings, contract,
-                (follow_scheduler, feed_scheduler, push_discovery, downloads, recovery_service, jav_browser))
+                (follow_scheduler, feed_scheduler, push_discovery, downloads, recovery_service, jav_browser, contract.debrid))
             automatic_updates.start()
             if ledger_ready:
                 sharing.start()
@@ -403,6 +405,7 @@ def create_app(
             push_discovery.stop()
             await asyncio.to_thread(jav_browser.stop)
             downloads.stop()
+            contract.debrid.stop()
             mount_reachability.stop()
             # to_thread 的查询在线程内释放连接后才算结束。
             await aggregate_warmup
@@ -591,6 +594,8 @@ def create_app(
     app.include_router(routes_auth.router)
     app.include_router(routes_pages.router)
     app.include_router(routes_configuration.router)
+    from .routes_rss import router as rss_router
+    app.include_router(rss_router)
     app.include_router(routes_jav_browser.create_router(routes_configuration.local_only))
     app.include_router(routes_media.router)
     app.include_router(routes_subtitles.router)

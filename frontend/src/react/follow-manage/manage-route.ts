@@ -1,4 +1,4 @@
-export const FOLLOW_MANAGE_TABS = ['list', 'add', 'feeds'] as const;
+export const FOLLOW_MANAGE_TABS = ['list', 'add', 'feeds', 'rss'] as const;
 export type FollowManageTab = (typeof FOLLOW_MANAGE_TABS)[number];
 export interface FollowManageRoute { tab: FollowManageTab; page: number; sort: string; dir: string }
 

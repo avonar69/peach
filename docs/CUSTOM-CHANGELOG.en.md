@@ -4,6 +4,12 @@ kind: changelog
 
 # English-first interface, StashDB and playback changes
 
+- **RSS download subscriptions:** Adds public HTTP/HTTPS RSS/Atom feeds under Manage following, with new videos and original download links. Updates reuse existing subscription scheduling and deduplicate saved items without requiring release codes.
+
+- **Inline debrid downloads:** Adds AllDebrid and Real-Debrid API-key configuration, connection feedback and supported-host discovery. A debrid icon beside each supported RSS link prepares and starts a download, with file selection for multi-file torrents.
+
+- **Docker download folders and resumable transfers:** Provider settings accept a folder visible inside the container, or use browser downloads when blank. Server transfers provide progress, cancellation, saved remote task identities, validated partial-file resume and protection against overwriting existing files.
+
 - **Offline interface languages:** English is the default, with nine additional languages available from setup or settings. All catalogs are bundled locally, so normal use does not contact a translation service.
 
 - **Complete interface translations:** Localizes menus, onboarding, settings, browser titles, Windows tray menus, diagnostics and management pages. Dynamic scan actions, estimate units/scopes and unavailable diagnostic counts are translated before filenames and numbers are inserted.

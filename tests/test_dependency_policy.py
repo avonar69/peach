@@ -109,6 +109,7 @@ class DependencyPolicyTests(unittest.TestCase):
             "google": "protobuf",
             "grpc": "grpcio",
             "httpx": "httpx",
+            "feedparser": "feedparser",
             "itsdangerous": "itsdangerous",
             "m3u8": "m3u8",
             "numpy": "numpy",
