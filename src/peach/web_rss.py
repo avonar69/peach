@@ -56,6 +56,8 @@ def source_action(contract, body):
             feeds.remove_source(connection, identity)
         elif action == 'enabled' and type(body.get('enabled')) is bool:
             feeds.set_enabled(connection, identity, body['enabled'])
+        elif action == 'filter' and type(body.get('hide_unsupported')) is bool:
+            connection.execute('UPDATE feed_source SET hide_unsupported=? WHERE id=?', (int(body['hide_unsupported']), identity))
         else:
             raise ValueError('Choose a valid RSS feed action.')
     return {'ok': True}

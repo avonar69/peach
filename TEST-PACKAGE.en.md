@@ -6,6 +6,10 @@ kind: howto
 
 ## RSS and debrid downloads
 
+RSS posts show the title, feed/date/time, a main thumbnail, and every preview thumbnail from the post, followed by download links. Each preview opens its own full image; description prose is hidden. After updating, use **Check feeds now** to populate images for existing posts.
+
+Beside each added RSS source, **Hide unsupported links** saves a filter for that feed. It uses the supported-host lists from configured debrid providers; run **Test connection** in Download providers to load those lists. Turn the filter off to display all links again.
+
 Open **Manage following → RSS downloads**, add a public HTTP/HTTPS RSS/Atom feed, and use **Check feeds now** to fetch new items. Items show their original links, including supported hoster links such as rg.to. Feed refreshes preserve saved items and do not start paid downloads automatically.
 
 In **Peach configuration → Download providers**, save an AllDebrid or Real-Debrid API key, then use **Test connection** to confirm access and load supported hostnames. Click the cloud-download icon beside an RSS link to prepare and start its download with that provider. Single-file links start directly; torrents with multiple files offer a choice after preparation. The prepared direct link also remains available below the item.

@@ -16,20 +16,35 @@ interface Link { url: string; kind: string }
 interface File { url?: string; filename?: string; size?: number }
 interface Job { id: string; entry_id: number; provider: string; kind: string; status: string; error?: string;
   source?: Link; files?: File[]; filename?: string; bytes?: number; total?: number; path?: string }
-interface Entry { id: number; title: string; feed_name: string; published_at: string | null; links: Link[] }
-interface Source { id: number; name: string; enabled: boolean; last_error: string | null; last_fetched_at: string | null }
+interface Picture { src: string; href: string }
+interface Entry { id: number; source_id: number; title: string; feed_name: string; published_at: string | null; links: Link[];
+  images?: { main?: Picture; previews?: Picture[] } }
+interface Source { id: number; name: string; enabled: boolean; hide_unsupported?: boolean; last_error: string | null; last_fetched_at: string | null }
 interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number }
 const KEY = ['rss-downloads'];
 const statusLabels: Record<string, string> = { queued: 'Queued', preparing: 'Preparing download', downloading: 'Downloading',
   ready: 'Ready', complete: 'Download complete', cancelled: 'Cancelled', failed: 'Download failed' };
 
-export function supports(provider: DebridProvider, link: Link): boolean {
+export function supports(provider: DebridProvider, link: Link, confirmed = false): boolean {
   if (!provider.configured) return false;
-  if (link.kind !== 'link' || !provider.hosts?.length) return true;
+  if (link.kind !== 'link') return true;
+  if (!provider.hosts?.length) return !confirmed;
   try {
     const host = new URL(link.url).hostname;
     return provider.hosts.some(domain => host === domain || host.endsWith(`.${domain}`));
   } catch { return false; }
+}
+
+function PostPicture({ picture, title, preview = false }: { picture?: Picture; title: string; preview?: boolean }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [picture?.src]);
+  if (!picture || failed) return null;
+  return <a href={picture.href} target="_blank" rel="noopener noreferrer" className="flex min-w-0 flex-col items-start gap-2"
+    aria-label={formatTranslation(preview ? 'Open preview for {0}' : 'Open main image for {0}', title)}>
+    <img src={picture.src} alt={title} loading="lazy" decoding="async" referrerPolicy="no-referrer"
+      className={preview ? 'h-auto max-h-80 max-w-full object-contain' : 'h-auto max-h-96 max-w-full object-contain'}
+      onError={() => setFailed(true)} data-i18n-ignore="" />
+  </a>;
 }
 
 function TaskProgress({ job, cancel, readOnly }: { job: Job; cancel(id: string): void; readOnly: boolean }) {
@@ -91,6 +106,7 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
   };
   if (state.isPending) return <p role="status">Loading RSS feeds…</p>;
   if (state.isError || !data) return <Note tone="error">Could not load RSS feeds.</Note>;
+  const filteredSources = new Set(data.sources.filter(source => source.hide_unsupported).map(source => source.id));
   return <Stack>
     <h2 className="text-title-2-medium">RSS downloads</h2>
     <form className="flex flex-col gap-3" onSubmit={event => {
@@ -114,6 +130,13 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
       <span className="min-w-0 grow break-words" data-i18n-ignore="">{source.name}</span>
       <Switch aria-label={formatTranslation('Enable {0}', source.name)} isDisabled={readOnly} isSelected={source.enabled}
         onChange={enabled => send('source', { action: 'enabled', id: source.id, enabled })} />
+      <Switch aria-label={formatTranslation('Hide unsupported links for {0}', source.name)} isDisabled={readOnly}
+        isSelected={!!source.hide_unsupported}
+        onChange={hide_unsupported => send('source', { action: 'filter', id: source.id, hide_unsupported })}>
+        Hide unsupported links
+      </Switch>
+      {source.hide_unsupported && !data.providers.some(provider => provider.configured && provider.hosts?.length)
+        ? <div className="w-full"><Help>Test a configured debrid provider to load its supported hosts.</Help></div> : null}
       <Button size="small" variant="secondary" disabled={readOnly}
         onClick={() => send('source', { action: 'remove', id: source.id }, 'RSS feed removed.')}>Remove feed</Button>
       {source.last_error ? <p role="alert" className="w-full">{source.last_error}</p> : null}
@@ -123,7 +146,17 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
     {data.items.map(entry => <article key={entry.id} className="flex min-w-0 flex-col gap-3 border-b border-border-button-default py-4">
       <h4 className="break-words text-body-medium" data-i18n-ignore="">{entry.title}</h4>
       <p className="text-caption-1-regular" data-i18n-ignore="">{entry.feed_name} {entry.published_at ? new Date(entry.published_at).toLocaleString() : ''}</p>
-      {entry.links.map((link, index) => <div key={link.url} className="flex min-w-0 flex-wrap items-center gap-2">
+      {entry.images?.main || entry.images?.previews?.length ? <div className="flex min-w-0 flex-col items-start gap-4">
+        <PostPicture picture={entry.images.main} title={entry.title} />
+        {entry.images.previews?.length ? <div className="flex max-w-full flex-col gap-2">
+          <span className="text-caption-1-regular text-text-secondary">Previews</span>
+          <div className="flex min-w-0 flex-wrap items-start gap-3">
+            {entry.images.previews.map(picture => <PostPicture key={picture.src} picture={picture} title={entry.title} preview />)}
+          </div>
+        </div> : null}
+      </div> : null}
+      {entry.links.map((link, index) => filteredSources.has(entry.source_id) && !data.providers.some(provider => supports(provider, link, true))
+        ? null : <div key={link.url} className="flex min-w-0 flex-wrap items-center gap-2">
         <a href={link.url} className="min-w-0 break-all underline" rel="noreferrer" target="_blank" data-i18n-ignore="">{link.url}</a>
         {data.providers.filter(provider => supports(provider, link)).map(provider => <Button key={provider.id} size="small" variant="secondary" iconOnly
           leadingIcon={RiDownloadCloud2Line} title={formatTranslation('Download with {0}', provider.label)} aria-label={formatTranslation('Download with {0}', provider.label)}

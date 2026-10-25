@@ -9,6 +9,59 @@ describe('RSS and debrid downloads', () => {
   let browser: Browser;
   before(async () => { process.env.PEACH_E2E_LANGUAGE = 'en'; browser = await launch(); });
   after(async () => { await browser?.close(); });
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: illustrated posts keep every preview and save the per-feed link filter`, async () => {
+    const posts: Array<Record<string, unknown>> = [];
+    const state = { providers: [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '', hosts: ['rg.to'] }],
+      sources: [{ id: 1, name: 'Example RSS', enabled: true, hide_unsupported: false }],
+      items: [{ id: 1, source_id: 1, title: 'Studio - Example Actor', feed_name: 'Example RSS', published_at: '2026-10-25T01:32:24Z',
+        description: 'This prose must stay hidden.',
+        images: { main: { src: 'https://images.example.org/main.webp', href: 'https://images.example.org/main' },
+          previews: [{ src: 'https://images.example.org/preview.webp', href: 'https://images.example.org/full-preview' },
+            { src: 'https://images.example.org/preview2.webp', href: 'https://images.example.org/full-preview2' }] },
+        links: [{ url: 'https://unsupported.example.org/page', kind: 'link' }, { url: 'https://rg.to/file/example', kind: 'link' }] }],
+      jobs: [], total: 1, offset: 0 };
+    const opened = await visit(browser, '/subscriptions?tab=rss', viewport, async page => {
+      await stubServer(page);
+      await page.route('**/api/library-processing', route => route.fulfill({ json: { status: 'idle' } }));
+      await page.route('https://images.example.org/**', route => route.fulfill({ contentType: 'image/svg+xml',
+        body: route.request().url().includes('main')
+          ? '<svg xmlns="http://www.w3.org/2000/svg" width="622" height="350"><rect width="622" height="350" fill="#909090"/></svg>'
+          : '<svg xmlns="http://www.w3.org/2000/svg" width="103" height="200"><rect width="103" height="200" fill="#aaaaaa"/></svg>' }));
+      await page.route('**/api/rss**', async route => {
+        if (route.request().method() === 'POST') {
+          const body = route.request().postDataJSON(); posts.push(body);
+          if (body.action === 'filter') state.sources[0].hide_unsupported = body.hide_unsupported;
+          await route.fulfill({ json: { ok: true, id: 'prepared' } });
+        } else await route.fulfill({ json: state });
+      });
+    });
+    try {
+      const page = opened.page, article = page.locator('article');
+      await article.locator('img').first().waitFor();
+      await page.waitForFunction(() => [...document.querySelectorAll<HTMLImageElement>('article img')].every(image => image.complete && image.naturalWidth > 0));
+      assert.equal(await article.locator('img').count(), 3);
+      assert.equal(await article.locator('a[href="https://images.example.org/full-preview"]').count(), 1);
+      assert.equal(await article.locator('a[href="https://images.example.org/full-preview2"]').count(), 1);
+      assert.ok(!(await article.innerText()).includes('This prose must stay hidden.'));
+      for (const scheme of ['light', 'dark'] as const) {
+        await page.emulateMedia({ colorScheme: scheme });
+        const geometry = await layout(page);
+        assert.ok(geometry.scrollWidth <= geometry.viewportWidth + 1, JSON.stringify(geometry));
+        await article.screenshot({ path: `../build/agent-verification/rss-post-${viewport.name}-${scheme}.png` });
+      }
+      await page.getByText('Hide unsupported links', { exact: true }).click();
+      await article.locator('a[href="https://unsupported.example.org/page"]').waitFor({ state: 'detached' });
+      await page.getByRole('button', { name: 'Download with AllDebrid', exact: true }).click();
+      assert.ok(posts.some(body => body.action === 'filter' && body.hide_unsupported === true));
+      assert.ok(posts.some(body => body.link_index === 1));
+      await page.reload();
+      await article.locator('img').first().waitFor();
+      assert.equal(await article.locator('a[href="https://unsupported.example.org/page"]').count(), 0);
+      await page.getByRole('switch', { name: /Hide unsupported links/ }).press('Space');
+      await article.locator('a[href="https://unsupported.example.org/page"]').waitFor();
+      assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
+    } finally { await opened.close(); }
+  });
   for (const viewport of VIEWPORTS) it(`${viewport.name}: RSS link icons prepare and download to the configured folder`, async () => {
     const posts: Array<{ path: string; body: Record<string, unknown> }> = [];
     const source = { url: 'https://rg.to/file/example', kind: 'link' };

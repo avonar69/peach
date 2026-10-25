@@ -316,6 +316,7 @@ def sources(connection: sqlite3.Connection) -> list[dict]:
         "entity_id": row["entity_id"],
         "entity_name": row["entity_name"],
         "enabled": bool(row["enabled"]),
+        "hide_unsupported": bool(row["hide_unsupported"]),
         "interval_minutes": int(row["interval_minutes"]),
         "last_fetched_at": row["last_fetched_at"],
         "next_fetch_at": row["next_fetch_at"],

@@ -4,6 +4,10 @@ kind: changelog
 
 # English-first interface, StashDB and playback changes
 
+- **Illustrated RSS posts:** Displays each post's title, feed and publication time, main thumbnail, and all preview thumbnails with their individual full-image links. Description text stays hidden, and image links are kept separate from download links.
+
+- **Per-feed debrid link filtering:** Adds a saved switch beside each RSS feed to hide links unsupported by configured debrid providers. Turning it off restores the full list, and filtered download buttons retain the correct original link targets.
+
 - **RSS download subscriptions:** Adds public HTTP/HTTPS RSS/Atom feeds under Manage following, with new videos and original download links. Updates reuse existing subscription scheduling and deduplicate saved items without requiring release codes.
 
 - **Inline debrid downloads:** Adds AllDebrid and Real-Debrid API-key configuration, connection feedback and supported-host discovery. A debrid icon beside each supported RSS link prepares and starts a download, with file selection for multi-file torrents.

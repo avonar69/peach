@@ -4,7 +4,7 @@
 
 <h1 align="center">Peach</h1>
 
-Custom build: RSS downloads in Manage following show original links with inline AllDebrid and Real-Debrid download icons. Configure a provider under Download providers; choose a container-visible folder for server downloads or leave it blank for browser downloads. See [test-build instructions](TEST-PACKAGE.en.md).
+Custom build: RSS downloads in Manage following show illustrated posts with a main thumbnail, every preview image, and inline AllDebrid/Real-Debrid download icons. Each feed can hide unsupported links. Configure a provider under Download providers; choose a container-visible folder for server downloads or leave it blank for browser downloads. See [test-build instructions](TEST-PACKAGE.en.md).
 
 <p align="center">A private video library: local drives, cloud drives and the creators you follow, all in one place.</p>
 

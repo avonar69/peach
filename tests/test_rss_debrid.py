@@ -28,6 +28,50 @@ RSS = f'''<rss version="2.0"><channel><title>Example feed</title><item><guid>sce
 
 
 class RSSDebridTests(unittest.TestCase):
+    def test_post_images_use_content_thumbnails_and_full_preview_links_without_prose(self):
+        body = b'''<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Sample RSS</title>
+          <item><guid>picture-post</guid><title>Studio - Example Actor</title><description>Unwanted prose</description>
+          <content:encoded><![CDATA[<p><a href="https://images.example.org/full-main"><img src="https://images.example.org/main.webp" width="622" height="350"></a></p>
+          <p>Hidden description and <script>bad()</script></p><strong>Preview:</strong><br>
+          <a href="https://images.example.org/full-preview"><img src="https://images.example.org/preview.webp" width="103" height="200"></a>
+          <a href="https://images.example.org/full-preview-2"><img src="https://images.example.org/preview-2.webp"></a>
+          <a href="https://rg.to/file/example">Download</a>]]></content:encoded></item></channel></rss>'''
+        _, rows = rss_feeds.parse(body, 'https://example.org/feed')
+        self.assertEqual(rows[0]['images'], {
+            'main': {'src': 'https://images.example.org/main.webp', 'href': 'https://images.example.org/full-main'},
+            'previews': [{'src': 'https://images.example.org/preview.webp', 'href': 'https://images.example.org/full-preview'},
+                         {'src': 'https://images.example.org/preview-2.webp', 'href': 'https://images.example.org/full-preview-2'}]})
+        self.assertEqual(rows[0]['links'], [{'url': 'https://rg.to/file/example', 'kind': 'link'}])
+        self.assertNotIn('Unwanted prose', json.dumps(rows))
+        self.assertNotIn('bad()', json.dumps(rows))
+        with self.database.write_transaction() as connection:
+            source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            rss_feeds.poll(connection, source, body)
+        self.assertEqual(rss_feeds.items(self.database)['items'][0]['images'], rows[0]['images'])
+
+    def test_unsafe_images_tracking_pixels_and_empty_sources_are_excluded(self):
+        html = rss_feeds._Anchors()
+        html.feed('<img><img src="javascript:bad()"><img src="http://127.0.0.1/a">'
+                  '<img src="https://images.example.org/pixel" width="1" height="1">'
+                  '<img src="/cover.webp"><strong>Preview:</strong><a href="/full"><img src="/thumb.webp"></a>'
+                  '<a href="/full2"><img src="/thumb.webp"></a>')
+        images = rss_feeds._images({}, html, 'https://example.org/feed')
+        self.assertEqual(images['main']['src'], 'https://example.org/cover.webp')
+        self.assertEqual(images['previews'][0]['href'], 'https://example.org/full')
+        self.assertEqual(images['previews'][1]['href'], 'https://example.org/full2')
+
+    def test_source_link_filter_is_persisted_and_reversible(self):
+        contract = SimpleNamespace(database=self.database, debrid=self.service())
+        for value in (True, False):
+            web_rss.source_action(contract, {'action': 'filter', 'id': self.source, 'hide_unsupported': value})
+            with self.database.read_connection() as connection:
+                row = connection.execute('SELECT hide_unsupported FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            self.assertEqual(bool(row[0]), value)
+            with patch('peach.settings_file.active', return_value=self.config):
+                self.assertEqual(web_rss.snapshot(contract)['sources'][0]['hide_unsupported'], value)
+        with self.assertRaises(ValueError):
+            web_rss.source_action(contract, {'action': 'filter', 'id': self.source, 'hide_unsupported': 'false'})
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

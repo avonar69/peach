@@ -2,6 +2,8 @@
 
 ## RSS 与 debrid 下载
 
+图文条目沿用 feedparser 的正文模型和标准库 HTMLParser，只提取经过地址校验的图片／链接元数据。预览区采用 BoardUI 既有排版、图片的原生延迟加载与保留比例布局，来源 HTML 不进入 React。来源级筛选复用已保存的渠道主机列表，并在过滤显示时保留原始链接序号；未增加依赖。
+
 RSS/Atom 解析复用 [feedparser 6.0.12](https://pypi.org/project/feedparser/6.0.12/)（BSD-2-Clause）及其 sgmllib3k 1.0.0（BSD）依赖，版本精确固定。解析器只接收有界字节，网络与重定向检查复用 httpx 0.28.1 和既有公开地址验证。订阅复用 feed_source、feed_item、条件请求与调度；无番号条目不生成资产。磁力识别、原子状态写入、磁盘余量检查和界面控件沿用项目入口。
 
 AllDebrid 与 Real-Debrid 依据[官方 AllDebrid API](https://docs.alldebrid.com/)和[官方 Real-Debrid API](https://api.real-debrid.com/)实现有限 REST 适配，使用 Bearer 认证、固定官方地址、单渠道间隔与 429 冷却。未引入非官方账号 SDK：既有 HTTP 客户端已覆盖所需请求，远端身份、取消和本地文件发布是 Peach 的领域策略。标准库文件与线程接口承担任务恢复、ETag/Range 续传及排他发布；Windows 包保留解析依赖元数据与许可，测试不使用真实账号。行为与边界见 [ADR-0116](adr/0116-rss-debrid-downloads.md)。

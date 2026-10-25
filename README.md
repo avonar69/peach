@@ -4,7 +4,7 @@
 
 <h1 align="center">Peach</h1>
 
-定制版本在关注管理提供 RSS 下载列表，原始链接旁可使用 AllDebrid 或 Real-Debrid 图标下载。在下载渠道保存密钥及可选目录；容器目录用于服务端下载，留空交给浏览器。设计边界见 [RSS 下载决策](docs/adr/0116-rss-debrid-downloads.md)。
+定制版本在关注管理提供 RSS 图文列表，展示主缩略图、全部预览图及带 AllDebrid／Real-Debrid 图标的下载链接。每个订阅可隐藏不支持的链接。在下载渠道保存密钥及可选目录；容器目录用于服务端下载，留空交给浏览器。设计边界见 [RSS 下载决策](docs/adr/0116-rss-debrid-downloads.md)。
 
 <p align="center">给自己用的私人影片馆藏：本地硬盘、网盘和关注的创作者，放在一个地方看。</p>
 

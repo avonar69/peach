@@ -13,8 +13,10 @@ const link = { url: 'https://rg.to/file/example', kind: 'link' };
 
 function serve(folder = '') {
   const posts: Array<{ path: string; body: Record<string, unknown> }> = [];
-  const state = { providers: [{ ...provider, download_folder: folder }], sources: [],
-    items: [{ id: 1, title: 'Example video', feed_name: 'Example feed', published_at: null, links: [link] }],
+  const state = { providers: [{ ...provider, download_folder: folder }],
+    sources: [{ id: 1, name: 'Example feed', enabled: true, hide_unsupported: false }],
+    items: [{ id: 1, source_id: 1, title: 'Example video', feed_name: 'Example feed', published_at: null, links: [link],
+      images: {} as { main?: { src: string; href: string }; previews?: Array<{ src: string; href: string }> } }],
     jobs: [] as Array<Record<string, unknown>>, total: 1, offset: 0 };
   vi.stubGlobal('fetch', vi.fn(async (raw: string, options?: RequestInit) => {
     const path = String(raw);
@@ -69,4 +71,31 @@ it('支持域名按主机边界匹配，磁力复用同一枚图标', () => {
   expect(supports(provider, { ...link, url: 'https://sub.rg.to/file' })).toBe(true);
   expect(supports({ ...provider, configured: false }, link)).toBe(false);
   expect(supports(provider, { url: 'magnet:?xt=urn:btih:test', kind: 'magnet' })).toBe(true);
+  expect(supports({ ...provider, hosts: [] }, link, true)).toBe(false);
+});
+
+it('图文条目显示主图和全部预览缩略图并保留各自原图链接', async () => {
+  const { state } = serve();
+  state.items[0].images = { main: { src: 'https://images.example.org/main.webp', href: 'https://images.example.org/main' },
+    previews: [{ src: 'https://images.example.org/preview.webp', href: 'https://images.example.org/full' },
+      { src: 'https://images.example.org/preview2.webp', href: 'https://images.example.org/full2' }] };
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  const images = host.querySelectorAll('article img');
+  expect(images.length).toBe(3);
+  expect(images[1].closest('a')?.href).toBe('https://images.example.org/full');
+  expect(images[2].closest('a')?.href).toBe('https://images.example.org/full2');
+  expect(images[0].getAttribute('referrerpolicy')).toBe('no-referrer');
+  expect(images[0].getAttribute('loading')).toBe('lazy');
+});
+
+it('来源过滤隐藏不支持的地址并保留原始下载序号', async () => {
+  const { state, posts } = serve();
+  state.sources[0].hide_unsupported = true;
+  state.items[0].links = [{ url: 'https://unsupported.example.org/page', kind: 'link' }, link];
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} download={vi.fn()} /></QueryClientProvider>);
+  expect(host.querySelector('a[href="https://unsupported.example.org/page"]')).toBeNull();
+  await click(host.querySelector('button[aria-label="Download with AllDebrid"]'));
+  expect(posts[0].body.link_index).toBe(1);
+  await click(host.querySelector('[role="switch"][aria-label="Hide unsupported links for Example feed"]'));
+  expect(posts).toContainEqual({ path: '/api/rss/source', body: { action: 'filter', id: 1, hide_unsupported: false } });
 });
