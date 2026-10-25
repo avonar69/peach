@@ -484,7 +484,7 @@ class FeedWebTest(FeedWebFixture):
         self._add(entity_id=entity_id)
         self._check()
         self.assertEqual(rows(), [{"id": entity_id, "kind": "performer",
-                                   "names": ["深田えいみ", "Eimi Fukada"], "parts": ["feed"]}])
+                                   "names": ["深田えいみ", "Eimi Fukada"], "parts": ["feed", "facts"]}])
         # 那几部都忽略掉，她的页面上就没有那一行了，名单跟着不再有她。
         ids = [item["id"] for item in dispatch_api_get(
             self.contract, "/api/feeds/discoveries", {"entity": entity_id})["items"]]

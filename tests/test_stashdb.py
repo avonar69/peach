@@ -32,6 +32,75 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_actor_details_aliases_manual_override_and_birthday(self):
+        from datetime import date
+        from peach import actor_details
+        with self.database.write_transaction() as connection:
+            entity_id = upsert_asset_entity(connection, kind='performer', name='Jane Doe', asset_id=1,
+                role='performer', source='test')
+            actor_details.sync(connection, entity_id, {'birth_date': '1996-01-12', 'height': 170,
+                'aliases': ['Chloe', 'Clara Fargo', 'Larissa'], 'country': 'US', 'breast_type': 'NATURAL'})
+            self.assertEqual(actor_details.public(connection, entity_id, date(2026, 1, 11))['age'], 29)
+            self.assertEqual(actor_details.public(connection, entity_id, date(2026, 1, 12))['age'], 30)
+            self.assertIn('Clara Fargo', [row[0] for row in connection.execute('SELECT alias FROM entity_alias WHERE entity_id=?', (entity_id,))])
+        contract = SimpleNamespace(database=self.database, cache_bust=mock.Mock())
+        actor_details.write(contract, {'entity_id': entity_id, 'values': {'height': '172'}})
+        with self.database.write_transaction() as connection:
+            actor_details.sync(connection, entity_id, {'height': 168, 'aliases': ['New Alias']})
+            self.assertEqual(actor_details.public(connection, entity_id)['height'], '172')
+        actor_details.write(contract, {'entity_id': entity_id, 'values': {'height': None}})
+        with self.database.read_connection() as connection:
+            self.assertEqual(actor_details.public(connection, entity_id)['height'], 168)
+        for values in ({'birth_date': '2020-02-31'}, {'height': '999'}, {'age': '30'},
+                       {'career_start_year': '2020', 'career_end_year': '2010'}):
+            with self.assertRaises(ValueError):
+                actor_details.write(contract, {'entity_id': entity_id, 'values': values})
+
+    def test_entity_resync_only_requests_existing_identity_kind(self):
+        from peach import stashdb_entities, actor_details
+        with self.database.write_transaction() as connection:
+            actor_id = upsert_asset_entity(connection, kind='performer', name='Jane Doe', asset_id=1, role='performer', source='test')
+            upsert_asset_entity(connection, kind='studio', name='Evil Angel', asset_id=1, role='studio', source='test')
+        client = mock.Mock()
+        client.incomplete = False
+        client.performers.return_value = [{'id': ACTOR, 'name': 'Jane Doe', 'aliases': ['Clara Fargo'], 'birth_date': '1996-01-12'}]
+        client.studios.return_value = [{'id': STUDIO, 'name': 'Evil Angel'}]
+        with mock.patch.object(stashdb_client, 'Client', return_value=client):
+            self.assertEqual(stashdb_entities.resync(self.config, self.database, 'performer', progress=lambda **kw: None,
+                issue=lambda *args: None, active=lambda: True), 1)
+            client.studios.assert_not_called()
+            client.scenes.assert_not_called()
+            client.scene.assert_not_called()
+            client.performer.return_value = {'id': ACTOR, 'name': 'Jane Doe', 'aliases': ['Clara Fargo'], 'height': 170}
+            stashdb_entities.resync(self.config, self.database, 'performer', progress=lambda **kw: None,
+                issue=lambda *args: None, active=lambda: True)
+            client.performer.assert_called_once_with(ACTOR)
+            client.reset_mock()
+            progress = mock.Mock()
+            stashdb_entities.resync(self.config, self.database, 'performer', progress=progress,
+                issue=lambda *args: None, active=lambda: True, completed=[actor_id])
+            client.performer.assert_not_called()
+            self.assertEqual(progress.call_args.kwargs, {'checked': 1, 'total': 1})
+            stashdb_entities.resync(self.config, self.database, 'studio', progress=lambda **kw: None,
+                issue=lambda *args: None, active=lambda: True)
+            client.performers.assert_not_called()
+            client.scenes.assert_not_called()
+        with self.database.read_connection() as connection:
+            self.assertEqual(actor_details.public(connection, actor_id)['height'], 170)
+
+    def test_resync_task_bypasses_media_and_scene_processing(self):
+        from peach import library_processing
+        with mock.patch('peach.stashdb_entities.resync', return_value=2) as resync, \
+             mock.patch.object(library_processing, '_scan_sources') as scan, \
+             mock.patch.object(library_processing, '_collection_rows') as collect:
+            result = library_processing.process_library(self.config, self.database.db_path,
+                self.root / 'candidates', self.root / 'covers', database=self.database, stage='stashdb_actors')
+        self.assertEqual(result['status'], 'complete')
+        self.assertEqual(result['stashdb_applied'], 2)
+        self.assertEqual(resync.call_args.args[2], 'performer')
+        scan.assert_not_called()
+        collect.assert_not_called()
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -117,6 +186,24 @@ class StashDBTests(unittest.TestCase):
                 progress=lambda **_: None, issue=lambda *_, **__: None)
         self.assertEqual(result['skipped'], 1)
         self.assertEqual(self.calls, [])
+
+    def test_synced_aliases_keep_an_actor_without_remote_images_cached(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'scene_images': False})
+        with self.database.write_transaction() as connection:
+            upsert_asset_entity(connection, kind='performer', name='Jane Doe', asset_id=1, role='performer', source='test')
+        self.scenes[0]['performers'][0]['performer']['images'] = []
+        client = self.client()
+        client.performers = mock.Mock(return_value=[self.scenes[0]['performers'][0]['performer']])
+        for index in range(2):
+            with mock.patch('peach.stashdb_client.Client', return_value=client):
+                result = stashdb.scan_assets(self.config, self.database, [{'id': 1}],
+                    progress=lambda **_: None, issue=lambda *_, **__: None)
+            self.assertEqual(result['applied' if index == 0 else 'skipped'], 1)
+            if index == 0:
+                self.calls.clear()
+            else:
+                self.assertEqual(self.calls, [])
+        self.assertEqual(client.performers.call_count, 1)
 
     def test_stopping_after_stashdb_response_prevents_further_requests(self):
         from peach.processing_control import control_for

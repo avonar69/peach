@@ -127,6 +127,8 @@ Interface languages, StashDB and playback options: [Feature changelog](docs/CUST
 
 Scanning and acquisition includes a Stop scan button that preserves completed work. With StashDB scene pictures disabled, automatic matching only looks up existing actors and studios; the setup guide explains filename recognition and scene-based cast correction.
 
+Actor pages include editable profile details on the right, birthdate-based ages and aliases with spaces. Sources & subscriptions → StashDB offers separate Resync Actors and Resync Studios actions that refresh existing identities without searching scenes.
+
 Contributing: [Development guide](AGENTS.md) · [Testing and dependencies](docs/TESTING.md)
 
 ## Related projects

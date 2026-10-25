@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 from .follow_discovery import MAX_SUGGESTIONS, MAX_TERM_LENGTH
+from .actor_details import write as w_actor_details
 from .review_csv import candidate_root_version
 from .web_activity import (
     w_activity,
@@ -447,6 +448,7 @@ POST_HANDLERS = {
     "/api/library-shortcuts": w_library_shortcuts,
     "/api/entity-name": w_entity_name,
     "/api/entity-alias": w_entity_alias,
+    "/api/actor-details": w_actor_details,
 }
 
 

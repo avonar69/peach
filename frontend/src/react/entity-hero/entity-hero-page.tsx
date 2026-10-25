@@ -23,6 +23,7 @@ import { FeedNewRow } from '../feed-new/feed-new-row';
 import { Glyph } from './glyph';
 import { FeedSwitch, MorePop } from './hero-pop';
 import { NamePicker } from './name-picker';
+import { ActorDetailsEditor, actorFactRows } from './actor-details';
 import {
   COMPANY_ALIASES_SHOWN, agencyOf, companyFactRows, entityFeedTip, entryMarks, factRows, heroLinks, isCompany, isPeople, nameChoices, nameLine, shownTags,
   type EntityHeroActions, type EntityHeroData, type EntityHeroHelpers, type EntityHeroProps,
@@ -40,7 +41,9 @@ function costarImg(person: HeroCostar): string {
 export function EntityHeroPage({ kind, name, entity, feedNew, feedHost, actions, helpers }: EntityHeroProps) {
   const people = isPeople(kind);
   const company = isCompany(kind);
-  const facts = people ? factRows(entity.profile) : company ? companyFactRows(entity.company_profile) : [];
+  const facts = kind === 'performer' && entity.actor_details ? [...actorFactRows(entity.actor_details),
+    ...factRows(entity.profile).filter(row => row.glyph === 'flag' || row.glyph === 'tags')]
+    : people ? factRows(entity.profile) : company ? companyFactRows(entity.company_profile) : [];
   const links = heroLinks(entity, kind);
   const marks = entryMarks(entity);
   const costars = kind === 'agency' ? [] : (entity.related_performers || []);
@@ -95,6 +98,9 @@ export function EntityHeroPage({ kind, name, entity, feedNew, feedHost, actions,
           </div>
           {facts.length ? (
             <dl data-entity-facts="">
+              {kind === 'performer' && entity.actor_details ? <dd data-actor-edit="">
+                <ActorDetailsEditor entityId={entity.id} details={entity.actor_details} onSaved={actions.avatarPicked} receipt={helpers.receipt} />
+              </dd> : null}
               {facts.map((row) => (
                 <FactRowView key={row.label} glyph={row.glyph} label={row.label} clip={row.clip}>
                   {row.tags ? <FactTags tags={row.tags} />

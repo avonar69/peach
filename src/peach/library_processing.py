@@ -58,7 +58,8 @@ ISSUE_PREVIEW_LIMIT = 20
 #: 扫描、资料与预览共用的阶段名，同时用于接口和页面。
 SCAN_STAGE, COLLECT_STAGE, ALL_STAGES = 'scan', 'collect', 'all'
 METADATA_STAGE, PREVIEWS_STAGE = 'metadata', 'previews'
-STAGES = (ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE)
+ENTITY_STAGES = {'stashdb_actors': 'performer', 'stashdb_studios': 'studio'}
+STAGES = (ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, *ENTITY_STAGES)
 
 #: 没有动作截止时间的阶段（本地读取）超过这么久没有心跳就在页面上预警。
 STALL_AFTER_SECONDS = 120.0
@@ -2109,6 +2110,8 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
 
 def _processing_steps(stage, asset_ids, *, metadata_only_enabled):
     """按本趟真实处理范围构造有序阶段清单。"""
+    if stage in ENTITY_STAGES:
+        return [dict(id='collect', label='Resync Actors' if stage == 'stashdb_actors' else 'Resync Studios', status='current')]
     scanning = asset_ids is None and stage in (ALL_STAGES, SCAN_STAGE)
     steps = [('sources', '扫描文件' if scanning else '检查媒体目录')]
     if stage not in (SCAN_STAGE, PREVIEWS_STAGE):
@@ -2197,6 +2200,12 @@ class _LocalEvidenceCache:
                 atomic_write_text(item_path, encoded)
             self.state['local_metadata'][key] = str(item_path)
         return local
+
+
+def _completion_values(state):
+    """所有处理范围共用同一个终态与问题摘要。"""
+    return dict(status='failed' if state['issue_count'] else 'complete', stage='处理结束',
+        completed_at=time.time(), error=issue_summary(state['issue_count'], state['paused_count']))
 
 
 def process_library(config, db_path, candidate_root, cover_root, *, location='configured',
@@ -2319,6 +2328,13 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
         try:
             guard = DiskGuard(config.data_root, 1)
             guard.check(force=True)
+            if stage in ENTITY_STAGES:
+                from .stashdb_entities import resync
+                count = resync(config, database, ENTITY_STAGES[stage], progress=update, issue=issue,
+                    active=active, completed=(resume_state or {}).get('resynced_entities', []))
+                finish_step('collect')
+                update(**_completion_values(state), stashdb_applied=count, current_asset_name='')
+                return state
             locations = config.locations if location == 'configured' else {location: config.locations[location]}
             sources = _scan_sources(config, db_path, locations=locations, asset_ids=scope_ids,
                                     stage=stage, guard=guard, update=update, issue=issue,
@@ -2328,9 +2344,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
             finish_step('sources')
             if stage == SCAN_STAGE:
                 # `checked`／`total` 在探时长时借给进度条用过；只扫描这一段没有采集，读数归零。
-                update(status='failed' if state['issue_count'] else 'complete',
-                       stage='处理结束', completed_at=time.time(), checked=0, total=0,
-                       error=issue_summary(state['issue_count'], state['paused_count']))
+                update(**_completion_values(state), checked=0, total=0)
                 return state
             rows, genre_decisions = _collection_rows(
                 db_path, locations=locations, online_roots=sources.online_roots, asset_ids=scope_ids)
@@ -2342,8 +2356,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                                    initial_made=state['previews'],
                                    checkpoint=lambda row: checkpoints.mark('completed_previews', row, flush_state))
                 finish_step('media')
-                update(status='failed' if state['issue_count'] else 'complete', stage='处理结束',
-                       completed_at=time.time(), error=issue_summary(state['issue_count'], state['paused_count']))
+                update(**_completion_values(state))
                 return state
             output = candidate_root / 'library-metadata-field-candidates.csv'
             groups = {row['item_key']: row for row in read_rows(output, missing_ok=True)}
@@ -2463,11 +2476,10 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
             summary['stashdb_review'] = stash_result['review']
             summary['stashdb_skipped'] = stash_result.get('skipped', 0)
             finish_step('collect')
-            update(status='failed' if state['issue_count'] else 'complete', stage='处理结束',
+            update(**_completion_values(state),
                    checked=len(rows), total=len(rows),
                    **summary,
-                   error=issue_summary(state['issue_count'], state['paused_count']),
-                   completed_at=time.time(), current_asset_id=None, current_asset_name='',
+                   current_asset_id=None, current_asset_name='',
                    current_action='', current_started_at=None, current_deadline_at=None)
         except Exception:
             state.update(status='failed', error='处理被中断。核对媒体目录后重试。', completed_at=time.time())

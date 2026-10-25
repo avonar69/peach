@@ -124,15 +124,20 @@ export async function entityAliasForm(mine,write){
     title:'添加别名',
     description:'图库按名字存图，补充名字写法能找到更多备选图片；这里添加的名字也能设为统称。',
     body:`<label class="modalfield"><span>别名</span>
-        <input class="geist-input" name="alias" maxlength="80" autocomplete="off"
-          placeholder="另一种写法，或另一个艺名"></label>`
+        <input class="geist-input" name="alias" maxlength="2000" autocomplete="off"
+          placeholder="Chloe, Clara Fargo, Larissa"></label><p>Separate aliases with commas. Spaces within names are preserved.</p>`
       +(mine.length?`<div class="modalfield"><span>自己添过的</span>
         <div class="aliaschips">${mine.map(one=>`<span class="aliaschip">${esc(one)}
           <button type="button" data-alias-drop="${esc(one)}"
             aria-label="撤销别名 ${esc(one)}">${icon('x')}</button></span>`).join('')}</div></div>`:''),
     confirmLabel:'添加别名',
     confirmDisabled:true,
-    onConfirm:()=>write({alias:field.value.trim()})});
+    onConfirm:async()=>{
+      const aliases=[...new Set(field.value.split(/[,，\n]/).map(value=>value.trim()).filter(Boolean))];
+      const added=[];
+      for(const alias of aliases){const result=await write({alias});if(result.added)added.push(result.alias||alias)}
+      return {added:!!added.length,alias:aliases.join(', '),aliases:added};
+    }});
   const field=form.dialog.querySelector('[name=alias]');
   applicationEffects.handler(field, 'oninput', ()=>{form.confirmButton.disabled=!field.value.trim()});
   /* 撤销只认自己添的那几个：刮削和合并留下的别名是这条实体当初被认成这个人的依据，
@@ -147,7 +152,7 @@ export async function entityAliasForm(mine,write){
   const {confirmed,result}=await form.done;
   if(!confirmed)return;
   if(result?.added)receiptsState.actionReceipt(`已添加别名 ${result.alias}`,{undo:async()=>{
-    await write({alias:result.alias,remove:true})}});
+    for(const alias of result.aliases||[result.alias])await write({alias,remove:true})}});
   else receiptsState.actionReceipt(`${result?.alias} 已经是这份档案中的名字`);
 }
 

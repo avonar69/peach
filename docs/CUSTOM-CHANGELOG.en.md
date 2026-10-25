@@ -4,6 +4,10 @@ kind: changelog
 
 # English-first interface, StashDB and playback changes
 
+- **Actor profile details:** Shows career dates, birthdate and current age, height, measurements, breast type, nationality, ethnicity and eye/hair colors on the right of actor pages. Edit fields locally or return to synced values; resync preserves manual corrections.
+- **Actor aliases:** StashDB aliases sync into Peach's alias list with their source retained. Comma-separated entry adds multiple aliases while preserving spaces inside names such as Clara Fargo.
+- **Actor and studio resync:** Separate actions in StashDB settings refresh only existing actors or studios, using bound IDs where available. They bypass ordinary caches, retain manual edits and installed pictures, and support the scan task's pause, resume and stop controls without scene searches.
+
 - **Illustrated RSS posts:** Displays each post's title, feed and publication time, main thumbnail, and all preview thumbnails with their individual full-image links. Description text stays hidden, and image links are kept separate from download links.
 
 - **Per-feed debrid link filtering:** Adds a saved switch beside each RSS feed to hide links unsupported by configured debrid providers. Turning it off restores the full list, and filtered download buttons retain the correct original link targets.
@@ -50,7 +54,7 @@ kind: changelog
 
 ## Scan behavior
 
-**Stop scan and actor/studio-only matching:** Stop an active or paused scan from Data management or its popup while keeping completed work. Disabling scene pictures limits automatic StashDB requests to unique existing actors and studios, with completed identities reused across scans.
+**Stop scan and actor/studio-only matching:** Stop an active or paused scan from Data management or its popup while keeping completed work; accepted cancellation shows Stopping until the worker exits. Disabling scene pictures limits automatic StashDB requests to unique existing actors and studios, with completed identities reused across scans.
 
 Full sync enumerates configured files and reuses valid existing previews; missing or invalid previews are generated as needed. **Only scan files** registers files and probes missing measurements without generating previews or scraping metadata. Metadata-only skips file discovery. New-media-only limits StashDB matching; folder enumeration remains necessary.
 

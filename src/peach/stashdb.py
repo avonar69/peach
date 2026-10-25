@@ -260,6 +260,8 @@ def _photo_links(connection, asset_id, performers):
             "AND external_kind='performer' AND external_id=?", (performer['id'],)).fetchall()
         entity_id = bound[0][0] if len(bound) == 1 else _existing_actor(connection, performer, asset_id)
         if entity_id is not None:
+            from .actor_details import sync
+            sync(connection, entity_id, performer)
             links.append((performer, entity_id))
     return links
 
@@ -290,13 +292,13 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
                 raise ValueError('The local scene changed. Preview the match again.')
             cast_updated = _write_scene(connection, asset_id, scene, row, policy, source, manual)
             performers, safe = _scene_cast(scene)
-            actor_links = _photo_links(connection, asset_id, safe) if policy['actor_images'] else []
+            actor_links = _photo_links(connection, asset_id, safe)
             if picture:
                 body, size, url = picture
                 cover_artwork.install_cover(target, row['code'] or '', body, size, evidence={
                     'provider': 'stashdb', 'source': source, 'source_url': url, 'scene_id': scene_id,
                     'scene_url': ranked['url'], 'performers': [item['name'] for item in performers], 'cast_size': len(performers), 'match': ranked})
-        photos = sum(_photo(config, client, performer, entity_id, manual=manual) for performer, entity_id in actor_links)
+        photos = sum(_photo(config, client, performer, entity_id, manual=manual) for performer, entity_id in actor_links) if policy['actor_images'] else 0
         with database.read_connection() as connection:
             completed_token = asset_evidence(connection, asset_id, revision=False)[2]
         record = {'scene_id': scene_id, 'filename': row['name'], 'match': ranked, 'reviewed': manual,
@@ -341,6 +343,9 @@ def apply_performer(config, database, performer_id, remote_id, *, client=None):
             connection.execute("INSERT OR IGNORE INTO entity_external_ref(entity_id,provider,external_kind,external_id,metadata_json) "
                 "VALUES(?,'stashdb','performer',?,'{}')", (performer_id, remote_id))
         photos = _photo(config, client, performer, performer_id, manual=True) if stashdb_client.settings(config)['actor_images'] else 0
+        with database.write_transaction() as connection:
+            from .actor_details import sync
+            sync(connection, performer_id, performer)
         return {'ok': True, 'actor_photos': photos}
     finally:
         if owned:

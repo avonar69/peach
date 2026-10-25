@@ -84,6 +84,16 @@ export function StashDBSettings({ initial, receipt, readOnly = false }: {
           signal => apiSend(LIBRARY_PROCESSING_URL, { stage: 'metadata' }, 'POST', signal),
           () => receipt('Metadata scan started. Follow its progress in Data management.'))}>Run metadata scan with StashDB</Button></div>
       <a href="/review?category=stashdb" className="underline">Review StashDB matches</a>
+      <Help>Resync refreshes existing library identities and aliases. Your edited actor details and selected pictures are preserved.</Help>
+      <div className="flex flex-wrap gap-2">{(['actors', 'studios'] as const).map(kind =>
+        <Button key={kind} type="button" variant="secondary" disabled={!policy.api_key_set || readOnly}
+          {...busyProps(action.busy === kind)} onClick={() => void action.run(kind,
+            signal => apiSend<{ requested_stage: string }>(LIBRARY_PROCESSING_URL, { stage: `stashdb_${kind}` }, 'POST', signal),
+            result => {
+              if (result.requested_stage !== `stashdb_${kind}`) throw new Error('A scan is already running. Stop it or wait for it to finish, then start resync.');
+              receipt('Identity resync started. Follow its progress in Data management.');
+            })}>
+          {kind === 'actors' ? 'Resync Actors' : 'Resync Studios'}</Button>)}</div>
     </Stack>
   </Section>;
 }

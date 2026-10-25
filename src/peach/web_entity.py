@@ -274,6 +274,9 @@ def q_entity(contract: WebContract, args):
         # 人物资料与按名义分组的别名。
         if kind in {"performer", "creator"}:
             d.update(performer_header.header(c, d["id"], d["canonical_name"]))
+            if kind == 'performer':
+                from .actor_details import public
+                d['actor_details'] = public(c, d['id'])
         elif kind in {'studio', 'agency'}:
             d['company_profile'] = company_profiles.public_profile(metadata)
         # 创作者在关注里的那一面（ADR-0096）：绑在名下的来源和同名等确认的那几组。
@@ -406,7 +409,8 @@ def _entity_shape_parts(contract, connection, entity_id: int | None = None) -> d
             " JOIN entity person ON person.id=co.entity_id AND person.kind='performer'"
             + (" WHERE scope.entity_id=?" if scope else ""), scope):
         parts.setdefault(int(row[0]), []).append("costars")
-    for key in performer_header.profiled(connection):
+    actor_ids = {row[0] for row in connection.execute("SELECT id FROM entity WHERE kind='performer'")}
+    for key in performer_header.profiled(connection) | actor_ids:
         if entity_id is None or key == entity_id:
             parts.setdefault(key, []).append("facts")
     for row in connection.execute(

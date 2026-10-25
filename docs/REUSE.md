@@ -10,6 +10,8 @@ AllDebrid 与 Real-Debrid 依据[官方 AllDebrid API](https://docs.alldebrid.co
 
 ## StashDB 与播放器操作
 
+演员资料使用 Stash-Box 官方 Performer 的 `birth_date`、生涯年份、身高、独立三围字段与颜色枚举，厂牌复用 Studio 的别名、父级和图片字段。2026-10-25 核对官方 schema；不采用已弃用的 `birthdate` 与 `measurements` 字段。不复制上游代码、不新增依赖；来源快照与手工覆盖复用实体 `metadata_json`，别名复用 `entity_alias`。显式演员／厂牌同步复用馆藏处理锁、进度与停点，假服务验证不调用作品接口。
+
 StashDB 复用 [Stash-Box 的只读 GraphQL 协议](https://github.com/stashapp/stash-box/tree/master/graphql/schema)，2026-10-23 核对认证、作品、演员、厂牌、图片和过滤条件。未复制上游实现，不新增 Stash 或第三方 GraphQL 运行时。HTTP 复用已固定的 httpx 0.28.1（BSD-3-Clause），有界流读取与固定端点拒绝重定向；图片验证复用 Pillow、头像和封面安装入口，事务复用 LedgerDatabase，字段保护及规范身份复用现有实体入口。跨 Windows 和 Linux，不新增依赖体积。通用 GraphQL SDK 对这些固定读查询不提供额外身份判据，未引入；多线索排序、复核、归属和采集预算保留为 Peach 领域策略。凭据、限流和来源规则见 [StashDB 来源](STASHDB.md)，假 API 与临时账本覆盖歧义、截断、凭据隔离、图片、字段保护及只读权限。
 
 四种跳转共用既有偏好 store、原生 KeyboardEvent 与 seekVideoBy，默认大幅前进/后退分别为上/下键，小幅前进/后退分别为右/左键。跳转范围为 1–3600 秒，重复快捷键不保存；编辑框、菜单、滑块与设置弹层保持自己的键盘行为。滚轮音量使用原生 WheelEvent 与 HTMLMediaElement.volume，默认关闭，只在视频表面阻止页面滚动；控件、横向滚动和浏览器缩放保持自身用途。卸载移除监听，不新增依赖。

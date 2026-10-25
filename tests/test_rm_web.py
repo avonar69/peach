@@ -1194,7 +1194,7 @@ class WebDataTests(unittest.TestCase):
             "/api/follow/source", "/api/follow/resolve", "/api/follow/credential",
             "/api/follow/author-alias", "/api/follow/creator", "/api/follow/schedule",
             "/api/taste/refresh", "/api/taste/source", "/api/settings",
-            "/api/entity-name", "/api/entity-alias",
+            "/api/entity-name", "/api/entity-alias", "/api/actor-details",
             "/api/organize/preview", "/api/organize/apply", "/api/organize/rollback",
             "/api/feeds/check", "/api/feeds/source", "/api/feeds/discovery",
             "/api/wants",
@@ -1766,8 +1766,8 @@ class WebDataTests(unittest.TestCase):
         # 骨架照这份名单给卡底留出同台艺人那一条，名单与资料页用同一条判据。
         shapes = {entry["id"]: entry for entry in web_entity.q_entity_shapes(self.contract, {})["entities"]}
         self.assertEqual(shapes[11], {"id": 11, "kind": "performer",
-                                      "names": ["Canonical Alice", "Alice"], "parts": ["costars", "jav"]})
-        self.assertEqual(shapes[15]["parts"], ["costars", "jav"])
+                                      "names": ["Canonical Alice", "Alice"], "parts": ["costars", "facts", "jav"]})
+        self.assertEqual(shapes[15]["parts"], ["costars", "facts", "jav"])
         self.assertTrue(page["links"][0]["clickable"])
         self.assertFalse(page["links"][1]["clickable"])
         self.assertIsNone(page["links"][1]["url"])

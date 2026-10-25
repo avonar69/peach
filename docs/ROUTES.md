@@ -113,3 +113,9 @@ RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 
 `/api/*`、`/stream`、`/follow-stream`、封面、图片及其他媒体端点使用各自的服务契约。实体只读接口 `/api/entity`、`/api/photos` 支持 `kind` 加 `id`，也接受 `kind` 加 `name`。鉴权与本机写入权限由服务端检查。
 
 启用接口文档时，`/docs`、`/docs/oauth2-redirect` 和 `/openapi.json` 是服务文档入口；首次运行表单由未配置状态下的首页展示。
+
+### 演员资料与实体同步
+
+`POST /api/actor-details` 接受 `entity_id` 与 `values`，返回保存后的 `actor_details`；`GET /api/entity` 在演员响应中提供同一资料。字段值为空字符串表示手工留空，`null` 表示使用来源值。写入沿用鉴权、同源与只读端门槛。
+
+`POST /api/library-processing` 的 `stashdb_actors` 与 `stashdb_studios` 阶段只同步当前演员或厂牌，沿用任务状态查询、暂停、恢复与停止接口；不扫描媒体或查询作品。

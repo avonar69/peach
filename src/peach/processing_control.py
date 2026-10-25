@@ -255,6 +255,9 @@ def user_paused(db_path, job_id):
 
 def initial_estimate(config, db_path, stage, asset_ids=None, mode=None):
     """仅使用账本统计，不在启动 HTTP 请求里遍历媒体目录。"""
+    if stage in ('stashdb_actors', 'stashdb_studios'):
+        return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
+            estimate_file_count=0, estimate_bytes=0, eta_scope='本趟处理')
     mode = mode or control_for(config).mode
     query = "SELECT COUNT(*), COALESCE(SUM(size),0) FROM asset WHERE medium='video' AND disposal IS NULL"
     parameters = []

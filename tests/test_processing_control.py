@@ -95,6 +95,8 @@ class ProcessingControlTests(unittest.TestCase):
             self.assertEqual(job.snapshot()['status'], 'cancelled')
             from peach.web_library_processing import q_library_processing
             self.assertEqual(q_library_processing(contract, {})['status'], 'cancelled')
+            with patch.object(job, 'snapshot', return_value={'job_id': initial['job_id'], 'status': 'paused'}):
+                self.assertEqual(q_library_processing(contract, {})['status'], 'stopping')
             self.assertEqual(job.runs.get(initial['run_id']).status, 'cancelled')
             self.assertEqual(job_recovery.read(self.db, 'library-processing'), {})
 

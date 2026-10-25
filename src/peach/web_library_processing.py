@@ -21,6 +21,8 @@ def q_library_processing(contract, _args):
     control = control_for(settings_file.active())
     control.refresh(force=True)
     state['speed_mode'] = control.mode
+    if control.cancelled and control.job_id == state.get('job_id') and state.get('status') in ACTIVE:
+        state['status'] = 'stopping'
     from .media_processing_policy import metadata_only
     state['metadata_only'] = metadata_only(settings_file.active().directory('state'))
     from .job_recovery import read
@@ -233,7 +235,8 @@ def w_library_processing(contract, body, *, resume=False):
     # 起步那行字按这一趟真正要做的事写：点了「只扫描」却看到「读取本地资料」，
     # 人会以为点错了。
     labels = {ALL_STAGES: '准备处理', SCAN_STAGE: '准备扫描文件', COLLECT_STAGE: '准备采集资料',
-              METADATA_STAGE: '准备采集资料', PREVIEWS_STAGE: '准备生成预览图'}
+              METADATA_STAGE: '准备采集资料', PREVIEWS_STAGE: '准备生成预览图',
+              'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios'}
     return contract.library_processing_job.start(
         work, restart=True, initial={'stage': labels[stage], 'requested_stage': stage,
                                     **initial_estimate(config, contract.db_path, stage, asset_ids or retry_ids, mode)},

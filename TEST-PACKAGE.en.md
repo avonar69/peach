@@ -4,6 +4,14 @@ kind: howto
 
 # Peach custom test build
 
+## Actor profiles and resync
+
+Open an actor page to see career dates, birthdate and current age, height, measurements, breast type, nationality, ethnicity and eye/hair colors on the right. **Edit actor info** saves local corrections; **Use synced info** returns all fields to their source values. Sync preserves your corrections and installed pictures.
+
+In **Peach configuration → Sources & subscriptions → StashDB**, use **Resync Actors** to refresh your existing actors, or **Resync Studios** for existing studios. These actions bypass ordinary caches and never scan media or search scenes. Follow progress, pause/resume or stop in Data management. Actor photos follow the saved actor-photo option; studio sync fills missing logos.
+
+Use **Add alias** to enter `Chloe, Clara Fargo, Larissa`: commas separate aliases and spaces inside names remain intact. StashDB aliases join the same list with a separate source.
+
 ## RSS and debrid downloads
 
 RSS posts show the title, feed/date/time, a main thumbnail, and every preview thumbnail from the post, followed by download links. Each preview opens its own full image; description prose is hidden. After updating, use **Check feeds now** to populate images for existing posts.

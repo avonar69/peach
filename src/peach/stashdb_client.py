@@ -23,7 +23,9 @@ DEFAULTS = dict(enabled=False, actor_images=True, scene_images=True, correct_cas
     skip_failed=False, only_new_media=False)
 _LOCK = threading.Lock()
 _LAST = 0.0
-PERFORMER_FIELDS = 'id name disambiguation aliases deleted images{id url width height}'
+PERFORMER_FIELDS = '''id name disambiguation aliases deleted images{id url width height}
+birth_date career_start_year career_end_year height band_size cup_size waist_size hip_size
+breast_type country ethnicity eye_color hair_color'''
 SCENE_FIELDS = f'''id title release_date duration deleted studio{{id name parent{{id name}}}}
 images{{id url width height}} performers{{as performer{{{PERFORMER_FIELDS}}}}}'''
 
@@ -194,7 +196,7 @@ class Client:
         return result['performers']
 
     def studios(self, name):
-        query = 'query PeachStudios($input:StudioQueryInput!){queryStudios(input:$input){count studios{id name parent{id name}}}}'
+        query = 'query PeachStudios($input:StudioQueryInput!){queryStudios(input:$input){count studios{id name aliases images{id url width height} parent{id name}}}}'
         result = self.query(query, {'input': {'names': name[:120], 'per_page': 25}})['queryStudios']
         self.incomplete |= result.get('count', len(result['studios'])) > 25
         return result['studios']
@@ -209,6 +211,9 @@ class Client:
 
     def performer(self, identity):
         return self.query(f'query PeachPerformer($id:ID!){{findPerformer(id:$id){{{PERFORMER_FIELDS}}}}}', {'id': identity}).get('findPerformer')
+
+    def studio(self, identity):
+        return self.query('query PeachStudio($id:ID!){findStudio(id:$id){id name aliases images{id url width height} parent{id name}}}', {'id': identity}).get('findStudio')
 
     def image(self, url):
         host = (urlsplit(url).hostname or '').lower()

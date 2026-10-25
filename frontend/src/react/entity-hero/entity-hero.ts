@@ -6,6 +6,7 @@
 import { brandIcon, foldName, linkMarkUrl, officialLinkText } from '@peach/legacy/core';
 
 import type { FeedNew } from '../feed-new/feed-new';
+import type { ActorDetails } from './actor-details';
 
 /** 一条外链，形状同 `/api/entity` 的 `links[]`。 */
 export interface HeroLink {
@@ -76,6 +77,7 @@ export interface HeroFollow {
 
 /** `/api/entity` 里资料卡读到的那些字段。 */
 export interface EntityHeroData {
+  actor_details?: ActorDetails;
   favorite?: boolean;
   company_profile?: Partial<Record<'legal_name' | 'founded' | 'launched' | 'country' | 'location' | 'operator' | 'parent' | 'group' | 'distributor', { value: string; source_url: string; evidence?: string }>>;
   identity_labels?: string[];
