@@ -173,6 +173,8 @@ def _check_sources(contract, body, previous):
                 "SELECT * FROM feed_source WHERE enabled=1 ORDER BY id"))
         else:
             rows = feeds.due_sources(connection)
+    if body.get('automatic'):
+        rows = [row for row in rows if (row['kind'] == 'rss') == bool(body.get('rss_only'))]
     return rows[:MAX_SOURCES_PER_RUN]
 
 
@@ -246,14 +248,15 @@ def w_feed_check(contract, body) -> dict:
             contract.feed_job.update(job_id, **result, status="complete",
                                      current=None, completed_at=time.time())
             # 「想要」里取不到资料或封面的，跟着每一轮拉取再试（隔 `web_wants.RETRY_AFTER`）。
-            web_wants.start_scrape(contract, trigger="scheduled" if body.get("automatic") else "manual")
+            if not body.get('rss_only'):
+                web_wants.start_scrape(contract, trigger="scheduled" if body.get("automatic") else "manual")
         finally:
             finished.set()
 
     started = contract.feed_job.start(
         work, restart=True,
         trigger="scheduled" if body.get("automatic") else "manual",
-        recovery={**{key: body[key] for key in ('sources', 'all', 'automatic') if key in body}, 'background': True},
+        recovery={**{key: body[key] for key in ('sources', 'all', 'automatic', 'rss_only') if key in body}, 'background': True},
         initial={"ok": True, "checked": 0, "total": 0, "results": [], "added": 0,
                  "request_id": request_id, "current": None})
     if body.get("background") or started.get('waiting_for_update'):

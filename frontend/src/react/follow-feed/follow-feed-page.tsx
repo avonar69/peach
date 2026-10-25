@@ -28,6 +28,7 @@ import { Segments, Shuffle } from '../entity-filter/entity-filter-page';
 import type { SegmentOption } from '../entity-filter/entity-filter';
 import { checkSummary, FOLLOW_CHECK_URL, FOLLOW_STATUS_URL, sourceIconUrl } from '../follow-manage/follow-manage';
 import { Note } from '../components/note';
+import { RSSDownloads } from '../follow-manage/rss-downloads';
 import { sidebarTagCounts } from '../../sidebar';
 import { queryClient } from '../query';
 import { FollowAuthorLink, FollowCard } from './follow-card';
@@ -101,6 +102,7 @@ function useFacets(data: FollowPage | null, view: FollowView, seed: number) {
 type Facets = ReturnType<typeof useFacets>;
 
 export function FollowFeedPage(props: FollowFeedProps) {
+  const [rssVisible, setRSSVisible] = useState(0);
   const { view, seed, revision, actions } = props;
   const query = followFeedQuery(view, revision);
   const result = useInfiniteQuery(query);
@@ -153,7 +155,9 @@ export function FollowFeedPage(props: FollowFeedProps) {
     providers: facets.providers,
     works: facets.workNames,
   });
-  const total = view.status ? facets.counts[view.status] || 0 : facets.allCount;
+  const showRSS = !view.status && view.media === 'videos' && !view.author && !view.provider
+    && !view.work && !view.tags.length && !view.durMin && !view.durMax;
+  const total = (view.status ? facets.counts[view.status] || 0 : facets.allCount) + (showRSS ? Number(data.rss_count || 0) : 0);
   const canBackfill = facets.sources.some((source) => source.can_backfill);
 
   return (
@@ -177,12 +181,14 @@ export function FollowFeedPage(props: FollowFeedProps) {
           onPick={(key) => route({ author: facets.author === key ? '' : key })} />
         <Works rows={facets.workRows} pressed={view.work} props={props}
           onPick={(key) => route({ work: view.work === key ? '' : key })} />
-        <Glass facets={facets} view={view} total={total} busy={listPending} props={props} route={route} />
+        <Glass facets={facets} view={view} total={total} rssVisible={showRSS ? rssVisible : 0} busy={listPending} props={props} route={route} />
         <Combo conditions={conditions} onDrop={(row) => actions.route(dropCondition(view, row))}
           onClear={() => route({ author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0 })} />
         {facets.broken.length ? <BrokenNote count={facets.broken.length} onManage={actions.openManage} /> : null}
-        <List key={query.queryKey.join('\u0000')} retryKey={result.dataUpdatedAt} pending={listPending} facets={facets} data={data} context={context}
-          props={props} />
+        {showRSS && data.rss_count !== undefined ? <section data-follow-rss=""><RSSDownloads feedOnly onVisibleCount={setRSSVisible} readOnly={false} toast={actions.toast} /></section> : null}
+        {showRSS && Number(data.rss_count || 0) > 0 && !facets.visible.length && !listPending ? null
+          : <List key={query.queryKey.join('\u0000')} retryKey={result.dataUpdatedAt} pending={listPending} facets={facets} data={data} context={context}
+            props={props} />}
         {data.has_more || canBackfill ? (
           <div data-follow-pagination="">
             {data.has_more ? (
@@ -381,8 +387,8 @@ function Works({ rows, pressed, props, onPick }: {
  * 竖线是四枚状态，恒有一枚生效，滑动的那块玻璃跟着它走；再隔一道才是来源和标签这些可加可不加的
  * 筛选。媒体那一档另有一块圆玻璃：它和状态问的不是同一件事，共用一块的话，点一下图片，玻璃会从
  * 「未看」那儿飞过来。下排左端读数，右端换一批、图片墙上的布局与「仅显示图片」，然后是排序键。 */
-function Glass({ facets, view, total, busy, props, route }: {
-  facets: Facets; view: FollowView; total: number; busy: boolean; props: FollowFeedProps;
+function Glass({ facets, view, total, rssVisible, busy, props, route }: {
+  facets: Facets; view: FollowView; total: number; rssVisible: number; busy: boolean; props: FollowFeedProps;
   route(patch: Partial<FollowView>): void;
 }) {
   const { helpers, actions } = props;
@@ -461,7 +467,7 @@ function Glass({ facets, view, total, busy, props, route }: {
       </>}
       bottom={<>
         <h3 data-entity-readout="" data-follow-readout="">
-          {`${total.toLocaleString()} 项更新 · 显示 ${facets.visible.length.toLocaleString()}`}
+          {`${total.toLocaleString()} 项更新 · 显示 ${(facets.visible.length + rssVisible).toLocaleString()}`}
         </h3>
         <LibraryShortcuts currentHref={() => location.pathname + location.search} kind="creator" />
         <span data-entity-sorts="">

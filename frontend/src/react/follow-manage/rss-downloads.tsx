@@ -19,8 +19,9 @@ interface Job { id: string; entry_id: number; provider: string; kind: string; st
 interface Picture { src: string; href: string }
 interface Entry { id: number; source_id: number; title: string; feed_name: string; published_at: string | null; links: Link[];
   images?: { main?: Picture; previews?: Picture[] } }
-interface Source { id: number; name: string; enabled: boolean; hide_unsupported?: boolean; last_error: string | null; last_fetched_at: string | null }
-interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number }
+interface Source { id: number; name: string; enabled: boolean; interval_minutes?: number; next_fetch_at?: string | null;
+  hide_unsupported?: boolean; last_error: string | null; last_fetched_at: string | null }
+interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number; read_only?: boolean }
 const KEY = ['rss-downloads'];
 const statusLabels: Record<string, string> = { queued: 'Queued', preparing: 'Preparing download', downloading: 'Downloading',
   ready: 'Ready', complete: 'Download complete', cancelled: 'Cancelled', failed: 'Download failed' };
@@ -59,8 +60,8 @@ function TaskProgress({ job, cancel, readOnly }: { job: Job; cancel(id: string):
   </div>;
 }
 
-export function RSSDownloads({ readOnly, toast, download = (url: string) => window.location.assign(url) }: {
-  readOnly: boolean; toast(message: string): void; download?(url: string): void;
+export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount, download = (url: string) => window.location.assign(url) }: {
+  readOnly: boolean; toast(message: string): void; feedOnly?: boolean; onVisibleCount?(count: number): void; download?(url: string): void;
 }) {
   const [name, setName] = useState(''), [url, setUrl] = useState(''), [offset, setOffset] = useState(0);
   const [waiting, setWaiting] = useState<string[]>([]);
@@ -68,6 +69,10 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
   const action = useAction();
   const state = useQuery({ queryKey: [...KEY, offset], queryFn: ({ signal }) => apiGet<Data>(`/api/rss?offset=${offset}`, signal), refetchInterval: 3000 });
   const data = state.data;
+  useEffect(() => { onVisibleCount?.(data?.items.length || 0); }, [onVisibleCount, data?.items.length]);
+  useEffect(() => {
+    if (feedOnly && data) void queryClient.invalidateQueries({ queryKey: ['follow-feed'] });
+  }, [feedOnly, data?.total]); // eslint-disable-line react-hooks/exhaustive-deps
   const refresh = () => { void queryClient.invalidateQueries({ queryKey: KEY }); };
   const send = (kind: string, body: object, message?: string) => {
     void action.run(kind, signal => apiSend(`/api/rss/${kind}`, body, 'POST', signal), () => {
@@ -106,9 +111,12 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
   };
   if (state.isPending) return <p role="status">Loading RSS feeds…</p>;
   if (state.isError || !data) return <Note tone="error">Could not load RSS feeds.</Note>;
+  readOnly = readOnly || !!data.read_only;
+  if (feedOnly && !data.items.length) return null;
   const filteredSources = new Set(data.sources.filter(source => source.hide_unsupported).map(source => source.id));
   return <Stack>
-    <h2 className="text-title-2-medium">RSS downloads</h2>
+    <h2 className="text-title-2-medium">{feedOnly ? 'RSS updates' : 'RSS downloads'}</h2>
+    {feedOnly ? <a href="/subscriptions?tab=rss" className="underline">Manage RSS feeds</a> : <>
     <form className="flex flex-col gap-3" onSubmit={event => {
       event.preventDefault();
       void action.run('add', signal => apiSend('/api/rss/source', { action: 'add', name, url }, 'POST', signal), () => {
@@ -129,7 +137,11 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
     {data.sources.map(source => <div key={source.id} className="flex flex-wrap items-center gap-3 border-b border-border-button-default py-3">
       <span className="min-w-0 grow break-words" data-i18n-ignore="">{source.name}</span>
       <Switch aria-label={formatTranslation('Enable {0}', source.name)} isDisabled={readOnly} isSelected={source.enabled}
-        onChange={enabled => send('source', { action: 'enabled', id: source.id, enabled })} />
+        onChange={enabled => send('source', { action: 'schedule', id: source.id, enabled,
+          interval_minutes: source.interval_minutes ?? 360 })}>Automatic updates</Switch>
+      <RSSSchedule key={`${source.id}:${source.interval_minutes}`} source={source} readOnly={readOnly}
+        busy={action.busy === 'source'} save={interval_minutes => send('source', {
+          action: 'schedule', id: source.id, enabled: source.enabled, interval_minutes }, 'RSS update schedule saved.')} />
       <Switch aria-label={formatTranslation('Hide unsupported links for {0}', source.name)} isDisabled={readOnly}
         isSelected={!!source.hide_unsupported}
         onChange={hide_unsupported => send('source', { action: 'filter', id: source.id, hide_unsupported })}>
@@ -142,6 +154,7 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
       {source.last_error ? <p role="alert" className="w-full">{source.last_error}</p> : null}
     </div>)}
     <h3 className="text-title-2-medium">New videos</h3>
+    </>}
     {!data.items.length ? <Help>No RSS items yet. Add a feed and check for updates.</Help> : null}
     {data.items.map(entry => <article key={entry.id} className="flex min-w-0 flex-col gap-3 border-b border-border-button-default py-4">
       <h4 className="break-words text-body-medium" data-i18n-ignore="">{entry.title}</h4>
@@ -176,4 +189,20 @@ export function RSSDownloads({ readOnly, toast, download = (url: string) => wind
       <Button variant="secondary" disabled={offset + 50 >= data.total} onClick={() => setOffset(offset + 50)}>Next</Button>
     </div>
   </Stack>;
+}
+
+function RSSSchedule({ source, readOnly, busy, save }: {
+  source: Source; readOnly: boolean; busy: boolean; save(minutes: number): void;
+}) {
+  const [hours, setHours] = useState(String((source.interval_minutes ?? 360) / 60));
+  const minutes = Number(hours) * 60;
+  return <form noValidate className="flex min-w-0 flex-wrap items-end gap-2" onSubmit={event => { event.preventDefault();
+    if (Number.isInteger(minutes) && minutes >= 15 && minutes <= 10080) save(minutes); }}>
+    <Input label="Update interval (hours)" aria-label={formatTranslation('Update interval for {0} (hours)', source.name)}
+      type="number" value={hours} onChange={setHours} isDisabled={readOnly} />
+    <Button type="submit" size="small" variant="secondary" {...busyProps(busy)}
+      disabled={readOnly || !Number.isInteger(minutes) || minutes < 15 || minutes > 10080}>Save interval</Button>
+    {source.enabled && source.next_fetch_at ? <span className="w-full text-caption-1-regular">
+      {formatTranslation('Next update: {0}', new Date(source.next_fetch_at).toLocaleString())}</span> : null}
+  </form>;
 }

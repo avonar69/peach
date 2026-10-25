@@ -1,5 +1,9 @@
 # 页面路由
 
+`/follow` 的「全部」在无创作者、来源、题材、标签或时长筛选的视频视图中展示 RSS 更新，复用 RSS 图片、预览、下载入口及分页；`/api/follow` 返回 `rss_count` 供总数展示。RSS 配置仍在 `/subscriptions?tab=rss`。
+
+`POST /api/rss/source` 的 `action=schedule` 接受来源 `id`、布尔 `enabled` 与整数 `interval_minutes`，范围 15–10080 分钟。读接口返回每个来源的开关、间隔与下次检查时间，默认自动开启、360 分钟；手工检查包含关闭自动更新的来源。
+
 RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 `src` 与 `href` 的预览数组。`POST /api/rss/source` 的 `action=filter` 接收来源 `id` 和布尔 `hide_unsupported`，读取来源时返回该偏好；筛选只影响显示，准备下载仍使用原始 `link_index`。
 
 `/subscriptions?tab=rss` 展示 RSS 下载订阅与新条目，`/settings/downloads` 配置 AllDebrid 和 Real-Debrid。`GET /api/rss` 分页返回条目、来源和本机任务；`POST /api/rss/{source,check,resolve,download,cancel}` 分别管理来源、更新列表、准备链接、目录下载和取消。链接准备只接受已保存的 RSS 条目与链接序号。渠道配置通过 `GET /api/configuration/debrid` 和 `POST /api/configuration/debrid/{provider}/{settings,check}`，不返回密钥。全部接口要求登录，写操作检查同源与只读状态，渠道配置沿用配置页访问边界。

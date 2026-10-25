@@ -150,6 +150,11 @@ def poll(connection, source, body):
     return {'name': name, 'seen': len(rows), 'added': added}
 
 
+def count_items(database):
+    with database.read_connection() as connection:
+        return connection.execute("SELECT count(*) FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE s.kind='rss'").fetchone()[0]
+
+
 def items(database, *, offset=0):
     with database.read_connection() as connection:
         result = [dict(row) for row in connection.execute(

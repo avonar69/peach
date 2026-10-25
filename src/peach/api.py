@@ -327,6 +327,11 @@ def create_app(
         unavailable_message="订阅源拉取只在写入端可用",
     )
     contract.feed_scheduler = feed_scheduler
+    from .web_rss import check_due
+    rss_scheduler = FollowUpdateScheduler(settings.follow_state_root,
+        lambda: check_due(contract),
+        available=_writer(sync), job_id='peach-rss-update', filename='rss-schedule.json',
+        default=FollowScheduleConfig(enabled=True, interval_minutes=15))
     from .web_job_recovery import RecoveryService
     recovery_service = RecoveryService(contract, available=_writer(sync))
     contract.header_repairs = header_repairs
@@ -375,7 +380,7 @@ def create_app(
         ledger_ready = False
         if settings.configured:
             ledger_ready = _start_ledger_services(settings, contract,
-                (follow_scheduler, feed_scheduler, push_discovery, downloads, recovery_service, jav_browser, contract.debrid))
+                (follow_scheduler, feed_scheduler, rss_scheduler, push_discovery, downloads, recovery_service, jav_browser, contract.debrid))
             automatic_updates.start()
             if ledger_ready:
                 sharing.start()
@@ -400,6 +405,7 @@ def create_app(
             recovery_service.stop()
             follow_scheduler.stop()
             feed_scheduler.stop()
+            rss_scheduler.stop()
             automatic_updates.stop()
             await asyncio.to_thread(sharing.stop)
             push_discovery.stop()

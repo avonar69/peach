@@ -1,7 +1,18 @@
 """RSS 来源、条目与下载队列的应用契约。"""
 import json
+from datetime import datetime, timedelta, timezone
 
 from . import feeds, public_download_http, rss_feeds
+
+
+def check_due(contract):
+    """只为已到期 RSS 建任务，没有到期来源时不写任务中心。"""
+    from . import web_feeds
+    with contract.database.read_connection() as connection:
+        ids = [row['id'] for row in feeds.due_sources(connection) if row['kind'] == 'rss']
+    if not ids:
+        return {'ok': True, 'checked': 0, 'added': 0, 'results': []}
+    return web_feeds.w_feed_check(contract, {'sources': ids, 'automatic': True, 'rss_only': True})
 
 
 def poll_source(contract, source):
@@ -58,6 +69,13 @@ def source_action(contract, body):
             feeds.set_enabled(connection, identity, body['enabled'])
         elif action == 'filter' and type(body.get('hide_unsupported')) is bool:
             connection.execute('UPDATE feed_source SET hide_unsupported=? WHERE id=?', (int(body['hide_unsupported']), identity))
+        elif action == 'schedule':
+            enabled, interval = body.get('enabled'), body.get('interval_minutes')
+            if type(enabled) is not bool or type(interval) is not int or not 15 <= interval <= 10080:
+                raise ValueError('Choose an update interval between 15 minutes and 7 days.')
+            next_fetch = feeds.stamp(datetime.now(timezone.utc) + timedelta(minutes=interval))
+            connection.execute('UPDATE feed_source SET enabled=?,interval_minutes=?,next_fetch_at=? WHERE id=?',
+                (int(enabled), interval, next_fetch, identity))
         else:
             raise ValueError('Choose a valid RSS feed action.')
     return {'ok': True}

@@ -15,7 +15,8 @@ def _writable(request):
 
 @router.get('/api/rss')
 def rss(request: Request, offset: int = 0, _auth=Depends(require_auth)):
-    return web_rss.snapshot(request.app.state.web_contract, max(0, min(offset, 100000)))
+    return {**web_rss.snapshot(request.app.state.web_contract, max(0, min(offset, 100000))),
+        'read_only': bool(getattr(getattr(request.app.state, 'sync', None), 'read_only', False))}
 
 
 @router.post('/api/rss/{action}')
@@ -30,10 +31,10 @@ def rss_action(request: Request, action: str, body: dict = Body(default_factory=
             return result
         if action == 'check':
             with contract.database.read_connection() as connection:
-                ids = [row[0] for row in connection.execute("SELECT id FROM feed_source WHERE kind='rss' AND enabled=1")]
+                ids = [row[0] for row in connection.execute("SELECT id FROM feed_source WHERE kind='rss'")]
             if not ids:
                 return {'ok': True, 'checked': 0, 'added': 0}
-            return web_feeds.w_feed_check(contract, {'sources': ids, 'background': True})
+            return web_feeds.w_feed_check(contract, {'sources': ids, 'background': True, 'rss_only': True})
         if action == 'resolve':
             return web_rss.resolve(contract, body)
         if action == 'download':

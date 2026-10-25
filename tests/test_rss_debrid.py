@@ -28,6 +28,43 @@ RSS = f'''<rss version="2.0"><channel><title>Example feed</title><item><guid>sce
 
 
 class RSSDebridTests(unittest.TestCase):
+    def test_rss_schedules_default_to_six_hours_and_can_be_changed_or_disabled(self):
+        from datetime import datetime, timezone
+        from peach import web_feeds
+        contract = SimpleNamespace(database=self.database)
+        with self.database.read_connection() as connection:
+            saved = feeds.sources(connection)[0]
+        self.assertEqual(saved['interval_minutes'], 360)
+        self.assertTrue(saved['enabled'])
+        for enabled in (False, True):
+            web_rss.source_action(contract, {'action': 'schedule', 'id': self.source,
+                'enabled': enabled, 'interval_minutes': 120})
+            with self.database.read_connection() as connection:
+                saved = feeds.sources(connection)[0]
+                self.assertEqual(saved['interval_minutes'], 120)
+                self.assertEqual(saved['enabled'], enabled)
+                due = feeds.due_sources(connection, now='2999-01-01T00:00:00Z')
+            self.assertEqual(bool(due), enabled)
+            self.assertAlmostEqual((datetime.fromisoformat(saved['next_fetch_at'].replace('Z', '+00:00')) - datetime.now(timezone.utc)).total_seconds(), 7200, delta=5)
+        for value in (True, 14, 10081, '360'):
+            with self.assertRaises(ValueError):
+                web_rss.source_action(contract, {'action': 'schedule', 'id': self.source,
+                    'enabled': True, 'interval_minutes': value})
+        with self.database.write_transaction() as connection:
+            connection.execute('UPDATE feed_source SET next_fetch_at=NULL')
+            actor = feeds.add_source(connection, url='https://javdb.com/actors/example')
+        self.assertEqual([row['id'] for row in web_feeds._check_sources(contract, {'automatic': True, 'rss_only': True}, {})], [self.source])
+        self.assertEqual([row['id'] for row in web_feeds._check_sources(contract, {'automatic': True}, {})], [actor])
+        self.assertEqual(rss_feeds.count_items(self.database), 0)
+        with patch('peach.web_feeds.w_feed_check', return_value={'ok': True}) as run:
+            web_rss.check_due(contract)
+            self.assertEqual(run.call_args.args[1], {'sources': [self.source], 'automatic': True, 'rss_only': True})
+            with self.database.write_transaction() as connection:
+                feeds.set_enabled(connection, self.source, False)
+            run.reset_mock()
+            self.assertEqual(web_rss.check_due(contract)['checked'], 0)
+            run.assert_not_called()
+
     def test_post_images_use_content_thumbnails_and_full_preview_links_without_prose(self):
         body = b'''<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Sample RSS</title>
           <item><guid>picture-post</guid><title>Studio - Example Actor</title><description>Unwanted prose</description>
@@ -280,6 +317,11 @@ class RSSDebridTests(unittest.TestCase):
         app.state.sync = SimpleNamespace(read_only=False)
         with patch('peach.settings_file.active', return_value=self.config), TestClient(app) as client:
             self.assertEqual(client.get('/api/rss').json()['total'], 1)
+            with self.database.write_transaction() as connection:
+                feeds.set_enabled(connection, self.source, False)
+            with patch('peach.web_feeds.w_feed_check', return_value={'ok': True}) as run:
+                self.assertEqual(client.post('/api/rss/check').status_code, 200)
+                self.assertEqual(run.call_args.args[1]['sources'], [self.source])
             app.state.sync.read_only = True
             self.assertEqual(client.post('/api/rss/source', json={'action': 'remove', 'id': self.source}).status_code, 403)
 

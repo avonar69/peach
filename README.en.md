@@ -6,6 +6,8 @@
 
 Custom build: RSS downloads in Manage following show illustrated posts with a main thumbnail, every preview image, and inline AllDebrid/Real-Debrid download icons. Each feed can hide unsupported links. Configure a provider under Download providers; choose a container-visible folder for server downloads or leave it blank for browser downloads. See [test-build instructions](TEST-PACKAGE.en.md).
 
+Following → All includes RSS updates. Each RSS feed has its own automatic-update switch and interval, defaulting to 6 hours; turning it off keeps saved posts and allows manual refresh.
+
 <p align="center">A private video library: local drives, cloud drives and the creators you follow, all in one place.</p>
 
 <p align="center">

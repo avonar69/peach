@@ -2,7 +2,7 @@ import { QueryClientProvider, notifyManager } from '@tanstack/react-query';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { RSSDownloads, supports } from '../../src/react/follow-manage/rss-downloads';
 import { queryClient } from '../../src/react/query';
-import { buttonNamed, click, mount } from './render';
+import { buttonNamed, click, mount, type, submit } from './render';
 
 notifyManager.setScheduler(callback => callback());
 beforeEach(() => localStorage.setItem('peach.language', 'en'));
@@ -14,7 +14,7 @@ const link = { url: 'https://rg.to/file/example', kind: 'link' };
 function serve(folder = '') {
   const posts: Array<{ path: string; body: Record<string, unknown> }> = [];
   const state = { providers: [{ ...provider, download_folder: folder }],
-    sources: [{ id: 1, name: 'Example feed', enabled: true, hide_unsupported: false }],
+    sources: [{ id: 1, name: 'Example feed', enabled: true, interval_minutes: 360, hide_unsupported: false }],
     items: [{ id: 1, source_id: 1, title: 'Example video', feed_name: 'Example feed', published_at: null, links: [link],
       images: {} as { main?: { src: string; href: string }; previews?: Array<{ src: string; href: string }> } }],
     jobs: [] as Array<Record<string, unknown>>, total: 1, offset: 0 };
@@ -23,6 +23,7 @@ function serve(folder = '') {
     if (options?.method === 'POST') {
       const body = JSON.parse(String(options.body || '{}'));
       posts.push({ path, body });
+      if (body.action === 'schedule') Object.assign(state.sources[0], { enabled: body.enabled, interval_minutes: body.interval_minutes });
       if (path.endsWith('/resolve')) state.jobs = [{ id: 'prepared', entry_id: 1, provider: 'alldebrid',
         source: link, kind: 'resolve', status: 'ready', files: [{ url: 'https://cdn.example.org/video', filename: 'video.mp4' }] }];
       return { ok: true, status: 200, json: async () => ({ id: 'prepared' }) };
@@ -72,6 +73,28 @@ it('支持域名按主机边界匹配，磁力复用同一枚图标', () => {
   expect(supports({ ...provider, configured: false }, link)).toBe(false);
   expect(supports(provider, { url: 'magnet:?xt=urn:btih:test', kind: 'magnet' })).toBe(true);
   expect(supports({ ...provider, hosts: [] }, link, true)).toBe(false);
+});
+
+it('每个 RSS 来源默认六小时并保存独立的自动更新间隔', async () => {
+  const { posts } = serve();
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  const interval = host.querySelector<HTMLInputElement>('[aria-label="Update interval for Example feed (hours)"]')!;
+  expect(interval.value).toBe('6');
+  await type(interval, '2');
+  await submit(interval.closest('form'));
+  expect(posts).toContainEqual({ path: '/api/rss/source', body: { action: 'schedule', id: 1, enabled: true, interval_minutes: 120 } });
+  await click(host.querySelector('[aria-label="Enable Example feed"]'));
+  expect(posts).toContainEqual({ path: '/api/rss/source', body: { action: 'schedule', id: 1, enabled: false, interval_minutes: 120 } });
+});
+
+it('关注页使用同一组 RSS 图片与下载入口而不显示订阅设置', async () => {
+  serve();
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads feedOnly readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  expect(host.textContent).toContain('RSS updates');
+  expect(host.querySelector('article')?.textContent).toContain('Example video');
+  expect(host.querySelector('a[href="https://rg.to/file/example"]')).not.toBeNull();
+  expect(host.querySelector('button[aria-label="Download with AllDebrid"]')).not.toBeNull();
+  expect(host.querySelector('form')).toBeNull();
 });
 
 it('图文条目显示主图和全部预览缩略图并保留各自原图链接', async () => {

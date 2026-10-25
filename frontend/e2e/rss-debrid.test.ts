@@ -12,7 +12,7 @@ describe('RSS and debrid downloads', () => {
   for (const viewport of VIEWPORTS) it(`${viewport.name}: illustrated posts keep every preview and save the per-feed link filter`, async () => {
     const posts: Array<Record<string, unknown>> = [];
     const state = { providers: [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '', hosts: ['rg.to'] }],
-      sources: [{ id: 1, name: 'Example RSS', enabled: true, hide_unsupported: false }],
+      sources: [{ id: 1, name: 'Example RSS', enabled: true, interval_minutes: 360, hide_unsupported: false }],
       items: [{ id: 1, source_id: 1, title: 'Studio - Example Actor', feed_name: 'Example RSS', published_at: '2026-10-25T01:32:24Z',
         description: 'This prose must stay hidden.',
         images: { main: { src: 'https://images.example.org/main.webp', href: 'https://images.example.org/main' },
@@ -31,12 +31,18 @@ describe('RSS and debrid downloads', () => {
         if (route.request().method() === 'POST') {
           const body = route.request().postDataJSON(); posts.push(body);
           if (body.action === 'filter') state.sources[0].hide_unsupported = body.hide_unsupported;
+          if (body.action === 'schedule') Object.assign(state.sources[0], { enabled: body.enabled, interval_minutes: body.interval_minutes });
           await route.fulfill({ json: { ok: true, id: 'prepared' } });
         } else await route.fulfill({ json: state });
       });
     });
     try {
       const page = opened.page, article = page.locator('article');
+      const interval = page.getByRole('spinbutton', { name: 'Update interval for Example RSS (hours)' });
+      assert.equal(await interval.inputValue(), '6');
+      await interval.fill('2');
+      await page.getByRole('button', { name: 'Save interval', exact: true }).click();
+      await page.getByText('Automatic updates', { exact: true }).click();
       await article.locator('img').first().waitFor();
       await page.waitForFunction(() => [...document.querySelectorAll<HTMLImageElement>('article img')].every(image => image.complete && image.naturalWidth > 0));
       assert.equal(await article.locator('img').count(), 3);
@@ -56,9 +62,39 @@ describe('RSS and debrid downloads', () => {
       assert.ok(posts.some(body => body.link_index === 1));
       await page.reload();
       await article.locator('img').first().waitFor();
+      assert.equal(await interval.inputValue(), '2');
+      assert.equal(await page.getByRole('switch', { name: 'Enable Example RSS', exact: true }).isChecked(), false);
       assert.equal(await article.locator('a[href="https://unsupported.example.org/page"]').count(), 0);
       await page.getByRole('switch', { name: /Hide unsupported links/ }).press('Space');
       await article.locator('a[href="https://unsupported.example.org/page"]').waitFor();
+      assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
+    } finally { await opened.close(); }
+  });
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: Following All includes RSS posts and download actions`, async () => {
+    const opened = await visit(browser, '/', viewport);
+    const page = opened.page;
+    await page.route(url => url.pathname === '/api/follow', route => route.fulfill({ json: {
+      ok: true, sources: [], groups: [], counts: {}, facets: {}, author_aliases: [], rss_count: 1, offset: 0, has_more: false,
+    } }));
+    await page.route('**/api/rss**', route => route.fulfill({ json: {
+      providers: [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '', hosts: ['rg.to'] }],
+      sources: [{ id: 1, name: 'Example RSS', enabled: true }], jobs: [], total: 1, offset: 0,
+      items: [{ id: 1, source_id: 1, title: 'An RSS post in Following', feed_name: 'Example RSS', published_at: null,
+        links: [{ url: 'https://rg.to/file/example', kind: 'link' }], images: {} }],
+    } }));
+    try {
+      await page.goto(new URL('/follow', page.url()).href);
+      const rss = page.locator('[data-follow-rss]');
+      await rss.getByText('An RSS post in Following', { exact: true }).waitFor();
+      await page.waitForFunction(() => document.querySelector('[data-follow-readout]')?.textContent?.includes('Showing 1'));
+      assert.equal(await rss.getByRole('button', { name: 'Download with AllDebrid', exact: true }).count(), 1);
+      assert.equal(await rss.locator('form').count(), 0);
+      assert.ok((await layout(page)).scrollWidth <= viewport.width + 1);
+      await page.screenshot({ path: `../build/agent-verification/rss-follow-all-${viewport.name}.png`, fullPage: false });
+      await page.locator('[data-follow-filter="new"]').click();
+      await rss.waitFor({ state: 'detached' });
+      await page.locator('[data-follow-filter=""]').click();
+      await rss.getByText('An RSS post in Following', { exact: true }).waitFor();
       assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
     } finally { await opened.close(); }
   });

@@ -35,6 +35,17 @@ MOMENT = datetime(2026, 8, 25, 9, 0, tzinfo=timezone.utc)
 
 
 class FollowContractTests(unittest.TestCase):
+    def test_following_counts_saved_rss_posts_without_creating_native_follow_items(self):
+        from peach import feeds, rss_feeds
+        self.assertEqual(self._get()['rss_count'], 0)
+        with self.contract.database.write_transaction() as connection:
+            source = feeds.add_source(connection, url='https://example.org/rss', name='Example RSS', kind='rss')
+            rss_feeds.poll(connection, connection.execute('SELECT * FROM feed_source WHERE id=?', (source,)).fetchone(),
+                b'<rss><channel><title>Example</title><item><guid>one</guid><title>Example post</title></item></channel></rss>')
+        result = self._get()
+        self.assertEqual(result['rss_count'], 1)
+        self.assertEqual(result['groups'], [])
+
     def test_service_recovery_skips_completed_sources_with_the_same_progress(self):
         from peach import job_recovery
         first = self._seed(ref='first')

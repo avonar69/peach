@@ -14,6 +14,8 @@ Use **Add alias** to enter `Chloe, Clara Fargo, Larissa`: commas separate aliase
 
 ## RSS and debrid downloads
 
+**Following → All** includes an RSS updates section with the same thumbnails, previews and debrid actions. **Manage following → RSS downloads** provides an **Automatic updates** switch and **Update interval (hours)** for each source, defaulting to 6 hours; save each interval independently. Supported intervals range from 15 minutes to 7 days. Turning automatic updates off retains posts and **Check feeds now** still refreshes that feed manually.
+
 RSS posts show the title, feed/date/time, a main thumbnail, and every preview thumbnail from the post, followed by download links. Each preview opens its own full image; description prose is hidden. After updating, use **Check feeds now** to populate images for existing posts.
 
 Beside each added RSS source, **Hide unsupported links** saves a filter for that feed. It uses the supported-host lists from configured debrid providers; run **Test connection** in Download providers to load those lists. Turn the filter off to display all links again.

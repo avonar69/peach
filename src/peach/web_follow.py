@@ -1754,6 +1754,7 @@ def _follow_matcher(args, by_source, alias_map):
 
 
 def q_follow(contract, args) -> dict:
+    from .rss_feeds import count_items
     statuses = tuple(
         value for value in str(args.get("status") or "").split(",") if value in _STATUSES
     )
@@ -1844,6 +1845,7 @@ def q_follow(contract, args) -> dict:
         "seed": seed,
         "facets": facets,
         "author_facets": author_facets,
+        "rss_count": count_items(contract.database),
         # counts 是全库口径，groups 只是这一页——两个数并排显示过，看起来像自相矛盾。
         "offset": offset,
         "limit": limit,

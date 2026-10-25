@@ -4,6 +4,9 @@ kind: changelog
 
 # English-first interface, StashDB and playback changes
 
+- **RSS in Following:** Following → All includes the RSS gallery and its original download/debrid actions. Creator, source, tag and duration filters retain their own scope.
+- **Per-feed automatic updates:** Each RSS source has an automatic-update switch and a saved interval, defaulting to 6 hours. Disabling it retains posts and manual refresh; the scheduler checks due feeds without running scene metadata work.
+
 - **Actor profile details:** Shows career dates, birthdate and current age, height, measurements, breast type, nationality, ethnicity and eye/hair colors on the right of actor pages. Edit fields locally or return to synced values; resync preserves manual corrections.
 - **Actor aliases:** StashDB aliases sync into Peach's alias list with their source retained. Comma-separated entry adds multiple aliases while preserving spaces inside names such as Clara Fargo.
 - **Actor and studio resync:** Separate actions in StashDB settings refresh only existing actors or studios, using bound IDs where available. They bypass ordinary caches, retain manual edits and installed pictures, and support the scan task's pause, resume and stop controls without scene searches.
