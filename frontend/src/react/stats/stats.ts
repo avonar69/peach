@@ -87,8 +87,7 @@ export const fetchStats = (signal?: AbortSignal) => apiGet<StatsData>(STATS_URL,
 
 /** 首屏：取完数才画。
  *
- * 不给 `staleTime`。这一页读的是数据库此刻的样子，每进一次都该重新问一遍；缓存住的话，
- * 扫完一批回来看到的还是进页面之前那个数。 */
+ * 刷新节律由共享 Query 偏好决定；实验快速导航允许三十秒内复用，写入失效仍生效。 */
 export async function prefetchStats(signal: AbortSignal): Promise<void> {
   await queryClient.fetchQuery({ queryKey: STATS_KEY, queryFn: () => fetchStats(signal) });
 }

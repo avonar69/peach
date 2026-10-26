@@ -237,7 +237,7 @@ def external_playlist(request: Request, id: int, ticket: str, origin: str = ''):
 
 
 @router.api_route("/stream", methods=["GET", "HEAD"])
-def stream(request: Request, id: int, session: str = "", args: dict[str, str] = Depends(require_auth)):
+def stream(request: Request, id: int, session: str = "", beta_fast: bool = False, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     asset = state.media_engine.asset(id)
     path = state.media_engine.filesystem.file_for(asset, thumbnail=False)
@@ -270,6 +270,10 @@ def stream(request: Request, id: int, session: str = "", args: dict[str, str] = 
     if transcoded:
         response.headers["X-Peach-Transcoded"] = "1"
     response.headers["Cache-Control"] = "no-store"
+    if beta_fast and asset.location == 'local':
+        response.headers['Cache-Control'] = 'private, max-age=300'
+        response.headers['X-Accel-Buffering'] = 'no'
+        response.headers['Vary'] = 'Cookie, Authorization, X-Token'
     return response
 
 

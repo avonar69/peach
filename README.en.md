@@ -16,6 +16,8 @@ Each provider has a maximum concurrent server-folder downloads setting, defaulti
 
 Saving the download limit verifies the value read back from the server. The popup keeps completed statuses; **Clear finished** hides terminal records while keeping files and download receipts. Imports in progress remain visible. RSS defaults to 20 posts per page, with choices of 10, 20, 50 or 100 and Previous/Next navigation; the browser remembers the choice.
 
+Browsing and Playback includes separate, opt-in beta controls for local video buffering and faster repeat navigation. Controlled players remember volume and mute across videos, and configured seek steps also apply while the timeline has focus. See [performance research and limits](docs/PERFORMANCE.md); beta video buffering may use more network and memory.
+
 <p align="center">A private video library: local drives, cloud drives and the creators you follow, all in one place.</p>
 
 <p align="center">

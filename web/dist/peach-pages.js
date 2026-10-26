@@ -9746,7 +9746,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "Clear finished",
 	"RSS posts per page": "RSS posts per page",
 	"{0} posts per page": "{0} posts per page",
-	"The download limit was not saved. Reload settings and try again.": "The download limit was not saved. Reload settings and try again."
+	"The download limit was not saved. Reload settings and try again.": "The download limit was not saved. Reload settings and try again.",
+	"Faster video loading and seeking (Beta)": "Faster video loading and seeking (Beta)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.",
+	"Faster section navigation (Beta)": "Faster section navigation (Beta)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior."
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -17707,7 +17711,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "Limpiar finalizadas",
 	"RSS posts per page": "Publicaciones RSS por página",
 	"{0} posts per page": "{0} publicaciones por página",
-	"The download limit was not saved. Reload settings and try again.": "No se guardó el límite de descargas. Recarga los ajustes e inténtalo de nuevo."
+	"The download limit was not saved. Reload settings and try again.": "No se guardó el límite de descargas. Recarga los ajustes e inténtalo de nuevo.",
+	"Faster video loading and seeking (Beta)": "Carga y búsqueda de vídeo más rápidas (beta)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Precarga más los archivos locales y permite un búfer privado del navegador. Usa más red y memoria; se aplica al siguiente vídeo.",
+	"Faster section navigation (Beta)": "Navegación más rápida entre secciones (beta)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza los datos de navegación durante un máximo de 30 segundos. Las tareas, revisiones y ajustes conservan su actualización normal."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22048,7 +22056,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "Effacer les tâches terminées",
 	"RSS posts per page": "Articles RSS par page",
 	"{0} posts per page": "{0} articles par page",
-	"The download limit was not saved. Reload settings and try again.": "La limite de téléchargements n’a pas été enregistrée. Rechargez les paramètres et réessayez."
+	"The download limit was not saved. Reload settings and try again.": "La limite de téléchargements n’a pas été enregistrée. Rechargez les paramètres et réessayez.",
+	"Faster video loading and seeking (Beta)": "Chargement et recherche vidéo rapides (bêta)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Précharge davantage les fichiers locaux et autorise un tampon privé du navigateur. Consomme plus de réseau et de mémoire ; prend effet à la prochaine vidéo.",
+	"Faster section navigation (Beta)": "Navigation rapide entre les sections (bêta)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Réutilise les données de navigation pendant 30 secondes au maximum. Les tâches, files de vérification et paramètres gardent leur actualisation normale."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -26389,7 +26401,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "Beendete ausblenden",
 	"RSS posts per page": "RSS-Beiträge pro Seite",
 	"{0} posts per page": "{0} Beiträge pro Seite",
-	"The download limit was not saved. Reload settings and try again.": "Das Download-Limit wurde nicht gespeichert. Laden Sie die Einstellungen neu und versuchen Sie es erneut."
+	"The download limit was not saved. Reload settings and try again.": "Das Download-Limit wurde nicht gespeichert. Laden Sie die Einstellungen neu und versuchen Sie es erneut.",
+	"Faster video loading and seeking (Beta)": "Schnelleres Laden und Spulen (Beta)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Lädt lokale Videos weiter voraus und erlaubt privaten Browserpuffer. Benötigt mehr Netzwerk und Speicher; gilt ab dem nächsten Video.",
+	"Faster section navigation (Beta)": "Schnellerer Seitenwechsel (Beta)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Verwendet Browserdaten bis zu 30 Sekunden erneut. Aufgaben, Prüfwarteschlangen und Einstellungen behalten ihre Aktualisierung."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -30730,7 +30746,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "Limpar concluídos",
 	"RSS posts per page": "Publicações RSS por página",
 	"{0} posts per page": "{0} publicações por página",
-	"The download limit was not saved. Reload settings and try again.": "O limite de downloads não foi salvo. Recarregue as configurações e tente novamente."
+	"The download limit was not saved. Reload settings and try again.": "O limite de downloads não foi salvo. Recarregue as configurações e tente novamente.",
+	"Faster video loading and seeking (Beta)": "Carregamento e busca de vídeo mais rápidos (beta)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Pré-carrega mais os arquivos locais e permite buffer privado no navegador. Usa mais rede e memória; aplica-se ao próximo vídeo.",
+	"Faster section navigation (Beta)": "Navegação mais rápida entre seções (beta)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza os dados de navegação por até 30 segundos. Tarefas, filas de revisão e configurações mantêm a atualização normal."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -35071,7 +35091,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "完了分をクリア",
 	"RSS posts per page": "RSS のページあたりの投稿数",
 	"{0} posts per page": "1ページ {0} 件",
-	"The download limit was not saved. Reload settings and try again.": "同時ダウンロード数を保存できませんでした。設定を再読み込みして再試行してください。"
+	"The download limit was not saved. Reload settings and try again.": "同時ダウンロード数を保存できませんでした。設定を再読み込みして再試行してください。",
+	"Faster video loading and seeking (Beta)": "動画の読み込みとシークを高速化（ベータ）",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "ローカル動画の先読みとブラウザーのプライベートバッファを有効にします。通信量とメモリ使用量が増えます。次の動画から適用されます。",
+	"Faster section navigation (Beta)": "画面切り替えを高速化（ベータ）",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "閲覧データを最大30秒間再利用します。タスク、確認キュー、設定の更新頻度は維持されます。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -39412,7 +39436,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "완료 항목 지우기",
 	"RSS posts per page": "페이지당 RSS 게시물",
 	"{0} posts per page": "페이지당 {0}개",
-	"The download limit was not saved. Reload settings and try again.": "동시 다운로드 수가 저장되지 않았습니다. 설정을 새로고침하고 다시 시도하세요."
+	"The download limit was not saved. Reload settings and try again.": "동시 다운로드 수가 저장되지 않았습니다. 설정을 새로고침하고 다시 시도하세요.",
+	"Faster video loading and seeking (Beta)": "빠른 동영상 로딩 및 탐색 (베타)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "로컬 파일을 더 미리 읽고 브라우저의 비공개 버퍼를 허용합니다. 네트워크와 메모리 사용량이 늘어납니다. 다음 동영상부터 적용됩니다.",
+	"Faster section navigation (Beta)": "빠른 화면 이동 (베타)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "탐색 데이터를 최대 30초 동안 재사용합니다. 작업, 검토 대기열 및 설정은 정상적으로 갱신됩니다."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -43753,7 +43781,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "Xóa mục đã kết thúc",
 	"RSS posts per page": "Số bài RSS mỗi trang",
 	"{0} posts per page": "{0} bài mỗi trang",
-	"The download limit was not saved. Reload settings and try again.": "Giới hạn tải xuống chưa được lưu. Hãy tải lại cài đặt rồi thử lại."
+	"The download limit was not saved. Reload settings and try again.": "Giới hạn tải xuống chưa được lưu. Hãy tải lại cài đặt rồi thử lại.",
+	"Faster video loading and seeking (Beta)": "Tải và tua video nhanh hơn (Beta)",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Tải trước nhiều hơn và cho phép bộ đệm riêng của trình duyệt với tệp cục bộ. Dùng nhiều mạng và bộ nhớ hơn; áp dụng từ video tiếp theo.",
+	"Faster section navigation (Beta)": "Chuyển mục nhanh hơn (Beta)",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Tái sử dụng dữ liệu duyệt tối đa 30 giây. Tác vụ, hàng đợi xem xét và cài đặt vẫn cập nhật bình thường."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -48094,7 +48126,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "清除已結束",
 	"RSS posts per page": "RSS 每頁文章數",
 	"{0} posts per page": "每頁 {0} 篇",
-	"The download limit was not saved. Reload settings and try again.": "下載並行數未儲存。請重新載入設定後再試。"
+	"The download limit was not saved. Reload settings and try again.": "下載並行數未儲存。請重新載入設定後再試。",
+	"Faster video loading and seeking (Beta)": "更快的影片載入與跳轉（實驗）",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "為本機檔案增加預載並允許瀏覽器私人緩衝。會增加網路和記憶體用量，下部影片生效。",
+	"Faster section navigation (Beta)": "更快的頁面切換（實驗）",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "瀏覽快照最多重用 30 秒。工作、複核佇列和設定維持正常更新。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -48460,7 +48496,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Clear finished": "清除已结束",
 	"RSS posts per page": "RSS 每页条目数",
 	"{0} posts per page": "每页 {0} 条",
-	"The download limit was not saved. Reload settings and try again.": "下载并发数未保存。请重新加载设置后再试。"
+	"The download limit was not saved. Reload settings and try again.": "下载并发数未保存。请重新加载设置后再试。",
+	"Faster video loading and seeking (Beta)": "更快的视频载入与跳转（实验）",
+	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "为本地文件增加预载并允许浏览器私有缓冲。会增加网络和内存用量，下部影片生效。",
+	"Faster section navigation (Beta)": "更快的页面切换（实验）",
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "浏览快照最多复用 30 秒。任务、复核队列和设置保持正常刷新。"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

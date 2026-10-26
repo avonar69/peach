@@ -34,6 +34,8 @@ export interface AppSettings {
   seekSeconds: number;
   playerSeek?: SeekConfig;
   scrollVolume?: boolean;
+  betaFastVideo?: boolean;
+  betaFastUI?: boolean;
   searchHistoryLimit: number;
   relatedLimit: number;
   javLayout: string;
@@ -94,6 +96,8 @@ export function normalizeAppSettings(raw: unknown): { settings: AppSettings; mig
   settings.seekSeconds = boundedPreference(+(settings.seekSeconds as number), 1, 300, 10);
   settings.playerSeek = seekConfig(settings.playerSeek, settings.seekSeconds as number);
   settings.scrollVolume = settings.scrollVolume === true;
+  settings.betaFastVideo = settings.betaFastVideo === true;
+  settings.betaFastUI = settings.betaFastUI === true;
   delete settings.loginDays;
   delete settings.metadataRefreshDays;
   settings.ambientMode = settings.ambientMode !== false;

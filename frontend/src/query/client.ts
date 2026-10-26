@@ -2,10 +2,12 @@
  * @peach/query 直接解析到共享源码，Application 的 fetchQuery、页面 prefetch 与 Providers 使用同一实例。
  * 首屏预取与组件读取同一缓存，避免挂载后重复请求或写入只更新部分读者。 */
 import { QueryClient } from '@tanstack/query-core';
+import { navigationFreshness } from '../performance-preferences';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      staleTime: query => navigationFreshness(query.queryKey),
       /* 请求都打本机的 `/api/...`。浏览器的 online 标记说的是外网，断了外网它就翻 false，
          Query 默认会把本机请求也挂起成 paused——页面于是停在旧数据上，什么都不说。 */
       networkMode: 'always',

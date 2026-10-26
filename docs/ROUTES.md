@@ -1,5 +1,7 @@
 # 页面路由
 
+「浏览与播放」的 `betaFastVideo`、`betaFastUI` 是当前浏览器的默认关闭偏好。普通本地 `GET/HEAD /stream` 可携带 `beta_fast=true` 请求五分钟私有缓存，仍要求鉴权并保持 Range；其他响应策略不变。客户端只为非计费本地片源附加此参数。实验行为及验证范围见[实验性能选项](PERFORMANCE.md)。
+
 `/follow` 的「全部」在无创作者、来源、题材、标签或时长筛选的视频视图中展示 RSS 更新，复用 RSS 图片、预览、下载入口及分页；`/api/follow` 返回 `rss_count` 供总数展示。RSS 配置仍在 `/subscriptions?tab=rss`。
 
 `POST /api/rss/source` 的 `action=schedule` 接受来源 `id`、布尔 `enabled` 与整数 `interval_minutes`，范围 15–10080 分钟。读接口返回每个来源的开关、间隔与下次检查时间，默认自动开启、360 分钟；手工检查包含关闭自动更新的来源。

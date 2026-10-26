@@ -1,5 +1,9 @@
 # 复用清单
 
+## 实验性能偏好
+
+视频实验复用浏览器 `preload`、HTTP Range 与既有 `BufferedFileResponse`；普通本地响应允许短期私有缓冲，原媒体不重封装。界面实验复用已固定的 TanStack Query 5.104.3（MIT），以动态 `staleTime` 对浏览快照复用三十秒，保留写入失效。音量和四向按键属于 Peach 的本机偏好，继续操作同一原生 video；控件的捕获阶段按键交给用户步长，不新增播放器或缓存依赖。依据、未采用的近似 `fastSeek` 与 FFmpeg 重封装方案、临时夹具和实际部署未验证范围见[实验性能选项](PERFORMANCE.md)。
+
 ## 增量媒体发现
 
 扫描方式复用 `scan_location` 的 `os.scandir`、SQLite 登记、缺失文件保护和任务断点；资料、预览及 StashDB 复用既有 `asset_ids` 范围，不引入文件监听器、数据库或调度依赖。新增集合按持久资产标识水位确定，避免秒级时间相同导致交叉归类。Tdarr 的[官方扫描选项](https://docs.tdarr.io/docs/library-setup/library-options/)作为行为参考，证据与差异见[取证记录](reference-snapshots/tdarr-library-scans.md)。目录枚举在普通挂载和 Docker 中可直接复用；文件事件依赖不能覆盖所有网盘挂载，不替代枚举。Peach 的完整扫描保留账本、资料、图片与历史，不采用 Tdarr 清空数据库的行为。临时库验证已登记影片、新增影片、无新增与显式全库范围，不读取真实媒体或写真实账本。

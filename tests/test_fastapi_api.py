@@ -2107,6 +2107,20 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(head.content, b"")
         self.assertEqual(head.headers["content-length"], "10")
 
+    async def test_beta_local_buffering_preserves_ranges_and_authentication(self):
+        response = await self.client.get('/stream?id=1&beta_fast=1',
+            headers={'X-Token': 'secret', 'Range': 'bytes=2-5'})
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(response.content, b'2345')
+        self.assertEqual(response.headers['content-range'], 'bytes 2-5/10')
+        self.assertEqual(response.headers['cache-control'], 'private, max-age=300')
+        self.assertIn('Cookie', response.headers['vary'])
+        self.assertIn('etag', response.headers)
+        ordinary = await self.client.get('/stream?id=1', headers={'X-Token': 'secret'})
+        self.assertEqual(ordinary.headers['cache-control'], 'no-store')
+        unauthorized = await self.client.get('/stream?id=1&beta_fast=1')
+        self.assertEqual(unauthorized.status_code, 401)
+
     async def test_follow_qualities_lists_every_tier_the_source_offers(self):
         """档位数量由来源决定，不由我们写死。
 

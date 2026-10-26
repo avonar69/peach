@@ -363,5 +363,9 @@
   "Clear finished": "清除已结束",
   "RSS posts per page": "RSS 每页条目数",
   "{0} posts per page": "每页 {0} 条",
-  "The download limit was not saved. Reload settings and try again.": "下载并发数未保存。请重新加载设置后再试。"
+  "The download limit was not saved. Reload settings and try again.": "下载并发数未保存。请重新加载设置后再试。",
+  "Faster video loading and seeking (Beta)": "更快的视频载入与跳转（实验）",
+  "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "为本地文件增加预载并允许浏览器私有缓冲。会增加网络和内存用量，下部影片生效。",
+  "Faster section navigation (Beta)": "更快的页面切换（实验）",
+  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "浏览快照最多复用 30 秒。任务、复核队列和设置保持正常刷新。"
 }

@@ -508,6 +508,12 @@ function PlaybackRows({ host: current, epoch }: Omit<GroupProps, 'tab'>) {
       <Row title="Seek controls" kind="seek"><PlaybackSeekSettings key={epoch} settings={settings} save={save} /></Row>
       <ToggleRow id="scrollVolumeSetting" title="Mouse wheel changes volume over video" checked={settings.scrollVolume === true}
         onToggle={(on) => { settings.scrollVolume = on; save(); }} />
+      <ToggleRow id="betaFastVideoSetting" title="Faster video loading and seeking (Beta)" checked={settings.betaFastVideo === true}
+        onToggle={(on) => { settings.betaFastVideo = on; save(); }} />
+      <p className="text-caption-1-regular text-text-secondary">Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.</p>
+      <ToggleRow id="betaFastUISetting" title="Faster section navigation (Beta)" checked={settings.betaFastUI === true}
+        onToggle={(on) => { settings.betaFastUI = on; save(); }} />
+      <p className="text-caption-1-regular text-text-secondary">Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.</p>
     </>
   );
 }

@@ -4338,5 +4338,9 @@
   "Clear finished": "Limpar concluídos",
   "RSS posts per page": "Publicações RSS por página",
   "{0} posts per page": "{0} publicações por página",
-  "The download limit was not saved. Reload settings and try again.": "O limite de downloads não foi salvo. Recarregue as configurações e tente novamente."
+  "The download limit was not saved. Reload settings and try again.": "O limite de downloads não foi salvo. Recarregue as configurações e tente novamente.",
+  "Faster video loading and seeking (Beta)": "Carregamento e busca de vídeo mais rápidos (beta)",
+  "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Pré-carrega mais os arquivos locais e permite buffer privado no navegador. Usa mais rede e memória; aplica-se ao próximo vídeo.",
+  "Faster section navigation (Beta)": "Navegação mais rápida entre seções (beta)",
+  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza os dados de navegação por até 30 segundos. Tarefas, filas de revisão e configurações mantêm a atualização normal."
 }

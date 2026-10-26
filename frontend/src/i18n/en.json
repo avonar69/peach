@@ -653,5 +653,9 @@
   "Clear finished": "Clear finished",
   "RSS posts per page": "RSS posts per page",
   "{0} posts per page": "{0} posts per page",
-  "The download limit was not saved. Reload settings and try again.": "The download limit was not saved. Reload settings and try again."
+  "The download limit was not saved. Reload settings and try again.": "The download limit was not saved. Reload settings and try again.",
+  "Faster video loading and seeking (Beta)": "Faster video loading and seeking (Beta)",
+  "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.",
+  "Faster section navigation (Beta)": "Faster section navigation (Beta)",
+  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior."
 }

@@ -13,7 +13,7 @@ beforeAll(() => {
   if (!customElements.get('hlsjs-video')) customElements.define('hlsjs-video', TestMedia);
   if (!customElements.get('dash-video')) customElements.define('dash-video', class extends TestMedia {});
 });
-afterEach(() => { document.body.replaceChildren(); vi.restoreAllMocks() });
+afterEach(() => { document.body.replaceChildren(); localStorage.clear(); vi.restoreAllMocks() });
 
 function mounted() {
   const video = document.createElement('video'); document.body.append(video);
@@ -23,6 +23,16 @@ function mounted() {
 }
 
 describe('Video.js 10 播放会话', () => {
+  it('实验缓冲只为显式标记的本地片源增加预载', () => {
+    localStorage.setItem('peach.settings.v1', JSON.stringify({ betaFastVideo: true }));
+    const video = document.createElement('video'); document.body.append(video);
+    const player = createV10Player(video, { controls: false, preload: 'metadata' });
+    player.src({ src: '/stream?id=1&beta_fast=1', type: 'video/mp4' });
+    expect(video.preload).toBe('auto');
+    player.src({ src: '/follow-stream?id=2', type: 'video/mp4' });
+    expect(video.preload).toBe('metadata');
+    player.dispose();
+  });
   it('片源交给异步 adapter 后立即播放，原生 play 使用已挂载的片源', async () => {
     const { video, player, media } = mounted();
     Object.defineProperty(media, 'source', { set: (value: { src: string }) => {

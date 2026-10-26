@@ -33,6 +33,8 @@ export interface PanelSettings {
   seekSeconds: number;
   playerSeek?: import('../../player/playback-preferences').SeekConfig;
   scrollVolume?: boolean;
+  betaFastVideo?: boolean;
+  betaFastUI?: boolean;
   relatedLimit: number;
   searchHistoryLimit: number;
   followInitialDays: number;
