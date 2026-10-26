@@ -1,9 +1,13 @@
 """无桌面入口的进程退出与现有数据保护。"""
 import subprocess
+import os
+import shutil
+import sqlite3
 import sys
 import tempfile
 import threading
 import unittest
+from contextlib import closing
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -13,6 +17,58 @@ from starlette.requests import Request
 
 
 class ServerTests(unittest.TestCase):
+    def test_existing_rss_database_is_upgraded_with_backup_before_serving(self):
+        from peach.config import MIGRATIONS_DIR
+        from peach.migrations import upgrade
+        from peach import feeds
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(root)})
+            settings_file.write(config)
+            prior = root / 'prior-migrations'
+            prior.mkdir()
+            for migration in MIGRATIONS_DIR.glob('*.sql'):
+                if migration.name < '0050_':
+                    shutil.copyfile(migration, prior / migration.name)
+            database = config.directory('database') / 'ledger.db'
+            database.parent.mkdir(exist_ok=True)
+            upgrade(database, prior)
+            with closing(sqlite3.connect(database)) as connection, connection:
+                connection.row_factory = sqlite3.Row
+                identity = feeds.add_source(connection, url='https://example.com/feed', name='Example', kind='rss')
+                connection.execute("INSERT INTO feed_item(source_id,item_key,title,first_seen) VALUES(?,?,?,?)",
+                                   (identity, 'saved', 'Saved post', '2026-10-01T00:00:00Z'))
+            with patch.dict(os.environ, {'PEACH_DATA_ROOT': str(root)}):
+                server.prepare_database()
+                server.prepare_database()
+            with closing(sqlite3.connect(database)) as connection:
+                connection.row_factory = sqlite3.Row
+                self.assertEqual(feeds.sources(connection)[0]['name'], 'Example')
+                self.assertEqual([tuple(row) for row in connection.execute('SELECT title,rss_merged_into,rss_expired_at FROM feed_item')], [('Saved post', None, None)])
+                self.assertEqual(connection.execute("SELECT count(*) FROM schema_migration WHERE version='0050'").fetchone()[0], 1)
+            self.assertEqual(len(list(database.parent.glob('ledger.pre-migrate-*.db'))), 1)
+
+    def test_reader_does_not_upgrade_database(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            config = settings_file.load_config(environ={'PEACH_DATA_ROOT': str(root)})
+            database = config.directory('database') / 'ledger.db'
+            database.parent.mkdir(parents=True)
+            database.touch()
+            with patch.object(server.settings_file, 'load_config', return_value=config), \
+                    patch('peach.runtime_prepare.ledger_writer', return_value=(False, 'reader')), \
+                    patch.object(server.subprocess, 'run') as run:
+                server.prepare_database()
+            run.assert_not_called()
+
+    def test_failed_upgrade_prevents_service_start(self):
+        with patch.object(server, 'initialize'), \
+                patch.object(server, 'prepare_database', side_effect=subprocess.CalledProcessError(1, 'migrate')), \
+                patch.object(server, 'supervise') as supervise, patch.object(server.signal, 'signal'):
+            with self.assertRaises(subprocess.CalledProcessError):
+                server.main([])
+            supervise.assert_not_called()
+
     def test_headless_configuration_accepts_private_peers_and_rejects_forwarding(self):
         from peach.routes_configuration import local_client, managed_configuration
         with patch.dict("os.environ", {"PEACH_HEADLESS_MANAGED": "1"}):

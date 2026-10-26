@@ -46,6 +46,24 @@ def initialize() -> None:
         stop_process(process)
 
 
+def prepare_database() -> None:
+    """服务启动前由本机写入端执行带备份的结构升级。"""
+    from .runtime_prepare import ledger_writer
+    config = settings_file.load_config()
+    database = config.directory("database") / "ledger.db"
+    if not database.is_file():
+        return
+    writer, reason = ledger_writer(
+        replication_enabled=bool(config.replication.enabled), db=database,
+        shared_db=config.shared_root / "database" / "ledger.db",
+        state_dir=config.directory("state"))
+    if not writer:
+        print(f"跳过数据库迁移：{reason}", flush=True)
+        return
+    subprocess.run([sys.executable, "-m", "peach", "migrate", "upgrade", "--yes",
+                    "--db", str(database)], check=True)
+
+
 def supervise(host: str, port: int, stopping: threading.Event) -> int:
     service = scanner = None
     try:
@@ -84,6 +102,7 @@ def main(argv: list[str] | None = None) -> int:
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, lambda *_: stopping.set())
     initialize()
+    prepare_database()
     return supervise(args.host, args.port, stopping)
 
 
