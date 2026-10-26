@@ -4330,5 +4330,9 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fontes de dados",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; Clique em \"Reiniciar serviço\" na bandeja para reiniciar a bandeja como um todo e sincronizar as dependências",
   "；跳过 {0}": ";Pular {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg.",
+  "Maximum concurrent downloads": "Máximo de downloads simultâneos",
+  "Concurrent downloads for {0}": "Downloads simultâneos de {0}",
+  "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada serviço baixa no máximo esta quantidade de arquivos por vez. Os arquivos na fila começam automaticamente. Padrão: 3.",
+  "Choose between 1 and 10 concurrent downloads.": "Escolha entre 1 e 10 downloads simultâneos."
 }

@@ -44,7 +44,7 @@ it('RSS 原始链接旁的一次点击准备链接并开始浏览器下载', asy
   expect(icon).not.toBeNull();
   expect(icon?.parentElement?.querySelector('a')?.href).toBe(link.url);
   await click(icon);
-  expect(served.posts[0]).toEqual({ path: '/api/rss/resolve', body: { entry_id: 1, link_index: 0, provider: 'alldebrid' } });
+  expect(served.posts[0]).toEqual({ path: '/api/rss/resolve', body: { entry_id: 1, link_index: 0, provider: 'alldebrid', auto_download: false } });
   expect(download).toHaveBeenCalledWith('https://cdn.example.org/video');
 });
 
@@ -54,7 +54,8 @@ it('配置目录后同一枚图标提交目录下载', async () => {
     <RSSDownloads readOnly={false} toast={vi.fn()} download={download} />
   </QueryClientProvider>);
   await click(host.querySelector('button[aria-label="Download with AllDebrid"]'));
-  expect(served.posts).toContainEqual({ path: '/api/rss/download', body: { id: 'prepared', file_index: 0 } });
+  expect(served.posts).toContainEqual({ path: '/api/rss/resolve', body: { entry_id: 1, link_index: 0, provider: 'alldebrid', auto_download: true } });
+  expect(served.posts.filter(post => post.path === '/api/rss/download')).toHaveLength(0);
   expect(download).not.toHaveBeenCalled();
 });
 

@@ -8,6 +8,8 @@ RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 
 
 `/subscriptions?tab=rss` 展示 RSS 下载订阅与新条目，`/settings/downloads` 配置 AllDebrid 和 Real-Debrid。`GET /api/rss` 分页返回条目、来源和本机任务；`POST /api/rss/{source,check,resolve,download,cancel}` 分别管理来源、更新列表、准备链接、目录下载和取消。链接准备只接受已保存的 RSS 条目与链接序号。渠道配置通过 `GET /api/configuration/debrid` 和 `POST /api/configuration/debrid/{provider}/{settings,check}`，不返回密钥。全部接口要求登录，写操作检查同源与只读状态，渠道配置沿用配置页访问边界。
 
+渠道设置读写整数 `max_concurrent_downloads`（每个渠道默认 3，范围 1–10），限制服务端同时传输的文件数。`POST /api/rss/resolve` 可传布尔 `auto_download` 保存下载意图，单文件链接就绪后自动进入目录下载队列；多文件结果保留文件选择。准备链接使用独立单槽，等待中的传输在空位出现时继续。浏览器下载不受服务端并发设置控制。
+
 列表使用一层路径，详情使用两层路径。查询参数表达筛选、排序与播放上下文；名称只用于展示和检索。
 
 ## 详情对象

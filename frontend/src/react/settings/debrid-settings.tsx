@@ -9,7 +9,7 @@ import { queryClient } from '../query';
 import { ErrorText, Footer, Help, Section, Stack } from './section';
 import { busyProps, useAction } from './use-action';
 
-export interface DebridProvider { id: string; label: string; configured: boolean; download_folder: string; hosts: string[]; auto_import?: boolean }
+export interface DebridProvider { id: string; label: string; configured: boolean; download_folder: string; hosts: string[]; auto_import?: boolean; max_concurrent_downloads?: number }
 const KEY = ['debrid-settings'];
 const URL = '/api/configuration/debrid';
 
@@ -17,13 +17,15 @@ function ProviderSettings({ provider, receipt }: { provider: DebridProvider; rec
   const [key, setKey] = useState('');
   const [folder, setFolder] = useState(provider.download_folder);
   const [autoImport, setAutoImport] = useState(!!provider.auto_import);
+  const [concurrency, setConcurrency] = useState(String(provider.max_concurrent_downloads ?? 3));
   const [connected, setConnected] = useState(false);
   const action = useAction();
   useEffect(() => setFolder(provider.download_folder), [provider.download_folder]);
   useEffect(() => setAutoImport(!!provider.auto_import), [provider.auto_import]);
+  useEffect(() => setConcurrency(String(provider.max_concurrent_downloads ?? 3)), [provider.max_concurrent_downloads]);
   const save = (remove = false) => {
     void action.run('save', signal => apiSend(`${URL}/${provider.id}/settings`, {
-      api_key: key, download_folder: folder, auto_import: autoImport, ...(remove ? { remove_key: true } : {}),
+      api_key: key, download_folder: folder, auto_import: autoImport, max_concurrent_downloads: Number(concurrency), ...(remove ? { remove_key: true } : {}),
     }, 'POST', signal), () => {
       setKey(''); setConnected(false); receipt('Debrid settings saved.');
       void queryClient.invalidateQueries({ queryKey: KEY });
@@ -42,6 +44,9 @@ function ProviderSettings({ provider, receipt }: { provider: DebridProvider; rec
         placeholder="/downloads" />
       <Help>For Docker, enter an existing writable folder inside the container, such as /downloads, and mount your host folder there.</Help>
       <Help>A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.</Help>
+      <Input label="Maximum concurrent downloads" aria-label={formatTranslation('Concurrent downloads for {0}', provider.label)}
+        type="number" value={concurrency} onChange={setConcurrency} />
+      <Help>Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.</Help>
       <Switch aria-label={formatTranslation('Automatic import for {0}', provider.label)} isDisabled={!folder.trim()}
         isSelected={autoImport} onChange={setAutoImport}>Scan and import after download</Switch>
       <Help>Automatic import processes only the completed video. Choose a download folder inside a configured media library, using the container path in Docker.</Help>
@@ -49,7 +54,8 @@ function ProviderSettings({ provider, receipt }: { provider: DebridProvider; rec
       {action.error ? <ErrorText>{action.error}</ErrorText> : null}
     </Stack>
     <Footer>
-      <Button type="submit" {...busyProps(action.busy === 'save')}>Save debrid settings</Button>
+      <Button type="submit" disabled={!Number.isInteger(Number(concurrency)) || Number(concurrency) < 1 || Number(concurrency) > 10}
+        {...busyProps(action.busy === 'save')}>Save debrid settings</Button>
       <Button type="button" variant="secondary" disabled={!provider.configured} {...busyProps(action.busy === 'check')}
         onClick={() => void action.run('check', signal => apiSend(`${URL}/${provider.id}/check`, {}, 'POST', signal), () => {
           setConnected(true); receipt('Debrid connection successful.');

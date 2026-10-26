@@ -90,11 +90,12 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   }, [data, waiting]); // eslint-disable-line react-hooks/exhaustive-deps
   const clickDebrid = (entry: Entry, index: number, provider: DebridProvider) => {
     void action.run('resolve', signal => apiSend<{ id: string }>('/api/rss/resolve', {
-      entry_id: entry.id, link_index: index, provider: provider.id,
+      entry_id: entry.id, link_index: index, provider: provider.id, auto_download: !!provider.download_folder,
     }, 'POST', signal), result => {
       trackDebridJob(result.id);
       delivered.current.delete(result.id);
-      setWaiting(previous => [...new Set([...previous, result.id])]); refresh();
+      if (!provider.download_folder) setWaiting(previous => [...new Set([...previous, result.id])]);
+      refresh();
     });
   };
   if (state.isPending) return <p role="status">Loading RSS feeds…</p>;

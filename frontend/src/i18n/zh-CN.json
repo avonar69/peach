@@ -354,5 +354,10 @@
   "本趟处理": "本趟处理",
   "本趟处理（已登记文件，未含未知新增）": "本趟处理（已登记文件，未含未知新增）",
   "查找新增文件，仅处理新增影片。下拉菜单可选择完整扫描、同步已入库影片、生成预览或补全资料。": "查找新增文件，仅处理新增影片。下拉菜单可选择完整扫描、同步已入库影片、生成预览或补全资料。",
-  "（粗估）": "（粗估）"
+  "（粗估）": "（粗估）",
+  "Maximum concurrent downloads": "最大同时下载数",
+  "Concurrent downloads for {0}": "{0} 的同时下载数",
+  "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每个渠道最多同时下载此数量的文件，等待中的文件会自动开始。默认：3。",
+  "Choose between 1 and 10 concurrent downloads.": "请选择 1 到 10 个同时下载。",
+  "已发现 {0} 个文件": "已发现 {0} 个文件"
 }

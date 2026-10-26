@@ -114,7 +114,7 @@ describe('RSS and debrid downloads', () => {
           const body = route.request().postDataJSON(); posts.push({ path, body });
           if (path.endsWith('/resolve')) state.jobs = [{ id: 'ready-job', kind: 'resolve', provider: 'alldebrid', entry_id: 1,
             source, status: 'ready', files: [{ filename: 'example.mp4', url: 'https://cdn.example.org/example.mp4', size: 1000 }] }];
-          if (path.endsWith('/download')) state.jobs.push({ id: 'local-job', kind: 'download', provider: 'alldebrid', entry_id: 1,
+          if (path.endsWith('/download') || (path.endsWith('/resolve') && body.auto_download)) state.jobs.push({ id: 'local-job', kind: 'download', provider: 'alldebrid', entry_id: 1,
             status: 'downloading', filename: 'example.mp4', bytes: 500, total: 1000 });
           await route.fulfill({ json: { id: 'ready-job', ok: true } });
         } else await route.fulfill({ json: state });
@@ -131,7 +131,7 @@ describe('RSS and debrid downloads', () => {
       await icon.click();
       await page.locator('article').getByRole('progressbar', { name: 'Download progress', exact: true }).waitFor();
       assert.ok(posts.some(post => post.path === '/api/rss/resolve' && post.body.entry_id === 1 && post.body.link_index === 0));
-      assert.ok(posts.some(post => post.path === '/api/rss/download' && post.body.id === 'ready-job'));
+      assert.ok(posts.some(post => post.path === '/api/rss/resolve' && post.body.auto_download === true));
       assert.equal(await page.getByRole('link', { name: 'example.mp4', exact: true }).count(), 1);
       const geometry = await layout(page);
       assert.ok(geometry.scrollWidth <= geometry.viewportWidth + 1, JSON.stringify(geometry));

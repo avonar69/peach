@@ -108,5 +108,6 @@ def resolve(contract, body):
     links = json.loads(row[0]) if row else []
     if index >= len(links):
         raise ValueError('Choose an RSS download link.')
-    job = contract.debrid.submit(identity, links[index], str(body.get('provider') or ''))
+    job = contract.debrid.submit(identity, links[index], str(body.get('provider') or ''),
+                                auto_download=body.get('auto_download') is True)
     return {'ok': True, 'id': job['id']}

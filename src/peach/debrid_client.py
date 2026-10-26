@@ -46,6 +46,7 @@ def settings(config):
         hosts = {}
     return {'providers': [{'id': key, 'label': name, 'configured': bool(values.get(key, {}).get('api_key')),
         'download_folder': values.get(key, {}).get('download_folder', ''),
+        'max_concurrent_downloads': values.get(key, {}).get('max_concurrent_downloads', 3),
         'auto_import': values.get(key, {}).get('auto_import') is True, 'hosts': hosts.get(key, [])} for key, name in PROVIDERS.items()]}
 
 
@@ -70,6 +71,11 @@ def save(config, provider, body):
         if type(body['auto_import']) is not bool:
             raise ValueError('Choose whether to import completed downloads.')
         row['auto_import'] = body['auto_import']
+    if 'max_concurrent_downloads' in body:
+        limit = body['max_concurrent_downloads']
+        if type(limit) is not int or not 1 <= limit <= 10:
+            raise ValueError('Choose between 1 and 10 concurrent downloads.')
+        row['max_concurrent_downloads'] = limit
     if row.get('auto_import'):
         from .debrid_import import import_target
         if not row.get('download_folder'):

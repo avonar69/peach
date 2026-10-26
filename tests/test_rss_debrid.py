@@ -1,6 +1,7 @@
 """使用临时账本、RSS 字节与假服务响应验证订阅下载。"""
 import json
 import tempfile
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -340,6 +341,56 @@ class RSSDebridTests(unittest.TestCase):
         self.assertEqual(service.download(task['id'], 0)['id'], first['id'])
         service.cancel(first['id'])
         self.assertEqual(service.jobs[first['id']]['status'], 'cancelled')
+
+    def test_six_persisted_download_requests_fill_and_refill_three_slots(self):
+        self.provider()
+        debrid_client.save(self.config, 'alldebrid', {'download_folder': str(self.root)})
+        service = self.service()
+        for index in range(6):
+            task = service.submit(index, {'kind': 'link', 'url': f'https://rg.to/file/{index}'},
+                                  'alldebrid', auto_download=True)
+            service._update(task['id'], status='ready', files=[{
+                'url': f'https://cdn.example.org/{index}', 'filename': f'{index}.mp4', 'size': 1}])
+        restored = debrid_service.Service(self.config)
+        release, first_wave, finished = threading.Event(), threading.Event(), threading.Event()
+        counts = {'running': 0, 'peak': 0, 'complete': 0}
+        lock = threading.Lock()
+
+        def transfer(task, *, update, active):
+            with lock:
+                counts['running'] += 1
+                counts['peak'] = max(counts['peak'], counts['running'])
+                if counts['running'] == 3:
+                    first_wave.set()
+            release.wait(5)
+            update(status='complete', path=str(self.root / task['filename']))
+            with lock:
+                counts['running'] -= 1
+                counts['complete'] += 1
+                if counts['complete'] == 6:
+                    finished.set()
+
+        try:
+            with patch('peach.debrid_transfer.transfer', side_effect=transfer):
+                restored.start()
+                self.assertTrue(first_wave.wait(5))
+                self.assertEqual(counts['peak'], 3)
+                release.set()
+                self.assertTrue(finished.wait(5))
+                self.assertEqual(counts['peak'], 3)
+                self.assertEqual(len([job for job in restored.snapshot() if job['kind'] == 'download']), 6)
+                restored.stop()
+        finally:
+            release.set()
+            restored.stop()
+
+    def test_download_concurrency_defaults_and_validation(self):
+        self.assertEqual(debrid_client.settings(self.config)['providers'][0]['max_concurrent_downloads'], 3)
+        result = debrid_client.save(self.config, 'alldebrid', {'max_concurrent_downloads': 1})
+        self.assertEqual(result['providers'][0]['max_concurrent_downloads'], 1)
+        for value in (0, 11, True, 1.5, '3'):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                debrid_client.save(self.config, 'alldebrid', {'max_concurrent_downloads': value})
 
     def test_transfer_resumes_with_range_and_publishes_only_a_complete_file(self):
         identity = '1' * 32

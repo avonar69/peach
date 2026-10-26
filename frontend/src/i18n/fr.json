@@ -4330,5 +4330,9 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1} ; {2} sources de données",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; Cliquez sur \"Redémarrer le service\" sur le bac pour redémarrer le bac dans son ensemble et synchroniser les dépendances",
   "；跳过 {0}": "; sauter {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg.",
+  "Maximum concurrent downloads": "Téléchargements simultanés maximum",
+  "Concurrent downloads for {0}": "Téléchargements simultanés pour {0}",
+  "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Chaque service télécharge au maximum ce nombre de fichiers à la fois. Les fichiers en attente démarrent automatiquement. Par défaut : 3.",
+  "Choose between 1 and 10 concurrent downloads.": "Choisissez entre 1 et 10 téléchargements simultanés."
 }

@@ -13491,7 +13491,12 @@ var Xo = {
 	"扫描全部（完整扫描）": "Scan All (Fresh)",
 	"处理所有已登记影片，包括已有文件。保留已保存的资料、图片和历史。": "Process every registered video, including existing files. Saved metadata, pictures and history are preserved.",
 	"查找新增文件，仅处理新增影片。下拉菜单可选择完整扫描、同步已入库影片、生成预览或补全资料。": "Find new files and process only newly added videos. Use the menu for a full scan or to process existing videos, generate previews or fetch metadata.",
-	"New videos processed: {0}.": "New videos processed: {0}."
+	"New videos processed: {0}.": "New videos processed: {0}.",
+	"Maximum concurrent downloads": "Maximum concurrent downloads",
+	"Concurrent downloads for {0}": "Concurrent downloads for {0}",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.",
+	"Choose between 1 and 10 concurrent downloads.": "Choose between 1 and 10 concurrent downloads.",
+	"已发现 {0} 个文件": "Found {0} files"
 }, Zo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -18954,7 +18959,7 @@ var Xo = {
 	"已加入想要：{0}": "Deseo ya agregado: {0}",
 	已加入稍后看: "Agregado para verlo más tarde",
 	"已加载 {0}": "{0} cargado",
-	"已发现 {0} 个文件": "{0} archivos encontrados",
+	"已发现 {0} 个文件": "Se encontraron {0} archivos",
 	已取消: "Cancelado",
 	已取消不合口味: "Unpalatable ha sido cancelado",
 	已取消关注来源: "Se ha dejado de seguir la fuente",
@@ -21444,7 +21449,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fuentes de datos",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Haga clic en \"Reiniciar servicio\" en la bandeja para reiniciar la bandeja en su totalidad y sincronizar las dependencias.",
 	"；跳过 {0}": ";Omitir {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";La transcodificación, la información multimedia y las miniaturas requieren el kit de herramientas FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";La transcodificación, la información multimedia y las miniaturas requieren el kit de herramientas FFmpeg.",
+	"Maximum concurrent downloads": "Máximo de descargas simultáneas",
+	"Concurrent downloads for {0}": "Descargas simultáneas de {0}",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada servicio descarga como máximo esta cantidad de archivos a la vez. Los archivos en espera comienzan automáticamente. Predeterminado: 3.",
+	"Choose between 1 and 10 concurrent downloads.": "Elige entre 1 y 10 descargas simultáneas."
 }, $o = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -25777,7 +25786,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}\xA0; {2}\xA0sources de données",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Cliquez sur \"Redémarrer le service\" sur le bac pour redémarrer le bac dans son ensemble et synchroniser les dépendances",
 	"；跳过 {0}": "; sauter {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "; Le transcodage, les informations multimédias et les vignettes nécessitent la boîte à outils FFmpeg.",
+	"Maximum concurrent downloads": "Téléchargements simultanés maximum",
+	"Concurrent downloads for {0}": "Téléchargements simultanés pour {0}",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Chaque service télécharge au maximum ce nombre de fichiers à la fois. Les fichiers en attente démarrent automatiquement. Par défaut : 3.",
+	"Choose between 1 and 10 concurrent downloads.": "Choisissez entre 1 et 10 téléchargements simultanés."
 }, es = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -30110,7 +30123,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} Datenquellen",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Klicken Sie in der Taskleiste auf „Dienst neu starten“, um die Taskleiste als Ganzes neu zu starten und Abhängigkeiten zu synchronisieren",
 	"；跳过 {0}": ";Überspringen {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transkodierung, Medieninformationen und Miniaturansichten erfordern das FFmpeg-Toolkit."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transkodierung, Medieninformationen und Miniaturansichten erfordern das FFmpeg-Toolkit.",
+	"Maximum concurrent downloads": "Maximale gleichzeitige Downloads",
+	"Concurrent downloads for {0}": "Gleichzeitige Downloads für {0}",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Jeder Anbieter lädt höchstens so viele Dateien gleichzeitig herunter. Wartende Dateien starten automatisch. Standard: 3.",
+	"Choose between 1 and 10 concurrent downloads.": "Wählen Sie zwischen 1 und 10 gleichzeitigen Downloads."
 }, ts = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -34443,7 +34460,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fontes de dados",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Clique em \"Reiniciar serviço\" na bandeja para reiniciar a bandeja como um todo e sincronizar as dependências",
 	"；跳过 {0}": ";Pular {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Transcodificação, informações de mídia e miniaturas requerem o kit de ferramentas FFmpeg.",
+	"Maximum concurrent downloads": "Máximo de downloads simultâneos",
+	"Concurrent downloads for {0}": "Downloads simultâneos de {0}",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada serviço baixa no máximo esta quantidade de arquivos por vez. Os arquivos na fila começam automaticamente. Padrão: 3.",
+	"Choose between 1 and 10 concurrent downloads.": "Escolha entre 1 e 10 downloads simultâneos."
 }, ns = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36286,7 +36307,7 @@ var Xo = {
 	"已加入想要：{0}": "すでに追加された要望: {0}",
 	已加入稍后看: "後で見るために追加",
 	"已加载 {0}": "{0} がロードされました",
-	"已发现 {0} 个文件": "{0}個のファイルが見つかりました",
+	"已发现 {0} 个文件": "{0} 個のファイルを検出",
 	已取消: "キャンセルされました",
 	已取消不合口味: "不味いはキャンセルされました",
 	已取消关注来源: "ソースのフォローが解除されました",
@@ -38776,7 +38797,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} データソース",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": ";トレイ上の「サービスの再起動」をクリックしてトレイ全体を再起動し、依存関係を同期します。",
 	"；跳过 {0}": ";{0}をスキップ",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "トランスコーディング、メディア情報、およびサムネイルには、FFmpegツールキットが必要である。"
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "トランスコーディング、メディア情報、およびサムネイルには、FFmpegツールキットが必要である。",
+	"Maximum concurrent downloads": "最大同時ダウンロード数",
+	"Concurrent downloads for {0}": "{0} の同時ダウンロード数",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "各サービスで同時にダウンロードするファイル数です。待機中のファイルは自動で開始します。既定値：3。",
+	"Choose between 1 and 10 concurrent downloads.": "同時ダウンロード数を1～10で選択してください。"
 }, rs = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -40619,7 +40644,7 @@ var Xo = {
 	"已加入想要：{0}": "이미 원하는 항목을 추가했습니다: {0}",
 	已加入稍后看: "가 추가되었습니다.",
 	"已加载 {0}": "가 로드되었습니다. {0}",
-	"已发现 {0} 个文件": "{0}개 파일을 찾았습니다.",
+	"已发现 {0} 个文件": "파일 {0}개 발견",
 	已取消: "취소됨",
 	已取消不合口味: "취소됨 맛이 없음",
 	已取消关注来源: "가 해당 소스를 팔로우 취소했습니다.",
@@ -43109,7 +43134,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} 소스",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; 트레이에서 \"서비스 다시 시작\"을 클릭하면 트레이 전체가 다시 시작되고 종속성이 동기화됩니다.",
 	"；跳过 {0}": "; {0} 건너뛰기",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";트랜스코딩, 미디어 정보 및 썸네일에는 FFmpeg 툴킷이 필요합니다."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";트랜스코딩, 미디어 정보 및 썸네일에는 FFmpeg 툴킷이 필요합니다.",
+	"Maximum concurrent downloads": "최대 동시 다운로드 수",
+	"Concurrent downloads for {0}": "{0} 동시 다운로드 수",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "각 서비스가 동시에 다운로드할 파일 수입니다. 대기 중인 파일은 자동으로 시작됩니다. 기본값: 3.",
+	"Choose between 1 and 10 concurrent downloads.": "동시 다운로드 수를 1~10으로 선택하세요."
 }, is = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -47442,7 +47471,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} nguồn dữ liệu",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "; Nhấp vào \"Khởi động lại dịch vụ\" trên khay để khởi động lại toàn bộ khay và đồng bộ hóa các phụ thuộc",
 	"；跳过 {0}": ";Bỏ qua {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Chuyển mã, thông tin phương tiện và hình thu nhỏ yêu cầu bộ công cụ FFmpeg."
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";Chuyển mã, thông tin phương tiện và hình thu nhỏ yêu cầu bộ công cụ FFmpeg.",
+	"Maximum concurrent downloads": "Số lượt tải xuống đồng thời tối đa",
+	"Concurrent downloads for {0}": "Tải xuống đồng thời cho {0}",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Mỗi dịch vụ tải xuống tối đa số tệp này cùng lúc. Các tệp đang chờ sẽ tự động bắt đầu. Mặc định: 3.",
+	"Choose between 1 and 10 concurrent downloads.": "Chọn từ 1 đến 10 lượt tải xuống đồng thời."
 }, as = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -49285,7 +49318,7 @@ var Xo = {
 	"已加入想要：{0}": "已加入想要：{0}",
 	已加入稍后看: "已加入稍後看",
 	"已加载 {0}": "已載入 {0}",
-	"已发现 {0} 个文件": "已發現 {0} 個文件",
+	"已发现 {0} 个文件": "已找到 {0} 個檔案",
 	已取消: "已取消",
 	已取消不合口味: "已取消不合口味",
 	已取消关注来源: "已取消追蹤來源",
@@ -51775,7 +51808,11 @@ var Xo = {
 	"；{0} 个{1}；{2} 个资料来源": "；{0} 個{1}；{2} 個資料來源",
 	"；点托盘「重启服务」会整体重启托盘并同步依赖": "；點托盤「重啟服務」會整體重啟托盤並同步依賴",
 	"；跳过 {0}": "；跳過 {0}",
-	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "；轉碼、媒體資訊與縮圖需要 FFmpeg 工具包。"
+	"；转码、媒体信息与缩略图需要 FFmpeg 工具包。": "；轉碼、媒體資訊與縮圖需要 FFmpeg 工具包。",
+	"Maximum concurrent downloads": "最大同時下載數",
+	"Concurrent downloads for {0}": "{0} 的同時下載數",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每個服務最多同時下載此數量的檔案，等待中的檔案會自動開始。預設：3。",
+	"Choose between 1 and 10 concurrent downloads.": "請選擇 1 到 10 個同時下載。"
 }, os = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -52132,7 +52169,12 @@ var Xo = {
 	本趟处理: "本趟处理",
 	"本趟处理（已登记文件，未含未知新增）": "本趟处理（已登记文件，未含未知新增）",
 	"查找新增文件，仅处理新增影片。下拉菜单可选择完整扫描、同步已入库影片、生成预览或补全资料。": "查找新增文件，仅处理新增影片。下拉菜单可选择完整扫描、同步已入库影片、生成预览或补全资料。",
-	"（粗估）": "（粗估）"
+	"（粗估）": "（粗估）",
+	"Maximum concurrent downloads": "最大同时下载数",
+	"Concurrent downloads for {0}": "{0} 的同时下载数",
+	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每个渠道最多同时下载此数量的文件，等待中的文件会自动开始。默认：3。",
+	"Choose between 1 and 10 concurrent downloads.": "请选择 1 到 10 个同时下载。",
+	"已发现 {0} 个文件": "已发现 {0} 个文件"
 }, ss = [
 	["en", "English"],
 	["zh-CN", "简体中文"],
@@ -84701,7 +84743,7 @@ function USe(e) {
 	return e.current_asset_name ? ws("当前：{0} · {1}{2}", e.current_asset_name, t, n) : t + n;
 }
 function WSe(e) {
-	let t = e.total ? ws("{0} 项", rj(e.checked, e.total)) : e.current_action === "scanning_files" || e.stage === "扫描文件" ? `已发现 ${(e.scanned || 0).toLocaleString()} 个文件` : "";
+	let t = e.total ? ws("{0} 项", rj(e.checked, e.total)) : e.current_action === "scanning_files" || e.stage === "扫描文件" ? ws("已发现 {0} 个文件", (e.scanned || 0).toLocaleString()) : "";
 	return USe(e) + (t ? ` · ${t}` : "");
 }
 function GSe(e) {
@@ -100146,9 +100188,10 @@ function FH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 		m.run("resolve", (r) => V("/api/rss/resolve", {
 			entry_id: e.id,
 			link_index: t,
-			provider: n.id
+			provider: n.id,
+			auto_download: !!n.download_folder
 		}, "POST", r), (e) => {
-			XF(e.id), p.current.delete(e.id), f((t) => [.../* @__PURE__ */ new Set([...t, e.id])]), _();
+			XF(e.id), p.current.delete(e.id), n.download_folder || f((t) => [.../* @__PURE__ */ new Set([...t, e.id])]), _();
 		});
 	};
 	if (h.isPending) return /* @__PURE__ */ G("p", {
@@ -112508,22 +112551,23 @@ function RFe({ initial: e, receipt: t }) {
 //#region src/react/settings/debrid-settings.tsx
 var qG = ["debrid-settings"], JG = "/api/configuration/debrid";
 function zFe({ provider: e, receipt: t }) {
-	let [n, r] = (0, w.useState)(""), [i, a] = (0, w.useState)(e.download_folder), [o, s] = (0, w.useState)(!!e.auto_import), [c, l] = (0, w.useState)(!1), u = AA();
-	(0, w.useEffect)(() => a(e.download_folder), [e.download_folder]), (0, w.useEffect)(() => s(!!e.auto_import), [e.auto_import]);
-	let d = (a = !1) => {
-		u.run("save", (t) => V(`${JG}/${e.id}/settings`, {
+	let [n, r] = (0, w.useState)(""), [i, a] = (0, w.useState)(e.download_folder), [o, s] = (0, w.useState)(!!e.auto_import), [c, l] = (0, w.useState)(String(e.max_concurrent_downloads ?? 3)), [u, d] = (0, w.useState)(!1), f = AA();
+	(0, w.useEffect)(() => a(e.download_folder), [e.download_folder]), (0, w.useEffect)(() => s(!!e.auto_import), [e.auto_import]), (0, w.useEffect)(() => l(String(e.max_concurrent_downloads ?? 3)), [e.max_concurrent_downloads]);
+	let p = (a = !1) => {
+		f.run("save", (t) => V(`${JG}/${e.id}/settings`, {
 			api_key: n,
 			download_folder: i,
 			auto_import: o,
+			max_concurrent_downloads: Number(c),
 			...a ? { remove_key: !0 } : {}
 		}, "POST", t), () => {
-			r(""), l(!1), t("Debrid settings saved."), H.invalidateQueries({ queryKey: qG }), H.invalidateQueries({ queryKey: ["rss-downloads"] });
+			r(""), d(!1), t("Debrid settings saved."), H.invalidateQueries({ queryKey: qG }), H.invalidateQueries({ queryKey: ["rss-downloads"] });
 		});
 	};
 	return /* @__PURE__ */ K(IA, {
 		title: e.label,
 		onSubmit: (e) => {
-			e.preventDefault(), d();
+			e.preventDefault(), p();
 		},
 		children: [/* @__PURE__ */ K(RA, { children: [
 			/* @__PURE__ */ G(kP, {
@@ -112552,6 +112596,14 @@ function zFe({ provider: e, receipt: t }) {
 			}),
 			/* @__PURE__ */ G(BA, { children: "For Docker, enter an existing writable folder inside the container, such as /downloads, and mount your host folder there." }),
 			/* @__PURE__ */ G(BA, { children: "A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser." }),
+			/* @__PURE__ */ G(kP, {
+				label: "Maximum concurrent downloads",
+				"aria-label": ws("Concurrent downloads for {0}", e.label),
+				type: "number",
+				value: c,
+				onChange: l
+			}),
+			/* @__PURE__ */ G(BA, { children: "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3." }),
 			/* @__PURE__ */ G(jH, {
 				"aria-label": ws("Automatic import for {0}", e.label),
 				isDisabled: !i.trim(),
@@ -112560,24 +112612,25 @@ function zFe({ provider: e, receipt: t }) {
 				children: "Scan and import after download"
 			}),
 			/* @__PURE__ */ G(BA, { children: "Automatic import processes only the completed video. Choose a download folder inside a configured media library, using the container path in Docker." }),
-			c ? /* @__PURE__ */ G("p", {
+			u ? /* @__PURE__ */ G("p", {
 				role: "status",
 				children: ws("Connected to {0}.", e.label)
 			}) : null,
-			u.error ? /* @__PURE__ */ G(VA, { children: u.error }) : null
+			f.error ? /* @__PURE__ */ G(VA, { children: f.error }) : null
 		] }), /* @__PURE__ */ K(zA, { children: [
 			/* @__PURE__ */ G(q, {
 				type: "submit",
-				...Y(u.busy === "save"),
+				disabled: !Number.isInteger(Number(c)) || Number(c) < 1 || Number(c) > 10,
+				...Y(f.busy === "save"),
 				children: "Save debrid settings"
 			}),
 			/* @__PURE__ */ G(q, {
 				type: "button",
 				variant: "secondary",
 				disabled: !e.configured,
-				...Y(u.busy === "check"),
-				onClick: () => void u.run("check", (t) => V(`${JG}/${e.id}/check`, {}, "POST", t), () => {
-					l(!0), t("Debrid connection successful."), H.invalidateQueries({ queryKey: ["rss-downloads"] });
+				...Y(f.busy === "check"),
+				onClick: () => void f.run("check", (t) => V(`${JG}/${e.id}/check`, {}, "POST", t), () => {
+					d(!0), t("Debrid connection successful."), H.invalidateQueries({ queryKey: ["rss-downloads"] });
 				}),
 				children: "Test connection"
 			}),
@@ -112585,8 +112638,8 @@ function zFe({ provider: e, receipt: t }) {
 				type: "button",
 				variant: "secondary",
 				disabled: !e.configured,
-				...Y(u.busy === "save"),
-				onClick: () => d(!0),
+				...Y(f.busy === "save"),
+				onClick: () => p(!0),
 				children: "Remove API key"
 			})
 		] })]

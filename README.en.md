@@ -12,6 +12,8 @@ Each RSS feed can keep saved posts forever or for a number of days, months or ye
 
 Debrid downloads use the existing background-task popup across pages, with transfer/import status, cancellation and import retry. Each provider can enable **Scan and import after download** for a folder inside a configured media library; use container paths in Docker. Completed files enter a persistent, file-specific import. Metadata failure keeps the file and queued work survives restart. Browser downloads remain browser-managed; byte progress and automatic import apply to server-folder downloads.
 
+Each provider has a maximum concurrent server-folder downloads setting, defaulting to 3 with a range of 1–10. Waiting files start as slots open. Single-file RSS download requests persist on the server and continue with the page closed; browser downloads remain controlled by the browser.
+
 <p align="center">A private video library: local drives, cloud drives and the creators you follow, all in one place.</p>
 
 <p align="center">

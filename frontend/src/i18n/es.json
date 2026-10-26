@@ -1840,7 +1840,7 @@
   "已加入想要：{0}": "Deseo ya agregado: {0}",
   "已加入稍后看": "Agregado para verlo más tarde",
   "已加载 {0}": "{0} cargado",
-  "已发现 {0} 个文件": "{0} archivos encontrados",
+  "已发现 {0} 个文件": "Se encontraron {0} archivos",
   "已取消": "Cancelado",
   "已取消不合口味": "Unpalatable ha sido cancelado",
   "已取消关注来源": "Se ha dejado de seguir la fuente",
@@ -4330,5 +4330,9 @@
   "；{0} 个{1}；{2} 个资料来源": "; {0} {1}; {2} fuentes de datos",
   "；点托盘「重启服务」会整体重启托盘并同步依赖": "; Haga clic en \"Reiniciar servicio\" en la bandeja para reiniciar la bandeja en su totalidad y sincronizar las dependencias.",
   "；跳过 {0}": ";Omitir {0}",
-  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";La transcodificación, la información multimedia y las miniaturas requieren el kit de herramientas FFmpeg."
+  "；转码、媒体信息与缩略图需要 FFmpeg 工具包。": ";La transcodificación, la información multimedia y las miniaturas requieren el kit de herramientas FFmpeg.",
+  "Maximum concurrent downloads": "Máximo de descargas simultáneas",
+  "Concurrent downloads for {0}": "Descargas simultáneas de {0}",
+  "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada servicio descarga como máximo esta cantidad de archivos a la vez. Los archivos en espera comienzan automáticamente. Predeterminado: 3.",
+  "Choose between 1 and 10 concurrent downloads.": "Elige entre 1 y 10 descargas simultáneas."
 }

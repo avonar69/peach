@@ -178,7 +178,7 @@ export function currentLine(state: LibraryProcessingData): string {
 export function processingLine(state: LibraryProcessingData): string {
   const count = state.total ? formatTranslation('{0} 项', progressText(state.checked, state.total))
     : state.current_action === 'scanning_files' || state.stage === '扫描文件'
-      ? `已发现 ${(state.scanned || 0).toLocaleString()} 个文件` : '';
+      ? formatTranslation('已发现 {0} 个文件', (state.scanned || 0).toLocaleString()) : '';
   return currentLine(state) + (count ? ` · ${count}` : '');
 }
 

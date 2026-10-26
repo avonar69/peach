@@ -644,5 +644,10 @@
   "扫描全部（完整扫描）": "Scan All (Fresh)",
   "处理所有已登记影片，包括已有文件。保留已保存的资料、图片和历史。": "Process every registered video, including existing files. Saved metadata, pictures and history are preserved.",
   "查找新增文件，仅处理新增影片。下拉菜单可选择完整扫描、同步已入库影片、生成预览或补全资料。": "Find new files and process only newly added videos. Use the menu for a full scan or to process existing videos, generate previews or fetch metadata.",
-  "New videos processed: {0}.": "New videos processed: {0}."
+  "New videos processed: {0}.": "New videos processed: {0}.",
+  "Maximum concurrent downloads": "Maximum concurrent downloads",
+  "Concurrent downloads for {0}": "Concurrent downloads for {0}",
+  "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.",
+  "Choose between 1 and 10 concurrent downloads.": "Choose between 1 and 10 concurrent downloads.",
+  "已发现 {0} 个文件": "Found {0} files"
 }

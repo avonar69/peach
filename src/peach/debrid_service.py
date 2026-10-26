@@ -18,6 +18,7 @@ class Service:
         self.path = config.directory('state') / 'debrid-jobs.json'
         self.lock, self.event, self.stopped = threading.RLock(), threading.Event(), threading.Event()
         self.thread = None
+        self.workers = {}
         self.last_saved = 0
         try:
             data = json.loads(self.path.read_text(encoding='utf-8'))
@@ -68,7 +69,7 @@ class Service:
             return [{key: value for key, value in job.items() if key not in ('key_stamp', 'remote_id')}
                 for job in self.jobs.values() if job.get('key_stamp') == stamps.get(job['provider'])]
 
-    def submit(self, entry_id, link, provider):
+    def submit(self, entry_id, link, provider, *, auto_download=False):
         if not self.available:
             raise ValueError('This library is read-only.')
         if not debrid_client.saved(self.config).get(provider, {}).get('api_key'):
@@ -80,11 +81,16 @@ class Service:
             if old.get('key_stamp') != stamp:
                 old = {}
             if old.get('status') in ACTIVE or (old.get('status') == 'ready' and time.time() - old['updated_at'] < 3600):
+                if auto_download:
+                    old['auto_download'] = True
+                    self._save()
+                    self.event.set()
                 return old
             if len(self.jobs) >= 1000 and not old:
                 raise ValueError('The debrid task queue is full.')
             self.jobs[identity] = {**old, 'id': identity, 'entry_id': entry_id, 'provider': provider,
                 'source': link, 'kind': 'resolve', 'status': 'queued', 'error': '',
+                'auto_download': bool(auto_download), 'delivery_queued': False,
                 'files': old.get('files', []) if old.get('status') != 'ready' else [],
                 'key_stamp': stamp, 'next_poll': 0, 'updated_at': time.time()}
             self._save()
@@ -170,24 +176,73 @@ class Service:
         self.event.set()
         if self.thread:
             self.thread.join(2)
+        with self.lock:
+            workers = list(self.workers.values())
+        deadline = time.monotonic() + 2
+        for worker in workers:
+            worker.join(max(0, deadline - time.monotonic()))
+
+    def _work(self, task):
+        try:
+            self._run(task)
+        finally:
+            with self.lock:
+                self.workers.pop(task['id'], None)
+            self.event.set()
+
+    def _dispatch(self):
+        settings = debrid_client.saved(self.config)
+        with self.lock:
+            running = [self.jobs[identity] for identity in self.workers]
+            for job in self.jobs.values():
+                if job['id'] in self.workers or job['status'] not in ACTIVE or job.get('next_poll', 0) > time.time():
+                    continue
+                if job['kind'] == 'download':
+                    limit = settings.get(job['provider'], {}).get('max_concurrent_downloads', 3)
+                    occupied = sum(item['kind'] == 'download' and item['provider'] == job['provider'] for item in running)
+                else:
+                    if job.get('auto_download') and not self._download_slot_available(job['provider'], settings):
+                        continue
+                    limit = 1
+                    occupied = sum(item['kind'] != 'download' for item in running)
+                if occupied >= limit:
+                    continue
+                task = dict(job)
+                worker = threading.Thread(target=self._work, args=(task,), name='PeachDebridTask', daemon=True)
+                self.workers[job['id']] = worker
+                running.append(task)
+                worker.start()
+
+    def _download_slot_available(self, provider, settings):
+        limit = settings.get(provider, {}).get('max_concurrent_downloads', 3)
+        occupied = sum(job['kind'] == 'download' and job['provider'] == provider
+                       and job['status'] in ACTIVE for job in self.jobs.values())
+        return occupied < limit
+
+    def _deliver_ready(self):
+        with self.lock:
+            ready = [dict(job) for job in self.jobs.values() if job.get('kind') == 'resolve'
+                     and job.get('status') == 'ready' and job.get('auto_download')
+                     and not job.get('delivery_queued') and len(job.get('files', [])) == 1]
+        for task in ready:
+            try:
+                self.download(task['id'], 0)
+                self._update(task['id'], delivery_queued=True)
+            except (ValueError, InterruptedError):
+                self._update(task['id'], auto_download=False)
 
     def _loop(self):
         while not self.stopped.is_set():
+            self._deliver_ready()
+            self._dispatch()
             with self.lock:
-                task = next((dict(job) for job in self.jobs.values() if job['status'] in ACTIVE
-                             and job.get('next_poll', 0) <= time.time()), None)
-            if task:
-                self._run(task)
-            else:
-                with self.lock:
-                    pending = next((dict(job) for job in self.jobs.values() if job.get('status') == 'complete'
-                        and job.get('auto_import') and job.get('import_state', 'pending') in ('pending', 'queuing')
-                        and job.get('import_next_attempt', 0) <= time.time()), None)
-                if pending and self.after_download:
-                    self._queue_import(pending)
-                    continue
-                self.event.wait(1)
-                self.event.clear()
+                pending = next((dict(job) for job in self.jobs.values() if job.get('status') == 'complete'
+                    and job.get('auto_import') and job.get('import_state', 'pending') in ('pending', 'queuing')
+                    and job.get('import_next_attempt', 0) <= time.time()), None)
+            if pending and self.after_download:
+                self._queue_import(pending)
+            self.event.wait(1)
+            self.event.clear()
 
     def _run(self, task):
         identity = task['id']
