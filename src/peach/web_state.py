@@ -183,6 +183,7 @@ class WebContract:
         from . import avatar_followup  # noqa: F401  登记补头像后继
         from . import creator_identity_followup  # noqa: F401  登记查创作者身份后继
         from . import download_postprocess  # noqa: F401  登记云下载后处理
+        from . import debrid_import  # noqa: F401  登记 debrid 文件定向导入
         from . import feed_followup  # noqa: F401  登记取新作资料后继
         from . import follow_creators  # noqa: F401  登记关注作者建档后继
         from . import performer_alias_followup  # noqa: F401  登记补女优别名后继

@@ -19,6 +19,13 @@ def rss(request: Request, offset: int = 0, _auth=Depends(require_auth)):
         'read_only': bool(getattr(getattr(request.app.state, 'sync', None), 'read_only', False))}
 
 
+@router.get('/api/rss/jobs')
+def rss_jobs(request: Request, _auth=Depends(require_auth)):
+    return {'jobs': request.app.state.web_contract.debrid.snapshot(),
+        **debrid_client.settings(settings_file.active()),
+        'read_only': bool(getattr(getattr(request.app.state, 'sync', None), 'read_only', False))}
+
+
 @router.post('/api/rss/{action}')
 def rss_action(request: Request, action: str, body: dict = Body(default_factory=dict), _auth=Depends(require_auth)):
     _writable(request)
@@ -41,6 +48,8 @@ def rss_action(request: Request, action: str, body: dict = Body(default_factory=
             return {'ok': True, 'id': contract.debrid.download(str(body.get('id') or ''), body.get('file_index'))['id']}
         if action == 'cancel':
             return contract.debrid.cancel(str(body.get('id') or ''))
+        if action == 'import':
+            return contract.debrid.retry_import(str(body.get('id') or ''))
         raise ValueError('Choose a valid RSS action.')
     except (ValueError, OSError):
         raise HTTPException(400, 'The RSS or download action could not be completed. Check the feed, provider and folder settings.') from None

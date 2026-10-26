@@ -12,7 +12,7 @@ import uuid
 import xml.etree.ElementTree as ET
 from contextlib import closing
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dataclass_field
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -57,9 +57,10 @@ ISSUE_PREVIEW_LIMIT = 20
 
 #: 扫描、资料与预览共用的阶段名，同时用于接口和页面。
 SCAN_STAGE, COLLECT_STAGE, ALL_STAGES = 'scan', 'collect', 'all'
+FIND_NEW_STAGE = 'find_new'
 METADATA_STAGE, PREVIEWS_STAGE = 'metadata', 'previews'
 ENTITY_STAGES = {'stashdb_actors': 'performer', 'stashdb_studios': 'studio'}
-STAGES = (ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, *ENTITY_STAGES)
+STAGES = (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, *ENTITY_STAGES)
 
 #: 没有动作截止时间的阶段（本地读取）超过这么久没有心跳就在页面上预警。
 STALL_AFTER_SECONDS = 120.0
@@ -1739,6 +1740,7 @@ def _online_source_root(source, root, chosen_paths, *, retrying, issue):
 @dataclass
 class _SourceScan:
     online_roots: list[Path]
+    new_ids: list[int] = dataclass_field(default_factory=list)
     scanned: int = 0
     probed: int = 0
     scanned_bytes: int = 0
@@ -1750,7 +1752,7 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
     result = _SourceScan([], probed=initial_probed)
     scan_checkpoints = scan_checkpoints if scan_checkpoints is not None else {}
     chosen_paths = _chosen_asset_paths(db_path, asset_ids)
-    scan = asset_ids is None and stage in (ALL_STAGES, SCAN_STAGE)
+    scan = asset_ids is None and stage in (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE)
     mounts = {key: tuple(str(value) for value in values) for key, values in config.mounts.items()}
     ffprobe = _ffprobe_path(config) if stage == SCAN_STAGE else None
     for source, roots in locations.items():
@@ -1769,6 +1771,7 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
                     scan_checkpoints[key] = value
                     save_checkpoint()
                 registered = scan_location(db_path, source, root, declared_roots=config.locations,
+                                           find_new=stage == FIND_NEW_STAGE,
                                            mounts=mounts, report=lambda line: None,
                                            resume_state=scan_checkpoints.get(key), save_checkpoint=remember,
                                            progress=lambda files, size: update(
@@ -1776,6 +1779,7 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
                                                scanned_bytes=result.scanned_bytes + size,
                                                checked=0, total=0, current_action='scanning_files'))
                 result.scanned += registered.files
+                result.new_ids.extend(registered.new_ids)
                 result.scanned_bytes += registered.total_bytes
                 if stage == SCAN_STAGE:
                     result.probed += probe_unmeasured(
@@ -2112,11 +2116,11 @@ def _processing_steps(stage, asset_ids, *, metadata_only_enabled):
     """按本趟真实处理范围构造有序阶段清单。"""
     if stage in ENTITY_STAGES:
         return [dict(id='collect', label='Resync Actors' if stage == 'stashdb_actors' else 'Resync Studios', status='current')]
-    scanning = asset_ids is None and stage in (ALL_STAGES, SCAN_STAGE)
+    scanning = asset_ids is None and stage in (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE)
     steps = [('sources', '扫描文件' if scanning else '检查媒体目录')]
     if stage not in (SCAN_STAGE, PREVIEWS_STAGE):
         steps.append(('local', '检查配套文件'))
-    if stage == PREVIEWS_STAGE or stage in (ALL_STAGES, COLLECT_STAGE):
+    if stage == PREVIEWS_STAGE or stage in (FIND_NEW_STAGE, ALL_STAGES, COLLECT_STAGE):
         media_label = ('生成视频预览' if stage == PREVIEWS_STAGE else
                        '读取媒体属性' if metadata_only_enabled else '读取媒体属性与生成预览')
         steps.append(('media', media_label))
@@ -2143,11 +2147,11 @@ def _processing_workload(config, rows, stage, database, completed_previews):
     pending = {}
     if stage not in (SCAN_STAGE, PREVIEWS_STAGE):
         pending.update(local=len(rows), metadata=len(rows))
-    if stage in (ALL_STAGES, COLLECT_STAGE):
+    if stage in (FIND_NEW_STAGE, ALL_STAGES, COLLECT_STAGE):
         pending['probe'] = sum(row['duration'] is None for row in rows
                                if not skip_background_read(row['path'])
                                and cost_for(row['location'], row['path'], config) == 'free')
-    if (database is not None and stage in (ALL_STAGES, COLLECT_STAGE, PREVIEWS_STAGE)
+    if (database is not None and stage in (FIND_NEW_STAGE, ALL_STAGES, COLLECT_STAGE, PREVIEWS_STAGE)
             and not metadata_only(config.directory('state'))):
         pending['previews'] = sum(row['location'] == 'local' and not skip_background_read(row['path'])
                                   and _checkpoint_key(row) not in completed_previews for row in rows)
@@ -2218,7 +2222,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
     `retry_ids` 为 `None` 时处理整个馆藏；给定时只处理这些项目（上一任务记录的
     可重试失败），不重新扫描来源目录，已有候选与封面照常复用。
 
-    `stage` 指定处理范围：`all` 扫描并补全资料与本地预览，`scan` 只扫描，
+    `stage` 指定处理范围：`find_new` 发现文件并仅处理新增视频，
+    `all` 扫描并补全所有影片资料与本地预览，`scan` 只扫描，
     `collect` 补全资料与本地预览，`metadata` 只采集资料，`previews` 只生成本地预览。
     `asset_ids` 指定仍在馆藏中的视频，不扫描来源目录；空选择无效。
 
@@ -2342,6 +2347,16 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                                     save_checkpoint=lambda: flush_state(force=True), initial_probed=state['probed'])
             state.update(scanned=sources.scanned, scanned_bytes=sources.scanned_bytes, probed=sources.probed)
             finish_step('sources')
+            if stage == FIND_NEW_STAGE and scope_ids is None:
+                discovered_rows, _ = _collection_rows(db_path, locations=locations,
+                    online_roots=sources.online_roots, asset_ids=sorted(set(sources.new_ids)))
+                scope_ids = [row['id'] for row in discovered_rows]
+                update(asset_ids=scope_ids, discovered=len(scope_ids))
+                if not scope_ids:
+                    for step in ('local', 'media', 'collect'):
+                        finish_step(step)
+                    update(**_completion_values(state), checked=0, total=0, estimate_pending={})
+                    return state
             if stage == SCAN_STAGE:
                 # `checked`／`total` 在探时长时借给进度条用过；只扫描这一段没有采集，读数归零。
                 update(**_completion_values(state), checked=0, total=0)
@@ -2426,7 +2441,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                    current_asset_id=None, current_asset_name='', current_action='',
                    current_started_at=None, current_deadline_at=None)
             finish_step('local')
-            if stage in (ALL_STAGES, COLLECT_STAGE):
+            if stage in (FIND_NEW_STAGE, ALL_STAGES, COLLECT_STAGE):
                 _probe_sources(config, db_path, locations, sources.online_roots, scope_ids, update,
                                total_pending=pending.get('probe', 0), initial_probed=state['probed'])
                 pending.pop('probe', None)

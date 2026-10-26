@@ -343,7 +343,9 @@ def create_app(
     from .library_sharing import Service as LibrarySharing
     from . import settings_file
     from .debrid_service import Service as DebridService
-    contract.debrid = DebridService(settings_file.active(), available=_writer(sync))
+    from .debrid_import import enqueue as enqueue_debrid_import
+    contract.debrid = DebridService(settings_file.active(), available=_writer(sync),
+        after_download=lambda task: enqueue_debrid_import(contract, task))
     sharing = LibrarySharing(settings_file.active(), contract)
     from .automatic_updates import AutomaticUpdates
     from .routes_configuration import managed_configuration

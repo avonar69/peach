@@ -4,7 +4,7 @@ import { Popover } from 'react-aria-components';
 import { Button } from '@/components/base/buttons/button';
 import { MENU_ITEM, MENU_ITEM_INTERACTIVE, MENU_POPOVER_SURFACE } from '@/components/base/dropdown/menu-styles';
 import { cx } from '@/utils/cx';
-import { formModal, iconSwitchHtml } from '@peach/legacy/ui';
+import { confirmModal, formModal, iconSwitchHtml } from '@peach/legacy/ui';
 import { MenuDialog } from '../components/menu-dialog';
 import { busyProps } from '../settings/use-action';
 import type { LibraryProcessingCommand, ProcessingSpeed } from './library-processing';
@@ -20,9 +20,10 @@ export function ProcessingActions({ busy, scan = false, metadataOnly = false, sp
   const prompt = useRef<ReturnType<typeof formModal> | null>(null);
   useEffect(() => () => prompt.current?.close(), []);
   const [open, setOpen] = useState(false);
-  const primary: { label: string; icon: typeof RiDatabase2Line; command: LibraryProcessingCommand } = { label: scan ? '同步媒体库' : '同步这些影片', icon: RiDatabase2Line,
-    command: scan ? {} : { stage: 'collect' as const } };
+  const primary: { label: string; icon: typeof RiDatabase2Line; command: LibraryProcessingCommand } = { label: scan ? '扫描全部（查找新增）' : '同步这些影片', icon: RiDatabase2Line,
+    command: scan ? { stage: 'find_new' } : { stage: 'collect' as const } };
   const options: typeof primary[] = [primary,
+    ...(scan ? [{ label: '扫描全部（完整扫描）', icon: RiDatabase2Line, command: { stage: 'all' as const } }] : []),
     ...(scan ? [{ label: '仅扫描文件', icon: RiHardDrive2Line, command: { stage: 'scan' as const } }] : []),
     ...(scan ? [{ label: '仅同步已入库影片', icon: RiDatabase2Line, command: { stage: 'collect' as const } }] : []),
     { label: '仅生成视频预览', icon: RiHardDrive2Line, command: { stage: 'previews' as const } },
@@ -31,6 +32,12 @@ export function ProcessingActions({ busy, scan = false, metadataOnly = false, sp
   const run = (command: LibraryProcessingCommand) => {
     if (busy) return;
     setOpen(false);
+    if (command.stage === 'all') {
+      void confirmModal({ title: '扫描全部（完整扫描）',
+        body: '处理所有已登记影片，包括已有文件。保留已保存的资料、图片和历史。',
+        confirmLabel: '扫描全部（完整扫描）', onConfirm: async () => { await onRun(command) } });
+      return;
+    }
     let acknowledged = false;
     try { acknowledged = localStorage.getItem(RESOURCE_NOTICE_KEY) === 'seen' } catch { /* 存储不可用时保留提示 */ }
     if (!scan || acknowledged || command.stage === 'metadata') {
@@ -39,7 +46,8 @@ export function ProcessingActions({ busy, scan = false, metadataOnly = false, sp
     }
     if (prompt.current) return;
     const previews = command.stage === 'previews';
-    const title = previews ? '生成视频预览' : command.stage === 'scan' ? '扫描媒体文件' : '同步媒体库';
+    const title = previews ? '生成视频预览' : command.stage === 'scan' ? '扫描媒体文件'
+      : command.stage === 'find_new' ? '扫描全部（查找新增）' : '同步媒体库';
     const dialog = formModal({
       title,
       description: previews

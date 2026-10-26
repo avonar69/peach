@@ -4,6 +4,13 @@ kind: changelog
 
 # English-first interface, StashDB and playback changes
 
+- **RSS archive retention:** Each feed keeps posts forever or for a configured number of days, months or years from first save. Repeated item IDs or article URLs merge download links and previews, while expiry keeps minimal identity records to prevent old posts reappearing.
+- **Debrid progress popup:** Reuses the existing collapsible background-task frame and stays visible across pages, showing real server-download byte progress and import status. Cancellation, retry and recent-task reopening are available from the same UI.
+- **Import completed downloads:** Each debrid provider can opt into automatic scanning and import for completed videos in a configured library folder. The persistent follow-up processes only that file, waits for active scans, resumes queued work and preserves the download when metadata needs a retry.
+
+- **Incremental library updates:** Data management defaults to Scan All (Find new), processing only videos added during directory discovery. An unchanged library finishes without media probing, preview generation or metadata/StashDB work; explicit Scan All (Fresh) remains in the menu with confirmation and preserves saved data.
+- **Reliable new-file detection:** Scan checkpoints record an asset-ID watermark so same-second scans and resumed directory walks retain separate new-file scopes. Completion reports the count of newly processed videos.
+
 - **RSS in Following:** Following → All includes the RSS gallery and its original download/debrid actions. Creator, source, tag and duration filters retain their own scope.
 - **Per-feed automatic updates:** Each RSS source has an automatic-update switch and a saved interval, defaulting to 6 hours. Disabling it retains posts and manual refresh; the scheduler checks due feeds without running scene metadata work.
 

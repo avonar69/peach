@@ -437,6 +437,13 @@ def _pending_directories(previous, walk_root):
     return pending
 
 
+def _new_asset_ids(connection, location, ledger_root, initial_id):
+    """按持久标识水位与来源根限定本趟新增集合。"""
+    rows = connection.execute('SELECT id,path FROM asset WHERE location=? AND id>? ORDER BY id',
+                              (location, initial_id))
+    return tuple(row[0] for row in rows if PureWindowsPath(row[1]).is_relative_to(ledger_root))
+
+
 def _scan_location(
     db_path: str | os.PathLike[str], location: str, root: str, *,
     declared_roots: Mapping[str, str], mounts: Mapping[str, str | Path] | None = None,
@@ -444,6 +451,7 @@ def _scan_location(
     progress: Callable[[int, int], None] = lambda files, total_bytes: None,
     resume_state: dict | None = None,
     save_checkpoint: Callable[[dict], None] = lambda state: None,
+    find_new: bool = False,
 ) -> ScanResult:
     """遍历 `root`（数据库中的路径格式）对应的本机目录，把文件元数据 upsert 进 `asset`。
 
@@ -474,6 +482,7 @@ def _scan_location(
                            if os.path.basename(value).casefold() in ARTWORK_DIRS}
         video_dirs.intersection_update(artwork_parents)
         save_checkpoint(dict(scan_time=now, pending=list(pending), files=files,
+                             initial_id=initial_id,
                              total_bytes=total, sidecars=skipped, subtitles=tracks,
                              orphan_subtitles=orphans, video_dirs=sorted(video_dirs),
                              current_directory=directory, cursor=cursor, here=dict(here or {})))
@@ -482,6 +491,10 @@ def _scan_location(
     connection = sqlite3.connect(db_path, timeout=30)
     try:
         connection.execute("PRAGMA journal_mode=WAL")
+        initial_id = previous.get('initial_id')
+        if initial_id is None:
+            initial_id = connection.execute('SELECT COALESCE(MAX(id),0) FROM asset').fetchone()[0]
+            save_directory(previous.get('current_directory'), previous.get('cursor'), previous.get('here'))
         for directory, entries in _walk(walk_root, pending):
             checkpoint('scan')
             relative = Path(directory).relative_to(walk_root).parts
@@ -536,14 +549,14 @@ def _scan_location(
             connection.executemany(_UPSERT, batch)
         connection.commit()
         _hide_missing_local(connection, location, ledger_root, walk_root)
-        # 只有 INSERT 那一支写 `first_seen`，等于本次时刻的就是这一轮新建的行。
-        new_ids = tuple(row[0] for row in connection.execute(
-            "SELECT id FROM asset WHERE location=? AND first_seen=? ORDER BY id", (location, now)))
+        # 持久水位不依赖秒级时间，同一秒发起的两次扫描仍有独立新增集合。
+        new_ids = _new_asset_ids(connection, location, ledger_root, initial_id)
         reattached = len(record_rehome.reattach(connection, new_ids, now=now))
         acquired = len(wants.reconcile(connection, new_ids))
         folder_rules.apply_new(connection, new_ids)
-        filename_matching.apply(connection, (row[0] for row in connection.execute(
-            'SELECT id FROM asset WHERE location=? AND last_seen=?', (location, now))), db_path)
+        matching_ids = new_ids if find_new else (row[0] for row in connection.execute(
+            'SELECT id FROM asset WHERE location=? AND last_seen=?', (location, now)))
+        filename_matching.apply(connection, matching_ids, db_path)
         connection.commit()
         gone =connection.execute(
             "SELECT COUNT(*) FROM asset WHERE location=? AND last_seen<?",

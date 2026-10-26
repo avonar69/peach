@@ -3,7 +3,7 @@ import json
 import time
 
 from . import settings_file
-from .library_processing import (ALL_STAGES, COLLECT_STAGE, SCAN_STAGE, STAGES,
+from .library_processing import (ALL_STAGES, FIND_NEW_STAGE, COLLECT_STAGE, SCAN_STAGE, STAGES,
                                 METADATA_STAGE, PREVIEWS_STAGE, _asset_selection,
                                 decorate, issues_path, process_library, snapshot)
 from .processing_control import control_for, initial_estimate, valid_mode, mode_ratio
@@ -187,7 +187,7 @@ def _processing_request(contract, config, previous, body):
     if asset_ids is not None and retry_ids is not None:
         raise ValueError('选择项目与失败重试不能同时使用')
     stage = str((body or {}).get('stage') or
-                (previous.get('requested_stage') if retry_ids is not None else None) or ALL_STAGES)
+                (previous.get('requested_stage') if retry_ids is not None else None) or FIND_NEW_STAGE)
     if stage not in STAGES:
         raise ValueError('处理阶段无效')
     from .media_processing_policy import metadata_only
@@ -234,7 +234,7 @@ def w_library_processing(contract, body, *, resume=False):
             contract.cache_bust()
     # 起步那行字按这一趟真正要做的事写：点了「只扫描」却看到「读取本地资料」，
     # 人会以为点错了。
-    labels = {ALL_STAGES: '准备处理', SCAN_STAGE: '准备扫描文件', COLLECT_STAGE: '准备采集资料',
+    labels = {FIND_NEW_STAGE: '准备扫描文件', ALL_STAGES: '准备处理', SCAN_STAGE: '准备扫描文件', COLLECT_STAGE: '准备采集资料',
               METADATA_STAGE: '准备采集资料', PREVIEWS_STAGE: '准备生成预览图',
               'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios'}
     return contract.library_processing_job.start(

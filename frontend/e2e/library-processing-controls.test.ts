@@ -10,6 +10,41 @@ describe('扫描与采集控制', () => {
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name}：完整扫描由菜单确认，默认入口查找新增`, async () => {
+      const writes: Record<string, unknown>[] = [];
+      const opened = await visit(browser, '/data-cleanup', viewport, async page => {
+        await page.addInitScript(() => localStorage.setItem('peach.library-processing.resource-notice.v1', 'seen'));
+        await page.route('**/api/library-processing', async route => {
+          if (route.request().method() === 'POST') writes.push(route.request().postDataJSON());
+          await route.fulfill({ json: { status: 'idle' } });
+        });
+      });
+      const { page } = opened;
+      try {
+        const card = page.getByRole('region', { name: '扫描与采集', exact: true });
+        await card.getByRole('button', { name: '扫描全部（查找新增）', exact: true }).click();
+        assert.deepEqual(writes, [{ stage: 'find_new' }]);
+        const choose = async () => {
+          await card.getByRole('button', { name: '更多同步方式', exact: true }).click();
+          await page.getByRole('button', { name: '扫描全部（完整扫描）', exact: true }).click();
+        };
+        await choose();
+        const dialog = page.getByRole('dialog', { name: '扫描全部（完整扫描）', exact: true });
+        await dialog.waitFor();
+        assert.equal(writes.length, 1);
+        await dialog.getByRole('button', { name: '取消', exact: true }).click();
+        assert.equal(writes.length, 1);
+        await choose();
+        const geometry = await layout(page);
+        assert.ok(geometry.scrollWidth <= geometry.viewportWidth, JSON.stringify(geometry));
+        assert.deepEqual(geometry.offenders, []);
+        await dialog.getByRole('button', { name: '扫描全部（完整扫描）', exact: true }).click();
+        await page.waitForFunction(() => !document.querySelector('dialog'));
+        assert.deepEqual(writes, [{ stage: 'find_new' }, { stage: 'all' }]);
+        assert.deepEqual(opened.problems, []);
+      } finally { await opened.close() }
+    });
+
     it(`${viewport.name}：资源提示、粗估、模式切换与暂停继续`, async () => {
       let state = { status: 'idle', job_id: '', checked: 0, total: 100, speed_mode: 'standard',
         steps: [{ id: 'sources', label: '扫描文件', status: 'complete' },
@@ -40,8 +75,8 @@ describe('扫描与采集控制', () => {
       try {
         await card.waitFor();
         await settle(page);
-        await card.getByRole('button', { name: '同步媒体库', exact: true }).click();
-        const dialog = page.getByRole('dialog', { name: '同步媒体库', exact: true });
+        await card.getByRole('button', { name: '扫描全部（查找新增）', exact: true }).click();
+        const dialog = page.getByRole('dialog', { name: '扫描全部（查找新增）', exact: true });
         await dialog.waitFor();
         assert.match(await dialog.innerText(), /可能让电脑变慢/);
         assert.equal(writes.length, 0);
@@ -56,9 +91,10 @@ describe('扫描与采集控制', () => {
         assert.equal(optionFits, true, '处理模式文字应保持单行并落在控件内');
         await dialog.screenshot({ path: path.join(artifacts, `${viewport.name}-startup.png`) });
         await dialog.getByRole('radio', { name: '低占用', exact: true }).check();
-        await dialog.getByRole('button', { name: '同步媒体库', exact: true }).click();
+        await dialog.getByRole('button', { name: '扫描全部（查找新增）', exact: true }).click();
         await card.getByText('预计剩余约 20–40 分钟（粗估）', { exact: true }).waitFor();
         assert.equal(writes[0]?.speed_mode, 'low');
+        assert.equal(writes[0]?.stage, 'find_new');
         const dock = page.locator('#toasts [data-processing-dock]');
         const pause = dock.getByRole('button', { name: '暂停', exact: true });
         assert.equal(await pause.innerText(), '');
@@ -70,7 +106,7 @@ describe('扫描与采集控制', () => {
         await resume.waitFor();
         assert.equal(await resume.innerText(), '');
         assert.equal(await resume.locator('svg').count(), 1);
-        assert.equal(await card.getByRole('button', { name: '同步媒体库', exact: true }).getAttribute('aria-disabled'), 'true');
+        assert.equal(await card.getByRole('button', { name: '扫描全部（查找新增）', exact: true }).getAttribute('aria-disabled'), 'true');
         await page.reload();
         await resume.waitFor();
         const lowSpeed = dock.getByRole('button', { name: '处理速度：低占用' });

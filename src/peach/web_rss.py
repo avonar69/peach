@@ -8,6 +8,10 @@ from . import feeds, public_download_http, rss_feeds
 def check_due(contract):
     """只为已到期 RSS 建任务，没有到期来源时不写任务中心。"""
     from . import web_feeds
+    with contract.database.write_transaction() as connection:
+        expired = rss_feeds.expire(connection)
+    if expired:
+        getattr(contract, 'cache_bust', lambda: None)()
     with contract.database.read_connection() as connection:
         ids = [row['id'] for row in feeds.due_sources(connection) if row['kind'] == 'rss']
     if not ids:
@@ -26,6 +30,7 @@ def poll_source(contract, source):
         response = public_download_http.fetch(source['url'], headers)
         with contract.database.write_transaction() as connection:
             if response.status == 304:
+                rss_feeds.expire(connection, source_id=source['id'])
                 feeds.settle(connection, source['id'], error=None, interval_minutes=source['interval_minutes'])
                 return {**report, 'not_modified': True}
             if response.status != 200:
@@ -49,6 +54,16 @@ def snapshot(contract, offset=0):
         sources = [row for row in feeds.sources(connection) if row['kind'] == 'rss']
     return {**rss_feeds.items(contract.database, offset=offset), 'sources': sources,
             **debrid_client.settings(settings_file.active()), 'jobs': contract.debrid.snapshot()}
+
+
+def _save_retention(connection, identity, body):
+    count, unit = body.get('count'), body.get('unit')
+    limits = {'days': 36500, 'months': 1200, 'years': 100}
+    if not isinstance(unit, str) or unit not in limits or (count is not None and (
+            type(count) is not int or not 1 <= count <= limits[unit])):
+        raise ValueError('Choose a retention period between 1 day and 100 years, or Forever.')
+    connection.execute('UPDATE feed_source SET rss_retention_count=?,rss_retention_unit=? WHERE id=?', (count, unit, identity))
+    rss_feeds.expire(connection, source_id=identity)
 
 
 def source_action(contract, body):
@@ -76,6 +91,8 @@ def source_action(contract, body):
             next_fetch = feeds.stamp(datetime.now(timezone.utc) + timedelta(minutes=interval))
             connection.execute('UPDATE feed_source SET enabled=?,interval_minutes=?,next_fetch_at=? WHERE id=?',
                 (int(enabled), interval, next_fetch, identity))
+        elif action == 'retention':
+            _save_retention(connection, identity, body)
         else:
             raise ValueError('Choose a valid RSS feed action.')
     return {'ok': True}

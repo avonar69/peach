@@ -28,6 +28,72 @@ RSS = f'''<rss version="2.0"><channel><title>Example feed</title><item><guid>sce
 
 
 class RSSDebridTests(unittest.TestCase):
+    def test_saved_posts_survive_feed_rotation_and_changed_ids_merge_links(self):
+        with self.database.write_transaction() as connection:
+            source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            rss_feeds.poll(connection, source, RSS)
+            original = dict(connection.execute('SELECT * FROM feed_item WHERE source_id=?', (self.source,)).fetchone())
+            rss_feeds.poll(connection, source, b'<rss version="2.0"><channel><title>Rotated</title></channel></rss>')
+            self.assertEqual(connection.execute('SELECT count(*) FROM feed_item').fetchone()[0], 1)
+            changed = RSS.replace(b'scene-1</guid>', b'new-id</guid>').replace(b'/file/test', b'/file/updated')
+            result = rss_feeds.poll(connection, source, changed)
+        self.assertEqual(result['added'], 0)
+        saved = rss_feeds.items(self.database)['items'][0]
+        self.assertEqual(saved['id'], original['id'])
+        self.assertEqual(saved['first_seen'], original['first_seen'])
+        self.assertTrue({'https://rg.to/file/test', 'https://rg.to/file/updated'}.issubset({item['url'] for item in saved['links']}))
+
+    def test_retention_expires_content_and_preserves_dedup_memory_per_source(self):
+        from datetime import datetime, timezone
+        with self.database.write_transaction() as connection:
+            source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            rss_feeds.poll(connection, source, RSS)
+            other = feeds.add_source(connection, url='https://other.example.org/feed', kind='rss')
+            other_source = connection.execute('SELECT * FROM feed_source WHERE id=?', (other,)).fetchone()
+            rss_feeds.poll(connection, other_source, RSS)
+            connection.execute("UPDATE feed_item SET first_seen='2026-01-01T00:00:00Z'")
+            connection.execute("UPDATE feed_source SET rss_retention_count=2,rss_retention_unit='months',enabled=0 WHERE id=?", (self.source,))
+            self.assertEqual(rss_feeds.expire(connection, now=datetime(2026, 4, 1, tzinfo=timezone.utc)), 1)
+            expired = connection.execute('SELECT * FROM feed_item WHERE source_id=?', (self.source,)).fetchone()
+            self.assertIsNone(expired['title'])
+            self.assertEqual(expired['download_links_json'], '[]')
+            self.assertEqual(expired['rss_images_json'], '{}')
+            source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            rss_feeds.poll(connection, source, RSS.replace(b'scene-1</guid>', b'another-id</guid>'))
+            self.assertEqual(connection.execute('SELECT count(*) FROM feed_item WHERE source_id=?', (self.source,)).fetchone()[0], 1)
+            self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+        self.assertEqual(rss_feeds.count_items(self.database), 1)
+        self.assertEqual(rss_feeds.items(self.database)['items'][0]['source_id'], other)
+
+    def test_retention_settings_validate_units_and_calendar_boundaries(self):
+        from datetime import datetime, timezone
+        contract = SimpleNamespace(database=self.database)
+        for count, unit in ((30, 'days'), (6, 'months'), (2, 'years'), (None, 'days')):
+            web_rss.source_action(contract, {'action': 'retention', 'id': self.source, 'count': count, 'unit': unit})
+            with self.database.read_connection() as connection:
+                saved = feeds.sources(connection)[0]
+            self.assertEqual((saved['rss_retention_count'], saved['rss_retention_unit']), (count, unit))
+        for count, unit in ((0, 'days'), (-1, 'months'), (True, 'days'), (1.5, 'years'), (101, 'years'), (1201, 'months'), (1, [])):
+            with self.assertRaises(ValueError):
+                web_rss.source_action(contract, {'action': 'retention', 'id': self.source, 'count': count, 'unit': unit})
+        self.assertEqual(rss_feeds.retention_cutoff(datetime(2024, 3, 31, tzinfo=timezone.utc), 1, 'months').day, 29)
+        self.assertEqual(rss_feeds.retention_cutoff(datetime(2024, 2, 29, tzinfo=timezone.utc), 1, 'years').day, 28)
+
+    def test_legacy_duplicate_post_urls_merge_and_source_removal_cleans_identity_rows(self):
+        old = rss_feeds.parse(RSS, 'https://example.org/feed')[1][0]
+        changed_body = RSS.replace(b'scene-1</guid>', b'new-id</guid>')
+        new = rss_feeds.parse(changed_body, 'https://example.org/feed')[1][0]
+        with self.database.write_transaction() as connection:
+            for row in (old, new):
+                feeds.record_entry(connection, self.source, feeds.FeedEntry(row['key'], row['title'], 'https://example.org/scene', row['published_at']), code=None)
+            source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            rss_feeds.poll(connection, source, changed_body)
+            self.assertEqual(connection.execute('SELECT count(*) FROM feed_item WHERE rss_merged_into IS NOT NULL').fetchone()[0], 1)
+            self.assertEqual(connection.execute('SELECT count(*) FROM feed_item WHERE rss_merged_into IS NULL AND rss_expired_at IS NULL').fetchone()[0], 1)
+            feeds.remove_source(connection, self.source)
+            self.assertEqual(connection.execute('SELECT count(*) FROM rss_item_identity').fetchone()[0], 0)
+            self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+
     def test_rss_schedules_default_to_six_hours_and_can_be_changed_or_disabled(self):
         from datetime import datetime, timezone
         from peach import web_feeds

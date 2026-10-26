@@ -58,6 +58,20 @@ class _ScanCase(unittest.TestCase):
 class WindowsShapeTests(_ScanCase):
     """Windows：配置的路径前缀就是真实目录，路径原样保存到数据库。"""
 
+    def test_find_new_uses_saved_id_watermark_for_scans_in_the_same_second(self):
+        declared = {'local': (str(self.media),)}
+        with patch('peach.scan.time.strftime', return_value='2026-10-26 12:00:00'), \
+                patch('peach.scan.filename_matching.apply') as matching:
+            first, _ = self._scan(str(self.media), declared_roots=declared, windows=True, find_new=True)
+            (self.media / 'new.mp4').write_bytes(b'new')
+            second, _ = self._scan(str(self.media), declared_roots=declared, windows=True, find_new=True)
+            self.assertEqual(len(second.new_ids), 1)
+            self.assertFalse(set(first.new_ids) & set(second.new_ids))
+            self.assertEqual(tuple(matching.call_args.args[1]), second.new_ids)
+            third, _ = self._scan(str(self.media), declared_roots=declared, windows=True, find_new=True)
+            self.assertEqual(third.new_ids, ())
+
+
     def test_local_sync_hides_missing_renamed_paths_and_keeps_saved_records(self):
         declared = {'local': (str(self.media),)}
         original = self.media/'创作者/sub/a.mp4'

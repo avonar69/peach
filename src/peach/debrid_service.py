@@ -12,8 +12,9 @@ ACTIVE = ('queued', 'preparing', 'downloading')
 
 
 class Service:
-    def __init__(self, config, *, available=True):
+    def __init__(self, config, *, available=True, after_download=None):
         self.config, self.available = config, available
+        self.after_download = after_download
         self.path = config.directory('state') / 'debrid-jobs.json'
         self.lock, self.event, self.stopped = threading.RLock(), threading.Event(), threading.Event()
         self.thread = None
@@ -26,6 +27,8 @@ class Service:
         for task in self.jobs.values():
             if task.get('status') in ACTIVE:
                 task.update(status='queued', next_poll=0)
+            if task.get('import_state') in ('running', 'queuing'):
+                task.update(import_state='pending', import_next_attempt=0)
 
     def _save(self):
         atomic_write_text(self.path, json.dumps(self.jobs))
@@ -46,6 +49,18 @@ class Service:
     def active(self, identity):
         with self.lock:
             return not self.stopped.is_set() and self.jobs[identity]['status'] != 'cancelled'
+
+    def job(self, identity):
+        with self.lock:
+            return dict(self.jobs.get(identity, {}))
+
+    def import_progress(self, identity, **values):
+        with self.lock:
+            self.jobs[identity].update(values, updated_at=time.time())
+            self._save()
+
+    def import_active(self, identity):
+        return self.active(identity) and not self.job(identity).get('import_cancelled')
 
     def snapshot(self):
         stamps = {key: debrid_client.key_stamp(self.config, key) for key in debrid_client.PROVIDERS}
@@ -93,6 +108,8 @@ class Service:
             if old.get('status') in ACTIVE or (old.get('status') == 'complete' and Path(old.get('path', '')).is_file()):
                 return old
             self.jobs[key] = {**old, **files[index], 'id': key, 'kind': 'download', 'folder': folder,
+                'auto_import': debrid_client.saved(self.config).get(source['provider'], {}).get('auto_import') is True,
+                'import_state': '', 'import_error': '', 'import_cancelled': False, 'import_next_attempt': 0,
                 'entry_id': source['entry_id'], 'provider': source['provider'], 'key_stamp': source['key_stamp'],
                 'status': 'queued', 'error': '', 'next_poll': 0, 'updated_at': time.time()}
             self._save()
@@ -108,8 +125,37 @@ class Service:
             if job['status'] in ACTIVE:
                 job.update(status='cancelled', updated_at=time.time())
                 self._save()
+            elif job.get('import_state') in ('pending', 'queuing', 'queued', 'running'):
+                job.update(import_cancelled=True, import_state='cancelled', updated_at=time.time())
+                self._save()
         self.event.set()
         return {'ok': True}
+
+    def retry_import(self, identity):
+        with self.lock:
+            job = self.jobs.get(identity)
+            if not job or job.get('status') != 'complete' or not job.get('auto_import'):
+                raise ValueError('Choose a completed download with automatic import enabled.')
+            job.update(import_state='pending', import_error='', import_cancelled=False, import_next_attempt=0)
+            self._save()
+        self.start()
+        self.event.set()
+        return {'ok': True}
+
+    def _queue_import(self, task):
+        identity = task['id']
+        if not self.after_download:
+            return
+        self.import_progress(identity, import_state='queuing', import_error='')
+        try:
+            run_id = self.after_download(self.job(identity))
+            with self.lock:
+                if self.jobs[identity].get('import_state') == 'queuing':
+                    self.jobs[identity].update(import_state='queued' if run_id else 'pending',
+                        import_run_id=run_id, import_next_attempt=time.time() + 5)
+                    self._save()
+        except Exception:
+            self.import_progress(identity, import_state='failed', import_error='The download completed, but automatic import failed. Retry the import.')
 
     def start(self):
         with self.lock:
@@ -133,6 +179,13 @@ class Service:
             if task:
                 self._run(task)
             else:
+                with self.lock:
+                    pending = next((dict(job) for job in self.jobs.values() if job.get('status') == 'complete'
+                        and job.get('auto_import') and job.get('import_state', 'pending') in ('pending', 'queuing')
+                        and job.get('import_next_attempt', 0) <= time.time()), None)
+                if pending and self.after_download:
+                    self._queue_import(pending)
+                    continue
                 self.event.wait(1)
                 self.event.clear()
 
@@ -145,6 +198,9 @@ class Service:
             if task['kind'] == 'download':
                 debrid_transfer.transfer(task, update=lambda **values: self._update(identity, **values),
                                          active=lambda: self.active(identity))
+                completed = self.job(identity)
+                if completed.get('status') == 'complete' and completed.get('auto_import'):
+                    self._queue_import(completed)
             else:
                 self._resolve(task)
         except InterruptedError:

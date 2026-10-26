@@ -284,6 +284,7 @@ def remove_source(connection: sqlite3.Connection, source_id: int) -> None:
     `PRAGMA foreign_keys` 是 OFF，库自己不会做。
     """
     source_id = int(source_id)
+    connection.execute("DELETE FROM rss_item_identity WHERE source_id=?", (source_id,))
     connection.execute("DELETE FROM feed_item WHERE source_id=?", (source_id,))
     connection.execute("UPDATE feed_discovery SET source_id=NULL WHERE source_id=?", (source_id,))
     connection.execute("DELETE FROM feed_source WHERE id=?", (source_id,))
@@ -303,7 +304,7 @@ def sources(connection: sqlite3.Connection) -> list[dict]:
     同一个人的几页挨在一起，不被页名拆开。"""
     rows = connection.execute(
         "SELECT s.*, e.canonical_name AS entity_name,"
-        " (SELECT count(*) FROM feed_item i WHERE i.source_id=s.id) AS seen"
+        " (SELECT count(*) FROM feed_item i WHERE i.source_id=s.id AND i.rss_expired_at IS NULL AND i.rss_merged_into IS NULL) AS seen"
         " FROM feed_source s LEFT JOIN entity e ON e.id=s.entity_id"
         " ORDER BY s.kind, coalesce(e.canonical_name, s.name), s.id").fetchall()
     return [{
@@ -317,6 +318,8 @@ def sources(connection: sqlite3.Connection) -> list[dict]:
         "entity_name": row["entity_name"],
         "enabled": bool(row["enabled"]),
         "hide_unsupported": bool(row["hide_unsupported"]),
+        "rss_retention_count": row["rss_retention_count"],
+        "rss_retention_unit": row["rss_retention_unit"],
         "interval_minutes": int(row["interval_minutes"]),
         "last_fetched_at": row["last_fetched_at"],
         "next_fetch_at": row["next_fetch_at"],

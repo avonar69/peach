@@ -27,13 +27,13 @@ describe('设计决定：数据管理、索引页与资料页头', () => {
       const expected = await disabledTokens(page);
       const waiting = await waitingActionFaces(page, '[data-skeleton="cleanup"] [data-skeleton-action]');
       assert.deepEqual(waiting.map((face) => face.name),
-        ['同步媒体库', '更多同步方式', '开始修复', '预览', '检查死链', '检查文件']);
+        ['扫描全部（查找新增）', '更多同步方式', '开始修复', '预览', '检查死链', '检查文件']);
       for (const face of waiting) assertDisabledFace(face, expected);
       const ring = await page.locator('[data-skeleton="cleanup"] [data-split-button]')
         .evaluate((element) => getComputedStyle(element).boxShadow);
       assert.ok(ring.includes(expected.ring), `骨架里的分体键外圈不是禁用那一档描边：${ring}`);
       const sizes = await controlFaces(page, {
-        同步媒体库: '.cleanupscraping [data-split-button] > button:first-child',
+        '扫描全部（查找新增）': '.cleanupscraping [data-split-button] > button:first-child',
         更多方式: '.cleanupscraping [data-split-button] > button:last-child',
         开始修复: '.cleanupmediarepair footer > button',
       });
@@ -46,7 +46,7 @@ describe('设计决定：数据管理、索引页与资料页头', () => {
         .waitFor({ timeout: 15_000 });
       await settle(page);
       const final = await controlFaces(page, {
-        同步媒体库: 'section[aria-label="扫描与采集"] [data-split-button] > button:first-child',
+        '扫描全部（查找新增）': 'section[aria-label="扫描与采集"] [data-split-button] > button:first-child',
         更多方式: 'section[aria-label="扫描与采集"] [data-split-button] > button:last-child',
         开始修复: 'section[aria-label="媒体修复"] footer > button',
       });

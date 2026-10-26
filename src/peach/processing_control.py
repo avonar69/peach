@@ -255,6 +255,10 @@ def user_paused(db_path, job_id):
 
 def initial_estimate(config, db_path, stage, asset_ids=None, mode=None):
     """仅使用账本统计，不在启动 HTTP 请求里遍历媒体目录。"""
+    if stage == 'find_new' and asset_ids is None:
+        return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
+            estimate_file_count=0, estimate_bytes=0, eta_scope='本趟处理',
+            eta_seconds_min=None, eta_seconds_max=None, eta_kind='estimating')
     if stage in ('stashdb_actors', 'stashdb_studios'):
         return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
             estimate_file_count=0, estimate_bytes=0, eta_scope='本趟处理')
@@ -274,7 +278,8 @@ def initial_estimate(config, db_path, stage, asset_ids=None, mode=None):
     # 抽帧只读取局部数据；文件总大小仅作为编解码复杂度的温和修正，不按全量读取估时。
     size_factor = min(2.0, max(0.8, (size / max(1, count) / 1024**3) ** 0.15))
     seconds = {'scan': 0.2, 'metadata': 8.0, 'previews': 12.0 * size_factor,
-               'collect': 20.0 * size_factor, 'all': 20.2 * size_factor}[stage]
+               'collect': 20.0 * size_factor, 'all': 20.2 * size_factor,
+               'find_new': 20.2 * size_factor}[stage]
     history = _read(config.directory('state') / 'library-processing-timing.json')
     sample = history.get(stage)
     historical = isinstance(sample, (int, float)) and math.isfinite(sample) and sample > 0

@@ -131,7 +131,7 @@ it('处理横幅取齐首屏才换掉骨架；首屏在途时容器已归路由�
   await act(async () => { await opening });
   expect(el.querySelector('[data-skeleton]')).toBeNull();
   // token、Preflight 与焦点规则都作用在 `.peach-react` 上，页面不画在它里面就没有样式。
-  expect(el.querySelector('.peach-react')?.textContent).toContain('同步媒体库');
+  expect(el.querySelector('.peach-react')?.textContent).toContain('扫描全部（查找新增）');
 });
 
 it('取数期间壳已换页就不画，骨架留给下一页', async () => {

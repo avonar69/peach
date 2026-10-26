@@ -51,9 +51,11 @@ const profileText = (state: LibraryProcessingData) => {
 
 const receiptText = (state: LibraryProcessingData) =>
   state.requested_stage === 'previews' ? `已生成 ${state.previews || 0} 部视频预览。`
+  : (state.requested_stage === 'find_new'
+    ? translate('New videos processed: {0}.').replace('{0}', String(state.total || 0))
   : `已扫描 ${state.scanned || 0} 个文件，识别 ${state.identified || 0} 个番号，`
   + `整理 ${state.candidates || 0} 组资料结果，自动保存 ${state.auto_applied || 0} 条。`
-  + (state.previews ? `已生成 ${state.previews} 部视频预览。` : '')
+  + (state.previews ? `已生成 ${state.previews} 部视频预览。` : ''))
   + profileText(state)
   + (state.stashdb_applied !== undefined ? ' ' + translate('StashDB: {0} applied, {1} awaiting review, {2} already up to date.')
     .replace('{0}', String(state.stashdb_applied || 0)).replace('{1}', String(state.stashdb_review || 0))
@@ -182,9 +184,7 @@ export function LibraryProcessingCard(props: LibraryProcessingProps) {
           {state.candidates
             ? <LinkButton href="/review" size="small" trailingIcon={RiArrowRightLine}>复核资料</LinkButton>
             : null}
-          {/* 两个入口并存，各自答的不是一个问题：这里是「重新跑一整批」，下面那条错误提示里
-              的「重试未完成项」只补上一趟没做完的那些。采集里网络超时几乎每趟都留下几项可
-              重试的，页脚要是让位给重试键，新入库的片子就再也没有入口被扫到。 */}
+          {/* 页脚发起目录发现，错误区只重试本趟失败集合。 */}
           <ProcessingActions scan busy={busy} metadataOnly={state?.metadata_only} speedMode={state.speed_mode} onRun={run} />
         </>
       }>

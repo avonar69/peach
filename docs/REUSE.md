@@ -1,6 +1,12 @@
 # 复用清单
 
+## 增量媒体发现
+
+扫描方式复用 `scan_location` 的 `os.scandir`、SQLite 登记、缺失文件保护和任务断点；资料、预览及 StashDB 复用既有 `asset_ids` 范围，不引入文件监听器、数据库或调度依赖。新增集合按持久资产标识水位确定，避免秒级时间相同导致交叉归类。Tdarr 的[官方扫描选项](https://docs.tdarr.io/docs/library-setup/library-options/)作为行为参考，证据与差异见[取证记录](reference-snapshots/tdarr-library-scans.md)。目录枚举在普通挂载和 Docker 中可直接复用；文件事件依赖不能覆盖所有网盘挂载，不替代枚举。Peach 的完整扫描保留账本、资料、图片与历史，不采用 Tdarr 清空数据库的行为。临时库验证已登记影片、新增影片、无新增与显式全库范围，不读取真实媒体或写真实账本。
+
 ## RSS 与 debrid 下载
+
+保存期限复用 `feed_source`、`feed_item`、SQLite 身份索引与既有 RSS 调度。公历月年采用标准库 `calendar` 与 `datetime`，无需日期库；来源内稳定标识及文章地址决定去重，过期内容只留最小身份记忆。后台浮层抽出扫描卡已有的 `TaskPopup` 框体，下载与扫描共享 Sonner 栈、折叠与状态色。目录下载后的导入复用 `scan.ingest_path`、Windows 账本路径转换、定向 `process_library`、`TaskRunStore` 和串行 ledger 后继；下载队列声明完成结果，由既有后继执行。不增加依赖，行为验证只使用临时媒体与模拟渠道。
 
 图文条目沿用 feedparser 的正文模型和标准库 HTMLParser，只提取经过地址校验的图片／链接元数据。预览区采用 BoardUI 既有排版、图片的原生延迟加载与保留比例布局，来源 HTML 不进入 React。来源级筛选复用已保存的渠道主机列表，并在过滤显示时保留原始链接序号；未增加依赖。
 

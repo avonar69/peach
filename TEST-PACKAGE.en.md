@@ -4,6 +4,20 @@ kind: howto
 
 # Peach custom test build
 
+## RSS history and completed-download import
+
+Under **Manage following → RSS downloads**, set **Keep saved posts** separately for each feed: **Forever**, days, months or years. Posts remain saved when they disappear from the publisher's current feed. Retention runs from the first save, and refreshing a post does not extend its age. Expiry removes saved post content while preserving minimal duplicate-prevention records; downloaded media stays intact. Repeated IDs or article URLs merge links and previews into one post. Saved images and downloads are URLs served by their original hosts.
+
+Debrid progress appears in the same collapsible task popup as scan progress and stays visible across page navigation. Server-folder downloads show transferred bytes and can be cancelled. Direct browser downloads remain browser-managed. **Show download progress** on the RSS page reopens recent tasks.
+
+In **Peach configuration → Download providers**, each debrid provider has **Scan and import after download**. Select a folder inside a media library configured in **Libraries & import**; Docker paths must refer to the same mounted container folder. The default is off. When enabled for a download, its completed video is registered and processed as a single-file task, including the existing filename, preview, metadata and StashDB options. A busy library scan defers import. Import failure keeps the completed file; **Retry import** processes it again without downloading it again. Cancelling an import also keeps the file.
+
+## Updating an existing media library
+
+Use **Data management → Scanning and acquisition → Scan All (Find new)**, the default action. Directory discovery lists all files, but only newly registered videos enter media probing, missing-preview generation, metadata and StashDB matching. A scan with no added videos finishes after discovery. The completed message reports how many new videos were processed.
+
+Choose **Scan All (Fresh)** from the dropdown and confirm when you want all registered videos considered. This preserves metadata, installed pictures and history, and reuses usable previews. Use the existing preview, metadata or failed-item actions for those specific tasks. StashDB's failed-search skip option is independent of the scan scope and continues to apply within it.
+
 ## Actor profiles and resync
 
 Open an actor page to see career dates, birthdate and current age, height, measurements, breast type, nationality, ethnicity and eye/hair colors on the right. **Edit actor info** saves local corrections; **Use synced info** returns all fields to their source values. Sync preserves your corrections and installed pictures.

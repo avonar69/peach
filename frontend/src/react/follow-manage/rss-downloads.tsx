@@ -4,27 +4,25 @@ import { RiDownloadCloud2Line } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { Switch } from '@/components/base/switch/switch';
+import { Select, SelectItem } from '@/components/base/select/select';
 import { apiGet, apiSend } from '../../api';
-import { formatTranslation, translate } from '../../i18n';
+import { formatTranslation } from '../../i18n';
 import { queryClient } from '../query';
 import { Note } from '../components/note';
 import { Help, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import type { DebridProvider } from '../settings/debrid-settings';
+import { DebridTaskProgress, trackDebridJob, type DebridJob as Job } from './debrid-progress';
 
 interface Link { url: string; kind: string }
-interface File { url?: string; filename?: string; size?: number }
-interface Job { id: string; entry_id: number; provider: string; kind: string; status: string; error?: string;
-  source?: Link; files?: File[]; filename?: string; bytes?: number; total?: number; path?: string }
 interface Picture { src: string; href: string }
 interface Entry { id: number; source_id: number; title: string; feed_name: string; published_at: string | null; links: Link[];
   images?: { main?: Picture; previews?: Picture[] } }
 interface Source { id: number; name: string; enabled: boolean; interval_minutes?: number; next_fetch_at?: string | null;
+  rss_retention_count?: number | null; rss_retention_unit?: string;
   hide_unsupported?: boolean; last_error: string | null; last_fetched_at: string | null }
 interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number; read_only?: boolean }
 const KEY = ['rss-downloads'];
-const statusLabels: Record<string, string> = { queued: 'Queued', preparing: 'Preparing download', downloading: 'Downloading',
-  ready: 'Ready', complete: 'Download complete', cancelled: 'Cancelled', failed: 'Download failed' };
 
 export function supports(provider: DebridProvider, link: Link, confirmed = false): boolean {
   if (!provider.configured) return false;
@@ -46,18 +44,6 @@ function PostPicture({ picture, title, preview = false }: { picture?: Picture; t
       className={preview ? 'h-auto max-h-80 max-w-full object-contain' : 'h-auto max-h-96 max-w-full object-contain'}
       onError={() => setFailed(true)} data-i18n-ignore="" />
   </a>;
-}
-
-function TaskProgress({ job, cancel, readOnly }: { job: Job; cancel(id: string): void; readOnly: boolean }) {
-  return <div className="flex flex-wrap items-center gap-2 text-caption-1-regular">
-    <span>{translate(statusLabels[job.status] || job.status)}</span>
-    {job.kind === 'download' && job.total ? <progress aria-label="Download progress" max={job.total} value={job.bytes || 0} /> : null}
-    {job.filename ? <span className="break-all" data-i18n-ignore="">{job.filename}</span> : null}
-    {job.path ? <span className="break-all" data-i18n-ignore="">{job.path}</span> : null}
-    {job.error ? <span role="alert">{job.error}</span> : null}
-    {['queued', 'preparing', 'downloading'].includes(job.status)
-      ? <Button size="small" variant="secondary" disabled={readOnly} onClick={() => cancel(job.id)}>Cancel download</Button> : null}
-  </div>;
 }
 
 export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount, download = (url: string) => window.location.assign(url) }: {
@@ -85,7 +71,8 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
     const file = job.files?.[index];
     if (!file?.url || !provider) return;
     if (provider.download_folder) {
-      await apiSend('/api/rss/download', { id: job.id, file_index: index }, 'POST');
+      const result = await apiSend<{ id: string }>('/api/rss/download', { id: job.id, file_index: index }, 'POST');
+      trackDebridJob(result.id);
       toast('Download queued.'); refresh();
     } else download(file.url);
   };
@@ -105,6 +92,7 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
     void action.run('resolve', signal => apiSend<{ id: string }>('/api/rss/resolve', {
       entry_id: entry.id, link_index: index, provider: provider.id,
     }, 'POST', signal), result => {
+      trackDebridJob(result.id);
       delivered.current.delete(result.id);
       setWaiting(previous => [...new Set([...previous, result.id])]); refresh();
     });
@@ -129,6 +117,8 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
         <Button type="submit" disabled={readOnly || !url.trim()} {...busyProps(action.busy === 'add')}>Add RSS feed</Button>
         <Button type="button" variant="secondary" disabled={readOnly || !data.sources.length} {...busyProps(action.busy === 'check')}
           onClick={() => send('check', {}, 'RSS update started.')}>Check feeds now</Button>
+        <Button type="button" variant="secondary" disabled={!data.jobs.length}
+          onClick={() => data.jobs.slice(-10).forEach(job => trackDebridJob(job.id))}>Show download progress</Button>
       </div>
     </form>
     <Help>Use the debrid icon beside a supported link to download with that service. A configured download folder receives the file; otherwise it downloads in your browser.</Help>
@@ -142,6 +132,9 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
       <RSSSchedule key={`${source.id}:${source.interval_minutes}`} source={source} readOnly={readOnly}
         busy={action.busy === 'source'} save={interval_minutes => send('source', {
           action: 'schedule', id: source.id, enabled: source.enabled, interval_minutes }, 'RSS update schedule saved.')} />
+      <RSSRetention key={`${source.id}:${source.rss_retention_count}:${source.rss_retention_unit}`}
+        source={source} readOnly={readOnly} busy={action.busy === 'source'}
+        save={(count, unit) => send('source', { action: 'retention', id: source.id, count, unit }, 'RSS retention saved.')} />
       <Switch aria-label={formatTranslation('Hide unsupported links for {0}', source.name)} isDisabled={readOnly}
         isSelected={!!source.hide_unsupported}
         onChange={hide_unsupported => send('source', { action: 'filter', id: source.id, hide_unsupported })}>
@@ -176,7 +169,7 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
           disabled={readOnly} {...busyProps(action.busy === 'resolve')} onClick={() => clickDebrid(entry, index, provider)} />)}
       </div>)}
       {data.jobs.filter(job => job.entry_id === entry.id).map(job => <div key={job.id} className="flex flex-col gap-2">
-        <TaskProgress job={job} cancel={id => send('cancel', { id })} readOnly={readOnly} />
+        <DebridTaskProgress job={job} cancel={id => send('cancel', { id })} readOnly={readOnly} />
         {job.files?.map((file, index) => file.url ? <div key={index} className="flex flex-wrap items-center gap-2">
           <a href={file.url} rel="noreferrer" target="_blank" className="break-all underline" data-i18n-ignore="">{file.filename || file.url}</a>
           <Button size="small" variant="secondary" disabled={readOnly}
@@ -204,5 +197,30 @@ function RSSSchedule({ source, readOnly, busy, save }: {
       disabled={readOnly || !Number.isInteger(minutes) || minutes < 15 || minutes > 10080}>Save interval</Button>
     {source.enabled && source.next_fetch_at ? <span className="w-full text-caption-1-regular">
       {formatTranslation('Next update: {0}', new Date(source.next_fetch_at).toLocaleString())}</span> : null}
+  </form>;
+}
+
+function RSSRetention({ source, readOnly, busy, save }: {
+  source: Source; readOnly: boolean; busy: boolean; save(count: number | null, unit: string): void;
+}) {
+  const [unit, setUnit] = useState(source.rss_retention_count == null ? 'forever' : source.rss_retention_unit || 'days');
+  const [count, setCount] = useState(String(source.rss_retention_count ?? 30));
+  const amount = Number(count);
+  const limit = unit === 'years' ? 100 : unit === 'months' ? 1200 : 36500;
+  const valid = unit === 'forever' || Number.isInteger(amount) && amount >= 1 && amount <= limit;
+  return <form noValidate className="flex w-full min-w-0 flex-wrap items-end gap-2" onSubmit={event => {
+    event.preventDefault();
+    if (valid) save(unit === 'forever' ? null : amount, unit === 'forever' ? 'days' : unit);
+  }}>
+    <div className="flex flex-col gap-2"><span className="text-caption-1-regular">Keep saved posts</span>
+    <Select aria-label={formatTranslation('Retention for {0}', source.name)}
+      selectedKey={unit} onSelectionChange={key => setUnit(String(key))} isDisabled={readOnly}>
+      <SelectItem id="forever">Forever</SelectItem><SelectItem id="days">Days</SelectItem>
+      <SelectItem id="months">Months</SelectItem><SelectItem id="years">Years</SelectItem>
+    </Select></div>
+    {unit !== 'forever' ? <Input label="Retention amount" aria-label={formatTranslation('Retention amount for {0}', source.name)}
+      type="number" value={count} onChange={setCount} isDisabled={readOnly} /> : null}
+    <Button type="submit" size="small" variant="secondary" {...busyProps(busy)} disabled={readOnly || !valid}>Save retention</Button>
+    <div className="w-full"><Help>Posts stay saved after they leave the feed. Retention starts when first saved; updates do not reset it. Expired posts are removed from the archive; downloaded files are kept.</Help></div>
   </form>;
 }

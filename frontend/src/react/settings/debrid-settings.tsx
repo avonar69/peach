@@ -2,25 +2,28 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
+import { Switch } from '@/components/base/switch/switch';
 import { apiGet, apiSend } from '../../api';
 import { formatTranslation } from '../../i18n';
 import { queryClient } from '../query';
 import { ErrorText, Footer, Help, Section, Stack } from './section';
 import { busyProps, useAction } from './use-action';
 
-export interface DebridProvider { id: string; label: string; configured: boolean; download_folder: string; hosts: string[] }
+export interface DebridProvider { id: string; label: string; configured: boolean; download_folder: string; hosts: string[]; auto_import?: boolean }
 const KEY = ['debrid-settings'];
 const URL = '/api/configuration/debrid';
 
 function ProviderSettings({ provider, receipt }: { provider: DebridProvider; receipt(message: string): void }) {
   const [key, setKey] = useState('');
   const [folder, setFolder] = useState(provider.download_folder);
+  const [autoImport, setAutoImport] = useState(!!provider.auto_import);
   const [connected, setConnected] = useState(false);
   const action = useAction();
   useEffect(() => setFolder(provider.download_folder), [provider.download_folder]);
+  useEffect(() => setAutoImport(!!provider.auto_import), [provider.auto_import]);
   const save = (remove = false) => {
     void action.run('save', signal => apiSend(`${URL}/${provider.id}/settings`, {
-      api_key: key, download_folder: folder, ...(remove ? { remove_key: true } : {}),
+      api_key: key, download_folder: folder, auto_import: autoImport, ...(remove ? { remove_key: true } : {}),
     }, 'POST', signal), () => {
       setKey(''); setConnected(false); receipt('Debrid settings saved.');
       void queryClient.invalidateQueries({ queryKey: KEY });
@@ -33,10 +36,15 @@ function ProviderSettings({ provider, receipt }: { provider: DebridProvider; rec
         placeholder={provider.configured ? 'Key saved; leave blank to keep it' : 'Enter your API key'} value={key} onChange={setKey} />
       <Help><a href={provider.id === 'alldebrid' ? 'https://alldebrid.com/apikeys/' : 'https://real-debrid.com/apitoken'}
         target="_blank" rel="noreferrer">Get your API key</a></Help>
-      <Input label="Download folder" aria-label={`${provider.label} download folder`} value={folder} onChange={setFolder}
+      <Input label="Download folder" aria-label={`${provider.label} download folder`} value={folder} onChange={value => {
+        setFolder(value); if (!value.trim()) setAutoImport(false);
+      }}
         placeholder="/downloads" />
       <Help>For Docker, enter an existing writable folder inside the container, such as /downloads, and mount your host folder there.</Help>
       <Help>A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.</Help>
+      <Switch aria-label={formatTranslation('Automatic import for {0}', provider.label)} isDisabled={!folder.trim()}
+        isSelected={autoImport} onChange={setAutoImport}>Scan and import after download</Switch>
+      <Help>Automatic import processes only the completed video. Choose a download folder inside a configured media library, using the container path in Docker.</Help>
       {connected ? <p role="status">{formatTranslation('Connected to {0}.', provider.label)}</p> : null}
       {action.error ? <ErrorText>{action.error}</ErrorText> : null}
     </Stack>

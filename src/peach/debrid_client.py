@@ -45,7 +45,8 @@ def settings(config):
     except (OSError, ValueError):
         hosts = {}
     return {'providers': [{'id': key, 'label': name, 'configured': bool(values.get(key, {}).get('api_key')),
-        'download_folder': values.get(key, {}).get('download_folder', ''), 'hosts': hosts.get(key, [])} for key, name in PROVIDERS.items()]}
+        'download_folder': values.get(key, {}).get('download_folder', ''),
+        'auto_import': values.get(key, {}).get('auto_import') is True, 'hosts': hosts.get(key, [])} for key, name in PROVIDERS.items()]}
 
 
 def save(config, provider, body):
@@ -65,6 +66,15 @@ def save(config, provider, body):
         if folder and (not Path(folder).is_absolute() or not Path(folder).is_dir()):
             raise ValueError('Choose an existing absolute download folder visible to Peach.')
         row['download_folder'] = str(Path(folder).resolve()) if folder else ''
+    if 'auto_import' in body:
+        if type(body['auto_import']) is not bool:
+            raise ValueError('Choose whether to import completed downloads.')
+        row['auto_import'] = body['auto_import']
+    if row.get('auto_import'):
+        from .debrid_import import import_target
+        if not row.get('download_folder'):
+            raise ValueError('Choose a download folder inside a configured media library to enable automatic import.')
+        import_target(config, Path(row['download_folder']))
     path = config.directory('secrets') / 'debrid.json'
     atomic_write_text(path, json.dumps(values))
     path.chmod(0o600)

@@ -129,7 +129,7 @@ describe('RSS and debrid downloads', () => {
       assert.equal(await icon.count(), 1);
       assert.ok((await icon.locator('..').innerText()).includes('rg.to'));
       await icon.click();
-      await page.getByRole('progressbar', { name: 'Download progress', exact: true }).waitFor();
+      await page.locator('article').getByRole('progressbar', { name: 'Download progress', exact: true }).waitFor();
       assert.ok(posts.some(post => post.path === '/api/rss/resolve' && post.body.entry_id === 1 && post.body.link_index === 0));
       assert.ok(posts.some(post => post.path === '/api/rss/download' && post.body.id === 'ready-job'));
       assert.equal(await page.getByRole('link', { name: 'example.mp4', exact: true }).count(), 1);
@@ -141,15 +141,15 @@ describe('RSS and debrid downloads', () => {
 
   for (const viewport of VIEWPORTS) it(`${viewport.name}: download provider cards save a container folder and show connection success`, async () => {
     const posts: Array<Record<string, unknown>> = [];
-    const providers = [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '', hosts: ['rg.to'] },
-      { id: 'realdebrid', label: 'Real-Debrid', configured: false, download_folder: '', hosts: [] }];
+    const providers = [{ id: 'alldebrid', label: 'AllDebrid', configured: true, download_folder: '', hosts: ['rg.to'], auto_import: false },
+      { id: 'realdebrid', label: 'Real-Debrid', configured: false, download_folder: '', hosts: [], auto_import: false }];
     const opened = await visit(browser, '/settings/downloads', viewport, async page => {
       await stubServer(page);
       await page.route('**/api/configuration/debrid**', async route => {
         const path = new URL(route.request().url()).pathname;
         if (route.request().method() === 'POST') {
           const body = route.request().postDataJSON(); posts.push(body);
-          if (path.endsWith('/settings')) providers[0].download_folder = body.download_folder;
+          if (path.endsWith('/settings')) Object.assign(providers[0], { download_folder: body.download_folder, auto_import: body.auto_import });
           await route.fulfill({ json: path.endsWith('/check') ? { ok: true, account: 'Example account' } : { providers } });
         } else await route.fulfill({ json: { providers } });
       });
@@ -160,11 +160,15 @@ describe('RSS and debrid downloads', () => {
       await region.getByRole('textbox', { name: /download folder/i }).fill('/downloads/videos', { timeout: 10000 }).catch(async error => {
         assert.fail(`${String(error)}\n${await region.ariaSnapshot()}\n${JSON.stringify(opened.problems)}`);
       });
+      await region.getByText('Scan and import after download', { exact: true }).click();
       await region.getByRole('button', { name: 'Save debrid settings', exact: true }).click();
       await page.waitForFunction(() => !document.querySelector('[data-action-busy="true"]'));
       await region.getByRole('button', { name: 'Test connection', exact: true }).click();
       await region.getByRole('status').filter({ hasText: 'Connected to AllDebrid.' }).waitFor();
       assert.ok(posts.some(body => body.download_folder === '/downloads/videos'));
+      assert.ok(posts.some(body => body.auto_import === true));
+      await page.reload();
+      assert.equal(await region.getByRole('switch', { name: /Automatic import for AllDebrid/ }).isChecked(), true);
       const geometry = await layout(page);
       assert.ok(geometry.scrollWidth <= geometry.viewportWidth + 1, JSON.stringify(geometry));
       assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);

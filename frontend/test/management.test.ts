@@ -47,7 +47,7 @@ describe('数据管理首屏', () => {
     for (const button of legacy) expect(button.classList.contains('primary')).toBe(true);
     const actions = root.querySelectorAll('button:not(.board-plain-stat, [aria-haspopup="listbox"])');
     expect([...actions].map(button => button.textContent || button.getAttribute('aria-label')))
-      .toEqual(['同步媒体库', '更多同步方式', '开始修复', '预览', '检查死链', '检查文件']);
+      .toEqual(['扫描全部（查找新增）', '更多同步方式', '开始修复', '预览', '检查死链', '检查文件']);
     for (const button of actions) {
       expect(button.hasAttribute('disabled')).toBe(true);
       expect(button.hasAttribute('data-skeleton-action')).toBe(true);

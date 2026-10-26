@@ -86,6 +86,49 @@ def _archive_pages(url):
 
 
 class LibraryNfoTests(unittest.TestCase):
+    @windows_ledger_roots
+    def test_find_new_processes_only_discovered_videos_and_explicit_fresh_covers_existing(self):
+        from peach.scan import scan_location
+        media = self.root / 'media'
+        media.mkdir()
+        for index in range(50):
+            (media / f'known-{index}.mp4').write_bytes(b'video')
+        db = fresh_ledger(self.root)
+        config = PeachConfig(self.root, self.root / 'config.toml', present=True,
+                             locations={'local': (str(media),)})
+        scan_location(db, 'local', str(media), declared_roots=config.locations, report=lambda line: None)
+        added = media / 'new.mp4'
+        added.write_bytes(b'new video')
+        (media / 'unrelated.jpg').write_bytes(b'image')
+        library = LedgerDatabase(db)
+        with patch('peach.library_processing._probe_sources', return_value=0) as probe, \
+                patch('peach.library_processing._RemoteSession.collect', return_value=([], 0)), \
+                patch('peach.library_processing._generate_previews') as previews, \
+                patch('peach.library_processing._finish_collection', return_value={}) as finish, \
+                patch('peach.stashdb.scan_assets', return_value={'applied': 0, 'review': 0}) as stash:
+            def run(stage):
+                return process_library(config, db, self.root / 'candidates', self.root / 'covers',
+                                       stage=stage, database=library)
+            state = run('find_new')
+            self.assertEqual(state['status'], 'complete')
+            self.assertEqual(state['total'], 1)
+            new_ids = state['asset_ids']
+            self.assertEqual(len(new_ids), 1)
+            self.assertEqual(probe.call_args.args[4], new_ids)
+            self.assertEqual([row['path'] for row in previews.call_args.args[1]], [str(added)])
+            self.assertEqual([row['path'] for row in stash.call_args.args[2]], [str(added)])
+            self.assertEqual(finish.call_args.kwargs['asset_ids'], new_ids)
+            for mocked in (probe, previews, finish, stash):
+                mocked.reset_mock()
+            state = run('find_new')
+            self.assertEqual((state['status'], state['total'], state['asset_ids']), ('complete', 0, []))
+            for mocked in (probe, previews, finish, stash):
+                mocked.assert_not_called()
+            state = run('all')
+            self.assertEqual(state['total'], 51)
+            self.assertEqual(len(stash.call_args.args[2]), 51)
+            self.assertIsNone(finish.call_args.kwargs['asset_ids'])
+
     def test_task_sidecar_index_does_not_walk_the_folder_for_each_video(self):
         from peach.library_nfo import SidecarIndex
         class CountedFiles(dict):
@@ -2691,6 +2734,8 @@ class LibraryWatchdogTests(unittest.TestCase):
             self.assertEqual(initial['requested_stage'], 'collect')
             self.assertEqual(initial['stage'], '准备采集资料')
             w_library_processing(contract, {})
+            self.assertEqual(run.call_args.kwargs['stage'], 'find_new')
+            w_library_processing(contract, {'stage': 'all'})
             self.assertEqual(run.call_args.kwargs['stage'], 'all')
             with self.assertRaises(ValueError):
                 w_library_processing(contract, {'stage': 'thumbnails'})

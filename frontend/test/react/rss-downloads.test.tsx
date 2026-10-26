@@ -14,7 +14,8 @@ const link = { url: 'https://rg.to/file/example', kind: 'link' };
 function serve(folder = '') {
   const posts: Array<{ path: string; body: Record<string, unknown> }> = [];
   const state = { providers: [{ ...provider, download_folder: folder }],
-    sources: [{ id: 1, name: 'Example feed', enabled: true, interval_minutes: 360, hide_unsupported: false }],
+    sources: [{ id: 1, name: 'Example feed', enabled: true, interval_minutes: 360, hide_unsupported: false,
+      rss_retention_count: null as number | null, rss_retention_unit: 'days' }],
     items: [{ id: 1, source_id: 1, title: 'Example video', feed_name: 'Example feed', published_at: null, links: [link],
       images: {} as { main?: { src: string; href: string }; previews?: Array<{ src: string; href: string }> } }],
     jobs: [] as Array<Record<string, unknown>>, total: 1, offset: 0 };
@@ -24,6 +25,7 @@ function serve(folder = '') {
       const body = JSON.parse(String(options.body || '{}'));
       posts.push({ path, body });
       if (body.action === 'schedule') Object.assign(state.sources[0], { enabled: body.enabled, interval_minutes: body.interval_minutes });
+      if (body.action === 'retention') Object.assign(state.sources[0], { rss_retention_count: body.count, rss_retention_unit: body.unit });
       if (path.endsWith('/resolve')) state.jobs = [{ id: 'prepared', entry_id: 1, provider: 'alldebrid',
         source: link, kind: 'resolve', status: 'ready', files: [{ url: 'https://cdn.example.org/video', filename: 'video.mp4' }] }];
       return { ok: true, status: 200, json: async () => ({ id: 'prepared' }) };
@@ -95,6 +97,19 @@ it('关注页使用同一组 RSS 图片与下载入口而不显示订阅设置',
   expect(host.querySelector('a[href="https://rg.to/file/example"]')).not.toBeNull();
   expect(host.querySelector('button[aria-label="Download with AllDebrid"]')).not.toBeNull();
   expect(host.querySelector('form')).toBeNull();
+});
+
+it('RSS 保存期限默认永久，按来源保存月份与数量', async () => {
+  const { posts } = serve();
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  const form = [...host.querySelectorAll('form')].find(item => item.textContent?.includes('Save retention'))!;
+  expect(form.textContent).toContain('Forever');
+  await click(form.querySelector('button[aria-haspopup="listbox"]'));
+  await click([...document.querySelectorAll('[role="option"]')].find(item => item.textContent?.trim() === 'Months'));
+  const amount = form.querySelector<HTMLInputElement>('[aria-label="Retention amount for Example feed"]');
+  await type(amount, '6');
+  await submit(form);
+  expect(posts).toContainEqual({ path: '/api/rss/source', body: { action: 'retention', id: 1, count: 6, unit: 'months' } });
 });
 
 it('图文条目显示主图和全部预览缩略图并保留各自原图链接', async () => {

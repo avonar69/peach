@@ -17,6 +17,15 @@ from support.ledger import fresh_ledger
 
 
 class ProcessingControlTests(unittest.TestCase):
+    def test_find_new_estimate_uses_discovered_scope(self):
+        self.seed(10)
+        estimate = initial_estimate(self.config, self.db, 'find_new')
+        self.assertEqual(estimate['estimate_file_count'], 0)
+        self.assertIsNone(estimate['eta_seconds_max'])
+        selected = initial_estimate(self.config, self.db, 'find_new', [1])
+        self.assertEqual(selected['estimate_file_count'], 1)
+        self.assertGreater(selected['eta_seconds_max'], 0)
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
