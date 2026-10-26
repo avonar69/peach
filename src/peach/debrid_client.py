@@ -17,6 +17,7 @@ from .user_agent import USER_AGENT
 PROVIDERS = {'alldebrid': 'AllDebrid', 'realdebrid': 'Real-Debrid'}
 BASE = {'alldebrid': 'https://api.alldebrid.com', 'realdebrid': 'https://api.real-debrid.com/rest/1.0'}
 _LOCK = threading.Lock()
+_SETTINGS_LOCK = threading.RLock()
 _LAST = {}
 
 
@@ -51,6 +52,11 @@ def settings(config):
 
 
 def save(config, provider, body):
+    with _SETTINGS_LOCK:
+        return _save_settings(config, provider, body)
+
+
+def _save_settings(config, provider, body):
     if provider not in PROVIDERS:
         raise ValueError('Choose a debrid provider.')
     values = saved(config)

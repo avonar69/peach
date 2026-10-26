@@ -14,8 +14,8 @@ def _writable(request):
 
 
 @router.get('/api/rss')
-def rss(request: Request, offset: int = 0, _auth=Depends(require_auth)):
-    return {**web_rss.snapshot(request.app.state.web_contract, max(0, min(offset, 100000))),
+def rss(request: Request, offset: int = 0, limit: int = 20, _auth=Depends(require_auth)):
+    return {**web_rss.snapshot(request.app.state.web_contract, max(0, min(offset, 100000)), max(1, min(limit, 100))),
         'read_only': bool(getattr(getattr(request.app.state, 'sync', None), 'read_only', False))}
 
 
@@ -48,6 +48,8 @@ def rss_action(request: Request, action: str, body: dict = Body(default_factory=
             return {'ok': True, 'id': contract.debrid.download(str(body.get('id') or ''), body.get('file_index'))['id']}
         if action == 'cancel':
             return contract.debrid.cancel(str(body.get('id') or ''))
+        if action == 'clear-finished':
+            return contract.debrid.clear_finished()
         if action == 'import':
             return contract.debrid.retry_import(str(body.get('id') or ''))
         raise ValueError('Choose a valid RSS action.')

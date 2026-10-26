@@ -12,6 +12,7 @@ import { busyProps, useAction } from './use-action';
 export interface DebridProvider { id: string; label: string; configured: boolean; download_folder: string; hosts: string[]; auto_import?: boolean; max_concurrent_downloads?: number }
 const KEY = ['debrid-settings'];
 const URL = '/api/configuration/debrid';
+interface SettingsData { providers: DebridProvider[]; available?: boolean }
 
 function ProviderSettings({ provider, receipt }: { provider: DebridProvider; receipt(message: string): void }) {
   const [key, setKey] = useState('');
@@ -23,16 +24,26 @@ function ProviderSettings({ provider, receipt }: { provider: DebridProvider; rec
   useEffect(() => setFolder(provider.download_folder), [provider.download_folder]);
   useEffect(() => setAutoImport(!!provider.auto_import), [provider.auto_import]);
   useEffect(() => setConcurrency(String(provider.max_concurrent_downloads ?? 3)), [provider.max_concurrent_downloads]);
-  const save = (remove = false) => {
-    void action.run('save', signal => apiSend(`${URL}/${provider.id}/settings`, {
-      api_key: key, download_folder: folder, auto_import: autoImport, max_concurrent_downloads: Number(concurrency), ...(remove ? { remove_key: true } : {}),
-    }, 'POST', signal), () => {
+  const save = (remove = false, requested = Number(concurrency)) => {
+    void action.run('save', async signal => {
+      await apiSend(`${URL}/${provider.id}/settings`, {
+      api_key: key, download_folder: folder, auto_import: autoImport, max_concurrent_downloads: requested, ...(remove ? { remove_key: true } : {}),
+      }, 'POST', signal);
+      const confirmed = await apiGet<SettingsData>(URL, signal);
+      if (!remove && confirmed.providers.find(item => item.id === provider.id)?.max_concurrent_downloads !== requested) {
+        throw new Error('The download limit was not saved. Reload settings and try again.');
+      }
+      queryClient.setQueryData(KEY, confirmed);
+    }, () => {
       setKey(''); setConnected(false); receipt('Debrid settings saved.');
       void queryClient.invalidateQueries({ queryKey: KEY });
       void queryClient.invalidateQueries({ queryKey: ['rss-downloads'] });
     });
   };
-  return <Section title={provider.label} onSubmit={event => { event.preventDefault(); save(); }}>
+  return <Section title={provider.label} onSubmit={event => {
+    event.preventDefault();
+    save(false, Number(new FormData(event.currentTarget).get('max_concurrent_downloads') ?? concurrency));
+  }}>
     <Stack>
       <Input type="password" autoComplete="new-password" label="API key" aria-label={`${provider.label} API key`}
         placeholder={provider.configured ? 'Key saved; leave blank to keep it' : 'Enter your API key'} value={key} onChange={setKey} />
@@ -45,7 +56,7 @@ function ProviderSettings({ provider, receipt }: { provider: DebridProvider; rec
       <Help>For Docker, enter an existing writable folder inside the container, such as /downloads, and mount your host folder there.</Help>
       <Help>A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.</Help>
       <Input label="Maximum concurrent downloads" aria-label={formatTranslation('Concurrent downloads for {0}', provider.label)}
-        type="number" value={concurrency} onChange={setConcurrency} />
+        name="max_concurrent_downloads" type="number" value={concurrency} onChange={setConcurrency} />
       <Help>Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.</Help>
       <Switch aria-label={formatTranslation('Automatic import for {0}', provider.label)} isDisabled={!folder.trim()}
         isSelected={autoImport} onChange={setAutoImport}>Scan and import after download</Switch>

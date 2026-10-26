@@ -48,11 +48,11 @@ def poll_source(contract, source):
     return report
 
 
-def snapshot(contract, offset=0):
+def snapshot(contract, offset=0, limit=20):
     from . import debrid_client, settings_file
     with contract.database.read_connection() as connection:
         sources = [row for row in feeds.sources(connection) if row['kind'] == 'rss']
-    return {**rss_feeds.items(contract.database, offset=offset), 'sources': sources,
+    return {**rss_feeds.items(contract.database, offset=offset, limit=limit), 'sources': sources,
             **debrid_client.settings(settings_file.active()), 'jobs': contract.debrid.snapshot()}
 
 

@@ -66,8 +66,20 @@ class Service:
     def snapshot(self):
         stamps = {key: debrid_client.key_stamp(self.config, key) for key in debrid_client.PROVIDERS}
         with self.lock:
-            return [{key: value for key, value in job.items() if key not in ('key_stamp', 'remote_id')}
+            rows = [{key: value for key, value in job.items() if key not in ('key_stamp', 'remote_id')}
                 for job in self.jobs.values() if job.get('key_stamp') == stamps.get(job['provider'])]
+            indexed = {row['id']: row for row in rows}
+            for parent in rows:
+                if parent.get('kind') != 'resolve':
+                    continue
+                files = [dict(file) for file in parent.get('files', [])]
+                parent['files'] = files
+                for index, file in enumerate(files):
+                    identity = hashlib.sha256(f"{parent['id']}:{index}:download".encode()).hexdigest()[:32]
+                    if identity in indexed:
+                        file['download_id'] = identity
+                        indexed[identity].update(parent_id=parent['id'], file_index=index)
+            return rows
 
     def submit(self, entry_id, link, provider, *, auto_download=False):
         if not self.available:
@@ -114,6 +126,8 @@ class Service:
             if old.get('status') in ACTIVE or (old.get('status') == 'complete' and Path(old.get('path', '')).is_file()):
                 return old
             self.jobs[key] = {**old, **files[index], 'id': key, 'kind': 'download', 'folder': folder,
+                'parent_id': identity, 'file_index': index,
+                'dismissed': False,
                 'auto_import': debrid_client.saved(self.config).get(source['provider'], {}).get('auto_import') is True,
                 'import_state': '', 'import_error': '', 'import_cancelled': False, 'import_next_attempt': 0,
                 'entry_id': source['entry_id'], 'provider': source['provider'], 'key_stamp': source['key_stamp'],
@@ -136,6 +150,19 @@ class Service:
                 self._save()
         self.event.set()
         return {'ok': True}
+
+    def clear_finished(self):
+        count = 0
+        with self.lock:
+            for job in self.jobs.values():
+                if job.get('kind') != 'download' or job.get('status') not in ('complete', 'failed', 'cancelled'):
+                    continue
+                if job.get('import_state') in ('pending', 'queuing', 'queued', 'running') or job.get('dismissed'):
+                    continue
+                job['dismissed'] = True
+                count += 1
+            self._save()
+        return {'ok': True, 'cleared': count}
 
     def retry_import(self, identity):
         with self.lock:

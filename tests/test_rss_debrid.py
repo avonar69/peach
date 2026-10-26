@@ -343,10 +343,16 @@ class RSSDebridTests(unittest.TestCase):
         self.assertEqual(service.jobs[first['id']]['status'], 'cancelled')
 
     def test_six_persisted_download_requests_fill_and_refill_three_slots(self):
+        self._assert_download_slots(6, 3)
+
+    def test_twenty_persisted_download_requests_fill_and_refill_ten_slots(self):
+        self._assert_download_slots(20, 10)
+
+    def _assert_download_slots(self, total, limit):
         self.provider()
-        debrid_client.save(self.config, 'alldebrid', {'download_folder': str(self.root)})
+        debrid_client.save(self.config, 'alldebrid', {'download_folder': str(self.root), 'max_concurrent_downloads': limit})
         service = self.service()
-        for index in range(6):
+        for index in range(total):
             task = service.submit(index, {'kind': 'link', 'url': f'https://rg.to/file/{index}'},
                                   'alldebrid', auto_download=True)
             service._update(task['id'], status='ready', files=[{
@@ -360,25 +366,25 @@ class RSSDebridTests(unittest.TestCase):
             with lock:
                 counts['running'] += 1
                 counts['peak'] = max(counts['peak'], counts['running'])
-                if counts['running'] == 3:
+                if counts['running'] == limit:
                     first_wave.set()
             release.wait(5)
             update(status='complete', path=str(self.root / task['filename']))
             with lock:
                 counts['running'] -= 1
                 counts['complete'] += 1
-                if counts['complete'] == 6:
+                if counts['complete'] == total:
                     finished.set()
 
         try:
             with patch('peach.debrid_transfer.transfer', side_effect=transfer):
                 restored.start()
                 self.assertTrue(first_wave.wait(5))
-                self.assertEqual(counts['peak'], 3)
+                self.assertEqual(counts['peak'], limit)
                 release.set()
                 self.assertTrue(finished.wait(5))
-                self.assertEqual(counts['peak'], 3)
-                self.assertEqual(len([job for job in restored.snapshot() if job['kind'] == 'download']), 6)
+                self.assertEqual(counts['peak'], limit)
+                self.assertEqual(len([job for job in restored.snapshot() if job['kind'] == 'download']), total)
                 restored.stop()
         finally:
             release.set()
@@ -388,9 +394,41 @@ class RSSDebridTests(unittest.TestCase):
         self.assertEqual(debrid_client.settings(self.config)['providers'][0]['max_concurrent_downloads'], 3)
         result = debrid_client.save(self.config, 'alldebrid', {'max_concurrent_downloads': 1})
         self.assertEqual(result['providers'][0]['max_concurrent_downloads'], 1)
+        debrid_client.save(self.config, 'alldebrid', {'max_concurrent_downloads': 10})
+        self.assertEqual(debrid_client.settings(self.config)['providers'][0]['max_concurrent_downloads'], 10)
         for value in (0, 11, True, 1.5, '3'):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 debrid_client.save(self.config, 'alldebrid', {'max_concurrent_downloads': value})
+
+    def test_finished_download_receipt_survives_clearing_without_clearing_imports(self):
+        self.provider()
+        debrid_client.save(self.config, 'alldebrid', {'download_folder': str(self.root)})
+        service = self.service()
+        parent = service.submit(1, {'kind': 'link', 'url': 'https://rg.to/file/finished'}, 'alldebrid')
+        service._update(parent['id'], status='ready', files=[{'url': 'https://cdn.example.org/file', 'filename': 'file.mp4'}])
+        child = service.download(parent['id'], 0)
+        service._update(child['id'], status='complete', import_state='queued')
+        self.assertEqual(service.clear_finished()['cleared'], 0)
+        service._update(child['id'], import_state='complete')
+        self.assertEqual(service.clear_finished()['cleared'], 1)
+        restored = debrid_service.Service(self.config)
+        self.addCleanup(restored.stop)
+        rows = {row['id']: row for row in restored.snapshot()}
+        self.assertTrue(rows[child['id']]['dismissed'])
+        self.assertEqual(rows[parent['id']]['files'][0]['download_id'], child['id'])
+        self.assertEqual(rows[child['id']]['parent_id'], parent['id'])
+        self.assertEqual(restored.clear_finished()['cleared'], 0)
+
+    def test_saved_rss_posts_are_paginated_with_twenty_as_default(self):
+        with self.database.write_transaction() as connection:
+            connection.executemany('INSERT INTO feed_item(source_id,item_key,title,first_seen) VALUES(?,?,?,?)',
+                [(self.source, str(index), f'Post {index}', '2026-10-01T00:00:00Z') for index in range(45)])
+        first = rss_feeds.items(self.database)
+        second = rss_feeds.items(self.database, offset=20)
+        self.assertEqual(len(first['items']), 20)
+        self.assertEqual(first['total'], 45)
+        self.assertFalse({row['id'] for row in first['items']} & {row['id'] for row in second['items']})
+        self.assertEqual(len(rss_feeds.items(self.database, limit=10)['items']), 10)
 
     def test_transfer_resumes_with_range_and_publishes_only_a_complete_file(self):
         identity = '1' * 32

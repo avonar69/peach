@@ -4334,5 +4334,9 @@
   "Maximum concurrent downloads": "最大同時下載數",
   "Concurrent downloads for {0}": "{0} 的同時下載數",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每個服務最多同時下載此數量的檔案，等待中的檔案會自動開始。預設：3。",
-  "Choose between 1 and 10 concurrent downloads.": "請選擇 1 到 10 個同時下載。"
+  "Choose between 1 and 10 concurrent downloads.": "請選擇 1 到 10 個同時下載。",
+  "Clear finished": "清除已結束",
+  "RSS posts per page": "RSS 每頁文章數",
+  "{0} posts per page": "每頁 {0} 篇",
+  "The download limit was not saved. Reload settings and try again.": "下載並行數未儲存。請重新載入設定後再試。"
 }

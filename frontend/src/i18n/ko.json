@@ -4334,5 +4334,9 @@
   "Maximum concurrent downloads": "최대 동시 다운로드 수",
   "Concurrent downloads for {0}": "{0} 동시 다운로드 수",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "각 서비스가 동시에 다운로드할 파일 수입니다. 대기 중인 파일은 자동으로 시작됩니다. 기본값: 3.",
-  "Choose between 1 and 10 concurrent downloads.": "동시 다운로드 수를 1~10으로 선택하세요."
+  "Choose between 1 and 10 concurrent downloads.": "동시 다운로드 수를 1~10으로 선택하세요.",
+  "Clear finished": "완료 항목 지우기",
+  "RSS posts per page": "페이지당 RSS 게시물",
+  "{0} posts per page": "페이지당 {0}개",
+  "The download limit was not saved. Reload settings and try again.": "동시 다운로드 수가 저장되지 않았습니다. 설정을 새로고침하고 다시 시도하세요."
 }

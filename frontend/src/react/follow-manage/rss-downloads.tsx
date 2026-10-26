@@ -12,7 +12,7 @@ import { Note } from '../components/note';
 import { Help, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import type { DebridProvider } from '../settings/debrid-settings';
-import { DebridTaskProgress, trackDebridJob, type DebridJob as Job } from './debrid-progress';
+import { DebridTaskProgress, fileDownload, fileNeedsDownload, trackDebridJob, type DebridJob as Job } from './debrid-progress';
 
 interface Link { url: string; kind: string }
 interface Picture { src: string; href: string }
@@ -50,10 +50,14 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   readOnly: boolean; toast(message: string): void; feedOnly?: boolean; onVisibleCount?(count: number): void; download?(url: string): void;
 }) {
   const [name, setName] = useState(''), [url, setUrl] = useState(''), [offset, setOffset] = useState(0);
+  const [pageSize, setPageSize] = useState(() => {
+    try { const saved = Number(localStorage.getItem('peach.rss-page-size')); return [10, 20, 50, 100].includes(saved) ? saved : 20; }
+    catch { return 20; }
+  });
   const [waiting, setWaiting] = useState<string[]>([]);
   const delivered = useRef(new Set<string>());
   const action = useAction();
-  const state = useQuery({ queryKey: [...KEY, offset], queryFn: ({ signal }) => apiGet<Data>(`/api/rss?offset=${offset}`, signal), refetchInterval: 3000 });
+  const state = useQuery({ queryKey: [...KEY, offset, pageSize], queryFn: ({ signal }) => apiGet<Data>(`/api/rss?offset=${offset}&limit=${pageSize}`, signal), refetchInterval: 3000 });
   const data = state.data;
   useEffect(() => { onVisibleCount?.(data?.items.length || 0); }, [onVisibleCount, data?.items.length]);
   useEffect(() => {
@@ -173,14 +177,21 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
         <DebridTaskProgress job={job} cancel={id => send('cancel', { id })} readOnly={readOnly} />
         {job.files?.map((file, index) => file.url ? <div key={index} className="flex flex-wrap items-center gap-2">
           <a href={file.url} rel="noreferrer" target="_blank" className="break-all underline" data-i18n-ignore="">{file.filename || file.url}</a>
-          <Button size="small" variant="secondary" disabled={readOnly}
+          {fileNeedsDownload(fileDownload(data.jobs, job, index)) ? <Button size="small" variant="secondary" disabled={readOnly}
             onClick={() => void deliver(job, index).catch(() => toast('The download could not be started. Check the folder settings.'))}>Download file</Button>
+            : fileDownload(data.jobs, job, index)?.status === 'complete' ? <span>Download complete</span> : null}
         </div> : null)}
       </div>)}
     </article>)}
     <div className="flex flex-wrap gap-2">
-      <Button variant="secondary" disabled={!offset} onClick={() => setOffset(Math.max(0, offset - 50))}>Previous</Button>
-      <Button variant="secondary" disabled={offset + 50 >= data.total} onClick={() => setOffset(offset + 50)}>Next</Button>
+      <Select aria-label="RSS posts per page" selectedKey={String(pageSize)} onSelectionChange={value => {
+        setPageSize(Number(value)); setOffset(0);
+        try { localStorage.setItem('peach.rss-page-size', String(value)) } catch { /* 当前页面保留选择。 */ }
+      }}>
+        {[10, 20, 50, 100].map(amount => <SelectItem key={amount} id={String(amount)}>{formatTranslation('{0} posts per page', String(amount))}</SelectItem>)}
+      </Select>
+      <Button variant="secondary" disabled={!offset} onClick={() => setOffset(Math.max(0, offset - pageSize))}>Previous</Button>
+      <Button variant="secondary" disabled={offset + pageSize >= data.total} onClick={() => setOffset(offset + pageSize)}>Next</Button>
     </div>
   </Stack>;
 }

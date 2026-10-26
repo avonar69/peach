@@ -14,6 +14,8 @@ Debrid downloads use the existing background-task popup across pages, with trans
 
 Each provider has a maximum concurrent server-folder downloads setting, defaulting to 3 with a range of 1–10. Waiting files start as slots open. Single-file RSS download requests persist on the server and continue with the page closed; browser downloads remain controlled by the browser.
 
+Saving the download limit verifies the value read back from the server. The popup keeps completed statuses; **Clear finished** hides terminal records while keeping files and download receipts. Imports in progress remain visible. RSS defaults to 20 posts per page, with choices of 10, 20, 50 or 100 and Previous/Next navigation; the browser remembers the choice.
+
 <p align="center">A private video library: local drives, cloud drives and the creators you follow, all in one place.</p>
 
 <p align="center">

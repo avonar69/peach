@@ -4334,5 +4334,9 @@
   "Maximum concurrent downloads": "Téléchargements simultanés maximum",
   "Concurrent downloads for {0}": "Téléchargements simultanés pour {0}",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Chaque service télécharge au maximum ce nombre de fichiers à la fois. Les fichiers en attente démarrent automatiquement. Par défaut : 3.",
-  "Choose between 1 and 10 concurrent downloads.": "Choisissez entre 1 et 10 téléchargements simultanés."
+  "Choose between 1 and 10 concurrent downloads.": "Choisissez entre 1 et 10 téléchargements simultanés.",
+  "Clear finished": "Effacer les tâches terminées",
+  "RSS posts per page": "Articles RSS par page",
+  "{0} posts per page": "{0} articles par page",
+  "The download limit was not saved. Reload settings and try again.": "La limite de téléchargements n’a pas été enregistrée. Rechargez les paramètres et réessayez."
 }

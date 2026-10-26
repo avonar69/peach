@@ -10,6 +10,8 @@ RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 
 
 渠道设置读写整数 `max_concurrent_downloads`（每个渠道默认 3，范围 1–10），限制服务端同时传输的文件数。`POST /api/rss/resolve` 可传布尔 `auto_download` 保存下载意图，单文件链接就绪后自动进入目录下载队列；多文件结果保留文件选择。准备链接使用独立单槽，等待中的传输在空位出现时继续。浏览器下载不受服务端并发设置控制。
 
+`GET /api/rss` 接收 `offset` 与 `limit`，每页默认 20，接口将数量限制在 1–100。下载快照以 `parent_id`、`file_index` 与文件的 `download_id` 关联链接准备和传输，完整保留结束状态。`POST /api/rss/clear-finished` 将已结束且没有待办导入的下载标为 `dismissed`；文件、历史凭据和重试依据保留，写者与同源门槛适用。
+
 列表使用一层路径，详情使用两层路径。查询参数表达筛选、排序与播放上下文；名称只用于展示和检索。
 
 ## 详情对象

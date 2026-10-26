@@ -59,6 +59,26 @@ it('配置目录后同一枚图标提交目录下载', async () => {
   expect(download).not.toHaveBeenCalled();
 });
 
+it('RSS 默认每页二十条，下一页请求独立偏移', async () => {
+  const served = serve();
+  served.state.total = 45;
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes('offset=0&limit=20'))).toBe(true);
+  await click(buttonNamed('Next', host));
+  expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes('offset=20&limit=20'))).toBe(true);
+});
+
+it('已完成文件显示完成状态并保留原始链接', async () => {
+  const served = serve('/downloads');
+  served.state.jobs = [{ id: 'prepared', entry_id: 1, provider: 'alldebrid', kind: 'resolve', status: 'ready',
+    files: [{ filename: 'video.mp4', url: 'https://cdn.example.org/video', download_id: 'downloaded' }] },
+  { id: 'downloaded', entry_id: 1, provider: 'alldebrid', kind: 'download', status: 'complete', parent_id: 'prepared', file_index: 0 }];
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  expect(host.textContent).toContain('Download complete');
+  expect(buttonNamed('Download file', host)).toBeNull();
+  expect(host.querySelector('a[href="https://cdn.example.org/video"]')).not.toBeNull();
+});
+
 it('只读端保留原始链接并停用下载图标', async () => {
   const served = serve();
   const host = await mount(<QueryClientProvider client={queryClient}>

@@ -9742,7 +9742,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Concurrent downloads for {0}": "Concurrent downloads for {0}",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.",
 	"Choose between 1 and 10 concurrent downloads.": "Choose between 1 and 10 concurrent downloads.",
-	"已发现 {0} 个文件": "Found {0} files"
+	"已发现 {0} 个文件": "Found {0} files",
+	"Clear finished": "Clear finished",
+	"RSS posts per page": "RSS posts per page",
+	"{0} posts per page": "{0} posts per page",
+	"The download limit was not saved. Reload settings and try again.": "The download limit was not saved. Reload settings and try again."
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -17699,7 +17703,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "Máximo de descargas simultáneas",
 	"Concurrent downloads for {0}": "Descargas simultáneas de {0}",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada servicio descarga como máximo esta cantidad de archivos a la vez. Los archivos en espera comienzan automáticamente. Predeterminado: 3.",
-	"Choose between 1 and 10 concurrent downloads.": "Elige entre 1 y 10 descargas simultáneas."
+	"Choose between 1 and 10 concurrent downloads.": "Elige entre 1 y 10 descargas simultáneas.",
+	"Clear finished": "Limpiar finalizadas",
+	"RSS posts per page": "Publicaciones RSS por página",
+	"{0} posts per page": "{0} publicaciones por página",
+	"The download limit was not saved. Reload settings and try again.": "No se guardó el límite de descargas. Recarga los ajustes e inténtalo de nuevo."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22036,7 +22044,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "Téléchargements simultanés maximum",
 	"Concurrent downloads for {0}": "Téléchargements simultanés pour {0}",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Chaque service télécharge au maximum ce nombre de fichiers à la fois. Les fichiers en attente démarrent automatiquement. Par défaut : 3.",
-	"Choose between 1 and 10 concurrent downloads.": "Choisissez entre 1 et 10 téléchargements simultanés."
+	"Choose between 1 and 10 concurrent downloads.": "Choisissez entre 1 et 10 téléchargements simultanés.",
+	"Clear finished": "Effacer les tâches terminées",
+	"RSS posts per page": "Articles RSS par page",
+	"{0} posts per page": "{0} articles par page",
+	"The download limit was not saved. Reload settings and try again.": "La limite de téléchargements n’a pas été enregistrée. Rechargez les paramètres et réessayez."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -26373,7 +26385,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "Maximale gleichzeitige Downloads",
 	"Concurrent downloads for {0}": "Gleichzeitige Downloads für {0}",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Jeder Anbieter lädt höchstens so viele Dateien gleichzeitig herunter. Wartende Dateien starten automatisch. Standard: 3.",
-	"Choose between 1 and 10 concurrent downloads.": "Wählen Sie zwischen 1 und 10 gleichzeitigen Downloads."
+	"Choose between 1 and 10 concurrent downloads.": "Wählen Sie zwischen 1 und 10 gleichzeitigen Downloads.",
+	"Clear finished": "Beendete ausblenden",
+	"RSS posts per page": "RSS-Beiträge pro Seite",
+	"{0} posts per page": "{0} Beiträge pro Seite",
+	"The download limit was not saved. Reload settings and try again.": "Das Download-Limit wurde nicht gespeichert. Laden Sie die Einstellungen neu und versuchen Sie es erneut."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -30710,7 +30726,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "Máximo de downloads simultâneos",
 	"Concurrent downloads for {0}": "Downloads simultâneos de {0}",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada serviço baixa no máximo esta quantidade de arquivos por vez. Os arquivos na fila começam automaticamente. Padrão: 3.",
-	"Choose between 1 and 10 concurrent downloads.": "Escolha entre 1 e 10 downloads simultâneos."
+	"Choose between 1 and 10 concurrent downloads.": "Escolha entre 1 e 10 downloads simultâneos.",
+	"Clear finished": "Limpar concluídos",
+	"RSS posts per page": "Publicações RSS por página",
+	"{0} posts per page": "{0} publicações por página",
+	"The download limit was not saved. Reload settings and try again.": "O limite de downloads não foi salvo. Recarregue as configurações e tente novamente."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -35047,7 +35067,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "最大同時ダウンロード数",
 	"Concurrent downloads for {0}": "{0} の同時ダウンロード数",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "各サービスで同時にダウンロードするファイル数です。待機中のファイルは自動で開始します。既定値：3。",
-	"Choose between 1 and 10 concurrent downloads.": "同時ダウンロード数を1～10で選択してください。"
+	"Choose between 1 and 10 concurrent downloads.": "同時ダウンロード数を1～10で選択してください。",
+	"Clear finished": "完了分をクリア",
+	"RSS posts per page": "RSS のページあたりの投稿数",
+	"{0} posts per page": "1ページ {0} 件",
+	"The download limit was not saved. Reload settings and try again.": "同時ダウンロード数を保存できませんでした。設定を再読み込みして再試行してください。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -39384,7 +39408,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "최대 동시 다운로드 수",
 	"Concurrent downloads for {0}": "{0} 동시 다운로드 수",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "각 서비스가 동시에 다운로드할 파일 수입니다. 대기 중인 파일은 자동으로 시작됩니다. 기본값: 3.",
-	"Choose between 1 and 10 concurrent downloads.": "동시 다운로드 수를 1~10으로 선택하세요."
+	"Choose between 1 and 10 concurrent downloads.": "동시 다운로드 수를 1~10으로 선택하세요.",
+	"Clear finished": "완료 항목 지우기",
+	"RSS posts per page": "페이지당 RSS 게시물",
+	"{0} posts per page": "페이지당 {0}개",
+	"The download limit was not saved. Reload settings and try again.": "동시 다운로드 수가 저장되지 않았습니다. 설정을 새로고침하고 다시 시도하세요."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -43721,7 +43749,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "Số lượt tải xuống đồng thời tối đa",
 	"Concurrent downloads for {0}": "Tải xuống đồng thời cho {0}",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Mỗi dịch vụ tải xuống tối đa số tệp này cùng lúc. Các tệp đang chờ sẽ tự động bắt đầu. Mặc định: 3.",
-	"Choose between 1 and 10 concurrent downloads.": "Chọn từ 1 đến 10 lượt tải xuống đồng thời."
+	"Choose between 1 and 10 concurrent downloads.": "Chọn từ 1 đến 10 lượt tải xuống đồng thời.",
+	"Clear finished": "Xóa mục đã kết thúc",
+	"RSS posts per page": "Số bài RSS mỗi trang",
+	"{0} posts per page": "{0} bài mỗi trang",
+	"The download limit was not saved. Reload settings and try again.": "Giới hạn tải xuống chưa được lưu. Hãy tải lại cài đặt rồi thử lại."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -48058,7 +48090,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Maximum concurrent downloads": "最大同時下載數",
 	"Concurrent downloads for {0}": "{0} 的同時下載數",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每個服務最多同時下載此數量的檔案，等待中的檔案會自動開始。預設：3。",
-	"Choose between 1 and 10 concurrent downloads.": "請選擇 1 到 10 個同時下載。"
+	"Choose between 1 and 10 concurrent downloads.": "請選擇 1 到 10 個同時下載。",
+	"Clear finished": "清除已結束",
+	"RSS posts per page": "RSS 每頁文章數",
+	"{0} posts per page": "每頁 {0} 篇",
+	"The download limit was not saved. Reload settings and try again.": "下載並行數未儲存。請重新載入設定後再試。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -48420,7 +48456,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Concurrent downloads for {0}": "{0} 的同时下载数",
 	"Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每个渠道最多同时下载此数量的文件，等待中的文件会自动开始。默认：3。",
 	"Choose between 1 and 10 concurrent downloads.": "请选择 1 到 10 个同时下载。",
-	"已发现 {0} 个文件": "已发现 {0} 个文件"
+	"已发现 {0} 个文件": "已发现 {0} 个文件",
+	"Clear finished": "清除已结束",
+	"RSS posts per page": "RSS 每页条目数",
+	"{0} posts per page": "每页 {0} 条",
+	"The download limit was not saved. Reload settings and try again.": "下载并发数未保存。请重新加载设置后再试。"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

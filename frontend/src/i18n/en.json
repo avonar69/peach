@@ -649,5 +649,9 @@
   "Concurrent downloads for {0}": "Concurrent downloads for {0}",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.",
   "Choose between 1 and 10 concurrent downloads.": "Choose between 1 and 10 concurrent downloads.",
-  "已发现 {0} 个文件": "Found {0} files"
+  "已发现 {0} 个文件": "Found {0} files",
+  "Clear finished": "Clear finished",
+  "RSS posts per page": "RSS posts per page",
+  "{0} posts per page": "{0} posts per page",
+  "The download limit was not saved. Reload settings and try again.": "The download limit was not saved. Reload settings and try again."
 }

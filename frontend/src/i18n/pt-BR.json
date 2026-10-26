@@ -4334,5 +4334,9 @@
   "Maximum concurrent downloads": "Máximo de downloads simultâneos",
   "Concurrent downloads for {0}": "Downloads simultâneos de {0}",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Cada serviço baixa no máximo esta quantidade de arquivos por vez. Os arquivos na fila começam automaticamente. Padrão: 3.",
-  "Choose between 1 and 10 concurrent downloads.": "Escolha entre 1 e 10 downloads simultâneos."
+  "Choose between 1 and 10 concurrent downloads.": "Escolha entre 1 e 10 downloads simultâneos.",
+  "Clear finished": "Limpar concluídos",
+  "RSS posts per page": "Publicações RSS por página",
+  "{0} posts per page": "{0} publicações por página",
+  "The download limit was not saved. Reload settings and try again.": "O limite de downloads não foi salvo. Recarregue as configurações e tente novamente."
 }

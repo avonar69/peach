@@ -4334,5 +4334,9 @@
   "Maximum concurrent downloads": "最大同時ダウンロード数",
   "Concurrent downloads for {0}": "{0} の同時ダウンロード数",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "各サービスで同時にダウンロードするファイル数です。待機中のファイルは自動で開始します。既定値：3。",
-  "Choose between 1 and 10 concurrent downloads.": "同時ダウンロード数を1～10で選択してください。"
+  "Choose between 1 and 10 concurrent downloads.": "同時ダウンロード数を1～10で選択してください。",
+  "Clear finished": "完了分をクリア",
+  "RSS posts per page": "RSS のページあたりの投稿数",
+  "{0} posts per page": "1ページ {0} 件",
+  "The download limit was not saved. Reload settings and try again.": "同時ダウンロード数を保存できませんでした。設定を再読み込みして再試行してください。"
 }

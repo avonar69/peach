@@ -4334,5 +4334,9 @@
   "Maximum concurrent downloads": "Số lượt tải xuống đồng thời tối đa",
   "Concurrent downloads for {0}": "Tải xuống đồng thời cho {0}",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "Mỗi dịch vụ tải xuống tối đa số tệp này cùng lúc. Các tệp đang chờ sẽ tự động bắt đầu. Mặc định: 3.",
-  "Choose between 1 and 10 concurrent downloads.": "Chọn từ 1 đến 10 lượt tải xuống đồng thời."
+  "Choose between 1 and 10 concurrent downloads.": "Chọn từ 1 đến 10 lượt tải xuống đồng thời.",
+  "Clear finished": "Xóa mục đã kết thúc",
+  "RSS posts per page": "Số bài RSS mỗi trang",
+  "{0} posts per page": "{0} bài mỗi trang",
+  "The download limit was not saved. Reload settings and try again.": "Giới hạn tải xuống chưa được lưu. Hãy tải lại cài đặt rồi thử lại."
 }

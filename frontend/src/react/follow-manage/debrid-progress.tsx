@@ -14,7 +14,9 @@ import { useAction } from '../settings/use-action';
 import type { DebridProvider } from '../settings/debrid-settings';
 
 export interface DebridJob { id: string; entry_id: number; provider: string; kind: string; status: string; error?: string;
-  source?: { url: string; kind: string }; files?: Array<{ url?: string; filename?: string; size?: number }>;
+  source?: { url: string; kind: string }; files?: Array<{ url?: string; filename?: string; size?: number; download_id?: string }>;
+  parent_id?: string; file_index?: number;
+  dismissed?: boolean;
   filename?: string; bytes?: number; total?: number; path?: string;
   import_state?: string; import_error?: string; imported_asset_id?: number }
 interface ProgressData { jobs: DebridJob[]; providers: DebridProvider[]; read_only?: boolean }
@@ -24,6 +26,13 @@ const EVENT = 'peach-debrid-progress';
 const TOAST = 'peach-debrid-downloads';
 const importing = (job: DebridJob) => ['pending', 'queuing', 'queued', 'running'].includes(job.import_state || '');
 const active = (job: DebridJob) => ['queued', 'preparing', 'downloading'].includes(job.status) || importing(job);
+export function fileDownload(jobs: DebridJob[], parent: DebridJob, index: number): DebridJob | undefined {
+  return jobs.find(job => job.id === parent.files?.[index]?.download_id
+    || job.kind === 'download' && job.parent_id === parent.id && job.file_index === index);
+}
+export function fileNeedsDownload(job?: DebridJob): boolean {
+  return !job || job.status === 'failed' || job.status === 'cancelled';
+}
 const statusLabels: Record<string, string> = { queued: 'Queued', preparing: 'Preparing download', downloading: 'Downloading',
   ready: 'Ready', complete: 'Download complete', cancelled: 'Cancelled', failed: 'Download failed' };
 const importLabels: Record<string, string> = { pending: 'Import queued', queuing: 'Import queued', queued: 'Import queued',
@@ -71,13 +80,19 @@ function DownloadPanel({ jobs, providers, readOnly, problem }: {
   const action = useAction();
   const scroller = useOverlayScrollbar<HTMLDivElement>();
   const running = jobs.filter(active).length;
+  const finished = jobs.some(job => job.kind === 'download' && !active(job) && ['complete', 'failed', 'cancelled'].includes(job.status));
   const refresh = () => { void queryClient.invalidateQueries({ queryKey: KEY });
     void queryClient.invalidateQueries({ queryKey: ['rss-downloads'] }); };
   return <TaskPopup label="Debrid downloads" title="Debrid downloads" expanded={expanded} toggle={() => setExpanded(!expanded)} measure
     tone={problem || jobs.some(job => job.status === 'failed' || job.import_state === 'failed') ? 'error' : 'neutral'}
     icon={<RiDownloadCloud2Line aria-hidden className="size-5 shrink-0" />}
     subtitle={<p className="text-caption-1-regular text-text-secondary">{formatTranslation('Active downloads: {0}', String(running))}</p>}
-    footer={<LinkButton href="/subscriptions?tab=rss" variant="secondary" size="small">View RSS downloads</LinkButton>}>
+    footer={<div className="flex flex-wrap items-center gap-2">
+      <LinkButton href="/subscriptions?tab=rss" variant="secondary" size="small">View RSS downloads</LinkButton>
+      <Button size="small" variant="secondary" disabled={readOnly || !finished || !!action.busy} onClick={() => {
+        void action.run('clear-finished', signal => apiSend('/api/rss/clear-finished', {}, 'POST', signal), refresh);
+      }}>Clear finished</Button>
+    </div>}>
     {problem || action.error ? <Note tone="error">{problem || action.error}</Note> : null}
     <div ref={scroller} className="flex max-h-64 min-w-0 flex-col gap-3 overflow-auto overscroll-contain">
       {jobs.map(job => <div key={job.id} className="flex min-w-0 flex-col gap-2">
@@ -90,7 +105,9 @@ function DownloadPanel({ jobs, providers, readOnly, problem }: {
           onClick={() => { void action.run('import', signal => apiSend('/api/rss/import', { id: job.id }, 'POST', signal), refresh) }}>Retry import</Button> : null}
         {job.kind === 'resolve' && job.status === 'ready' ? job.files?.map((file, index) => file.url ? <div key={index}>
           {providers.find(provider => provider.id === job.provider)?.download_folder
-            ? <Button size="small" variant="secondary" disabled={readOnly} onClick={() => {
+            ? !fileNeedsDownload(fileDownload(jobs, job, index))
+              ? <span>{translate(statusLabels[fileDownload(jobs, job, index)!.status] || 'Queued')}</span>
+              : <Button size="small" variant="secondary" disabled={readOnly} onClick={() => {
               void action.run('download', signal => apiSend<{ id: string }>('/api/rss/download', { id: job.id, file_index: index }, 'POST', signal),
                 result => { trackDebridJob(result.id); refresh() });
             }}>Download file</Button>
@@ -115,10 +132,10 @@ export function DebridDownloadDock() {
   const data = state.data;
   useEffect(() => {
     const chosen = data?.jobs.filter(job => ids.includes(job.id)) || [];
-    const related = data?.jobs.filter(job => ids.includes(job.id) || job.kind === 'download' && active(job)
-      && chosen.some(parent => parent.entry_id === job.entry_id && parent.provider === job.provider)) || [];
-    const jobs = related.filter(job => job.kind !== 'resolve' || !related.some(item => item.kind === 'download'
-      && item.entry_id === job.entry_id && item.provider === job.provider));
+    const related = data?.jobs.filter(job => ids.includes(job.id) || job.kind === 'download'
+      && chosen.some(parent => job.parent_id === parent.id || parent.files?.some(file => file.download_id === job.id))) || [];
+    const jobs = related.filter(job => !job.dismissed && (job.kind !== 'resolve' || !job.files?.length
+      || !job.files.every((_, index) => fileDownload(data?.jobs || [], job, index))));
     if (!ids.length || !jobs.length && !state.isError) { toast.dismiss(TOAST); return; }
     const running = jobs.some(active);
     const needsAttention = state.isError || jobs.some(job => ['ready', 'failed'].includes(job.status) || job.import_state === 'failed');

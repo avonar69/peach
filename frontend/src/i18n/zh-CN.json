@@ -359,5 +359,9 @@
   "Concurrent downloads for {0}": "{0} 的同时下载数",
   "Each provider downloads up to this many files at once. Waiting files start automatically. Default: 3.": "每个渠道最多同时下载此数量的文件，等待中的文件会自动开始。默认：3。",
   "Choose between 1 and 10 concurrent downloads.": "请选择 1 到 10 个同时下载。",
-  "已发现 {0} 个文件": "已发现 {0} 个文件"
+  "已发现 {0} 个文件": "已发现 {0} 个文件",
+  "Clear finished": "清除已结束",
+  "RSS posts per page": "RSS 每页条目数",
+  "{0} posts per page": "每页 {0} 条",
+  "The download limit was not saved. Reload settings and try again.": "下载并发数未保存。请重新加载设置后再试。"
 }

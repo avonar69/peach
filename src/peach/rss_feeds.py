@@ -250,12 +250,12 @@ def count_items(database):
         return connection.execute(f"SELECT count(*) FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {VISIBLE}").fetchone()[0]
 
 
-def items(database, *, offset=0):
+def items(database, *, offset=0, limit=20):
     with database.read_connection() as connection:
         result = [dict(row) for row in connection.execute(
             "SELECT i.id,i.source_id,i.title,i.link,i.published_at,i.first_seen,i.download_links_json,i.rss_images_json,s.name AS feed_name "
             f"FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {VISIBLE} "
-            'ORDER BY COALESCE(i.published_at,i.first_seen) DESC,i.id DESC LIMIT 50 OFFSET ?', (offset,))]
+            'ORDER BY COALESCE(i.published_at,i.first_seen) DESC,i.id DESC LIMIT ? OFFSET ?', (limit, offset))]
         total = connection.execute(f"SELECT count(*) FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {VISIBLE}").fetchone()[0]
     for row in result:
         row['links'] = json.loads(row.pop('download_links_json'))
