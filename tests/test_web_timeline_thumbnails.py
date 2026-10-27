@@ -49,6 +49,19 @@ class ThumbnailJobEndpointTests(unittest.TestCase):
         self.contract.thumbnail_job.start.assert_not_called()
         self.assertEqual(web_timeline_thumbnails.read_mode(), "off")
 
+    def test_speed_is_persisted_independently_without_starting_or_stopping_a_job(self):
+        web_timeline_thumbnails.write_mode('precise')
+        self.assertEqual(web_timeline_thumbnails.q_thumbnail_jobs(self.contract, {})['speed_mode'], 'low')
+        for mode in ('high', 'standard', 'low'):
+            state = web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'action': 'set_speed', 'speed_mode': mode})
+            self.assertEqual(state['speed_mode'], mode)
+            self.assertEqual(state['mode'], 'precise')
+            self.assertEqual(web_timeline_thumbnails._speed_control().mode, mode)
+        self.contract.thumbnail_job.start.assert_not_called()
+        self.contract.thumbnail_job.stop.assert_not_called()
+        with self.assertRaises(ValueError):
+            web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'action': 'set_speed', 'speed_mode': 'invalid'})
+
     def test_terminal_job_or_task_record_stops_frame_extraction(self):
         web_timeline_thumbnails.write_mode('precise')
         self.contract.thumbnail_job.snapshot.return_value = {'job_id': 'one', 'status': 'running', 'run_id': 7}

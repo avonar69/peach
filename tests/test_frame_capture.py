@@ -56,6 +56,20 @@ class CaptureFrameTests(unittest.TestCase):
         self.assertEqual([command[i + 1] for i, value in enumerate(command) if value == '-threads'], ['1', '1'])
         self.assertEqual(command[command.index('-filter_threads') + 1], '1')
 
+    def test_bound_speed_controls_the_thread_budget_at_the_next_frame(self):
+        from peach.processing_control import ProcessingControl
+        control = ProcessingControl(self.root / 'timeline-control.json')
+        with control.bind('timeline', publish=lambda **_: None, active=lambda: True, db_path=None):
+            for mode, threads in [('low', '1'), ('standard', '2'), ('high', None)]:
+                control.request('set_speed', mode=mode)
+                with self._run():
+                    frame_capture.capture_frame('ffmpeg', 'movie.mp4', 1, self.root / 'speed.jpg')
+                command = self.commands[-1]
+                if threads is None:
+                    self.assertNotIn('-threads', command)
+                else:
+                    self.assertEqual([command[i + 1] for i, value in enumerate(command) if value == '-threads'], [threads, threads])
+
     def test_cancellation_kills_and_reaps_only_the_owned_child(self):
         child = MagicMock()
         child.poll.return_value = None

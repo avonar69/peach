@@ -14,6 +14,7 @@ from .fsutil import atomic_path
 from .jobs import DiskGuard
 from .media_processing_policy import metadata_only, save as save_processing_policy
 from .platform import system_volume
+from .processing_control import ProcessingControl, MODES as SPEED_MODES
 
 #: 采集期间系统盘至少留这么多 GiB。数字和抽帧脚本的默认值同一个：真正会把系统盘写满的
 #: 是网盘缓存那一类第三方消耗方，与产物落在哪块盘无关。
@@ -70,6 +71,7 @@ def q_timeline(contract, args):
 def q_thumbnail_jobs(contract, _args):
     state = contract.thumbnail_job.snapshot() or {}
     return {'mode': read_mode(), 'modes': list(timeline_sheets.MODES),
+            'speed_mode': _speed_control().mode, 'speed_modes': list(SPEED_MODES),
             'intervals': dict(timeline_sheets.INTERVALS),
             'status': state.get('status') or 'idle',
             'stage': state.get('stage') or '',
@@ -80,6 +82,14 @@ def q_thumbnail_jobs(contract, _args):
             'made': state.get('made') or 0, 'skipped': state.get('skipped') or 0,
             'failed': state.get('failed') or 0, 'stopped': state.get('stopped') or '',
             'current_frame': state.get('current_frame') or 0, 'current_frames': state.get('current_frames') or 0}
+
+
+def _speed_control():
+    path = MODE_PATH.with_name('timeline-thumbnail-control.json')
+    control = ProcessingControl(path)
+    if not path.exists():
+        control.mode = 'low'
+    return control
 
 
 def _active(contract, job_id):
@@ -103,6 +113,9 @@ def _with_progress(fields: dict) -> dict:
 def w_thumbnail_jobs(contract, body):
     """选档位。选 `off` 只是停手，已经生成的图留在盘上——几 GB 的产物删不删是另一件
     事，走数据管理页那条清理链，不在切换开关时顺手做掉。"""
+    if (body or {}).get('action') == 'set_speed':
+        _speed_control().request('set_speed', mode=body.get('speed_mode'))
+        return q_thumbnail_jobs(contract, {})
     mode = str((body or {}).get('mode') or timeline_sheets.OFF)
     if mode not in timeline_sheets.MODES:
         raise ValueError('采集密度无效')
@@ -120,12 +133,15 @@ def w_thumbnail_jobs(contract, body):
 
     def work(job_id):
         guard = DiskGuard(system_volume(), MIN_FREE_GB)
-        result = timeline_sheets.generate_library(
-            contract.db_path, root, interval, ffmpeg=str(choice.path),
-            active=lambda: _active(contract, job_id),
-            report=lambda **fields: contract.thumbnail_job.update(job_id, **_with_progress(fields)),
-            guard=guard, resume_state=contract.thumbnail_job.snapshot(),
-            checkpoint=lambda **fields: contract.thumbnail_job.checkpoint(job_id, **fields))
+        with _speed_control().bind(job_id, db_path=contract.db_path,
+                                  active=lambda: _active(contract, job_id),
+                                  publish=lambda **fields: contract.thumbnail_job.update(job_id, **fields)):
+            result = timeline_sheets.generate_library(
+                contract.db_path, root, interval, ffmpeg=str(choice.path),
+                active=lambda: _active(contract, job_id),
+                report=lambda **fields: contract.thumbnail_job.update(job_id, **_with_progress(fields)),
+                guard=guard, resume_state=contract.thumbnail_job.snapshot(),
+                checkpoint=lambda **fields: contract.thumbnail_job.checkpoint(job_id, **fields))
         # 磁盘触线停下来的那一轮不能记成完成：队列后面还剩几千部，而页面上「完成」
         # 和「跑完了」是同一个意思。按停是用户自己做的，不算故障。
         stopped = str(result.get('stopped') or '')

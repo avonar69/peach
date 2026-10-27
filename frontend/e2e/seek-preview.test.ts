@@ -13,14 +13,16 @@ describe('时间轴单格预览', () => {
       const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
       const page = opened.page;
       let stopped = false;
+      let speed = 'low';
       try {
         await page.context().addInitScript(() => localStorage.setItem('peach.language', 'en'));
         await page.route(url => url.pathname === '/api/thumbnail-jobs', async route => {
           if (route.request().method() === 'POST') {
-            assert.deepEqual(route.request().postDataJSON(), { mode: 'off' });
-            stopped = true;
+            const body = route.request().postDataJSON();
+            if (body.action === 'set_speed') speed = body.speed_mode;
+            else { assert.deepEqual(body, { mode: 'off' }); stopped = true; }
           }
-          await route.fulfill({ json: { status: stopped ? 'idle' : 'running', total: 10, done: 2, current_frame: 55, current_frames: 100 } });
+          await route.fulfill({ json: { status: stopped ? 'idle' : 'running', speed_mode: speed, total: 10, done: 2, current_frame: 55, current_frames: 100 } });
         });
         await page.goto(new URL('/data-cleanup', page.url()).href);
         const popup = page.getByRole('status', { name: 'Generating seek thumbnails', exact: true });
@@ -31,6 +33,12 @@ describe('时间轴单格预览', () => {
         const card = page.getByRole('region', { name: 'Generating seek thumbnails', exact: true });
         await card.waitFor();
         assert.match(await card.innerText(), /55 of 100 frames/);
+        await popup.locator('.processing-effort-trigger button').click();
+        await page.getByRole('slider').press('ArrowRight');
+        await page.waitForFunction(() => document.querySelector('[data-processing-dock] [data-speed="standard"]') !== null);
+        assert.equal(speed, 'standard');
+        await page.keyboard.press('Escape');
+        assert.equal(await card.locator('[data-speed="standard"]').count(), 1);
         await popup.getByRole('button', { name: 'Stop thumbnail generation', exact: true }).click();
         await popup.waitFor({ state: 'hidden' });
         await card.waitFor({ state: 'hidden' });

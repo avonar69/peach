@@ -1,5 +1,7 @@
 # 页面路由
 
+独立缩略图任务的 `GET /api/thumbnail-jobs` 返回 `speed_mode`（默认 `low`）与 `speed_modes`。`POST` 接受 `action=set_speed`、`speed_mode=low|standard|high`，只保存速度，不启动、停止或重新采集影片；运行中的工作者在后续抽帧停点刷新偏好。速度文件与扫描控制分离，密度仍由 `mode` 控制。数据管理卡片只在 `status=running` 时显示。
+
 `GET /api/thumbnail-jobs` 返回独立时间轴采集任务的状态、影片计数以及 `current_frame`、`current_frames` 当前影片抽帧进度。运行时通过共享任务浮层及数据管理卡片显示；同一查询快照在运行期间每两秒更新，空闲期间每五秒发现自动启动的工作者。`POST /api/thumbnail-jobs` 提交 `mode=off` 停止该工作者与其 FFmpeg 子进程，保留已完成图片和原媒体。写操作沿用鉴权、同源与只读检查。
 
 「浏览与播放」的 `betaFastVideo`、`betaFastUI` 是当前浏览器的默认关闭偏好。普通本地 `GET/HEAD /stream` 可携带 `beta_fast=true` 请求五分钟私有缓存，仍要求鉴权并保持 Range；其他响应策略不变。客户端只为非计费本地片源附加此参数。实验行为及验证范围见[实验性能选项](PERFORMANCE.md)。

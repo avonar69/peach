@@ -23,6 +23,7 @@ from .frame_capture import capture_with_retry, tile_frames
 from .fsutil import atomic_path
 from .jobs import DiskSpaceDenied
 from .media import resolve_case_insensitive
+from .processing_control import CURRENT
 
 #: 两档密度，值就是秒数。名字进接口也进设置页，改这里就是改契约。
 INTERVALS = {"precise": 10, "coarse": 30}
@@ -117,6 +118,7 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
     留下一份「说有 700 帧、实际只有 300 帧」的索引。
     """
     total = frame_count(duration, interval)
+    threads = None if CURRENT.get() is not None else 1
     if total < 2:
         return {}
     sheets = (total + FRAMES_PER_SHEET - 1) // FRAMES_PER_SHEET
@@ -145,7 +147,7 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
                 slots = offset + 1
                 capture_with_retry(ffmpeg, source, timestamp,
                                    temporary / f"s{offset:03d}.jpg",
-                                   width=FRAME_WIDTH, timeout=20, threads=1, active=active)
+                                   width=FRAME_WIDTH, timeout=20, threads=threads, active=active)
             captured = _fill_gaps(temporary, slots)
             if captured < 2:
                 # 末张可能一格都排不进（`EDGE_MARGIN` 把最后一个采样点推过了片尾）。
@@ -157,7 +159,7 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
             try:
                 with atomic_path(sheet_path(root, asset_id, index)) as destination:
                     if not tile_frames(ffmpeg, str(temporary / "s%03d.jpg"),
-                                       COLUMNS, rows, destination, threads=1, active=active):
+                                       COLUMNS, rows, destination, threads=threads, active=active):
                         # 拼不出来就让 `atomic_path` 按异常路径收尾：正常退出它会去
                         # 替换目标，而这时那个临时文件要么不存在要么是半张。
                         raise _TileFailed

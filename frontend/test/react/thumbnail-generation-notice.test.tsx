@@ -27,11 +27,12 @@ it('独立缩略图工作者显示逐帧进度并允许停止', async () => {
   expect(sonner.dismiss).toHaveBeenCalledWith('peach-timeline-generation');
 });
 
-it('空闲工作者关闭通知', async () => {
-  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ status: 'idle' }) })));
-  await mount(<QueryClientProvider client={queryClient}><ThumbnailGenerationNotice /></QueryClientProvider>);
+it.each(['idle', 'complete', 'failed', 'cancelled'])('非运行状态 %s 关闭通知和数据管理卡片', async status => {
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ status }) })));
+  const host = await mount(<QueryClientProvider client={queryClient}><ThumbnailGenerationNotice /><ThumbnailGenerationCard /></QueryClientProvider>);
   expect(sonner.custom).not.toHaveBeenCalled();
   expect(sonner.dismiss).toHaveBeenCalledWith('peach-timeline-generation');
+  expect(host.textContent).toBe('');
 });
 
 it('数据管理使用同一工作者快照并停止采集', async () => {
