@@ -38,6 +38,17 @@ const host = (seekSeconds = 10): PlayerHost => ({
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('片源判据', () => {
+  it('客户端 AV1 能力随计划请求发送，兼容回退不复用该能力', async () => {
+    const capability = vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('probably');
+    try {
+      const playback = { method: 'Direct play', video_codec: 'av1', reason: 'Original media supported by this browser' };
+      const calls = stubFetch(() => ({ protocol: 'range', src: '/stream?id=9&native_av1=true', playback }));
+      expect((await playableStreamSource({ id: 9 }, 'av1')).playback).toEqual(playback);
+      expect(calls[0]!.url).toContain('native_av1=true');
+      await playableStreamSource({ id: 9 }, 'av1', true);
+      expect(calls[1]!.url).not.toContain('native_av1');
+    } finally { capability.mockRestore() }
+  });
   it('保存过的在线作品走关注条目的代理，不问 stream-plan', async () => {
     const calls = stubFetch(() => null);
     const source = await playableStreamSource({ id: 7, location: 'online', follow_item_id: 42 }, 's1');

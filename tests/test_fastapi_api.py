@@ -200,6 +200,38 @@ class RobotsTests(unittest.IsolatedAsyncioTestCase):
 
 @unittest.skipUnless(HAS_DEPS, "FastAPI/httpx 尚未安装")
 class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
+    async def test_transcode_cache_settings_persist_and_require_restart_for_folder_changes(self):
+        response = await self.client.get('/api/configuration/transcode-cache?t=secret')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['max_gb'], 10)
+        folder = str(self.root / 'custom-cache')
+        response = await self.client.post('/api/configuration/transcode-cache?t=secret', json={'folder': folder, 'max_gb': 3})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['restart_required'])
+        self.assertEqual(response.json()['folder'], folder)
+        self.assertEqual(self.app.state.transcode_service.cache_budget.limit, 3 << 30)
+
+    async def test_hover_preview_does_not_create_whole_movie_transcodes(self):
+        with patch.object(self.app.state.transcode_service, 'requires_conversion', return_value=True), \
+             patch.object(self.app.state.transcode_service, 'browser_path') as convert:
+            response = await self.client.get('/stream?id=1&preview=true&t=secret')
+        self.assertEqual(response.status_code, 415)
+        convert.assert_not_called()
+
+    async def test_av1_client_capability_reaches_plan_and_direct_stream(self):
+        from peach.transcodes import _MediaProfile
+        service = self.app.state.transcode_service
+        with patch.object(service, '_profile_for', return_value=_MediaProfile('av1', 'yuv420p10le', 'aac', 10)):
+            response = await self.client.get('/api/stream-plan?id=1&session=av1&native_av1=true&t=secret')
+            self.assertEqual(response.status_code, 200)
+            plan = response.json()
+            self.assertEqual(plan['protocol'], 'range')
+            self.assertEqual(plan['playback']['method'], 'Direct play')
+            self.assertEqual(plan['playback']['video_codec'], 'av1')
+            self.assertIn('native_av1=true', plan['src'])
+            response = await self.client.get(plan['src'] + '&t=secret')
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn('x-peach-transcoded', response.headers)
     async def asyncSetUp(self):
         self.enterContext(patch.object(routes_auth, "_ATTEMPTS", OrderedDict()))
         self.tmp = tempfile.TemporaryDirectory()
@@ -308,6 +340,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             taste_history_output_root=self.taste_output_root,
             taste_history_manifest=self.taste_manifest,
             entry_links_root=self.root / "state",
+            follow_state_root=self.root / "state",
         )
         self.app = create_app(self.settings)
         # 字节与时间表夹具不含可解码画面；编码判定由媒体域的真实样本覆盖。

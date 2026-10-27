@@ -132,7 +132,7 @@ def _repaired_header(state, asset_id: int, source: Path):
     return None if store is None else store.lookup(asset_id, source)
 
 
-def _needs_conversion(state, asset_id: int, source: Path, session: str) -> bool:
+def _needs_conversion(state, asset_id: int, source: Path, session: str, *, native_av1=False) -> bool:
     """起播时要不要转码。只有 `/api/stream-plan` 问这一句。
 
     缺 ctts 的片子只是时间戳错乱，重建一份头就能直接按 Range 播，不必重编码。头还没
@@ -142,7 +142,7 @@ def _needs_conversion(state, asset_id: int, source: Path, session: str) -> bool:
     会让固定 6 秒的计划换成按关键帧切的，剩下的分片索引全对不上。
     """
     if not state.transcode_service.requires_conversion(
-            source, session=session, registry=state.stream_sessions):
+            source, session=session, registry=state.stream_sessions, **({'native_av1': True} if native_av1 else {})):
         return False
     store = getattr(state, "header_repairs", None)
     if store is None or not state.transcode_service.decode_order_timestamps(
@@ -237,7 +237,7 @@ def external_playlist(request: Request, id: int, ticket: str, origin: str = ''):
 
 
 @router.api_route("/stream", methods=["GET", "HEAD"])
-def stream(request: Request, id: int, session: str = "", beta_fast: bool = False, args: dict[str, str] = Depends(require_auth)):
+def stream(request: Request, id: int, session: str = "", beta_fast: bool = False, native_av1: bool = False, preview: bool = False, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     asset = state.media_engine.asset(id)
     path = state.media_engine.filesystem.file_for(asset, thumbnail=False)
@@ -246,6 +246,8 @@ def stream(request: Request, id: int, session: str = "", beta_fast: bool = False
         return strm_stream.proxy(request, id, path, session)
     if path.suffix.lower() in strm.DISC_SUFFIXES:
         return JSONResponse({'error': 'ISO 原盘请使用作品详情中的外部播放器打开'}, status_code=415)
+    if preview and state.transcode_service.requires_conversion(path, native_av1=native_av1):
+        return Response(status_code=415, headers={'Cache-Control': 'no-store'})
     header = _repaired_header(state, id, path)
     if header is not None:
         return SplicedMp4Response(
@@ -254,6 +256,7 @@ def stream(request: Request, id: int, session: str = "", beta_fast: bool = False
     try:
         path, transcoded = state.transcode_service.browser_path(
             id, path, session=session, registry=state.stream_sessions,
+            **({'native_av1': True} if native_av1 else {}),
         )
     except TranscodeCancelled:
         return Response(status_code=410, headers={"Cache-Control": "no-store"})
@@ -278,7 +281,7 @@ def stream(request: Request, id: int, session: str = "", beta_fast: bool = False
 
 
 @router.get("/api/stream-plan")
-def stream_plan(request: Request, id: int, session: str = "", mode: str = "", args: dict[str, str] = Depends(require_auth)):
+def stream_plan(request: Request, id: int, session: str = "", mode: str = "", native_av1: bool = False, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     if session and len(session) > 128:
         return JSONResponse({"error": "invalid session"}, status_code=400)
@@ -300,7 +303,11 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", ar
                 'src': f'/stream?id={id}&session={quote(session, safe="")}', 'reason': 'strm-pointer'}
     if source_path.suffix.lower() in strm.DISC_SUFFIXES:
         return JSONResponse({'error': 'ISO 原盘请使用作品详情中的外部播放器打开'}, status_code=415)
-    conversion = _needs_conversion(state, id, source_path, session)
+    conversion = _needs_conversion(state, id, source_path, session, native_av1=native_av1)
+    details = state.transcode_service.playback_info(source_path, session=session,
+                registry=state.stream_sessions, native_av1=native_av1)
+    if not isinstance(details, dict):
+        details = {}
     resolved = (_hls_plan(state, id, session, conversion)
                 if conversion or plan.protocol == "hls" else None)
     if resolved and session:
@@ -313,10 +320,14 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", ar
             "segments": len(resolved[2]),
             "src": f"/stream/hls/{id}/index.m3u8?session={quote(session, safe='')}",
             "reason": plan.reason,
+            'playback': {**details, 'method': 'Transcoding' if conversion else 'Remuxing',
+                         'output_codec': 'H.264 / AAC' if conversion else details.get('video_codec')},
         }
     source = f"/stream?id={id}"
     if session:
         source += f"&session={quote(session, safe='')}"
+    if native_av1:
+        source += '&native_av1=true'
     return {
         "id": id,
         "protocol": "range",
@@ -324,6 +335,8 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", ar
         "duration": asset.duration,
         "src": source,
         "reason": plan.reason,
+        'playback': {**details, 'method': 'Transcoding' if conversion else 'Direct play',
+                     'output_codec': 'H.264 / AAC' if conversion else details.get('video_codec')},
     }
 
 

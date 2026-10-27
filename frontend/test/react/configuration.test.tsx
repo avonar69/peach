@@ -32,6 +32,7 @@ function serve(config: ConfigurationData, credentials: CredentialData = { root: 
     if (url === CONFIGURATION_URL) return config;
     if (url === '/api/configuration/indexers') return { indexers: [], max_indexers: 4 };
     if (url === '/api/configuration/debrid') return { providers: [] };
+    if (url === '/api/configuration/transcode-cache') return { folder: '', max_gb: 10, used_bytes: 0, active_folder: '/cache', restart_required: false };
     if (url === '/api/configuration/jav-browser') return { enabled: false, provider: '115', available: true,
       providers: [{ key: '115', label: '115', configured: true, target: '/115/Movies' }] };
     if (url === '/api/follow/credentials') return credentials;

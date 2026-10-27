@@ -31,6 +31,23 @@ class ModeFileTests(unittest.TestCase):
 
 
 class ThumbnailJobEndpointTests(unittest.TestCase):
+    def test_custom_interval_roundtrip_and_invalid_input(self):
+        resolver = MagicMock()
+        resolver.return_value.ffmpeg.return_value.path = 'ffmpeg'
+        with patch.object(web_timeline_thumbnails, 'FFmpegResolver', resolver):
+            result = web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'mode': 'custom', 'interval_seconds': 17})
+        self.assertEqual(result['mode'], 'custom')
+        self.assertEqual(result['interval_seconds'], 17)
+        self.assertEqual(self.contract.thumbnail_job.start.call_args.kwargs['recovery']['interval_seconds'], 17)
+        for value in (0, 3601, True, 1.5):
+            with self.assertRaises(ValueError):
+                web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'mode': 'custom', 'interval_seconds': value})
+
+    def test_acceleration_saves_without_starting_a_job(self):
+        for value in ('cpu', 'cuda', 'vulkan'):
+            result = web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'action': 'set_acceleration', 'acceleration': value})
+            self.assertEqual(result['acceleration'], value)
+        self.contract.thumbnail_job.start.assert_not_called()
     def setUp(self):
         self.root = Path(tempfile.mkdtemp(prefix="timeline-endpoint-"))
         self.addCleanup(lambda: shutil.rmtree(self.root, ignore_errors=True))

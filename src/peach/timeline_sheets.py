@@ -19,7 +19,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from .frame_capture import capture_with_retry, tile_frames
+from .frame_capture import capture_with_retry, tile_frames, thumbnail_acceleration
 from .fsutil import atomic_path
 from .jobs import DiskSpaceDenied
 from .media import resolve_case_insensitive
@@ -28,7 +28,7 @@ from .processing_control import CURRENT
 #: 两档密度，值就是秒数。名字进接口也进设置页，改这里就是改契约。
 INTERVALS = {"precise": 10, "coarse": 30}
 OFF = "off"
-MODES = (OFF, *INTERVALS)
+MODES = (OFF, *INTERVALS, 'custom')
 
 #: 一张图的格子数与帧宽。换算在前端也有一份，这三个数是两边的共同约定。
 COLUMNS = 10
@@ -110,7 +110,7 @@ def is_current(root: Path, asset_id: int, interval: int) -> bool:
 
 
 def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
-          interval: int, *, active=lambda: True, progress=lambda **fields: None) -> dict:
+          interval: int, *, active=lambda: True, progress=lambda **fields: None, acceleration=lambda: 'cpu') -> dict:
     """给一部片子生成整套时间轴图，返回写进 `meta.json` 的那份。
 
     `active` 每帧问一次：一部三小时的片子有上千帧，中途按停就该停在这里，而不是
@@ -119,6 +119,8 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
     """
     total = frame_count(duration, interval)
     threads = None if CURRENT.get() is not None else 1
+    hardware_failures = set()
+    accelerators = {}
     if total < 2:
         return {}
     sheets = (total + FRAMES_PER_SHEET - 1) // FRAMES_PER_SHEET
@@ -145,9 +147,13 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
                 if timestamp >= duration:
                     break
                 slots = offset + 1
+                requested = acceleration()
+                if requested not in accelerators:
+                    accelerators[requested] = thumbnail_acceleration(ffmpeg, source, requested, active)
                 capture_with_retry(ffmpeg, source, timestamp,
                                    temporary / f"s{offset:03d}.jpg",
-                                   width=FRAME_WIDTH, timeout=20, threads=threads, active=active)
+                                   width=FRAME_WIDTH, timeout=20, threads=threads, active=active,
+                                   acceleration=accelerators[requested], hardware_failures=hardware_failures)
             captured = _fill_gaps(temporary, slots)
             if captured < 2:
                 # 末张可能一格都排不进（`EDGE_MARGIN` 把最后一个采样点推过了片尾）。
@@ -214,7 +220,8 @@ def pending(db_path: Path | str, interval: int, *, limit: int = 0) -> list[tuple
 
 def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: str,
                      report=lambda **fields: None, active=lambda: True,
-                     guard=None, limit: int = 0, resume_state=None, checkpoint=lambda **fields: None) -> dict:
+                     guard=None, limit: int = 0, resume_state=None, checkpoint=lambda **fields: None,
+                     acceleration=lambda: 'cpu') -> dict:
     """按队列逐部生成，返回这一趟的计数。
 
     失败不中断：一部片子解不出来（源坏了、时长记错、编码器不认）是它自己的事，
@@ -263,7 +270,7 @@ def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: 
             report(**state)
             continue
         if build(ffmpeg, str(source), float(duration or 0), root, int(asset_id),
-                 interval, active=active,
+                 interval, active=active, acceleration=acceleration,
                  progress=lambda asset_id=asset_id, **fields: report(**state, current_asset_id=asset_id, **fields)):
             state["made"] += 1
             save(asset_id)

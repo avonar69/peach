@@ -9,6 +9,29 @@ describe('时间轴单格预览', () => {
   before(async () => { browser = await launch() });
   after(async () => { await browser.close() });
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name}: 统计面板展示实际编码和转换依据`, async () => {
+      const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
+      const page = opened.page;
+      try {
+        await page.context().addInitScript(() => localStorage.setItem('peach.language', 'en'));
+        await page.route(url => url.pathname === '/api/stream-plan', route => route.fulfill({ json: {
+          protocol: 'range', src: '/stream?id=11', mime_type: 'video/mp4', playback: {
+            method: 'Transcoding', video_codec: 'av1', audio_codec: 'aac', pixel_format: 'yuv420p10le',
+            output_codec: 'H.264 / AAC', reason: 'Browser did not report AV1 MP4 decoding support',
+          },
+        } }));
+        await page.reload();
+        await page.locator('#stage #playerStatsBtn').click();
+        const panel = page.locator('#stage #playerStats');
+        assert.match(await panel.innerText(), /Transcoding/);
+        assert.match(await panel.innerText(), /av1.*aac/);
+        assert.match(await panel.innerText(), /Browser did not report AV1 MP4 decoding support/);
+        const bounds = await panel.boundingBox();
+        assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= viewport.width + 1);
+      } finally { await opened.close() }
+    });
+  }
+  for (const viewport of VIEWPORTS) {
     it(`${viewport.name}: 独立抽帧通知显示进度并停止工作者`, async () => {
       const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
       const page = opened.page;

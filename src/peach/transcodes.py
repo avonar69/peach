@@ -7,7 +7,7 @@ import subprocess
 import threading
 import time
 import uuid
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -48,6 +48,10 @@ class TranscodeCancelled(TranscodeUnavailable):
     pass
 
 
+class TranscodeCacheFull(TranscodeUnavailable):
+    pass
+
+
 class TranscodeService:
     """Create immutable browser-playable MP4 cache entries without touching sources."""
 
@@ -61,6 +65,7 @@ class TranscodeService:
     ):
         self.resolver = resolver
         self.cache_root = cache_root
+        self.cache_budget = None
         self.prefer_hardware = prefer_hardware is not False
         self.hardware = HardwareTranscoder(enabled=self.prefer_hardware)
         self._locks: dict[int, list] = {}
@@ -72,14 +77,14 @@ class TranscodeService:
     def needs_transcode(source: Path) -> bool:
         return source.suffix.lower() not in BROWSER_NATIVE_SUFFIXES
 
-    def requires_conversion(self, source: Path, *, session: str = "", registry=None) -> bool:
+    def requires_conversion(self, source: Path, *, session: str = "", registry=None, native_av1=False) -> bool:
         """按容器和内部编码选择浏览器兼容路径，不生成整片缓存。"""
         if self.needs_transcode(source):
             return True
         if self.resolver.ffprobe() is None:
             return False
         profile = self._profile_for(source, session, registry)
-        return profile is None or not self._browser_compatible(source, profile)
+        return profile is None or not self._browser_compatible(source, profile, native_av1=native_av1)
 
     def decode_order_timestamps(self, source: Path, *, session: str = "", registry=None) -> bool:
         """是不是只有时间戳错乱的那一类：有 B 帧却没有 ctts，码流本身浏览器解得出来。
@@ -120,7 +125,7 @@ class TranscodeService:
         return profile
 
     def browser_path(
-        self, asset_id: int, source: Path, *, session: str = "", registry=None,
+        self, asset_id: int, source: Path, *, session: str = "", registry=None, native_av1=False,
     ) -> tuple[Path, bool]:
         profile = None
         if not self.needs_transcode(source):
@@ -130,7 +135,7 @@ class TranscodeService:
                 profile = self._profile_for(source, session, registry)
             except OSError as exc:
                 raise TranscodeUnavailable("source unavailable") from exc
-            if profile is not None and self._decodes_in_browser(source, profile):
+            if profile is not None and self._decodes_in_browser(source, profile, native_av1=native_av1):
                 return source, False
 
         choice = self.resolver.ffmpeg()
@@ -144,6 +149,7 @@ class TranscodeService:
 
         target = self.cache_root / f"{asset_id}-{stat.st_size}-{stat.st_mtime_ns}.mp4"
         if target.is_file() and target.stat().st_size:
+            os.utime(target, None)
             return target, True
 
         with self._lock_for(asset_id):
@@ -155,7 +161,7 @@ class TranscodeService:
             last_detail = ""
             completed = False
             try:
-                with self._slots:
+                with self._slots, (self.cache_budget.writing(temporary) if self.cache_budget else nullcontext()):
                     self._raise_if_cancelled(session, registry)
                     if profile is None:
                         profile = self._probe(source, session, registry, deadline)
@@ -171,16 +177,14 @@ class TranscodeService:
                                 deadline=deadline,
                                 label=attempt.name,
                             )
-                        except TranscodeCancelled:
+                        except (TranscodeCancelled, TranscodeCacheFull):
                             raise
                         except (OSError, TranscodeUnavailable) as exc:
                             last_detail = f"{attempt.name}: {exc}"
                             if time.monotonic() >= deadline:
                                 break
                             continue
-                        if (returncode == 0 and temporary.is_file()
-                                and temporary.stat().st_size):
-                            temporary.replace(target)
+                        if self._publish_cache(temporary, target, returncode):
                             logger.info("整片转码完成：%s", attempt.name)
                             completed = True
                             break
@@ -196,11 +200,20 @@ class TranscodeService:
                     stale.unlink(missing_ok=True)
             return target, True
 
+    def _publish_cache(self, temporary, target, returncode):
+        if returncode != 0 or not temporary.is_file() or not temporary.stat().st_size:
+            return False
+        if self.cache_budget and not self.cache_budget.enforce(keep=(temporary,), force=True):
+            raise TranscodeCacheFull('Transcode cache storage limit reached')
+        temporary.replace(target)
+        return True
+
     @staticmethod
-    def _browser_compatible(source: Path, profile: _MediaProfile) -> bool:
+    def _browser_compatible(source: Path, profile: _MediaProfile, *, native_av1=False) -> bool:
         if source.suffix.lower() in {".mp4", ".m4v"}:
-            return (profile.video_codec == "h264"
-                    and profile.pixel_format in DIRECT_MP4_PIXEL_FORMATS
+            compatible_video = (profile.video_codec == 'h264' and profile.pixel_format in DIRECT_MP4_PIXEL_FORMATS
+                                or native_av1 and profile.video_codec == 'av1' and profile.pixel_format in {'yuv420p', 'yuv420p10le'})
+            return (compatible_video
                     and profile.audio_codec in {"", "aac", "mp3"}
                     and not profile.decode_order_timestamps)
         if source.suffix.lower() == ".webm":
@@ -208,6 +221,22 @@ class TranscodeService:
                     and profile.audio_codec in {"", "opus", "vorbis"})
         return (profile.video_codec == "theora"
                 and profile.audio_codec in {"", "vorbis", "opus"})
+
+    def playback_info(self, source, *, session='', registry=None, native_av1=False):
+        profile = self._profile_for(source, session, registry) if self.resolver.ffprobe() else None
+        if profile is None:
+            return {'video_codec': 'unknown', 'audio_codec': 'unknown', 'reason': 'Media codec information unavailable'}
+        reason = 'Original media supported by this browser'
+        if source.suffix.lower() not in BROWSER_NATIVE_SUFFIXES:
+            reason = 'Source container requires conversion'
+        elif profile.video_codec == 'av1' and not native_av1 and source.suffix.lower() in {'.mp4', '.m4v'}:
+            reason = 'Browser did not report AV1 MP4 decoding support'
+        elif profile.decode_order_timestamps:
+            reason = 'Source presentation timestamps require repair'
+        elif not self._browser_compatible(source, profile, native_av1=native_av1):
+            reason = 'Source video, audio or pixel format requires conversion'
+        return {'video_codec': profile.video_codec, 'audio_codec': profile.audio_codec or 'none',
+                'pixel_format': profile.pixel_format, 'reason': reason}
 
     def _probe(
         self, source: Path, session: str, registry, deadline: float,
@@ -258,7 +287,7 @@ class TranscodeService:
         )
 
     @staticmethod
-    def _decodes_in_browser(source: Path, profile: _MediaProfile) -> bool:
+    def _decodes_in_browser(source: Path, profile: _MediaProfile, *, native_av1=False) -> bool:
         """浏览器能不能解出画面。时间戳错乱不算解不出来。
 
         整片转码要占满一个编码位、写一份和原片同量级的缓存，只有编码本身不被支持才值得。
@@ -266,7 +295,7 @@ class TranscodeService:
         就够。卡片悬停预览直接打 `/stream`，鼠标划过一张卡片不能启动一次整片转码。
         """
         return TranscodeService._browser_compatible(
-            source, replace(profile, decode_order_timestamps=False),
+            source, replace(profile, decode_order_timestamps=False), native_av1=native_av1,
         )
 
     @staticmethod
@@ -366,6 +395,10 @@ class TranscodeService:
                     stdout, stderr = process.communicate(timeout=0.5)
                     break
                 except subprocess.TimeoutExpired:
+                    if self.cache_budget and label != 'ffprobe' and not self.cache_budget.enforce():
+                        process.kill()
+                        process.communicate()
+                        raise TranscodeCacheFull('Transcode cache storage limit reached')
                     if registry is not None and session and registry.is_cancelled(session):
                         process.kill()
                         process.communicate()

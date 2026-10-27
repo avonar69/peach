@@ -1,5 +1,11 @@
 # 页面路由
 
+`/api/thumbnail-jobs` 支持 `mode=custom` 与整数 `interval_seconds`（1–3600），读接口返回有效间隔；恢复请求保存自定义间隔。`action=set_acceleration` 接受 `acceleration=cpu|cuda|vulkan`，保存偏好而不启动任务。
+
+`GET/POST /api/configuration/transcode-cache` 读取及保存 `folder`、`max_gb`（1–1024，默认 10），返回 `used_bytes`、`active_folder` 与 `restart_required`。写入要求鉴权、配置页访问权限、同源与非只读部署；目录更改重启生效，限额立即应用于共用缓存预算。
+
+`/api/stream-plan` 与 `/stream` 接受布尔 `native_av1`，代表浏览器报告可解 AV1 MP4；服务端仍检查源文件编码、音频及像素格式。计划的 `playback` 返回方式、源／输出编码和判据。`/stream?preview=true` 对必须转换的片源返回 415，不为悬停生成整片文件。
+
 独立缩略图任务的 `GET /api/thumbnail-jobs` 返回 `speed_mode`（默认 `low`）与 `speed_modes`。`POST` 接受 `action=set_speed`、`speed_mode=low|standard|high`，只保存速度，不启动、停止或重新采集影片；运行中的工作者在后续抽帧停点刷新偏好。速度文件与扫描控制分离，密度仍由 `mode` 控制。数据管理卡片只在 `status=running` 时显示。
 
 `GET /api/thumbnail-jobs` 返回独立时间轴采集任务的状态、影片计数以及 `current_frame`、`current_frames` 当前影片抽帧进度。运行时通过共享任务浮层及数据管理卡片显示；同一查询快照在运行期间每两秒更新，空闲期间每五秒发现自动启动的工作者。`POST /api/thumbnail-jobs` 提交 `mode=off` 停止该工作者与其 FFmpeg 子进程，保留已完成图片和原媒体。写操作沿用鉴权、同源与只读检查。

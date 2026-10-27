@@ -2,6 +2,10 @@
 
 ## 时间轴缩略图任务
 
+自定义采样沿用 `timeline_sheets` 的间隔参数与断点请求，GPU 选项沿用已固定 FFmpeg 的 `-hwaccel cuda|vulkan`、已有安全解码名单及 `frame_capture` 取消／色彩重试，不引入新 GPU SDK。硬件失败每部影片只尝试一次该后端，CPU 继续生成相同几何的 JPEG。
+
+AV1 协商复用浏览器 `canPlayType` 与 `TranscodeService` 的文件指纹探测缓存，客户端能力不绕过服务端兼容判据；播放统计复用原统计浮层。转换存储预算沿用 HLS 的按访问时间淘汰思路，统一 MP4／TS 配额，并保护在途写入；配置复用原子状态文件和配置页权限，不写账本。不新增依赖，FFmpeg 的许可证与固定分发策略保持适用。依据和性能未验证面见 [性能说明](PERFORMANCE.md)。
+
 缩略图速度复用 `ProcessingControl` 的线程预算、抽帧间隔和运行时刷新，以及 `ProcessingMode` 三档界面。独立状态文件保存缩略图偏好，不共享扫描任务的暂停、取消或速度；不引入新调度器、依赖或并行 FFmpeg 队列。
 
 独立采集复用 `BackgroundJob`、任务记录与共享 `TaskPopup` 通知栈。抽帧与拼图继续使用 `frame_capture`，采用独立速度预算；子进程取消采用转换工作者已有的短轮询 `communicate` 模式，只终止并回收自身子进程。时间轴格子沿用现有坐标与末张行数计算，作用域样式允许图集超出单格宽度。不增加依赖，不重写媒体。

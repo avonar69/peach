@@ -8,6 +8,7 @@ import os
 import subprocess
 import uuid
 from collections import OrderedDict
+from contextlib import nullcontext
 from pathlib import Path
 
 from .ffmpeg import FFmpegResolver
@@ -81,6 +82,7 @@ class HlsSegmentService:
         self.work_root = work_root
         self.segment_seconds = segment_seconds
         self.cache_bytes = cache_bytes
+        self.cache_budget = None
         self.prefer_hardware = prefer_hardware
         self.hardware = hardware if hardware is not None else HardwareTranscoder(enabled=prefer_hardware)
         # 每个分片请求都会起一个 FFmpeg；播放器本身就并发预取，多设备同看能把机器打满。
@@ -148,7 +150,10 @@ class HlsSegmentService:
         return [(float(start), min(float(self.segment_seconds), duration - start))
                 for start in range(0, math.ceil(duration), self.segment_seconds)]
 
-    def _evict(self) -> None:
+    def _evict(self, *, keep=()) -> None:
+        if self.cache_budget:
+            self.cache_budget.enforce(force=True, keep=keep)
+            return
         files = [item for item in self.work_root.rglob("*.ts") if item.is_file()]
         total = 0
         stats = []
@@ -220,11 +225,14 @@ class HlsSegmentService:
             for name, build in attempts:
                 temporary = target.with_name(f"{uuid.uuid4().hex}.tmp.ts")
                 try:
-                    returncode, stderr = await self._run(build(temporary), session, registry)
+                    with self.cache_budget.writing(temporary) if self.cache_budget else nullcontext():
+                        returncode, stderr = await self._run(build(temporary), session, registry)
+                        if self.cache_budget and not self.cache_budget.enforce(keep=(temporary,), force=True):
+                            raise SegmentUnavailable('Transcode cache storage limit reached')
                     if returncode == 0 and temporary.is_file() and temporary.stat().st_size:
                         temporary.replace(target)
                         logger.info("HLS 分片完成：%s", name)
-                        self._evict()
+                        self._evict(keep=(target,))
                         return target
                     if registry.is_cancelled(session):
                         raise SegmentCancelled(session)
@@ -297,7 +305,19 @@ class HlsSegmentService:
             await process.communicate()
             raise SegmentCancelled(session)
         try:
-            _, stderr = await process.communicate()
+            communication = asyncio.create_task(process.communicate())
+            try:
+                while not communication.done():
+                    await asyncio.wait((communication,), timeout=.5)
+                    if self.cache_budget and not await asyncio.to_thread(self.cache_budget.enforce):
+                        _kill_process(process)
+                        await communication
+                        raise SegmentUnavailable('Transcode cache storage limit reached')
+                _, stderr = await communication
+            finally:
+                if not communication.done():
+                    _kill_process(process)
+                    await communication
         except asyncio.CancelledError:
             _kill_process(process)
             await process.communicate()

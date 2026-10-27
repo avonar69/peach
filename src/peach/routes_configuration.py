@@ -30,6 +30,35 @@ from . import release_updates, standalone_update, peach_proxy, desktop_startup, 
 
 router = APIRouter()
 _SAVE_LOCK = threading.Lock()
+
+
+@router.get('/api/configuration/transcode-cache')
+def transcode_cache_settings(request: Request, _args=Depends(require_auth)):
+    local_only(request)
+    from . import transcode_cache
+    state = request.app.state
+    preferences = transcode_cache.load(state.settings.follow_state_root)
+    expected = transcode_cache.roots(preferences, state.settings.transcode_root, state.settings.stream_root)
+    active = state.transcode_service.cache_root
+    return {**preferences, 'active_folder': str(active),
+            'used_bytes': state.transcode_service.cache_budget.usage(),
+            'restart_required': expected[0] != active}
+
+
+@router.post('/api/configuration/transcode-cache')
+def save_transcode_cache(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
+    local_only(request)
+    same_origin(request)
+    if bool(getattr(getattr(request.app.state, 'sync', None), 'read_only', False)):
+        raise HTTPException(403, 'Read-only deployment')
+    from . import transcode_cache
+    try:
+        preferences = transcode_cache.save(request.app.state.settings.follow_state_root, body)
+    except (ValueError, OSError) as error:
+        raise HTTPException(400, str(error)) from error
+    request.app.state.transcode_service.cache_budget.limit = preferences['max_gb'] << 30
+    request.app.state.transcode_service.cache_budget.enforce(force=True)
+    return transcode_cache_settings(request)
 RELOAD_NAME = onboarding.RELOAD_NAME
 #: 直接由 CLI 管理的服务使用设置文件。
 FILE_MANAGED_NOTICE = "这个部署由配置文件管理服务；在本机编辑下方的设置文件。"

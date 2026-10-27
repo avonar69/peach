@@ -11,7 +11,8 @@ export interface QualityLevelList {
   on?(events: PlayerEvents, handler: () => void): void;
 }
 
-export interface PlayerSource { src: string; type: string }
+export interface PlaybackInfo { method?: string; video_codec?: string; audio_codec?: string; pixel_format?: string; reason?: string; output_codec?: string }
+export interface PlayerSource { src: string; type: string; playback?: PlaybackInfo }
 
 export interface VjsPlayer {
   /** 挂载时记下的条目：右键菜单复制网址按它取 id。 */

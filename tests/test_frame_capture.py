@@ -23,6 +23,15 @@ class _Completed:
 
 
 class CaptureFrameTests(unittest.TestCase):
+    def test_gpu_failure_falls_back_and_is_not_repeated_for_the_same_video(self):
+        failed = set()
+        with patch.object(frame_capture, 'capture_frame', side_effect=[(False, 'GPU unavailable'), (True, ''), (True, '')]) as capture:
+            self.assertTrue(frame_capture.capture_with_retry('ffmpeg', 'movie.mp4', 1, self.root / 'gpu.jpg', acceleration='cuda', hardware_failures=failed))
+            self.assertTrue(frame_capture.capture_with_retry('ffmpeg', 'movie.mp4', 2, self.root / 'gpu.jpg', acceleration='cuda', hardware_failures=failed))
+        self.assertEqual(failed, {'cuda'})
+        self.assertEqual(capture.call_args_list[0].kwargs['hwaccel'], 'cuda')
+        self.assertNotIn('hwaccel', capture.call_args_list[1].kwargs)
+        self.assertEqual(capture.call_count, 3)
     def setUp(self):
         self.root = Path(tempfile.mkdtemp(prefix="frame-capture-")).resolve()
         self.addCleanup(lambda: shutil.rmtree(self.root, ignore_errors=True))

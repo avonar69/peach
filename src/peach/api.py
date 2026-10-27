@@ -263,15 +263,21 @@ def create_app(
     entity_thumb_service = DerivedImageService(entity_thumb_root(settings.avatar_root))
     cover_thumb_service = DerivedImageService(cover_thumb_root(settings.cover_root),
                                               edge=COVER_THUMB_EDGE, quality=COVER_THUMB_QUALITY)
-    transcode_service = TranscodeService(resolver, settings.transcode_root)
+    from . import transcode_cache
+    cache_preferences = transcode_cache.load(settings.follow_state_root)
+    full_root, segment_root = transcode_cache.roots(cache_preferences, settings.transcode_root, settings.stream_root)
+    cache_budget = transcode_cache.CacheBudget(full_root, segment_root, cache_preferences['max_gb'] << 30)
+    transcode_service = TranscodeService(resolver, full_root)
+    transcode_service.cache_budget = cache_budget
     header_repairs = HeaderRepairStore(settings.transcode_root, resolver)
     hls_plan_executor = ThreadPoolExecutor(
         max_workers=2, thread_name_prefix="PeachHlsPlan",
     )
     hls_service = HlsSegmentService(
-        resolver, settings.stream_root, prefer_hardware=transcode_service.prefer_hardware,
+        resolver, segment_root, prefer_hardware=transcode_service.prefer_hardware,
         hardware=transcode_service.hardware,
     )
+    hls_service.cache_budget = cache_budget
     mdns = create_mdns_publisher(
         settings.mdns_name, settings.mdns_port, secure=settings.tls_enabled,
         address=settings.mdns_address,

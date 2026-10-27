@@ -5,7 +5,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { appSettingsStore } from '../../src/appearance/settings';
 import { queryClient } from '../../src/react/query';
 import { FollowPreferenceRows, VideoThumbnailRow } from '../../src/react/settings/service-preferences';
-import { choose, click, mount, mountRoot, settle, type } from './render';
+import { buttonNamed, choose, click, mount, mountRoot, settle, type } from './render';
 
 notifyManager.setScheduler((notify) => notify());
 
@@ -52,6 +52,20 @@ it('缩略图选择提交原档位，保存后的控件显示采集间隔', asyn
   await settle();
   expect(posts).toEqual([{ url: '/api/thumbnail-jobs', body: { mode: 'coarse' } }]);
   expect(host.querySelector('[aria-haspopup="listbox"]')?.textContent).toContain('每 30 秒一张');
+});
+
+it('自定义采样间隔与 GPU 偏好分别保存', async () => {
+  localStorage.setItem('peach.language', 'en');
+  try {
+    const { posts } = server();
+    const host = await mount(<QueryClientProvider client={queryClient}><VideoThumbnailRow /></QueryClientProvider>);
+    await choose(host.querySelector('#videoThumbnailSetting [aria-haspopup="listbox"]'), 'Custom interval');
+    await type(host.querySelector('input[aria-label="Interval (seconds)"]'), '17');
+    await click(buttonNamed('Apply interval', host));
+    expect(posts).toContainEqual({ url: '/api/thumbnail-jobs', body: { mode: 'custom', interval_seconds: 17 } });
+    await choose(host.querySelector('[aria-label="Thumbnail acceleration"]'), 'CUDA (NVIDIA)');
+    expect(posts).toContainEqual({ url: '/api/thumbnail-jobs', body: { action: 'set_acceleration', acceleration: 'cuda' } });
+  } finally { localStorage.removeItem('peach.language') }
 });
 
 it('自动检查间隔拒绝范围外值，只在有效提交时写入原接口', async () => {

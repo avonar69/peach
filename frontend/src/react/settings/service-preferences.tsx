@@ -7,9 +7,12 @@ import { SettingsRow } from '@/components/application/settings/settings-rows';
 import { Select, SelectItem } from '@/components/base/select/select';
 import { Switch } from '@/components/base/switch/switch';
 import { Input } from '@/components/base/input/input';
+import { Button } from '@/components/base/buttons/button';
 
 import { FOLLOW_INITIAL_RANGE_OPTIONS } from '../../application/initial-follow-ranges';
-import { errorMessage } from '../../api';
+import { apiSend, errorMessage } from '../../api';
+import { queryClient } from '../query';
+import { useAction } from './use-action';
 import { boundedPreference } from '../../number-setting';
 import {
   FOLLOW_SCHEDULE_KEY, SETTINGS_KEY, THUMBNAIL_JOBS_KEY, fetchFollowSchedule, fetchSettings, fetchThumbnailJobs,
@@ -17,7 +20,7 @@ import {
 } from '../settings-panel/settings-data';
 import { ErrorText, Help, Rows, Section, Stack } from './section';
 
-const THUMBNAIL_OPTIONS = [['off', '关闭'], ['precise', '每 10 秒一张'], ['coarse', '每 30 秒一张']] as const;
+const THUMBNAIL_OPTIONS = [['off', 'Off'], ['precise', '每 10 秒一张'], ['coarse', '每 30 秒一张'], ['custom', 'Custom interval']] as const;
 
 export function VideoThumbnailRow({ epoch = 0 }: { epoch?: number }) {
   return <Section title="时间轴缩略图"><VideoThumbnailControls epoch={epoch} /></Section>;
@@ -26,6 +29,10 @@ export function VideoThumbnailRow({ epoch = 0 }: { epoch?: number }) {
 export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?: number; disabled?: boolean }) {
   const status = useQuery({ queryKey: THUMBNAIL_JOBS_KEY, queryFn: ({ signal }) => fetchThumbnailJobs(signal), refetchOnMount: 'always' });
   const save = useSaveThumbnailMode();
+  const acceleration = useAction();
+  const [custom, setCustom] = useState(false);
+  const [interval, setInterval] = useState('10');
+  useEffect(() => { if (status.data?.interval_seconds) setInterval(String(status.data.interval_seconds)) }, [status.data?.interval_seconds]);
   const reset = save.reset;
   useEffect(() => { reset() }, [epoch, reset]);
   const data = status.data;
@@ -33,13 +40,28 @@ export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?
   return (
     <>
       <Rows>
-        <SettingsRow label="时间轴预览" description="按所选间隔抽帧，仅处理本机磁盘上的视频。">
+        <SettingsRow label="时间轴预览" description="Off stops generation and keeps existing previews. Smaller intervals create more images.">
           <div id="videoThumbnailSetting">
-            <Select aria-label="缩略图采集间隔" selectedKey={data?.mode || 'off'}
+            <Select aria-label="缩略图采集间隔" selectedKey={custom ? 'custom' : data?.mode || 'off'}
               isDisabled={disabled || !data || status.isFetching || save.isPending}
-              onSelectionChange={(key) => { if (key !== null) save.mutate(String(key)) }}>
+              onSelectionChange={(key) => { if (key === 'custom') setCustom(true); else if (key !== null) { setCustom(false); save.mutate(String(key)) } }}>
               {THUMBNAIL_OPTIONS.map(([key, label]) => <SelectItem key={key} id={key}>{label}</SelectItem>)}
             </Select>
+          </div>
+        </SettingsRow>
+        {(custom || data?.mode === 'custom') && <SettingsRow label="Interval (seconds)" description="1–3600 seconds">
+          <div className="flex flex-wrap items-center gap-2">
+            <Input aria-label="Interval (seconds)" type="number" value={interval} onChange={setInterval} isDisabled={disabled || save.isPending} />
+            <Button size="small" variant="secondary" disabled={disabled || save.isPending || !Number.isInteger(Number(interval)) || Number(interval) < 1 || Number(interval) > 3600}
+              onClick={() => save.mutate({ mode: 'custom', interval_seconds: Number(interval) })}>Apply interval</Button>
+          </div>
+        </SettingsRow>}
+        <SettingsRow label="Thumbnail acceleration" description="GPU decoding may fall back to CPU. Seeking and disk speed can limit the benefit.">
+          <div id="thumbnailAccelerationSetting">
+          <Select aria-label="Thumbnail acceleration" selectedKey={data?.acceleration || 'cpu'} isDisabled={disabled || !data || !!acceleration.busy}
+            onSelectionChange={key => { if (key !== null) void acceleration.run('save', signal => apiSend('/api/thumbnail-jobs', { action: 'set_acceleration', acceleration: String(key) }, 'POST', signal), saved => queryClient.setQueryData(THUMBNAIL_JOBS_KEY, saved)) }}>
+            <SelectItem id="cpu">CPU</SelectItem><SelectItem id="cuda">CUDA (NVIDIA)</SelectItem><SelectItem id="vulkan">Vulkan (experimental)</SelectItem>
+          </Select>
           </div>
         </SettingsRow>
       </Rows>
@@ -47,6 +69,7 @@ export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?
         ? <Stack divided><Help role="status">{save.isPending ? '正在保存…' : '正在采集，进度在活动页查看。'}</Help></Stack>
         : null}
       {error ? <Stack divided><ErrorText>{errorMessage(error)}</ErrorText></Stack> : null}
+      {acceleration.error && <ErrorText>{acceleration.error}</ErrorText>}
     </>
   );
 }

@@ -4,8 +4,9 @@
  * 已经没人看的读取不再占着 115 或本地盘。详情与沉浸模式共用这一套（沉浸模式每格一个会话）。 */
 import { api } from '@peach/legacy/core';
 import { performancePreferences } from '../performance-preferences';
+import { nativeAv1Supported } from '../media-capabilities';
 
-import type { PlayerItem, PlayerSource } from './types';
+import type { PlaybackInfo, PlayerItem, PlayerSource } from './types';
 
 export function newStreamSession(): string {
   return globalThis.crypto?.randomUUID?.() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
@@ -13,7 +14,7 @@ export function newStreamSession(): string {
 
 export function directStreamSource(item: PlayerItem, session: string): PlayerSource {
   return {
-    src: localBuffering(`/stream?id=${item.id}&session=${encodeURIComponent(session)}`, item),
+    src: localBuffering(`/stream?id=${item.id}&session=${encodeURIComponent(session)}${nativeAv1Supported() ? '&native_av1=true' : ''}`, item),
     type: String(item.name || '').toLowerCase().endsWith('.webm') ? 'video/webm' : 'video/mp4',
   };
 }
@@ -32,13 +33,14 @@ function followStreamSource(item: PlayerItem): PlayerSource | null {
 
 /** 起播片源只有这一个判据，详情和沉浸模式共用：服务端说要转码分片就给分片，否则直读。
  *  有 B 帧却缺 ctts 的 MP4 直读时浏览器按错的显示顺序丢帧，整片持续卡顿。 */
-export async function playableStreamSource(item: PlayerItem, session: string): Promise<PlayerSource> {
+export async function playableStreamSource(item: PlayerItem, session: string, forceConversion = false): Promise<PlayerSource> {
   const proxied = followStreamSource(item);
   if (proxied) return proxied;
   try {
-    const plan = await api(`/api/stream-plan?id=${item.id}&session=${encodeURIComponent(session)}`) as
-      { protocol?: string; src?: string; mime_type?: string } | null;
-    if (plan?.src) return { src: localBuffering(plan.src, item), type: plan.mime_type || (plan.protocol === 'hls' ? 'application/vnd.apple.mpegurl' : 'video/mp4') };
+    const plan = await api(`/api/stream-plan?id=${item.id}&session=${encodeURIComponent(session)}${!forceConversion && nativeAv1Supported() ? '&native_av1=true' : ''}`) as
+      { protocol?: string; src?: string; mime_type?: string; playback?: PlaybackInfo } | null;
+    if (plan?.src) return { src: localBuffering(plan.src, item), type: plan.mime_type || (plan.protocol === 'hls' ? 'application/vnd.apple.mpegurl' : 'video/mp4'),
+      ...(plan.playback ? { playback: forceConversion ? { ...plan.playback, reason: 'Direct playback failed; using compatibility conversion' } : plan.playback } : {}) };
   } catch { /* 取不到计划就直读 */ }
   return directStreamSource(item, session);
 }
@@ -66,7 +68,7 @@ function ensureDetailSession(): string {
 }
 
 export const directDetailSource = (item: PlayerItem): PlayerSource => directStreamSource(item, ensureDetailSession());
-export const detailStreamSource = (item: PlayerItem): Promise<PlayerSource> => playableStreamSource(item, ensureDetailSession());
+export const detailStreamSource = (item: PlayerItem, forceConversion = false): Promise<PlayerSource> => playableStreamSource(item, ensureDetailSession(), forceConversion);
 
 export function cancelDetailStream(): void {
   const session = detailSession;

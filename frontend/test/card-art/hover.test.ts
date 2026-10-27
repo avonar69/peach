@@ -131,7 +131,7 @@ describe('本地文件拉真视频', () => {
     expect(first.querySelector('video.hv')).toBeNull();
     vi.advanceTimersByTime(1);
     const video = first.querySelector<HTMLVideoElement>('video.hv');
-    expect(video?.getAttribute('src')).toBe('/stream?id=1');
+    expect(video?.getAttribute('src')).toBe('/stream?id=1&preview=true');
     expect(video?.muted).toBe(true);
     enter(second);
     vi.advanceTimersByTime(340);

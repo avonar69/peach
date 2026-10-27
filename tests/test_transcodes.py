@@ -60,6 +60,15 @@ def _media_process(commands, profile, fail=None, duration=None):
 
 
 class TranscodeServiceTests(unittest.TestCase):
+    def test_av1_mp4_direct_play_requires_client_support_and_compatible_audio(self):
+        from peach.transcodes import _MediaProfile
+        source = Path('av1.mp4')
+        for pixel in ('yuv420p', 'yuv420p10le'):
+            profile = _MediaProfile('av1', pixel, 'aac')
+            self.assertFalse(TranscodeService._browser_compatible(source, profile))
+            self.assertTrue(TranscodeService._browser_compatible(source, profile, native_av1=True))
+        self.assertFalse(TranscodeService._browser_compatible(source, _MediaProfile('av1', 'yuv444p', 'aac'), native_av1=True))
+        self.assertFalse(TranscodeService._browser_compatible(source, _MediaProfile('av1', 'yuv420p', 'dts'), native_av1=True))
     def setUp(self):
         candidates = patch("peach.hardware_transcode.HardwareTranscoder._candidates",
                            return_value=(HardwareEncoder("nvenc"),))

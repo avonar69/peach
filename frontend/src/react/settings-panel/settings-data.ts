@@ -45,6 +45,8 @@ export interface FollowScheduleStatus {
 
 export interface ThumbnailJobStatus {
   mode: string;
+  interval_seconds?: number;
+  acceleration?: string;
   status: 'idle' | 'running' | 'failed' | 'complete' | string;
   stopped?: string;
 }
@@ -80,7 +82,8 @@ export function useSaveFollowSchedule() {
 
 export function useSaveThumbnailMode() {
   return useMutation({
-    mutationFn: (mode: string) => apiSend<ThumbnailJobStatus>(THUMBNAIL_JOBS_URL, { mode }),
+    mutationFn: (choice: string | { mode: string; interval_seconds: number }) =>
+      apiSend<ThumbnailJobStatus>(THUMBNAIL_JOBS_URL, typeof choice === 'string' ? { mode: choice } : choice),
     onSuccess: (status) => queryClient.setQueryData(THUMBNAIL_JOBS_KEY, status),
   });
 }

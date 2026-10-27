@@ -61,6 +61,23 @@ def _run_capture(command, timeout, active=None):
             process.kill()
         process.communicate()
 
+
+def thumbnail_acceleration(ffmpeg, source, backend, active):
+    if backend not in ('cuda', 'vulkan'):
+        return 'cpu'
+    from .ffmpeg import FFmpegResolver
+    from .hardware_transcode import CUDA_DECODE_CODECS
+    probe = FFmpegResolver(Path(ffmpeg).parent).ffprobe()
+    if probe is None:
+        return 'cpu'
+    try:
+        result = _run_capture([str(probe.path), '-v', 'error', '-select_streams', 'v:0',
+                               '-show_entries', 'stream=codec_name', '-of', 'default=nw=1:nk=1', source], 20, active)
+    except (OSError, subprocess.TimeoutExpired):
+        return 'cpu'
+    codec = result.stdout.decode('utf-8', 'replace').strip().lower()
+    return backend if result.returncode == 0 and codec in CUDA_DECODE_CODECS else 'cpu'
+
 #: 部分网盘视频把色彩原色写成 reserved（非法值），swscale 会拒绝缩放；声明为 bt709
 #: 只是覆盖坏的元数据，不改动像素。
 COLOR_OVERRIDE = ["-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709"]
@@ -77,7 +94,7 @@ COLOR_METADATA_ERROR = re.compile(
 def capture_frame(ffmpeg: str, path: str, timestamp: float, destination: Path, *,
                   width: int = 480, color_override: bool = False,
                   timeout: float = 45, diagnostics: dict | None = None,
-                  threads: int | None = None, active=None) -> tuple[bool, str]:
+                  threads: int | None = None, active=None, hwaccel=None) -> tuple[bool, str]:
     """抽一帧，返回（是否成功, stderr）。stderr 用于判断值不值得重试。
 
     `-ss` 在 `-i` 之前：那是输入端 seek，只解目标附近的帧。放到后面就是从头解码到
@@ -87,6 +104,8 @@ def capture_frame(ffmpeg: str, path: str, timestamp: float, destination: Path, *
     command = [ffmpeg, "-y", "-v", "error", "-rw_timeout", "8000000"]
     checkpoint('frame')
     command += _thread_options(threads, '-filter_threads')
+    if hwaccel in ('cuda', 'vulkan'):
+        command += ['-hwaccel', hwaccel]
     if color_override:
         command += COLOR_OVERRIDE
     command += [
@@ -115,11 +134,22 @@ def capture_frame(ffmpeg: str, path: str, timestamp: float, destination: Path, *
 
 def capture_with_retry(ffmpeg: str, path: str, timestamp: float, destination: Path,
                        *, width: int = 480, timeout: float = 45,
-                       diagnostics: dict | None = None, threads: int | None = None, active=None) -> bool:
+                       diagnostics: dict | None = None, threads: int | None = None, active=None,
+                       acceleration='cpu', hardware_failures=None) -> bool:
     """抽一帧；只在错误明说色彩元数据不合法时，带 bt709 声明重试一次。"""
     attempts = []
     detail = {}
     options = {**({'threads': threads} if threads is not None else {}), **({'active': active} if active is not None else {})}
+    if acceleration in ('cuda', 'vulkan') and (hardware_failures is None or acceleration not in hardware_failures):
+        ok, _ = capture_frame(ffmpeg, path, timestamp, destination, width=width, timeout=timeout,
+                              diagnostics=detail, hwaccel=acceleration, **options)
+        if ok:
+            if diagnostics is not None:
+                diagnostics.update(detail, acceleration=acceleration)
+            return True
+        if hardware_failures is not None:
+            hardware_failures.add(acceleration)
+        attempts.append(dict(detail, acceleration=acceleration))
     ok, stderr = capture_frame(ffmpeg, path, timestamp, destination,
                                width=width, timeout=timeout, diagnostics=detail, **options)
     attempts.append(dict(detail, color_override=False))

@@ -27,6 +27,7 @@ import { detailStreamSession, detailStreamSource, directDetailSource } from './s
 import { stopTelemetry, wireFollowTelemetry, wireTelemetry } from './telemetry';
 import type { MediaFacts, PlayerItem, PlayerSource, SourceQuality, VjsPlayer } from './types';
 import { ensureVideojs } from './videojs';
+import { translate } from '../i18n';
 
 /** 从小窗展开回来或带 `?t=` 深链进来时接着放的那一刻。 */
 export interface PlayerResume { time: number; autoplay: boolean }
@@ -82,6 +83,7 @@ export async function mountDetailPlayer(
   const resume = options.resume ?? null;
   if (resume?.autoplay) autoplay = true;
   const source = () => (options.source ? Promise.resolve(options.source) : detailStreamSource(item));
+  let playbackInfo: PlayerSource['playback'];
   /* 拉不到就退回原生 video，和「页面里没有 videojs」是同一个兜底出口。 */
   let videojs;
   try { videojs = await ensureVideojs() } catch {
@@ -168,6 +170,10 @@ export async function mountDetailPlayer(
       ['视口 / 帧', `${Math.round(rect.width)}×${Math.round(rect.height)} / ${quality ? `${quality.totalVideoFrames - quality.droppedVideoFrames} of ${quality.totalVideoFrames}` : '—'}`],
       ['当前 / 最佳分辨率', `${current} / ${item.width || video.videoWidth || '?'}×${item.height || video.videoHeight || '?'}`],
       ['编码 / 传输', `${container} / ${segmented ? 'HLS' : 'HTTP Range'}`],
+      ['Playback method', playbackInfo?.method ? translate(playbackInfo.method) : '—'],
+      ['Source codecs', playbackInfo ? `${playbackInfo.video_codec || '—'} / ${playbackInfo.audio_codec || '—'} (${playbackInfo.pixel_format || '—'})` : '—'],
+      ['Output codec', playbackInfo?.output_codec || '—'],
+      ['Playback reason', playbackInfo?.reason ? translate(playbackInfo.reason) : '—'],
       ['连接速度', speedText,
         playerStatsPlot(statsHistory.speed, 'speed', Math.max(10e6, ...statsHistory.speed), `连接速度 ${speedText === '—' ? '暂无数据' : speedText}`)],
       [loadedRow[0], loadedRow[1],
@@ -178,7 +184,7 @@ export async function mountDetailPlayer(
       ['日期', new Date().toLocaleString()],
     ];
     statsPanel.innerHTML = `<dl>${rows.map(([key, value, plot]) =>
-      `<dt>${esc(key)}</dt><dd${plot ? ' data-player-stats-metric=""' : ''}>${plot || ''}<span>${esc(value)}</span></dd>`).join('')}</dl>`;
+      `<dt>${esc(translate(key))}</dt><dd${plot ? ' data-player-stats-metric=""' : ''}>${plot || ''}<span>${esc(value)}</span></dd>`).join('')}</dl>`;
   };
   player.on(['loadstart', 'loadedmetadata', 'durationchange', 'error'], enforceDuration);
   let segmentedSource = false, fallbackUsed = false;
@@ -207,6 +213,19 @@ export async function mountDetailPlayer(
   player.on(['loadstart', 'progress', 'waiting', 'stalled'], showNet);
   player.on(['canplay', 'playing'], () => { updateNet(); hideNet() });
   player.on('error', () => {
+    if (!options.source && playbackInfo?.method === 'Direct play' && playbackInfo.video_codec === 'av1' && !fallbackUsed && !player.isDisposed()) {
+      fallbackUsed = true;
+      const position = video.currentTime || 0;
+      void detailStreamSource(item, true).then(next => {
+        if (!live()) return;
+        playbackInfo = next.playback;
+        segmentedSource = String(next.type).includes('mpegurl');
+        player.one('loadedmetadata', () => { if (position > 0) player.currentTime(position) });
+        player.src(next);
+        if (autoplay) player.play()?.catch(() => {});
+      }).catch(() => {});
+      return;
+    }
     if (segmentedSource && !fallbackUsed && !player.isDisposed()) {
       fallbackUsed = true; segmentedSource = false;
       player.src(directDetailSource(item));
@@ -238,6 +257,7 @@ export async function mountDetailPlayer(
   });
   source().then((next) => {
     if (!live()) return;
+    playbackInfo = next.playback;
     segmentedSource = String(next.type || '').includes('mpegurl');
     if (resume && resume.time > 0) player.one('loadedmetadata', () => {
       if (player.isDisposed()) return;

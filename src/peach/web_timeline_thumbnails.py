@@ -37,9 +37,19 @@ def read_mode(path: Path | None = None) -> str:
     return mode if mode in timeline_sheets.MODES else timeline_sheets.OFF
 
 
-def write_mode(mode: str, path: Path | None = None) -> None:
+def read_interval(path: Path | None = None) -> int:
+    try:
+        data = json.loads(_mode_file(path).read_text(encoding='utf-8'))
+        value = data.get('interval_seconds', 10)
+        return value if type(value) is int and 1 <= value <= 3600 else 10
+    except (OSError, ValueError, AttributeError):
+        return 10
+
+
+def write_mode(mode: str, path: Path | None = None, *, interval_seconds=None) -> None:
+    interval_seconds = read_interval(path) if interval_seconds is None else interval_seconds
     with atomic_path(_mode_file(path)) as destination:
-        destination.write_text(json.dumps({'mode': mode, 'saved_at': time.time()}),
+        destination.write_text(json.dumps({'mode': mode, 'interval_seconds': interval_seconds, 'saved_at': time.time()}),
                                encoding='utf-8')
 
 
@@ -72,6 +82,8 @@ def q_thumbnail_jobs(contract, _args):
     state = contract.thumbnail_job.snapshot() or {}
     return {'mode': read_mode(), 'modes': list(timeline_sheets.MODES),
             'speed_mode': _speed_control().mode, 'speed_modes': list(SPEED_MODES),
+            'interval_seconds': timeline_sheets.INTERVALS.get(read_mode(), read_interval()),
+            'acceleration': read_acceleration(),
             'intervals': dict(timeline_sheets.INTERVALS),
             'status': state.get('status') or 'idle',
             'stage': state.get('stage') or '',
@@ -90,6 +102,14 @@ def _speed_control():
     if not path.exists():
         control.mode = 'low'
     return control
+
+
+def read_acceleration():
+    try:
+        value = json.loads(MODE_PATH.with_name('thumbnail-acceleration.json').read_text(encoding='utf-8'))
+        return value if value in ('cpu', 'cuda', 'vulkan') else 'cpu'
+    except (OSError, ValueError):
+        return 'cpu'
 
 
 def _active(contract, job_id):
@@ -116,19 +136,31 @@ def w_thumbnail_jobs(contract, body):
     if (body or {}).get('action') == 'set_speed':
         _speed_control().request('set_speed', mode=body.get('speed_mode'))
         return q_thumbnail_jobs(contract, {})
+    if (body or {}).get('action') == 'set_acceleration':
+        value = body.get('acceleration')
+        if value not in ('cpu', 'cuda', 'vulkan'):
+            raise ValueError('Invalid thumbnail acceleration backend')
+        from .fsutil import atomic_write_text
+        atomic_write_text(MODE_PATH.with_name('thumbnail-acceleration.json'), json.dumps(value))
+        return q_thumbnail_jobs(contract, {})
     mode = str((body or {}).get('mode') or timeline_sheets.OFF)
     if mode not in timeline_sheets.MODES:
         raise ValueError('采集密度无效')
     if mode != timeline_sheets.OFF and metadata_only(contract.follow_state_root):
         raise ValueError('视频预览生成已关闭，请先在媒体库设置中开启')
-    write_mode(mode)
+    interval = (body or {}).get('interval_seconds', read_interval()) if mode == 'custom' else timeline_sheets.INTERVALS.get(mode, 10)
+    if type(interval) is not int or not 1 <= interval <= 3600:
+        raise ValueError('Interval must be between 1 and 3600 seconds.')
+    write_mode(mode, interval_seconds=interval)
     if mode == timeline_sheets.OFF:
         contract.thumbnail_job.stop(resume=False)
         return q_thumbnail_jobs(contract, {})
     choice = FFmpegResolver(FFMPEG_DIR).ffmpeg()
     if choice is None:
         raise ValueError('未找到 ffmpeg，无法采集缩略图')
-    interval = timeline_sheets.INTERVALS[mode]
+    current = contract.thumbnail_job.snapshot() or {}
+    if current.get('status') == 'running' and current.get('interval') != interval:
+        contract.thumbnail_job.stop(resume=False)
     root = contract.timeline_root
 
     def work(job_id):
@@ -138,6 +170,7 @@ def w_thumbnail_jobs(contract, body):
                                   publish=lambda **fields: contract.thumbnail_job.update(job_id, **fields)):
             result = timeline_sheets.generate_library(
                 contract.db_path, root, interval, ffmpeg=str(choice.path),
+                acceleration=read_acceleration,
                 active=lambda: _active(contract, job_id),
                 report=lambda **fields: contract.thumbnail_job.update(job_id, **_with_progress(fields)),
                 guard=guard, resume_state=contract.thumbnail_job.snapshot(),
@@ -151,7 +184,7 @@ def w_thumbnail_jobs(contract, body):
             status='failed' if failed else 'complete',
             error=stopped if failed else '')
 
-    contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode},
+    contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode, 'interval_seconds': interval},
                                  initial={'mode': mode, 'interval': interval,
                                           'stage': '采集缩略图', 'checked': 0,
                                           'total': 0, 'done': 0, 'made': 0,
