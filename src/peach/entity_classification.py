@@ -196,7 +196,7 @@ def index_scope(connection, kind: str) -> str:
     return "e.kind='" + kind + "'"
 
 
-def counts(connection, kind, query, visible_clause):
+def counts(connection, kind, query, visible_clause, genders=""):
     """对搜索范围中的有效实体独立计数，不受所选分类及分页限制。"""
     predicates = category_predicates(connection=connection)
     sql = ('SELECT ' + ','.join(f'COALESCE(SUM(({value})),0)' for value in predicates.values()) + ' '
@@ -204,6 +204,10 @@ def counts(connection, kind, query, visible_clause):
            'SELECT 1 FROM asset_entity ae CROSS JOIN asset a ON a.id=ae.asset_id '
            'WHERE ae.entity_id=e.id AND ' + visible_clause + ') ')
     params = []
+    from .actor_details import gender_filter
+    clause, values = gender_filter(genders)
+    sql += clause
+    params.extend(values)
     if query:
         sql += 'AND e.canonical_name LIKE ? '
         params.append(f'%{query}%')

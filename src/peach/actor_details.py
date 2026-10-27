@@ -6,8 +6,21 @@ from .entities import normalize_entity_name
 from .performer_header import age_on
 from .performer_profiles import read_profile
 
-FIELDS = ('birth_date', 'career_start_year', 'career_end_year', 'height', 'measurements',
+GENDERS = ('MALE', 'FEMALE', 'TRANSGENDER_MALE', 'TRANSGENDER_FEMALE', 'INTERSEX', 'NON_BINARY')
+FIELDS = ('gender', 'birth_date', 'career_start_year', 'career_end_year', 'height', 'measurements',
           'breast_type', 'nationality', 'ethnicity', 'eye_color', 'hair_color')
+
+
+def gender_filter(value):
+    """在分页与随机抽样之前按来源资料或手工覆盖筛选，缺失值归未知。"""
+    if not value or value == 'all':
+        return '', []
+    selected = list(dict.fromkeys(value.split(',')))
+    if set(selected) - set((*GENDERS, 'UNKNOWN', 'none')):
+        raise ValueError('Choose valid actor genders.')
+    field = "COALESCE(json_extract(e.metadata_json,'$.actor_profile_edits.gender'),json_extract(e.metadata_json,'$.stashdb_profile.gender'),'')"
+    normalized = "CASE WHEN " + field + " IN (" + ','.join("'" + item + "'" for item in GENDERS) + ") THEN " + field + " ELSE 'UNKNOWN' END"
+    return ' AND ' + normalized + ' IN (' + ','.join('?' for _ in selected) + ') ', selected
 
 
 def metadata(connection, entity_id):
@@ -70,6 +83,8 @@ def write(contract, body):
         if not isinstance(value, str) or len(value) > 200:
             raise ValueError('Enter valid actor details.')
         value = value.strip()
+        if key == 'gender' and value and value not in GENDERS:
+            raise ValueError('Choose valid actor genders.')
         if value and key == 'birth_date':
             try:
                 if date.fromisoformat(value) > date.today():

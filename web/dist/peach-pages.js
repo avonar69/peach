@@ -9794,7 +9794,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "On-demand seek previews (Beta)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.",
 	"Browser did not report support for the source media format": "Browser did not report support for the source media format",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.",
+	"Actor genders": "Actor genders",
+	Gender: "Gender",
+	Female: "Female",
+	Male: "Male",
+	"Transgender female": "Transgender female",
+	"Transgender male": "Transgender male",
+	Intersex: "Intersex",
+	"Non-binary": "Non-binary",
+	Unknown: "Unknown",
+	"Playback position": "Playback position",
+	"Choose valid actor genders.": "Choose valid actor genders."
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -17803,7 +17814,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "Vistas previas al buscar (Beta)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Decodifica fotogramas locales en el navegador sin generar archivos de línea de tiempo. Usa lecturas adicionales; se aplica al siguiente vídeo.",
 	"Browser did not report support for the source media format": "El navegador no indicó soporte para el formato original",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La generación en segundo plano se controla por separado. Desactive la vista previa de la línea de tiempo en la configuración de Peach para detenerla."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La generación en segundo plano se controla por separado. Desactive la vista previa de la línea de tiempo en la configuración de Peach para detenerla.",
+	"Actor genders": "Géneros de actores",
+	Gender: "Género",
+	Female: "Mujer",
+	Male: "Hombre",
+	"Transgender female": "Mujer transgénero",
+	"Transgender male": "Hombre transgénero",
+	Intersex: "Intersexual",
+	"Non-binary": "No binario",
+	Unknown: "Desconocido",
+	"Playback position": "Posición de reproducción",
+	"Choose valid actor genders.": "Selecciona géneros de actores válidos."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22192,7 +22214,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "Aperçus à la demande (Bêta)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Décode les images locales dans le navigateur sans créer de fichiers de chronologie. Lectures supplémentaires ; effet à la prochaine vidéo.",
 	"Browser did not report support for the source media format": "Le navigateur ne signale pas la prise en charge du format source",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La génération en arrière-plan est indépendante. Désactivez l’aperçu de chronologie dans la configuration de Peach pour l’arrêter."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La génération en arrière-plan est indépendante. Désactivez l’aperçu de chronologie dans la configuration de Peach pour l’arrêter.",
+	"Actor genders": "Genres des artistes",
+	Gender: "Genre",
+	Female: "Femme",
+	Male: "Homme",
+	"Transgender female": "Femme transgenre",
+	"Transgender male": "Homme transgenre",
+	Intersex: "Intersexe",
+	"Non-binary": "Non binaire",
+	Unknown: "Inconnu",
+	"Playback position": "Position de lecture",
+	"Choose valid actor genders.": "Choisissez des genres valides."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -26581,7 +26614,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "Vorschauen bei Bedarf (Beta)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Dekodiert lokale Bilder im Browser ohne Zeitachsdateien. Zusätzliche Medienzugriffe; gilt ab dem nächsten Video.",
 	"Browser did not report support for the source media format": "Browser meldet keine Unterstützung für das Quellformat",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Hintergrundgenerierung wird separat gesteuert. Zum Stoppen die Zeitachsenvorschau in der Peach-Konfiguration ausschalten."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Hintergrundgenerierung wird separat gesteuert. Zum Stoppen die Zeitachsenvorschau in der Peach-Konfiguration ausschalten.",
+	"Actor genders": "Geschlechter der Darsteller",
+	Gender: "Geschlecht",
+	Female: "Weiblich",
+	Male: "Männlich",
+	"Transgender female": "Transgender-Frau",
+	"Transgender male": "Transgender-Mann",
+	Intersex: "Intergeschlechtlich",
+	"Non-binary": "Nichtbinär",
+	Unknown: "Unbekannt",
+	"Playback position": "Wiedergabeposition",
+	"Choose valid actor genders.": "Wähle gültige Geschlechter aus."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -30970,7 +31014,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "Prévias sob demanda (Beta)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Decodifica quadros locais no navegador sem gerar arquivos de linha do tempo. Usa leituras adicionais; vale no próximo vídeo.",
 	"Browser did not report support for the source media format": "O navegador não informou suporte ao formato original",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "A geração em segundo plano é independente. Desative a prévia da linha do tempo na configuração do Peach para interrompê-la."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "A geração em segundo plano é independente. Desative a prévia da linha do tempo na configuração do Peach para interrompê-la.",
+	"Actor genders": "Gêneros dos artistas",
+	Gender: "Gênero",
+	Female: "Mulher",
+	Male: "Homem",
+	"Transgender female": "Mulher transgênero",
+	"Transgender male": "Homem transgênero",
+	Intersex: "Intersexo",
+	"Non-binary": "Não binário",
+	Unknown: "Desconhecido",
+	"Playback position": "Posição de reprodução",
+	"Choose valid actor genders.": "Selecione gêneros de artistas válidos."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -35359,7 +35414,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "オンデマンドシークプレビュー（ベータ）",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "ブラウザーでローカル映像を必要時にデコードし、タイムラインファイルを生成しません。追加の読み込みが発生し、次の動画から適用されます。",
 	"Browser did not report support for the source media format": "ブラウザーが元の形式への対応を報告していません",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "バックグラウンド生成は別設定です。停止するには Peach 設定でタイムラインプレビューをオフにしてください。"
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "バックグラウンド生成は別設定です。停止するには Peach 設定でタイムラインプレビューをオフにしてください。",
+	"Actor genders": "出演者の性別",
+	Gender: "性別",
+	Female: "女性",
+	Male: "男性",
+	"Transgender female": "トランスジェンダー女性",
+	"Transgender male": "トランスジェンダー男性",
+	Intersex: "インターセックス",
+	"Non-binary": "ノンバイナリー",
+	Unknown: "不明",
+	"Playback position": "再生位置",
+	"Choose valid actor genders.": "有効な出演者の性別を選択してください。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -39748,7 +39814,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "요청 시 탐색 미리보기(베타)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "브라우저에서 로컬 프레임을 요청 시 디코딩하며 타임라인 파일을 만들지 않습니다. 추가 읽기가 발생하고 다음 동영상부터 적용됩니다.",
 	"Browser did not report support for the source media format": "브라우저가 원본 미디어 형식 지원을 보고하지 않음",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "백그라운드 생성은 별도 설정입니다. 중지하려면 Peach 설정에서 타임라인 미리보기를 끄세요."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "백그라운드 생성은 별도 설정입니다. 중지하려면 Peach 설정에서 타임라인 미리보기를 끄세요.",
+	"Actor genders": "배우 성별",
+	Gender: "성별",
+	Female: "여성",
+	Male: "남성",
+	"Transgender female": "트랜스젠더 여성",
+	"Transgender male": "트랜스젠더 남성",
+	Intersex: "인터섹스",
+	"Non-binary": "논바이너리",
+	Unknown: "알 수 없음",
+	"Playback position": "재생 위치",
+	"Choose valid actor genders.": "유효한 배우 성별을 선택하세요."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -44137,7 +44214,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "Ảnh xem trước theo yêu cầu (Beta)",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Giải mã khung hình cục bộ trong trình duyệt mà không tạo tệp dòng thời gian. Đọc thêm dữ liệu; áp dụng từ video tiếp theo.",
 	"Browser did not report support for the source media format": "Trình duyệt không báo hỗ trợ định dạng nguồn",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Tạo ảnh nền được điều khiển riêng. Tắt xem trước dòng thời gian trong cấu hình Peach để dừng."
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Tạo ảnh nền được điều khiển riêng. Tắt xem trước dòng thời gian trong cấu hình Peach để dừng.",
+	"Actor genders": "Giới tính diễn viên",
+	Gender: "Giới tính",
+	Female: "Nữ",
+	Male: "Nam",
+	"Transgender female": "Nữ chuyển giới",
+	"Transgender male": "Nam chuyển giới",
+	Intersex: "Liên giới tính",
+	"Non-binary": "Phi nhị nguyên",
+	Unknown: "Không rõ",
+	"Playback position": "Vị trí phát",
+	"Choose valid actor genders.": "Chọn giới tính diễn viên hợp lệ."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -48526,7 +48614,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "按需拖曳預覽（實驗）",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "在此瀏覽器按需解碼本機畫面，不產生時間軸檔案。會增加媒體讀取；從下一部影片生效。",
 	"Browser did not report support for the source media format": "瀏覽器未回報支援此來源媒體格式",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "背景縮圖產生獨立控制。如需停止，請在 Peach 設定中將時間軸預覽設為關閉。"
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "背景縮圖產生獨立控制。如需停止，請在 Peach 設定中將時間軸預覽設為關閉。",
+	"Actor genders": "演員性別",
+	Gender: "性別",
+	Female: "女性",
+	Male: "男性",
+	"Transgender female": "跨性別女性",
+	"Transgender male": "跨性別男性",
+	Intersex: "雙性人",
+	"Non-binary": "非二元性別",
+	Unknown: "未知",
+	"Playback position": "播放位置",
+	"Choose valid actor genders.": "請選擇有效的演員性別。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -48940,7 +49039,18 @@ var p = /* @__PURE__ */ o(((e) => {
 	"On-demand seek previews (Beta)": "按需拖动预览（实验）",
 	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "在此浏览器按需解码本地画面，不生成时间轴文件。会增加媒体读取；从下一部影片生效。",
 	"Browser did not report support for the source media format": "浏览器未报告支持此源媒体格式",
-	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "后台缩略图生成独立控制。如需停止，请在 Peach 配置中将时间轴预览设为关闭。"
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "后台缩略图生成独立控制。如需停止，请在 Peach 配置中将时间轴预览设为关闭。",
+	"Actor genders": "演员性别",
+	Gender: "性别",
+	Female: "女性",
+	Male: "男性",
+	"Transgender female": "跨性别女性",
+	"Transgender male": "跨性别男性",
+	Intersex: "双性人",
+	"Non-binary": "非二元性别",
+	Unknown: "未知",
+	"Playback position": "播放位置",
+	"Choose valid actor genders.": "请选择有效的演员性别。"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

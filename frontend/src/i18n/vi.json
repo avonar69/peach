@@ -4386,5 +4386,16 @@
   "On-demand seek previews (Beta)": "Ảnh xem trước theo yêu cầu (Beta)",
   "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Giải mã khung hình cục bộ trong trình duyệt mà không tạo tệp dòng thời gian. Đọc thêm dữ liệu; áp dụng từ video tiếp theo.",
   "Browser did not report support for the source media format": "Trình duyệt không báo hỗ trợ định dạng nguồn",
-  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Tạo ảnh nền được điều khiển riêng. Tắt xem trước dòng thời gian trong cấu hình Peach để dừng."
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Tạo ảnh nền được điều khiển riêng. Tắt xem trước dòng thời gian trong cấu hình Peach để dừng.",
+  "Actor genders": "Giới tính diễn viên",
+  "Gender": "Giới tính",
+  "Female": "Nữ",
+  "Male": "Nam",
+  "Transgender female": "Nữ chuyển giới",
+  "Transgender male": "Nam chuyển giới",
+  "Intersex": "Liên giới tính",
+  "Non-binary": "Phi nhị nguyên",
+  "Unknown": "Không rõ",
+  "Playback position": "Vị trí phát",
+  "Choose valid actor genders.": "Chọn giới tính diễn viên hợp lệ."
 }

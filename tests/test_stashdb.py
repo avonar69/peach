@@ -71,7 +71,7 @@ class StashDBTests(unittest.TestCase):
             client.studios.assert_not_called()
             client.scenes.assert_not_called()
             client.scene.assert_not_called()
-            client.performer.return_value = {'id': ACTOR, 'name': 'Jane Doe', 'aliases': ['Clara Fargo'], 'height': 170}
+            client.performer.return_value = {'id': ACTOR, 'name': 'Jane Doe', 'aliases': ['Clara Fargo'], 'height': 170, 'gender': 'FEMALE'}
             stashdb_entities.resync(self.config, self.database, 'performer', progress=lambda **kw: None,
                 issue=lambda *args: None, active=lambda: True)
             client.performer.assert_called_once_with(ACTOR)
@@ -87,6 +87,7 @@ class StashDBTests(unittest.TestCase):
             client.scenes.assert_not_called()
         with self.database.read_connection() as connection:
             self.assertEqual(actor_details.public(connection, actor_id)['height'], 170)
+            self.assertEqual(actor_details.public(connection, actor_id)['gender'], 'FEMALE')
 
     def test_resync_task_bypasses_media_and_scene_processing(self):
         from peach import library_processing

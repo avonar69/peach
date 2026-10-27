@@ -1184,7 +1184,7 @@ def state_clause(state: str) -> str:
 TOPS_POOL_FACTOR = 4
 
 
-def q_tops(contract: WebContract, n=28, jav=False, seed="", state="", page=0, filters=None):
+def q_tops(contract: WebContract, n=28, jav=False, seed="", state="", page=0, filters=None, genders=""):
     """顶部三层用的数据：女优圆头像 / 厂牌 / 内容标签。
 
     缓存的人物肖像由前端优先使用；缺失时才回退到代表作接触印相裁切。
@@ -1215,9 +1215,12 @@ def q_tops(contract: WebContract, n=28, jav=False, seed="", state="", page=0, fi
         first_page_span = n * TOPS_POOL_FACTOR if seed else n
 
         def read(kind, limit, skip):
+            from .actor_details import gender_filter
+            clause, values = gender_filter(genders) if kind == 'performer' else ('', [])
+            query = base.replace('GROUP BY e.id', clause + 'GROUP BY e.id')
             return [{"id": entity_id, "k": k, "n": cnt, "rep": representative}
                     for entity_id, k, cnt, representative
-                    in c.execute(base, (kind, *folder_params, limit, skip))]
+                    in c.execute(query, (kind, *folder_params, *values, limit, skip))]
 
         def pick(kind):
             """按数量取候选池，再按种子确定性抽样。种子为空时退回严格前 N。"""

@@ -149,3 +149,7 @@ RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 
 `POST /api/rss/source` 的 `retention` 动作接收来源 `id`、`count` 与 `unit`（`days`／`months`／`years`）；`count=null` 表示永久保存，整数限制为 1 天至 100 年。`GET /api/rss` 的来源返回 `rss_retention_count` 和 `rss_retention_unit`，条目及关注总数均排除已合并或已到期内容。稳定身份映射保留以阻止重复或到期条目重新出现。
 
 `GET /api/rss/jobs` 返回已鉴权的 debrid 任务、无密钥的渠道配置及只读状态，供常驻下载浮层观察。下载渠道设置支持布尔 `auto_import`；启用须配置媒体根内的下载目录。下载任务返回独立 `import_state`、`import_error` 和可选 `imported_asset_id`。`POST /api/rss/import` 接收完成下载的 `id` 以重试定向导入；已有取消接口同时支持取消待办导入。所有写操作沿用同源、鉴权及写者门槛。
+
+## 演员性别筛选契约
+
+`/api/index?kind=performers` 与 `/api/tops` 接受 `genders`，用逗号分隔 StashDB 性别枚举或 `UNKNOWN`。省略或 `all` 表示全部，`none` 表示不选演员；过滤先于分页与随机抽样，厂牌不受影响。值来自演员手工覆盖或 StashDB 来源快照，不从名字或图片推断。浏览器偏好保存在 `peach.actor-genders.v1`，跨页面与重新打开浏览器沿用。

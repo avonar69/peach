@@ -12,6 +12,7 @@
 import { api } from '@peach/legacy/core';
 
 import { queryClient } from './query';
+import { actorGenderSelection } from './actor-genders';
 
 /** 两份聚合复用多久：换页回来不重取，半分钟后再进页就按新数据库取。 */
 export const BARS_STALE_MS = 30_000;
@@ -20,8 +21,8 @@ let revision = 0;
 
 export const facetsKey = (scope: string, generation = revision) => ['facets', scope, generation] as const;
 export const topsKey = (params: string, scope: string, generation = revision) =>
-  ['tops', params, scope, generation] as const;
-export const topsPageKey = (params: string, generation = revision) => ['tops', params, generation] as const;
+  ['tops', params, scope, generation, actorGenderSelection()] as const;
+export const topsPageKey = (params: string, generation = revision) => ['tops', params, generation, actorGenderSelection()] as const;
 
 export interface TopsData { performers: unknown[]; studios: unknown[]; [field: string]: unknown }
 export type FacetsData = Record<string, unknown>;
@@ -31,7 +32,9 @@ export type FacetsData = Record<string, unknown>;
    读起来是跳去了另一个页面而不是换了筛选。空了就退回全库口径。这一排点开的是实体页，本来就要离开当前
    状态，它回答的从来不是「这一页里有谁」，而是「接下来去看谁」。续页（壳的 `moreTops`）也走这里。 */
 export async function loadTops(params: string | URLSearchParams): Promise<TopsData> {
-  const query = String(params);
+  const selected = new URLSearchParams(params), genders = actorGenderSelection();
+  if (genders !== 'all') selected.set('genders', genders);
+  const query = String(selected);
   const scoped = await api(`/api/tops?${query}`) as TopsData;
   const wide = new URLSearchParams(query);
   if (scoped.performers.length || scoped.studios.length || !wide.has('state')) return scoped;

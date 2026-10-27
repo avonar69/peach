@@ -135,6 +135,7 @@ def _get_index(contract, args):
         min(max(int(args.get("limit", "180")), 1), 600),
         max(int(args.get("offset", "0")), 0),
         args.get("category", ""),
+        args.get("genders", ""),
     )
 
 
@@ -151,8 +152,8 @@ def _get_tops(contract, args):
     page = max(int(args.get("page", "0")), 0)
     folders = {key: args[key] for key in ('folder', 'folder_recursive') if args.get(key)}
     return contract.cached(
-        f"tops{n}p{page}{'-jav' if jav else ''}:{seed}:{state}:{sorted(folders.items())}",
-        lambda: q_tops(contract, n, jav=jav, seed=seed, state=state, page=page, filters=folders),
+        f"tops{n}p{page}{'-jav' if jav else ''}:{seed}:{state}:{sorted(folders.items())}:{args.get('genders', '')}",
+        lambda: q_tops(contract, n, jav=jav, seed=seed, state=state, page=page, filters=folders, genders=args.get('genders', '')),
     )
 
 

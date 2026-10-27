@@ -33,6 +33,8 @@ import {
 } from './index-data';
 import { OnlineAuthors, PeopleGrid } from './index-people';
 import { TagAlphabet, TagCloud, TagDock, TagFilters, type TagEntry } from './index-tags';
+import { actorGenderSelection, saveActorGenders } from '../../actor-genders';
+import { ActorGenderFilter } from './actor-gender-filter';
 
 /* 厂牌与事务所是两种实体，不是同一份数据的两种筛选：厂牌出片，事务所出人。所以这个开关切的
    是地址。场记板归厂牌，公文包归事务所，字形各说各的那一件事。 */
@@ -113,6 +115,7 @@ function IndexSearch({ label, value, onQuery }: { label: string; value: string; 
 type Item = IndexPerson | IndexTag | OnlineAuthor | OnlineTag;
 
 export function IndexPage(props: IndexProps) {
+  const [genders, setGenders] = useState(actorGenderSelection);
   const [route, setRoute] = useState<IndexRoute>(() => indexRoute(
     { kind: props.kind, q: props.q, scope: props.scope, view: props.view, category: props.category },
   ));
@@ -149,7 +152,7 @@ export function IndexPage(props: IndexProps) {
     props.route(next, { replace });
   };
 
-  const query = indexQuery(indexSource(route));
+  const query = indexQuery(indexSource(route), genders);
   const result = useInfiniteQuery<Page<Item>>({
     queryKey: query.queryKey,
     queryFn: ({ pageParam, signal }) => query.queryFn({ pageParam: pageParam as number, signal }),
@@ -243,6 +246,8 @@ export function IndexPage(props: IndexProps) {
           </span>
         ) : null}
         {isPeople(kind) ? <LayoutSwitch kind={kind} layout={layout} onChange={changeLayout} /> : null}
+        {kind === 'performers' && scope === 'local' ? <ActorGenderFilter value={genders}
+          onChange={keys => { setGenders(saveActorGenders(keys)); setPicked(new Set()) }} /> : null}
         <LibraryShortcuts kind={kind === 'tags' ? 'tag' : kind === 'studios' ? 'studio' : kind === 'agencies' ? 'agency' : kind === 'creators' ? 'creator' : 'performer'} />
         {/* 窄屏一行放不下四样东西：标题与过滤框一行，开关另起一行。 */}
         <span aria-hidden className="hidden h-0 basis-full max-board-narrow:order-2 max-board-narrow:block" />

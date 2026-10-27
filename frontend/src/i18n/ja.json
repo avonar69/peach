@@ -4386,5 +4386,16 @@
   "On-demand seek previews (Beta)": "オンデマンドシークプレビュー（ベータ）",
   "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "ブラウザーでローカル映像を必要時にデコードし、タイムラインファイルを生成しません。追加の読み込みが発生し、次の動画から適用されます。",
   "Browser did not report support for the source media format": "ブラウザーが元の形式への対応を報告していません",
-  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "バックグラウンド生成は別設定です。停止するには Peach 設定でタイムラインプレビューをオフにしてください。"
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "バックグラウンド生成は別設定です。停止するには Peach 設定でタイムラインプレビューをオフにしてください。",
+  "Actor genders": "出演者の性別",
+  "Gender": "性別",
+  "Female": "女性",
+  "Male": "男性",
+  "Transgender female": "トランスジェンダー女性",
+  "Transgender male": "トランスジェンダー男性",
+  "Intersex": "インターセックス",
+  "Non-binary": "ノンバイナリー",
+  "Unknown": "不明",
+  "Playback position": "再生位置",
+  "Choose valid actor genders.": "有効な出演者の性別を選択してください。"
 }

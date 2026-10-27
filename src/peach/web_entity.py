@@ -646,7 +646,39 @@ def _attach_index_favorites(connection, rows: list[dict]) -> None:
         row["favorite"] = row.get("entity_id") in favorites
 
 
-def q_index(contract: WebContract, kind, q="", limit=600, offset=0, category=""):
+def _people_index(contract, connection, kind, query, limit, offset, category, genders):
+    """按分类与性别查询完整人物名册范围，再附加本页来源摘要。"""
+    from .actor_details import gender_filter
+    entity_kind = INDEX_ENTITY_KINDS[kind]
+    selected_genders = genders if kind == 'performers' else ''
+    clause, values = gender_filter(selected_genders)
+    scope, parameters = entity_classification.filter_sql(category, connection=connection)
+    sql = ("SELECT e.id entity_id,e.kind entity_kind,e.canonical_name k,count(DISTINCT " + video_work_key(contract, connection) + ") n,"
+           "(SELECT a2.id FROM asset_entity ae2 JOIN asset a2 ON a2.id=ae2.asset_id "
+           " WHERE ae2.entity_id=e.id AND a2.medium='video' AND a2.snapshot_path IS NOT NULL " +
+           (" AND (e.kind='creator' OR (" + solo_performer_clause("a2.id", "e.id") + '))' if entity_kind == "performer" else "") +
+           " ORDER BY COALESCE(a2.play_count,0) DESC,COALESCE(a2.play_seconds,0) DESC,"
+           " COALESCE(a2.width,0)*COALESCE(a2.height,0) DESC,a2.size DESC LIMIT 1) rep "
+           "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
+           "JOIN asset a ON a.id=ae.asset_id "
+           "WHERE " + COUNTED_VIDEO + " AND " + entity_classification.index_scope(connection, entity_kind) + ' ')
+    params = []
+    if query:
+        sql += 'AND e.canonical_name LIKE ? '
+        params.append(f'%{query}%')
+    sql += scope + clause + 'GROUP BY e.id,e.canonical_name ORDER BY n DESC LIMIT ? OFFSET ?'
+    params.extend((*parameters, *values, limit + 1, offset))
+    found = [dict(row) for row in connection.execute(sql, params)]
+    rows = found[:limit]
+    summaries = entity_classification.summaries(connection, [row['entity_id'] for row in rows])
+    for row in rows:
+        row.update(summaries[row['entity_id']])
+    _attach_index_following(connection, rows)
+    counts = entity_classification.counts(connection, entity_kind, query, COUNTED_VIDEO, selected_genders)
+    return rows, len(found) > limit, counts
+
+
+def q_index(contract: WebContract, kind, q="", limit=600, offset=0, category="", genders=""):
     """全部艺人 / 创作者 / 厂牌 / 事务所 / 标签的索引页数据。"""
     with contract.read_connection() as c:
         if kind == "agencies":
@@ -696,31 +728,7 @@ def q_index(contract: WebContract, kind, q="", limit=600, offset=0, category="")
             has_more = len(rows) > limit
             rows = rows[:limit]
         elif kind in INDEX_ENTITY_KINDS:
-            entity_kind = INDEX_ENTITY_KINDS[kind]
-            sql = ("SELECT e.id entity_id,e.kind entity_kind,e.canonical_name k,count(DISTINCT " + video_work_key(contract, c) + ") n,"
-                   "(SELECT a2.id FROM asset_entity ae2 JOIN asset a2 ON a2.id=ae2.asset_id "
-                   " WHERE ae2.entity_id=e.id AND a2.medium='video' AND a2.snapshot_path IS NOT NULL " +
-                   (" AND (e.kind='creator' OR (" + solo_performer_clause("a2.id", "e.id") + '))' if entity_kind == "performer" else "") +
-                   " ORDER BY COALESCE(a2.play_count,0) DESC,COALESCE(a2.play_seconds,0) DESC,"
-                   " COALESCE(a2.width,0)*COALESCE(a2.height,0) DESC,a2.size DESC LIMIT 1) rep "
-                   "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
-                   "JOIN asset a ON a.id=ae.asset_id "
-                   "WHERE " + COUNTED_VIDEO + " AND " + entity_classification.index_scope(c,entity_kind) + ' ')
-            par = []
-            if q: sql += "AND e.canonical_name LIKE ? "; par.append(f"%{q}%")
-            clause, values = entity_classification.filter_sql(category,connection=c)
-            sql += clause
-            par.extend(values)
-            sql += "GROUP BY e.id,e.canonical_name ORDER BY n DESC LIMIT ? OFFSET ?"
-            par.extend((limit + 1, offset))
-            rows = [dict(r) for r in c.execute(sql, par)]
-            has_more = len(rows) > limit
-            rows = rows[:limit]
-            summaries = entity_classification.summaries(c, [row['entity_id'] for row in rows])
-            for row in rows:
-                row.update(summaries[row['entity_id']])
-            _attach_index_following(c, rows)
-            category_counts = entity_classification.counts(c,entity_kind,q,COUNTED_VIDEO)
+            rows, has_more, category_counts = _people_index(contract, c, kind, q, limit, offset, category, genders)
         else:
             sql = ("SELECT e.id entity_id,e.canonical_name k, count(DISTINCT " + video_work_key(contract, c) + ") n "
                    "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "

@@ -2,10 +2,47 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { configuredSeekKeys, rememberVolume, seekConfig, seekDelta, shortcutFromEvent, validShortcut, wheelVolume } from '../src/player/playback-preferences';
 import { navigationFreshness, performancePreferences } from '../src/performance-preferences';
 import { queryClient } from '../src/query/client';
+import { seekVideoBy } from '../src/player/playback';
+import { actorGenderSelection, saveActorGenders } from '../src/actor-genders';
+import { indexQuery } from '../src/react/index/index-data';
+import { topsKey } from '../src/catalog-bars';
 
 afterEach(() => { localStorage.clear(); queryClient.clear(); document.body.replaceChildren() });
 
 describe('independent playback preferences', () => {
+  it('persists multiple genders and separates actor and suggestion query caches', () => {
+    expect(actorGenderSelection()).toBe('all');
+    const before = topsKey('n=20', '');
+    saveActorGenders(['FEMALE', 'UNKNOWN', 'invalid']);
+    expect(actorGenderSelection()).toBe('FEMALE,UNKNOWN');
+    expect(topsKey('n=20', '')).not.toEqual(before);
+    expect(indexQuery({ what: 'people', kind: 'performers', q: '' }).queryKey).toContain('FEMALE,UNKNOWN');
+    expect(indexQuery({ what: 'people', kind: 'studios', q: '' }).queryKey).not.toContain('FEMALE,UNKNOWN');
+    saveActorGenders([]); expect(actorGenderSelection()).toBe('none');
+  });
+  it('shows one fullscreen progress indicator and refreshes it for repeated seeks', () => {
+    vi.useFakeTimers();
+    const root = document.createElement('div'), video = document.createElement('video');
+    root.append(video); document.body.append(root);
+    Object.defineProperty(video, 'duration', { configurable: true, value: 120 });
+    const original = Object.getOwnPropertyDescriptor(document, 'fullscreenElement');
+    Object.defineProperty(document, 'fullscreenElement', { configurable: true, value: root });
+    try {
+      video.currentTime = 30; seekVideoBy(video, 10);
+      expect(root.querySelector('[data-fullscreen-seek] span')?.textContent).toBe('0:40 / 2:00');
+      expect(root.querySelector('progress')?.value).toBe(40);
+      vi.advanceTimersByTime(1000); seekVideoBy(video, -60);
+      expect(root.querySelectorAll('[data-fullscreen-seek]')).toHaveLength(1);
+      expect(root.querySelector('progress')?.value).toBe(0);
+      vi.advanceTimersByTime(1600); expect(root.querySelector('[data-fullscreen-seek]')).toBeNull();
+      Object.defineProperty(document, 'fullscreenElement', { configurable: true, value: null }); seekVideoBy(video, 10);
+      expect(root.querySelector('[data-fullscreen-seek]')).toBeNull();
+    } finally {
+      if (original) Object.defineProperty(document, 'fullscreenElement', original);
+      else Reflect.deleteProperty(document, 'fullscreenElement');
+      vi.useRealTimers();
+    }
+  });
   it('restores volume and mute across videos without saving disposal changes', () => {
     const first = document.createElement('video');
     const release = rememberVolume(first);

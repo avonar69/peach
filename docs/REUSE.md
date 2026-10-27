@@ -774,3 +774,7 @@ Python 复用 MIT 许可的 [Ruff](https://docs.astral.sh/ruff/) 0.17.0，版本
 StashDB 的手工查找与排队复核复用人工复核页的分类导航、BoardUI 控件、确认弹层与 Query 缓存；来源页负责凭据、选项与任务启动。图片安装复用正式的 `generated/avatars`、`generated/covers` 与头像／封面安装链，缓存导入只复制本来源且正式目录尚未存在的文件组。已完成作品以语义线索、选项和图片存在性判定，已绑定演员优先使用规范外部身份，避免同一批及后续扫描重复查人或下图。Windows 原生菜单复用同一组离线语言目录，资源根使用 `settings_file.PROJECT_ROOT`，语言偏好以既有配置鉴权边界保存。无新增依赖。
 
 扫描停止复用 `ProcessingControl` 的跨进程控制文件、安全停点、任务恢复取消与任务中心终态，不新增进程管理依赖。关闭作品图片时，StashDB 复用既有演员与厂牌只读查询、规范身份绑定和头像安装链，按实体去重并缓存结果；不调用作品搜索。身份判定与采集范围属于 Peach 的领域规则，沿用项目固定的 HTTP 与文件写入依赖。
+
+## 演员性别与播放位置反馈
+
+性别字段沿用 StashDB 的 [Stash-box 官方模型](https://github.com/stashapp/stash-box)，使用 `MALE`、`FEMALE`、`TRANSGENDER_MALE`、`TRANSGENDER_FEMALE`、`INTERSEX`、`NON_BINARY`；未知单独归类。复用现有 GraphQL 演员查询、资料来源快照与手工覆盖、React Aria 多选菜单和原生 `progress`，没有新增依赖。性别筛选与全屏快进反馈属于 Peach 的浏览偏好和播放器交互。

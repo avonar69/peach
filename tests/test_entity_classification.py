@@ -1,5 +1,6 @@
 """浏览分类、来源保护、身份衔接与分页的行为回归。"""
 import sqlite3
+import json
 import tempfile
 import unittest
 from unittest import mock
@@ -40,6 +41,34 @@ class _Pages:
 
 
 class EntityClassificationTests(unittest.TestCase):
+    def test_gender_filter_precedes_pagination_and_random_actor_sampling(self):
+        from peach.actor_details import sync, gender_filter
+        from peach.web_catalog import q_tops
+        _, female = self.entity('Female Actor', 'performer')
+        _, male = self.entity('Male Actor', 'performer')
+        _, unknown = self.entity('Unknown Actor', 'performer')
+        _, studio = self.entity('Studio', 'studio')
+        sync(self.connection, female, {'gender': 'FEMALE'})
+        sync(self.connection, male, {'gender': 'MALE'})
+        self.connection.commit()
+        contract = WebContract(self.db)
+        first = q_index(contract, 'performers', limit=1, genders='FEMALE,UNKNOWN')
+        second = q_index(contract, 'performers', limit=1, offset=1, genders='FEMALE,UNKNOWN')
+        self.assertEqual({first['items'][0]['entity_id'], second['items'][0]['entity_id']}, {female, unknown})
+        self.assertTrue(first['has_more'])
+        self.assertFalse(second['has_more'])
+        for seed in ('a', 'b', 'c'):
+            tops = q_tops(contract, n=1, seed=seed, genders='FEMALE')
+            self.assertEqual([row['id'] for row in tops['performers']], [female])
+            self.assertEqual([row['id'] for row in tops['studios']], [studio])
+        self.assertEqual(q_index(contract, 'performers', genders='none')['items'], [])
+        self.connection.execute('UPDATE entity SET metadata_json=? WHERE id=?',
+            (json.dumps({'stashdb_profile': {'gender': 'FEMALE'}, 'actor_profile_edits': {'gender': 'MALE'}}), female))
+        self.connection.commit()
+        self.assertEqual(q_index(contract, 'performers', genders='FEMALE')['items'], [])
+        with self.assertRaises(ValueError):
+            gender_filter("FEMALE') OR 1=1 --")
+
     def setUp(self):
         self.directory=tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)

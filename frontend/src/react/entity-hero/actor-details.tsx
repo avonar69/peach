@@ -7,8 +7,11 @@ import { ModalFrame } from '../components/modal-frame';
 import { useAction, busyProps } from '../settings/use-action';
 import type { FactRow } from './entity-hero';
 import { translate } from '../../i18n';
+import { ACTOR_GENDERS } from '../../actor-genders';
+import { Select, SelectItem } from '@/components/base/select/select';
 
 export const ACTOR_FIELDS = [
+  ['gender', 'Gender'],
   ['career_start_year', 'Career start year'], ['career_end_year', 'Career end year'],
   ['birth_date', 'Birthdate'], ['height', 'Height (cm)'], ['measurements', 'Measurements'],
   ['breast_type', 'Breast type'], ['nationality', 'Nationality'], ['ethnicity', 'Ethnicity'],
@@ -20,6 +23,7 @@ export type ActorDetails = Partial<Record<Field, string | number>> & { age?: num
 export function actorFactRows(details: ActorDetails): FactRow[] {
   const values = ACTOR_FIELDS.filter(([key]) => !key.startsWith('career_')).map(([key, label]) => {
     let text = String(details[key] || '');
+    if (key === 'gender') text = translate(ACTOR_GENDERS.find(([value]) => value === text)?.[1] || 'Unknown');
     if (key === 'birth_date' && text && details.age !== undefined) text += ` (${translate('{0} years old').replace('{0}', String(details.age))})`;
     if (['breast_type', 'ethnicity', 'eye_color', 'hair_color'].includes(key)) text = translate(text.toLowerCase().replaceAll('_', ' '));
     const glyph = key === 'birth_date' ? 'cake' : key === 'nationality' || key === 'ethnicity' ? 'globe'
@@ -49,7 +53,11 @@ export function ActorDetailsEditor({ entityId, details, onSaved, receipt }: {
     <ModalFrame isOpen={open} onOpenChange={setOpen} width="form" label="Edit actor info">
       <form className="flex min-w-0 flex-col gap-4 p-5" onSubmit={event => { event.preventDefault(); save(); }}>
         <h2 className="text-title-2-medium">Edit actor info</h2>
-        {ACTOR_FIELDS.map(([key, label]) => <Input key={key} label={label}
+        {ACTOR_FIELDS.map(([key, label]) => key === 'gender' ? <Select key={key} aria-label="Gender"
+          selectedKey={String(values.gender || 'UNKNOWN')}
+          onSelectionChange={value => setValues(previous => ({ ...previous, gender: value === 'UNKNOWN' ? '' : String(value) }))}>
+          {ACTOR_GENDERS.map(([value, text]) => <SelectItem key={value} id={value} textValue={text}>{text}</SelectItem>)}
+        </Select> : <Input key={key} label={label}
           type={key === 'birth_date' ? 'date' : key === 'height' || key.startsWith('career_') ? 'number' : 'text'}
           value={String(values[key] || '')} onChange={value => setValues(previous => ({ ...previous, [key]: value }))} />)}
         {action.error ? <p role="alert">{action.error}</p> : null}

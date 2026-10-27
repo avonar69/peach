@@ -411,5 +411,16 @@
   "On-demand seek previews (Beta)": "按需拖动预览（实验）",
   "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "在此浏览器按需解码本地画面，不生成时间轴文件。会增加媒体读取；从下一部影片生效。",
   "Browser did not report support for the source media format": "浏览器未报告支持此源媒体格式",
-  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "后台缩略图生成独立控制。如需停止，请在 Peach 配置中将时间轴预览设为关闭。"
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "后台缩略图生成独立控制。如需停止，请在 Peach 配置中将时间轴预览设为关闭。",
+  "Actor genders": "演员性别",
+  "Gender": "性别",
+  "Female": "女性",
+  "Male": "男性",
+  "Transgender female": "跨性别女性",
+  "Transgender male": "跨性别男性",
+  "Intersex": "双性人",
+  "Non-binary": "非二元性别",
+  "Unknown": "未知",
+  "Playback position": "播放位置",
+  "Choose valid actor genders.": "请选择有效的演员性别。"
 }

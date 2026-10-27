@@ -4386,5 +4386,16 @@
   "On-demand seek previews (Beta)": "Aperçus à la demande (Bêta)",
   "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Décode les images locales dans le navigateur sans créer de fichiers de chronologie. Lectures supplémentaires ; effet à la prochaine vidéo.",
   "Browser did not report support for the source media format": "Le navigateur ne signale pas la prise en charge du format source",
-  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La génération en arrière-plan est indépendante. Désactivez l’aperçu de chronologie dans la configuration de Peach pour l’arrêter."
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La génération en arrière-plan est indépendante. Désactivez l’aperçu de chronologie dans la configuration de Peach pour l’arrêter.",
+  "Actor genders": "Genres des artistes",
+  "Gender": "Genre",
+  "Female": "Femme",
+  "Male": "Homme",
+  "Transgender female": "Femme transgenre",
+  "Transgender male": "Homme transgenre",
+  "Intersex": "Intersexe",
+  "Non-binary": "Non binaire",
+  "Unknown": "Inconnu",
+  "Playback position": "Position de lecture",
+  "Choose valid actor genders.": "Choisissez des genres valides."
 }

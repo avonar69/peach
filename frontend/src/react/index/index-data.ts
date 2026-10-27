@@ -11,6 +11,7 @@ import type { InfiniteData, QueryKey } from '@tanstack/react-query';
 import { firstGrapheme } from '@peach/legacy/core';
 
 import { apiGet } from '../../api';
+import { actorGenderSelection } from '../../actor-genders';
 import { IDENTITY_CATEGORIES } from '../../identity-filter';
 import {
   fetchOnlineAuthors, fetchOnlineTags, onlineAuthorsKey, onlineTagsKey,
@@ -185,15 +186,16 @@ export interface IndexQuery {
 }
 
 /** 四份数据共用一副分页：下一页的 offset 就是已经取到的条数。 */
-export function indexQuery(source: IndexSource): IndexQuery {
+export function indexQuery(source: IndexSource, genders = actorGenderSelection()): IndexQuery {
   const limit = source.what === 'people' || source.what === 'online-authors' ? PAGE_SIZE.people : PAGE_SIZE.tags;
   const next = (last: IndexPage<AnyItem>, pages: IndexPage<AnyItem>[]) =>
     last.has_more ? pages.reduce((sum, page) => sum + page.items.length, 0) : undefined;
   const base = { initialPageParam: 0, getNextPageParam: next };
   switch (source.what) {
     case 'people':
-      return { ...base, queryKey: indexKey(source.kind, source.q, source.category || 'all'),
-        queryFn: ({ pageParam, signal }) => apiGet(indexUrl(source.kind, source.q, source.category || 'all', limit, pageParam), signal) };
+      return { ...base, queryKey: [...indexKey(source.kind, source.q, source.category || 'all'), ...(source.kind === 'performers' && genders !== 'all' ? [genders] : [])],
+        queryFn: ({ pageParam, signal }) => apiGet(indexUrl(source.kind, source.q, source.category || 'all', limit, pageParam)
+          + (source.kind === 'performers' && genders !== 'all' ? `&genders=${encodeURIComponent(genders)}` : ''), signal) };
     case 'tags':
       return { ...base, queryKey: indexKey('tags', source.q, source.category),
         queryFn: ({ pageParam, signal }) => apiGet(indexUrl('tags', source.q, source.category, limit, pageParam), signal) };
