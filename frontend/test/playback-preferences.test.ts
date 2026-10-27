@@ -31,10 +31,10 @@ describe('independent playback preferences', () => {
     expect(video.currentTime).toBe(221); stop();
   });
   it('keeps beta options off by default and reuses only browsing snapshots when enabled', async () => {
-    expect(performancePreferences()).toEqual({ video: false, ui: false });
+    expect(performancePreferences()).toEqual({ video: false, ui: false, onDemand: false });
     expect(navigationFreshness(['stats'])).toBe(0);
     localStorage.setItem('peach.settings.v1', JSON.stringify({ betaFastUI: true, betaFastVideo: true }));
-    expect(performancePreferences()).toEqual({ video: true, ui: true });
+    expect(performancePreferences()).toEqual({ video: true, ui: true, onDemand: false });
     expect(navigationFreshness(['stats'])).toBe(30_000);
     expect(navigationFreshness(['review', 'counts'])).toBe(0);
     expect(navigationFreshness(['tasks'])).toBe(0);

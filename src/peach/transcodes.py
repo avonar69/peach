@@ -32,6 +32,14 @@ class _MediaProfile:
     duration: float = 0.0
     #: 有 B 帧却没有 ctts：容器声明的显示时刻其实是解码顺序，直接播会掉帧。
     decode_order_timestamps: bool = False
+    video_tag: str = ''
+    video_profile: str = ''
+    video_level: int = -1
+    audio_profile: str = ''
+    width: int = 0
+    height: int = 0
+    framerate: float = 0.0
+    bitrate: int = 0
 
 
 @dataclass(frozen=True)
@@ -77,14 +85,19 @@ class TranscodeService:
     def needs_transcode(source: Path) -> bool:
         return source.suffix.lower() not in BROWSER_NATIVE_SUFFIXES
 
-    def requires_conversion(self, source: Path, *, session: str = "", registry=None, native_av1=False) -> bool:
+    def requires_conversion(self, source: Path, *, session: str = "", registry=None, native_av1=False, native_play=None) -> bool:
         """按容器和内部编码选择浏览器兼容路径，不生成整片缓存。"""
-        if self.needs_transcode(source):
+        if self.needs_transcode(source) and native_play is not True:
             return True
         if self.resolver.ffprobe() is None:
             return False
         profile = self._profile_for(source, session, registry)
-        return profile is None or not self._browser_compatible(source, profile, native_av1=native_av1)
+        return profile is None or not self._browser_compatible(source, profile, native_av1=native_av1, native_play=native_play)
+
+    def browser_probe(self, source, *, session='', registry=None):
+        from .browser_media import probe_description
+        profile = self._profile_for(source, session, registry) if self.resolver.ffprobe() else None
+        return probe_description(source, profile) if profile else {}
 
     def decode_order_timestamps(self, source: Path, *, session: str = "", registry=None) -> bool:
         """是不是只有时间戳错乱的那一类：有 B 帧却没有 ctts，码流本身浏览器解得出来。
@@ -125,17 +138,17 @@ class TranscodeService:
         return profile
 
     def browser_path(
-        self, asset_id: int, source: Path, *, session: str = "", registry=None, native_av1=False,
+        self, asset_id: int, source: Path, *, session: str = "", registry=None, native_av1=False, native_play=None,
     ) -> tuple[Path, bool]:
         profile = None
-        if not self.needs_transcode(source):
+        if not self.needs_transcode(source) or native_play is True:
             if self.resolver.ffprobe() is None:
                 return source, False
             try:
                 profile = self._profile_for(source, session, registry)
             except OSError as exc:
                 raise TranscodeUnavailable("source unavailable") from exc
-            if profile is not None and self._decodes_in_browser(source, profile, native_av1=native_av1):
+            if profile is not None and self._decodes_in_browser(source, profile, native_av1=native_av1, native_play=native_play):
                 return source, False
 
         choice = self.resolver.ffmpeg()
@@ -209,7 +222,10 @@ class TranscodeService:
         return True
 
     @staticmethod
-    def _browser_compatible(source: Path, profile: _MediaProfile, *, native_av1=False) -> bool:
+    def _browser_compatible(source: Path, profile: _MediaProfile, *, native_av1=False, native_play=None) -> bool:
+        if native_play is not None:
+            from .browser_media import probe_description
+            return native_play is True and bool(probe_description(source, profile)['content_type']) and not profile.decode_order_timestamps
         if source.suffix.lower() in {".mp4", ".m4v"}:
             compatible_video = (profile.video_codec == 'h264' and profile.pixel_format in DIRECT_MP4_PIXEL_FORMATS
                                 or native_av1 and profile.video_codec == 'av1' and profile.pixel_format in {'yuv420p', 'yuv420p10le'})
@@ -222,18 +238,22 @@ class TranscodeService:
         return (profile.video_codec == "theora"
                 and profile.audio_codec in {"", "vorbis", "opus"})
 
-    def playback_info(self, source, *, session='', registry=None, native_av1=False):
+    def playback_info(self, source, *, session='', registry=None, native_av1=False, native_play=None):
         profile = self._profile_for(source, session, registry) if self.resolver.ffprobe() else None
         if profile is None:
             return {'video_codec': 'unknown', 'audio_codec': 'unknown', 'reason': 'Media codec information unavailable'}
         reason = 'Original media supported by this browser'
-        if source.suffix.lower() not in BROWSER_NATIVE_SUFFIXES:
+        if native_play is False:
+            reason = 'Browser did not report support for the source media format'
+        elif native_play is True and self._browser_compatible(source, profile, native_play=True):
+            pass
+        elif source.suffix.lower() not in BROWSER_NATIVE_SUFFIXES:
             reason = 'Source container requires conversion'
         elif profile.video_codec == 'av1' and not native_av1 and source.suffix.lower() in {'.mp4', '.m4v'}:
             reason = 'Browser did not report AV1 MP4 decoding support'
         elif profile.decode_order_timestamps:
             reason = 'Source presentation timestamps require repair'
-        elif not self._browser_compatible(source, profile, native_av1=native_av1):
+        elif not self._browser_compatible(source, profile, native_av1=native_av1, native_play=native_play):
             reason = 'Source video, audio or pixel format requires conversion'
         return {'video_codec': profile.video_codec, 'audio_codec': profile.audio_codec or 'none',
                 'pixel_format': profile.pixel_format, 'reason': reason}
@@ -246,7 +266,7 @@ class TranscodeService:
             return None
         command = (
             str(choice.path), "-v", "error", "-show_entries",
-            "stream=codec_type,codec_name,pix_fmt,has_b_frames:format=duration",
+            "stream=codec_type,codec_name,pix_fmt,has_b_frames,codec_tag_string,profile,level,width,height,r_frame_rate,bit_rate:format=duration,bit_rate",
             "-of", "json", str(source),
         )
         try:
@@ -284,10 +304,28 @@ class TranscodeService:
             audio_codec=str(audio.get("codec_name") or "").lower(),
             duration=max(0.0, duration),
             decode_order_timestamps=self._decode_order_timestamps(source, video),
+            **self._browser_profile_fields(video, audio, report.get('format') or {}),
         )
 
     @staticmethod
-    def _decodes_in_browser(source: Path, profile: _MediaProfile, *, native_av1=False) -> bool:
+    def _browser_profile_fields(video, audio, container):
+        from fractions import Fraction
+        def number(value, default=0):
+            try:
+                return int(value)
+            except (ValueError, TypeError):
+                return default
+        try:
+            fps = float(Fraction(str(video.get('r_frame_rate') or '0')))
+        except (ValueError, ZeroDivisionError):
+            fps = 0.0
+        return dict(video_tag=str(video.get('codec_tag_string') or ''), video_profile=str(video.get('profile') or ''),
+                    video_level=number(video.get('level'), -1), audio_profile=str(audio.get('profile') or ''),
+                    width=number(video.get('width')), height=number(video.get('height')), framerate=fps,
+                    bitrate=number(video.get('bit_rate') or container.get('bit_rate')))
+
+    @staticmethod
+    def _decodes_in_browser(source: Path, profile: _MediaProfile, *, native_av1=False, native_play=None) -> bool:
         """浏览器能不能解出画面。时间戳错乱不算解不出来。
 
         整片转码要占满一个编码位、写一份和原片同量级的缓存，只有编码本身不被支持才值得。
@@ -295,7 +333,7 @@ class TranscodeService:
         就够。卡片悬停预览直接打 `/stream`，鼠标划过一张卡片不能启动一次整片转码。
         """
         return TranscodeService._browser_compatible(
-            source, replace(profile, decode_order_timestamps=False), native_av1=native_av1,
+            source, replace(profile, decode_order_timestamps=False), native_av1=native_av1, native_play=native_play,
         )
 
     @staticmethod

@@ -4382,5 +4382,9 @@
   "Transcode folder must be an absolute server path": "Thư mục phải là đường dẫn tuyệt đối trên máy chủ",
   "Transcode storage limit must be between 1 and 1024 GiB": "Giới hạn phải từ 1 đến 1024 GiB",
   "Interval must be between 1 and 3600 seconds.": "Khoảng phải từ 1 đến 3600 giây.",
-  "Invalid thumbnail acceleration backend": "Thiết lập tăng tốc ảnh không hợp lệ"
+  "Invalid thumbnail acceleration backend": "Thiết lập tăng tốc ảnh không hợp lệ",
+  "On-demand seek previews (Beta)": "Ảnh xem trước theo yêu cầu (Beta)",
+  "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Giải mã khung hình cục bộ trong trình duyệt mà không tạo tệp dòng thời gian. Đọc thêm dữ liệu; áp dụng từ video tiếp theo.",
+  "Browser did not report support for the source media format": "Trình duyệt không báo hỗ trợ định dạng nguồn",
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Tạo ảnh nền được điều khiển riêng. Tắt xem trước dòng thời gian trong cấu hình Peach để dừng."
 }

@@ -11,6 +11,8 @@ import type { PlayerItem, SourceQuality, VjsPlayer } from './types';
 import { SubtitleControls, subtitleIcon } from './subtitles';
 import { fullscreenSizing, setFullscreenSizing, type FullscreenSizing } from './fullscreen-sizing';
 import { seekConfig } from './playback-preferences';
+import { OnDemandPreview } from './on-demand-preview';
+import { performancePreferences } from '../performance-preferences';
 import { translate } from '../i18n';
 
 type TooltipSync = (label?: string, aria?: string) => void;
@@ -566,6 +568,12 @@ export function mountPlayerSeekPreview(player: VjsPlayer, item: PlayerItem | nul
   const frame = preview.querySelector<HTMLElement>('.vjs-peach-seek-frame');
   const image = preview.querySelector('img'), label = preview.querySelector('span')!;
   let sheets: TimelineSheets | null = null, shown = '';
+  const livePreview = hasThumbnail && item?.location === 'local' && item.cost !== 'metered' && performancePreferences().onDemand
+    ? new OnDemandPreview(item.id) : null;
+  if (image && frame && livePreview) image.onload = () => {
+    if (image.src.startsWith('data:image/jpeg') && image.naturalWidth && image.naturalHeight)
+      frame.style.aspectRatio = `${image.naturalWidth} / ${image.naturalHeight}`;
+  };
   if (frame && item?.id) {
     (api(`/api/timeline?id=${encodeURIComponent(item.id)}`) as Promise<TimelineSheets | null>)
       .then((meta) => { if (meta && meta.frames > 0 && meta.interval > 0) sheets = meta }).catch(() => {});
@@ -597,16 +605,28 @@ export function mountPlayerSeekPreview(player: VjsPlayer, item: PlayerItem | nul
     const x = Math.min(rect.width - width / 2, Math.max(width / 2, event.clientX - rect.left));
     preview.style.left = `${x}px`; preview.hidden = false; label.textContent = fmtClock(duration * ratio);
     if (!frame || !image || !item) return;
+    if (livePreview) {
+      if (sheets) showSheetFrame(duration * ratio, sheets, frame, image);
+      livePreview.request(duration * ratio, data => {
+        if (preview.hidden) return;
+        if (!data) { if (!sheets) frame.hidden = true; return; }
+        shown = '';
+        image.removeAttribute('style');
+        image.src = data;
+        frame.hidden = false;
+      });
+      return;
+    }
     if (sheets) { showSheetFrame(duration * ratio, sheets, frame, image); return }
     const nextCell = Math.min(8, Math.floor(ratio * 9));
     if (nextCell === cell) return;
     cell = nextCell; frame.hidden = false; image.removeAttribute('style');
     image.src = `/poster?id=${encodeURIComponent(item.id)}&c=${nextCell}`;
   };
-  const hide = () => { preview.hidden = true };
+  const hide = () => { preview.hidden = true; livePreview?.cancel() };
   if (image && frame) image.onerror = () => { frame.hidden = true };
   progress.addEventListener('pointermove', move); progress.addEventListener('pointerleave', hide);
-  player.on('dispose', () => { progress.removeEventListener('pointermove', move); progress.removeEventListener('pointerleave', hide) });
+  player.on('dispose', () => { livePreview?.dispose(); progress.removeEventListener('pointermove', move); progress.removeEventListener('pointerleave', hide) });
 }
 
 /** 画中画那个窗口由浏览器画，站内控制条一颗键都递不进去。Media Session 的动作处理器是唯一的

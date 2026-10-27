@@ -38,6 +38,23 @@ const host = (seekSeconds = 10): PlayerHost => ({
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('片源判据', () => {
+  it('兼容直读回退保留转换要求并使用输出 MP4 类型', () => {
+    expect(directStreamSource({ id: 4, name: 'movie.webm' }, 'compat', false))
+      .toEqual({ src: '/stream?id=4&session=compat&native_play=false', type: 'video/mp4' });
+  });
+  it('以片源 HEVC 探测结果协商，不支持时明确请求转换', async () => {
+    const capability = vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('probably');
+    try {
+      const calls = stubFetch(url => url.includes('probe_only=true')
+        ? { probe: { content_type: 'video/mp4; codecs="hvc1.2.4.L120.B0,mp4a.40.2"' } }
+        : { src: '/stream?id=2&native_play=true', mime_type: 'video/mp4' });
+      await playableStreamSource({ id: 2 }, 'hevc');
+      expect(calls[1]!.url).toContain('native_play=true');
+      capability.mockReturnValue('');
+      await playableStreamSource({ id: 2 }, 'unsupported');
+      expect(calls[3]!.url).toContain('native_play=false');
+    } finally { capability.mockRestore() }
+  });
   it('客户端 AV1 能力随计划请求发送，兼容回退不复用该能力', async () => {
     const capability = vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('probably');
     try {
@@ -71,7 +88,7 @@ describe('片源判据', () => {
     await detailStreamSource({ id: 5 });
     const session = detailStreamSession();
     expect(session).not.toBe('');
-    expect(calls[0]!.url).toBe(`/api/stream-plan?id=5&session=${encodeURIComponent(session)}`);
+    expect(calls[0]!.url).toBe(`/api/stream-plan?id=5&session=${encodeURIComponent(session)}&probe_only=true`);
     cancelDetailStream();
     expect(detailStreamSession()).toBe('');
     const cancel = calls.at(-1)!;

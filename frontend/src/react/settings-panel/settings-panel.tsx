@@ -510,6 +510,10 @@ function PlaybackRows({ host: current, epoch }: Omit<GroupProps, 'tab'>) {
         onToggle={(on) => { settings.scrollVolume = on; save(); }} />
       <ToggleRow id="betaFastVideoSetting" title="Faster video loading and seeking (Beta)" checked={settings.betaFastVideo === true}
         onToggle={(on) => { settings.betaFastVideo = on; save(); }} />
+      <ToggleRow id="onDemandSeekPreviewsSetting" title="On-demand seek previews (Beta)" checked={settings.onDemandSeekPreviews === true}
+        onToggle={on => { settings.onDemandSeekPreviews = on; save(); }} />
+      <p className="text-caption-1-regular text-text-secondary">Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.</p>
+      <p className="text-caption-1-regular text-text-secondary">Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.</p>
       <p className="text-caption-1-regular text-text-secondary">Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.</p>
       <ToggleRow id="betaFastUISetting" title="Faster section navigation (Beta)" checked={settings.betaFastUI === true}
         onToggle={(on) => { settings.betaFastUI = on; save(); }} />

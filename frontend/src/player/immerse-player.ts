@@ -31,7 +31,7 @@ export function mountImmersePlayer(video: HTMLVideoElement, options: ImmersePlay
   let player: VjsPlayer | null = null, released = false;
   void Promise.all([playableStreamSource(item, session), ensureVideojs().catch(() => null)]).then(([source, vjs]) => {
     if (released) return;
-    const direct = directStreamSource(item, session);
+    const direct = directStreamSource(item, session, source.playback?.method === 'Transcoding' ? false : undefined);
     const segmented = String(source.type || '').includes('mpegurl');
     // 播放器脚本拉不到时退回原生 video；原生元素播不了分片，只能直读。
     if (!vjs) video.src = (segmented ? direct : source).src;

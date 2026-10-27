@@ -4382,5 +4382,9 @@
   "Transcode folder must be an absolute server path": "轉碼目錄必須是伺服器絕對路徑",
   "Transcode storage limit must be between 1 and 1024 GiB": "轉碼容量必須為 1–1024 GiB",
   "Interval must be between 1 and 3600 seconds.": "間隔必須為 1–3600 秒。",
-  "Invalid thumbnail acceleration backend": "縮圖加速後端無效"
+  "Invalid thumbnail acceleration backend": "縮圖加速後端無效",
+  "On-demand seek previews (Beta)": "按需拖曳預覽（實驗）",
+  "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "在此瀏覽器按需解碼本機畫面，不產生時間軸檔案。會增加媒體讀取；從下一部影片生效。",
+  "Browser did not report support for the source media format": "瀏覽器未回報支援此來源媒體格式",
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "背景縮圖產生獨立控制。如需停止，請在 Peach 設定中將時間軸預覽設為關閉。"
 }

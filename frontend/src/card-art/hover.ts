@@ -8,7 +8,8 @@
  * 交进来：延时在计时器里还要再读一次，设置中途改了，下一拍读到的就是新值，所以不能抄一份
  * 快照。没配置时按「不拦、不延时」处理。 */
 
-import { nativeAv1Supported } from '../media-capabilities';
+import { nativeAv1Supported, nativePreviewSource } from '../media-capabilities';
+import { cancelStreamSession, newStreamSession } from '../media-sessions';
 
 /** 起预览前要问壳的三件事。都是取值函数，每次用时现读。 */
 export interface HoverPreviewConfig {
@@ -109,6 +110,7 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
     return;
   }
   let timer: ReturnType<typeof setTimeout> | undefined, v: HoverVideo | null = null;
+  let previewSession = '';
   el.addEventListener('mouseenter', () => {
     if (config.selecting() || config.censored() || scrolling()) return;   // 多选、遮挡或滚动中不启动预览
     timer = setTimeout(() => {
@@ -118,6 +120,12 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
       v = video;
       video.className = 'hv'; video.muted = true; video.playsInline = true; video.loop = true; video.preload = 'metadata';
       video.src = '/stream?id=' + it.id + '&preview=true' + (nativeAv1Supported() ? '&native_av1=true' : '');
+      video.addEventListener('error', () => {
+        previewSession = newStreamSession();
+        void nativePreviewSource(it.id, previewSession).then(source => {
+          if (source && v === video && video.isConnected) { video.src = source.src; void video.play().catch(() => {}) }
+        }).catch(() => {});
+      }, { once: true });
       // 分段跳跃：每段放 1.4 秒就跳到下一段，扫完全片，而不是从一个点连续播
       const SEG = [0.08, 0.22, 0.36, 0.50, 0.64, 0.78, 0.90]; let si = 0;
       const seek = () => { try { video.currentTime = (video.duration || 0) * (SEG[si] ?? 0); } catch { /* 元数据还没到 */ } };
@@ -130,6 +138,8 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
   });
   const stop = () => {
     clearLong();
+    if (previewSession) cancelStreamSession(previewSession);
+    previewSession = '';
     clearTimeout(timer); timer = undefined;
     if (v) { if (v._hop) clearInterval(v._hop); v.pause(); v.removeAttribute('src'); v.load(); v.remove(); v = null; }
   };

@@ -1,5 +1,9 @@
 # 页面路由
 
+`GET /api/stream-plan?probe_only=true` 只返回 `probe` 中的容器 MIME、完整编码组合、尺寸、帧率、码率及时间戳修复标记，不生成媒体。客户端随后通过 `native_play=true|false` 报告原片能力；不传该字段时保持已有判据。`/stream` 使用相同标记并返回原容器 MIME，HLS 的 `convert=true` 将已选择的转换决定传给播放列表与分片，避免浏览器拒绝原片后收到未经转换的分片。
+
+浏览器本机偏好 `onDemandSeekPreviews` 默认关闭，只控制非计费本地影片的按需时间轴画面。独立预览复用 `/api/stream-plan?probe_only=true`、`/stream?native_play=true&preview=true` 与会话取消端点；不新增服务器抽帧、保存图片或触发采集的写接口。
+
 `/api/thumbnail-jobs` 支持 `mode=custom` 与整数 `interval_seconds`（1–3600），读接口返回有效间隔；恢复请求保存自定义间隔。`action=set_acceleration` 接受 `acceleration=cpu|cuda|vulkan`，保存偏好而不启动任务。
 
 `GET/POST /api/configuration/transcode-cache` 读取及保存 `folder`、`max_gb`（1–1024，默认 10），返回 `used_bytes`、`active_folder` 与 `restart_required`。写入要求鉴权、配置页访问权限、同源与非只读部署；目录更改重启生效，限额立即应用于共用缓存预算。

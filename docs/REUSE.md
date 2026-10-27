@@ -2,6 +2,10 @@
 
 ## 时间轴缩略图任务
 
+通用原片能力复用 FFprobe 的既有文件指纹缓存，编码描述遵循 [MDN 的 MIME codecs 参数](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/codecs_parameter)，浏览器使用 `canPlayType` 与可用时的 `MediaCapabilities`，不维护按浏览器名称区分的解码白名单。转换回退沿用现有 HLS 与 FFmpeg 服务，决定随片段 URL 传递。
+
+按需预览复用 HTMLVideoElement、Canvas 与现有流会话取消，最多一个浏览器解码器和二十帧内存缓存；无需新依赖、WebCodecs 解复用器或服务端帧队列。浏览器负责 CPU／GPU 调度，Peach 负责防抖、生命周期与本地非计费边界；PotPlayer 代码与性能复现未取得，不从该链接复制实现。取证与差异见[笔记](reference-snapshots/potplayer-seek-preview.md)。
+
 自定义采样沿用 `timeline_sheets` 的间隔参数与断点请求，GPU 选项沿用已固定 FFmpeg 的 `-hwaccel cuda|vulkan`、已有安全解码名单及 `frame_capture` 取消／色彩重试，不引入新 GPU SDK。硬件失败每部影片只尝试一次该后端，CPU 继续生成相同几何的 JPEG。
 
 AV1 协商复用浏览器 `canPlayType` 与 `TranscodeService` 的文件指纹探测缓存，客户端能力不绕过服务端兼容判据；播放统计复用原统计浮层。转换存储预算沿用 HLS 的按访问时间淘汰思路，统一 MP4／TS 配额，并保护在途写入；配置复用原子状态文件和配置页权限，不写账本。不新增依赖，FFmpeg 的许可证与固定分发策略保持适用。依据和性能未验证面见 [性能说明](PERFORMANCE.md)。

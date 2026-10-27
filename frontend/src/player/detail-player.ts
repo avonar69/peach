@@ -213,7 +213,7 @@ export async function mountDetailPlayer(
   player.on(['loadstart', 'progress', 'waiting', 'stalled'], showNet);
   player.on(['canplay', 'playing'], () => { updateNet(); hideNet() });
   player.on('error', () => {
-    if (!options.source && playbackInfo?.method === 'Direct play' && playbackInfo.video_codec === 'av1' && !fallbackUsed && !player.isDisposed()) {
+    if (!options.source && playbackInfo?.method === 'Direct play' && !fallbackUsed && !player.isDisposed()) {
       fallbackUsed = true;
       const position = video.currentTime || 0;
       void detailStreamSource(item, true).then(next => {
@@ -228,7 +228,7 @@ export async function mountDetailPlayer(
     }
     if (segmentedSource && !fallbackUsed && !player.isDisposed()) {
       fallbackUsed = true; segmentedSource = false;
-      player.src(directDetailSource(item));
+      player.src(directDetailSource(item, playbackInfo?.method === 'Transcoding'));
       if (autoplay) player.play()?.catch(() => {});
       return;
     }

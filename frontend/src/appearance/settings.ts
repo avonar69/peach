@@ -36,6 +36,7 @@ export interface AppSettings {
   scrollVolume?: boolean;
   betaFastVideo?: boolean;
   betaFastUI?: boolean;
+  onDemandSeekPreviews?: boolean;
   searchHistoryLimit: number;
   relatedLimit: number;
   javLayout: string;
@@ -98,6 +99,7 @@ export function normalizeAppSettings(raw: unknown): { settings: AppSettings; mig
   settings.scrollVolume = settings.scrollVolume === true;
   settings.betaFastVideo = settings.betaFastVideo === true;
   settings.betaFastUI = settings.betaFastUI === true;
+  settings.onDemandSeekPreviews = settings.onDemandSeekPreviews === true;
   delete settings.loginDays;
   delete settings.metadataRefreshDays;
   settings.ambientMode = settings.ambientMode !== false;

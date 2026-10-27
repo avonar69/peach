@@ -4382,5 +4382,9 @@
   "Transcode folder must be an absolute server path": "서버의 절대 경로가 필요합니다",
   "Transcode storage limit must be between 1 and 1024 GiB": "한도는 1–1024 GiB입니다",
   "Interval must be between 1 and 3600 seconds.": "간격은 1–3600초입니다.",
-  "Invalid thumbnail acceleration backend": "잘못된 미리보기 가속 설정"
+  "Invalid thumbnail acceleration backend": "잘못된 미리보기 가속 설정",
+  "On-demand seek previews (Beta)": "요청 시 탐색 미리보기(베타)",
+  "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "브라우저에서 로컬 프레임을 요청 시 디코딩하며 타임라인 파일을 만들지 않습니다. 추가 읽기가 발생하고 다음 동영상부터 적용됩니다.",
+  "Browser did not report support for the source media format": "브라우저가 원본 미디어 형식 지원을 보고하지 않음",
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "백그라운드 생성은 별도 설정입니다. 중지하려면 Peach 설정에서 타임라인 미리보기를 끄세요."
 }

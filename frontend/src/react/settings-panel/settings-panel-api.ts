@@ -35,6 +35,7 @@ export interface PanelSettings {
   scrollVolume?: boolean;
   betaFastVideo?: boolean;
   betaFastUI?: boolean;
+  onDemandSeekPreviews?: boolean;
   relatedLimit: number;
   searchHistoryLimit: number;
   followInitialDays: number;

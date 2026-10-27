@@ -132,7 +132,7 @@ def _repaired_header(state, asset_id: int, source: Path):
     return None if store is None else store.lookup(asset_id, source)
 
 
-def _needs_conversion(state, asset_id: int, source: Path, session: str, *, native_av1=False) -> bool:
+def _needs_conversion(state, asset_id: int, source: Path, session: str, *, native_av1=False, native_play=None) -> bool:
     """起播时要不要转码。只有 `/api/stream-plan` 问这一句。
 
     缺 ctts 的片子只是时间戳错乱，重建一份头就能直接按 Range 播，不必重编码。头还没
@@ -142,8 +142,11 @@ def _needs_conversion(state, asset_id: int, source: Path, session: str, *, nativ
     会让固定 6 秒的计划换成按关键帧切的，剩下的分片索引全对不上。
     """
     if not state.transcode_service.requires_conversion(
-            source, session=session, registry=state.stream_sessions, **({'native_av1': True} if native_av1 else {})):
+            source, session=session, registry=state.stream_sessions,
+            **({'native_av1': True} if native_av1 else {}), **({'native_play': native_play} if native_play is not None else {})):
         return False
+    if native_play is False:
+        return True
     store = getattr(state, "header_repairs", None)
     if store is None or not state.transcode_service.decode_order_timestamps(
             source, session=session, registry=state.stream_sessions):
@@ -237,7 +240,7 @@ def external_playlist(request: Request, id: int, ticket: str, origin: str = ''):
 
 
 @router.api_route("/stream", methods=["GET", "HEAD"])
-def stream(request: Request, id: int, session: str = "", beta_fast: bool = False, native_av1: bool = False, preview: bool = False, args: dict[str, str] = Depends(require_auth)):
+def stream(request: Request, id: int, session: str = "", beta_fast: bool = False, native_av1: bool = False, preview: bool = False, native_play: bool | None = None, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     asset = state.media_engine.asset(id)
     path = state.media_engine.filesystem.file_for(asset, thumbnail=False)
@@ -246,7 +249,7 @@ def stream(request: Request, id: int, session: str = "", beta_fast: bool = False
         return strm_stream.proxy(request, id, path, session)
     if path.suffix.lower() in strm.DISC_SUFFIXES:
         return JSONResponse({'error': 'ISO 原盘请使用作品详情中的外部播放器打开'}, status_code=415)
-    if preview and state.transcode_service.requires_conversion(path, native_av1=native_av1):
+    if preview and state.transcode_service.requires_conversion(path, native_av1=native_av1, native_play=native_play):
         return Response(status_code=415, headers={'Cache-Control': 'no-store'})
     header = _repaired_header(state, id, path)
     if header is not None:
@@ -257,13 +260,15 @@ def stream(request: Request, id: int, session: str = "", beta_fast: bool = False
         path, transcoded = state.transcode_service.browser_path(
             id, path, session=session, registry=state.stream_sessions,
             **({'native_av1': True} if native_av1 else {}),
+            **({'native_play': native_play} if native_play is not None else {}),
         )
     except TranscodeCancelled:
         return Response(status_code=410, headers={"Cache-Control": "no-store"})
     except TranscodeUnavailable:
         LOGGER.exception("browser transcode failed for asset %s", id)
         return JSONResponse({"error": "transcode unavailable"}, status_code=503)
-    media_type = "video/mp4" if transcoded else None
+    from .browser_media import source_mime
+    media_type = "video/mp4" if transcoded else source_mime(path) or None
     response = (
         CancellableFileResponse(
             path, session=session, registry=state.stream_sessions, media_type=media_type,
@@ -281,7 +286,7 @@ def stream(request: Request, id: int, session: str = "", beta_fast: bool = False
 
 
 @router.get("/api/stream-plan")
-def stream_plan(request: Request, id: int, session: str = "", mode: str = "", native_av1: bool = False, args: dict[str, str] = Depends(require_auth)):
+def stream_plan(request: Request, id: int, session: str = "", mode: str = "", native_av1: bool = False, native_play: bool | None = None, probe_only: bool = False, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     if session and len(session) > 128:
         return JSONResponse({"error": "invalid session"}, status_code=400)
@@ -303,9 +308,11 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", na
                 'src': f'/stream?id={id}&session={quote(session, safe="")}', 'reason': 'strm-pointer'}
     if source_path.suffix.lower() in strm.DISC_SUFFIXES:
         return JSONResponse({'error': 'ISO 原盘请使用作品详情中的外部播放器打开'}, status_code=415)
-    conversion = _needs_conversion(state, id, source_path, session, native_av1=native_av1)
+    if probe_only:
+        return {'probe': state.transcode_service.browser_probe(source_path, session=session, registry=state.stream_sessions)}
+    conversion = _needs_conversion(state, id, source_path, session, native_av1=native_av1, native_play=native_play)
     details = state.transcode_service.playback_info(source_path, session=session,
-                registry=state.stream_sessions, native_av1=native_av1)
+                registry=state.stream_sessions, native_av1=native_av1, native_play=native_play)
     if not isinstance(details, dict):
         details = {}
     resolved = (_hls_plan(state, id, session, conversion)
@@ -318,7 +325,7 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", na
             "duration": round(sum(length for _, length in resolved[2]), 3),
             "segment_seconds": plan.segment_seconds,
             "segments": len(resolved[2]),
-            "src": f"/stream/hls/{id}/index.m3u8?session={quote(session, safe='')}",
+            "src": f"/stream/hls/{id}/index.m3u8?session={quote(session, safe='')}" + ('&convert=true' if conversion else ''),
             "reason": plan.reason,
             'playback': {**details, 'method': 'Transcoding' if conversion else 'Remuxing',
                          'output_codec': 'H.264 / AAC' if conversion else details.get('video_codec')},
@@ -328,10 +335,13 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", na
         source += f"&session={quote(session, safe='')}"
     if native_av1:
         source += '&native_av1=true'
+    if native_play is not None:
+        source += f'&native_play={str(native_play).lower()}'
+    from .browser_media import source_mime
     return {
         "id": id,
         "protocol": "range",
-        "mime_type": plan.mime_type,
+        "mime_type": (source_mime(source_path) or plan.mime_type) if not conversion else 'video/mp4',
         "duration": asset.duration,
         "src": source,
         "reason": plan.reason,
@@ -355,7 +365,7 @@ def strm_resource(request: Request, id: int, key: str, session: str = '',
 
 
 @router.get("/stream/hls/{id}/index.m3u8")
-def hls_playlist(request: Request, id: int, session: str = "", args: dict[str, str] = Depends(require_auth)):
+def hls_playlist(request: Request, id: int, session: str = "", convert: bool = False, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     # 分片必须带 session 才能被取消，播放列表这层就要求它；
     # 否则会生成一份每个分片都必然 400 的目录。
@@ -364,12 +374,12 @@ def hls_playlist(request: Request, id: int, session: str = "", args: dict[str, s
     if state.stream_sessions.is_cancelled(session):
         return PlainTextResponse("stream cancelled", status_code=410)
     try:
-        resolved = _hls_plan(state, id, session)
+        resolved = _hls_plan(state, id, session, **({'conversion': True} if convert else {}))
     except (MediaUnavailable, TranscodeUnavailable):
         return PlainTextResponse("hls unavailable", status_code=404)
     if resolved is None:
         return PlainTextResponse("hls unavailable", status_code=404)
-    query = f"?session={quote(session, safe='')}"
+    query = f"?session={quote(session, safe='')}" + ('&convert=true' if convert else '')
     playlist = build_hls_playlist(
         resolved[2], lambda index: f"/stream/hls/{id}/{index}.ts{query}",
     )
@@ -379,7 +389,7 @@ def hls_playlist(request: Request, id: int, session: str = "", args: dict[str, s
 
 
 @router.get("/stream/hls/{id}/{index}.ts")
-async def hls_segment(request: Request, id: int, index: int, session: str = "", args: dict[str, str] = Depends(require_auth)):
+async def hls_segment(request: Request, id: int, index: int, session: str = "", convert: bool = False, args: dict[str, str] = Depends(require_auth)):
     state = request.app.state
     if not session or len(session) > 128:
         return JSONResponse({"error": "invalid session"}, status_code=400)
@@ -388,7 +398,7 @@ async def hls_segment(request: Request, id: int, index: int, session: str = "", 
     try:
         loop = asyncio.get_running_loop()
         resolved = await loop.run_in_executor(
-            state.hls_plan_executor, partial(_hls_plan, state, id, session),
+            state.hls_plan_executor, partial(_hls_plan, state, id, session, **({'conversion': True} if convert else {})),
         )
         if resolved is None:
             return JSONResponse({"error": "hls unavailable"}, status_code=404)

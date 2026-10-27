@@ -200,6 +200,36 @@ class RobotsTests(unittest.IsolatedAsyncioTestCase):
 
 @unittest.skipUnless(HAS_DEPS, "FastAPI/httpx 尚未安装")
 class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
+    async def test_hevc_probe_then_native_play_preserves_original_bytes(self):
+        from peach.transcodes import _MediaProfile
+        service = self.app.state.transcode_service
+        profile = _MediaProfile('hevc', 'yuv420p10le', 'aac', video_profile='Main 10', video_level=120)
+        with patch.object(service, '_profile_for', return_value=profile):
+            inspection = await self.client.get('/api/stream-plan?id=1&probe_only=true&t=secret')
+            self.assertIn('hvc1.2.', inspection.json()['probe']['content_type'])
+            plan = (await self.client.get('/api/stream-plan?id=1&session=hevc&native_play=true&t=secret')).json()
+            self.assertEqual(plan['playback']['method'], 'Direct play')
+            self.assertIn('native_play=true', plan['src'])
+            response = await self.client.get(plan['src'] + '&t=secret')
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn('x-peach-transcoded', response.headers)
+
+    async def test_browser_rejected_native_codec_keeps_conversion_on_hls_requests(self):
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            connection.execute('UPDATE asset SET duration=13.5 WHERE id=1')
+        plan = (await self.client.get('/api/stream-plan?id=1&session=unsupported&native_play=false&t=secret')).json()
+        self.assertEqual(plan['playback']['method'], 'Transcoding')
+        self.assertIn('convert=true', plan['src'])
+        playlist = await self.client.get(plan['src'] + '&t=secret')
+        self.assertEqual(playlist.status_code, 200)
+        segment = next(line for line in playlist.text.splitlines() if line.startswith('/stream/'))
+        self.assertIn('convert=true', segment)
+        cached = self.root / 'converted.ts'
+        cached.write_bytes(b'segment')
+        with patch.object(self.app.state.hls_service, 'generate', return_value=cached) as generate:
+            response = await self.client.get(segment + '&t=secret')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(generate.call_args.kwargs['transcode'])
     async def test_transcode_cache_settings_persist_and_require_restart_for_folder_changes(self):
         response = await self.client.get('/api/configuration/transcode-cache?t=secret')
         self.assertEqual(response.status_code, 200)

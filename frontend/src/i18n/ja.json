@@ -4382,5 +4382,9 @@
   "Transcode folder must be an absolute server path": "サーバーの絶対パスが必要です",
   "Transcode storage limit must be between 1 and 1024 GiB": "上限は 1–1024 GiB です",
   "Interval must be between 1 and 3600 seconds.": "間隔は 1–3600 秒です。",
-  "Invalid thumbnail acceleration backend": "無効なサムネイル高速化設定"
+  "Invalid thumbnail acceleration backend": "無効なサムネイル高速化設定",
+  "On-demand seek previews (Beta)": "オンデマンドシークプレビュー（ベータ）",
+  "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "ブラウザーでローカル映像を必要時にデコードし、タイムラインファイルを生成しません。追加の読み込みが発生し、次の動画から適用されます。",
+  "Browser did not report support for the source media format": "ブラウザーが元の形式への対応を報告していません",
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "バックグラウンド生成は別設定です。停止するには Peach 設定でタイムラインプレビューをオフにしてください。"
 }

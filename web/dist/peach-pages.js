@@ -9790,7 +9790,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "Transcode folder must be an absolute server path",
 	"Transcode storage limit must be between 1 and 1024 GiB": "Transcode storage limit must be between 1 and 1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "Interval must be between 1 and 3600 seconds.",
-	"Invalid thumbnail acceleration backend": "Invalid thumbnail acceleration backend"
+	"Invalid thumbnail acceleration backend": "Invalid thumbnail acceleration backend",
+	"On-demand seek previews (Beta)": "On-demand seek previews (Beta)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.",
+	"Browser did not report support for the source media format": "Browser did not report support for the source media format",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it."
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -17795,7 +17799,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "La carpeta debe ser una ruta absoluta del servidor",
 	"Transcode storage limit must be between 1 and 1024 GiB": "El límite debe ser de 1 a 1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "El intervalo debe ser de 1 a 3600 segundos.",
-	"Invalid thumbnail acceleration backend": "Aceleración de miniaturas no válida"
+	"Invalid thumbnail acceleration backend": "Aceleración de miniaturas no válida",
+	"On-demand seek previews (Beta)": "Vistas previas al buscar (Beta)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Decodifica fotogramas locales en el navegador sin generar archivos de línea de tiempo. Usa lecturas adicionales; se aplica al siguiente vídeo.",
+	"Browser did not report support for the source media format": "El navegador no indicó soporte para el formato original",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La generación en segundo plano se controla por separado. Desactive la vista previa de la línea de tiempo en la configuración de Peach para detenerla."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22180,7 +22188,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "Le dossier doit être un chemin absolu du serveur",
 	"Transcode storage limit must be between 1 and 1024 GiB": "La limite doit être de 1 à 1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "L’intervalle doit être de 1 à 3600 secondes.",
-	"Invalid thumbnail acceleration backend": "Accélération des miniatures invalide"
+	"Invalid thumbnail acceleration backend": "Accélération des miniatures invalide",
+	"On-demand seek previews (Beta)": "Aperçus à la demande (Bêta)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Décode les images locales dans le navigateur sans créer de fichiers de chronologie. Lectures supplémentaires ; effet à la prochaine vidéo.",
+	"Browser did not report support for the source media format": "Le navigateur ne signale pas la prise en charge du format source",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La génération en arrière-plan est indépendante. Désactivez l’aperçu de chronologie dans la configuration de Peach pour l’arrêter."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -26565,7 +26577,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "Absoluten Serverpfad angeben",
 	"Transcode storage limit must be between 1 and 1024 GiB": "Limit muss zwischen 1 und 1024 GiB liegen",
 	"Interval must be between 1 and 3600 seconds.": "Intervall muss zwischen 1 und 3600 Sekunden liegen.",
-	"Invalid thumbnail acceleration backend": "Ungültige Vorschaubildbeschleunigung"
+	"Invalid thumbnail acceleration backend": "Ungültige Vorschaubildbeschleunigung",
+	"On-demand seek previews (Beta)": "Vorschauen bei Bedarf (Beta)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Dekodiert lokale Bilder im Browser ohne Zeitachsdateien. Zusätzliche Medienzugriffe; gilt ab dem nächsten Video.",
+	"Browser did not report support for the source media format": "Browser meldet keine Unterstützung für das Quellformat",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Hintergrundgenerierung wird separat gesteuert. Zum Stoppen die Zeitachsenvorschau in der Peach-Konfiguration ausschalten."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -30950,7 +30966,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "A pasta deve ser um caminho absoluto do servidor",
 	"Transcode storage limit must be between 1 and 1024 GiB": "O limite deve ser de 1 a 1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "O intervalo deve ser de 1 a 3600 segundos.",
-	"Invalid thumbnail acceleration backend": "Aceleração de miniaturas inválida"
+	"Invalid thumbnail acceleration backend": "Aceleração de miniaturas inválida",
+	"On-demand seek previews (Beta)": "Prévias sob demanda (Beta)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Decodifica quadros locais no navegador sem gerar arquivos de linha do tempo. Usa leituras adicionais; vale no próximo vídeo.",
+	"Browser did not report support for the source media format": "O navegador não informou suporte ao formato original",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "A geração em segundo plano é independente. Desative a prévia da linha do tempo na configuração do Peach para interrompê-la."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -35335,7 +35355,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "サーバーの絶対パスが必要です",
 	"Transcode storage limit must be between 1 and 1024 GiB": "上限は 1–1024 GiB です",
 	"Interval must be between 1 and 3600 seconds.": "間隔は 1–3600 秒です。",
-	"Invalid thumbnail acceleration backend": "無効なサムネイル高速化設定"
+	"Invalid thumbnail acceleration backend": "無効なサムネイル高速化設定",
+	"On-demand seek previews (Beta)": "オンデマンドシークプレビュー（ベータ）",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "ブラウザーでローカル映像を必要時にデコードし、タイムラインファイルを生成しません。追加の読み込みが発生し、次の動画から適用されます。",
+	"Browser did not report support for the source media format": "ブラウザーが元の形式への対応を報告していません",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "バックグラウンド生成は別設定です。停止するには Peach 設定でタイムラインプレビューをオフにしてください。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -39720,7 +39744,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "서버의 절대 경로가 필요합니다",
 	"Transcode storage limit must be between 1 and 1024 GiB": "한도는 1–1024 GiB입니다",
 	"Interval must be between 1 and 3600 seconds.": "간격은 1–3600초입니다.",
-	"Invalid thumbnail acceleration backend": "잘못된 미리보기 가속 설정"
+	"Invalid thumbnail acceleration backend": "잘못된 미리보기 가속 설정",
+	"On-demand seek previews (Beta)": "요청 시 탐색 미리보기(베타)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "브라우저에서 로컬 프레임을 요청 시 디코딩하며 타임라인 파일을 만들지 않습니다. 추가 읽기가 발생하고 다음 동영상부터 적용됩니다.",
+	"Browser did not report support for the source media format": "브라우저가 원본 미디어 형식 지원을 보고하지 않음",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "백그라운드 생성은 별도 설정입니다. 중지하려면 Peach 설정에서 타임라인 미리보기를 끄세요."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -44105,7 +44133,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "Thư mục phải là đường dẫn tuyệt đối trên máy chủ",
 	"Transcode storage limit must be between 1 and 1024 GiB": "Giới hạn phải từ 1 đến 1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "Khoảng phải từ 1 đến 3600 giây.",
-	"Invalid thumbnail acceleration backend": "Thiết lập tăng tốc ảnh không hợp lệ"
+	"Invalid thumbnail acceleration backend": "Thiết lập tăng tốc ảnh không hợp lệ",
+	"On-demand seek previews (Beta)": "Ảnh xem trước theo yêu cầu (Beta)",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Giải mã khung hình cục bộ trong trình duyệt mà không tạo tệp dòng thời gian. Đọc thêm dữ liệu; áp dụng từ video tiếp theo.",
+	"Browser did not report support for the source media format": "Trình duyệt không báo hỗ trợ định dạng nguồn",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "Tạo ảnh nền được điều khiển riêng. Tắt xem trước dòng thời gian trong cấu hình Peach để dừng."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -48490,7 +48522,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "轉碼目錄必須是伺服器絕對路徑",
 	"Transcode storage limit must be between 1 and 1024 GiB": "轉碼容量必須為 1–1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "間隔必須為 1–3600 秒。",
-	"Invalid thumbnail acceleration backend": "縮圖加速後端無效"
+	"Invalid thumbnail acceleration backend": "縮圖加速後端無效",
+	"On-demand seek previews (Beta)": "按需拖曳預覽（實驗）",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "在此瀏覽器按需解碼本機畫面，不產生時間軸檔案。會增加媒體讀取；從下一部影片生效。",
+	"Browser did not report support for the source media format": "瀏覽器未回報支援此來源媒體格式",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "背景縮圖產生獨立控制。如需停止，請在 Peach 設定中將時間軸預覽設為關閉。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -48900,7 +48936,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Transcode folder must be an absolute server path": "转码目录必须是服务端绝对路径",
 	"Transcode storage limit must be between 1 and 1024 GiB": "转码容量必须为 1–1024 GiB",
 	"Interval must be between 1 and 3600 seconds.": "间隔必须为 1–3600 秒。",
-	"Invalid thumbnail acceleration backend": "缩略图加速后端无效"
+	"Invalid thumbnail acceleration backend": "缩略图加速后端无效",
+	"On-demand seek previews (Beta)": "按需拖动预览（实验）",
+	"Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "在此浏览器按需解码本地画面，不生成时间轴文件。会增加媒体读取；从下一部影片生效。",
+	"Browser did not report support for the source media format": "浏览器未报告支持此源媒体格式",
+	"Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "后台缩略图生成独立控制。如需停止，请在 Peach 配置中将时间轴预览设为关闭。"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

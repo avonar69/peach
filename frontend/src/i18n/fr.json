@@ -4382,5 +4382,9 @@
   "Transcode folder must be an absolute server path": "Le dossier doit être un chemin absolu du serveur",
   "Transcode storage limit must be between 1 and 1024 GiB": "La limite doit être de 1 à 1024 GiB",
   "Interval must be between 1 and 3600 seconds.": "L’intervalle doit être de 1 à 3600 secondes.",
-  "Invalid thumbnail acceleration backend": "Accélération des miniatures invalide"
+  "Invalid thumbnail acceleration backend": "Accélération des miniatures invalide",
+  "On-demand seek previews (Beta)": "Aperçus à la demande (Bêta)",
+  "Decodes local seek frames in this browser without generating timeline files. Uses extra media reads; applies to the next video.": "Décode les images locales dans le navigateur sans créer de fichiers de chronologie. Lectures supplémentaires ; effet à la prochaine vidéo.",
+  "Browser did not report support for the source media format": "Le navigateur ne signale pas la prise en charge du format source",
+  "Background thumbnail generation is separate. Set Timeline preview to Off in Peach configuration to stop it.": "La génération en arrière-plan est indépendante. Désactivez l’aperçu de chronologie dans la configuration de Peach pour l’arrêter."
 }
