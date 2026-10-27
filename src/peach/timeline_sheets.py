@@ -109,7 +109,7 @@ def is_current(root: Path, asset_id: int, interval: int) -> bool:
 
 
 def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
-          interval: int, *, active=lambda: True) -> dict:
+          interval: int, *, active=lambda: True, progress=lambda **fields: None) -> dict:
     """给一部片子生成整套时间轴图，返回写进 `meta.json` 的那份。
 
     `active` 每帧问一次：一部三小时的片子有上千帧，中途按停就该停在这里，而不是
@@ -136,6 +136,7 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
             for offset in range(count):
                 if not active():
                     return {}
+                progress(current_frame=first + offset + 1, current_frames=total)
                 # 帧号乘间隔就是它在片子里的秒数，前端按同一条式子反算。头尾各让开
                 # 一点，靠 EDGE_MARGIN 把采样点往里推，不改这条对应关系的斜率。
                 timestamp = (first + offset) * interval + duration * EDGE_MARGIN
@@ -144,7 +145,7 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
                 slots = offset + 1
                 capture_with_retry(ffmpeg, source, timestamp,
                                    temporary / f"s{offset:03d}.jpg",
-                                   width=FRAME_WIDTH, timeout=20)
+                                   width=FRAME_WIDTH, timeout=20, threads=1, active=active)
             captured = _fill_gaps(temporary, slots)
             if captured < 2:
                 # 末张可能一格都排不进（`EDGE_MARGIN` 把最后一个采样点推过了片尾）。
@@ -156,7 +157,7 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
             try:
                 with atomic_path(sheet_path(root, asset_id, index)) as destination:
                     if not tile_frames(ffmpeg, str(temporary / "s%03d.jpg"),
-                                       COLUMNS, rows, destination):
+                                       COLUMNS, rows, destination, threads=1, active=active):
                         # 拼不出来就让 `atomic_path` 按异常路径收尾：正常退出它会去
                         # 替换目标，而这时那个临时文件要么不存在要么是半张。
                         raise _TileFailed
@@ -164,6 +165,8 @@ def build(ffmpeg: str, source: str, duration: float, root: Path, asset_id: int,
                 return {}
             made += captured
             produced += 1
+        except InterruptedError:
+            return {}
         finally:
             shutil.rmtree(temporary, ignore_errors=True)
     # `frames` 是连续的格子数，末张的行数由它反算（`ceil(余数 / columns)`）：那一张
@@ -258,10 +261,14 @@ def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: 
             report(**state)
             continue
         if build(ffmpeg, str(source), float(duration or 0), root, int(asset_id),
-                 interval, active=active):
+                 interval, active=active,
+                 progress=lambda asset_id=asset_id, **fields: report(**state, current_asset_id=asset_id, **fields)):
             state["made"] += 1
             save(asset_id)
         else:
+            if not active():
+                state['stopped'] = STOPPED_BY_USER
+                break
             state["failed"] += 1
         report(**state)
     return state

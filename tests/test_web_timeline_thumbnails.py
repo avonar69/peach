@@ -49,6 +49,21 @@ class ThumbnailJobEndpointTests(unittest.TestCase):
         self.contract.thumbnail_job.start.assert_not_called()
         self.assertEqual(web_timeline_thumbnails.read_mode(), "off")
 
+    def test_terminal_job_or_task_record_stops_frame_extraction(self):
+        web_timeline_thumbnails.write_mode('precise')
+        self.contract.thumbnail_job.snapshot.return_value = {'job_id': 'one', 'status': 'running', 'run_id': 7}
+        self.contract.task_runs.get.return_value.active = True
+        with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=False):
+            self.assertTrue(web_timeline_thumbnails._active(self.contract, 'one'))
+            self.contract.task_runs.get.return_value.active = False
+            self.assertFalse(web_timeline_thumbnails._active(self.contract, 'one'))
+            self.contract.thumbnail_job.snapshot.return_value['status'] = 'complete'
+            self.assertFalse(web_timeline_thumbnails._active(self.contract, 'one'))
+
+    def test_disabled_density_stops_frame_extraction(self):
+        self.contract.thumbnail_job.snapshot.return_value = {'job_id': 'one', 'status': 'running'}
+        self.assertFalse(web_timeline_thumbnails._active(self.contract, 'one'))
+
     def test_turning_it_off_stops_the_run_and_keeps_the_sheets(self):
         """几 GB 的产物删不删是另一件事，走数据管理页那条清理链。"""
         web_timeline_thumbnails.write_mode("precise")

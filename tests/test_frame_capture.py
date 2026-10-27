@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from PIL import Image
 
@@ -48,6 +48,25 @@ class CaptureFrameTests(unittest.TestCase):
         self.assertLess(command.index("-ss"), command.index("-i"))
         self.assertIn("scale=320:-1", command)
         self.assertNotIn("bt709", command)
+
+    def test_explicit_thread_budget_limits_decoding_filtering_and_encoding(self):
+        with self._run():
+            frame_capture.capture_frame('ffmpeg', 'movie.mp4', 1, self.root / 'one.jpg', threads=1)
+        command = self.commands[0]
+        self.assertEqual([command[i + 1] for i, value in enumerate(command) if value == '-threads'], ['1', '1'])
+        self.assertEqual(command[command.index('-filter_threads') + 1], '1')
+
+    def test_cancellation_kills_and_reaps_only_the_owned_child(self):
+        child = MagicMock()
+        child.poll.return_value = None
+        child.communicate.side_effect = [subprocess.TimeoutExpired('ffmpeg', .5), (b'', b'')]
+        active = MagicMock(side_effect=[True, True, False])
+        with patch.object(frame_capture.subprocess, 'Popen', return_value=child) as start:
+            with self.assertRaises(InterruptedError):
+                frame_capture._run_capture(['ffmpeg', '-version'], 20, active)
+        start.assert_called_once()
+        child.kill.assert_called_once_with()
+        self.assertEqual(child.communicate.call_count, 2)
 
     def test_a_frame_too_small_to_be_a_picture_does_not_count_as_taken(self):
         """命令退出 0 不等于出了图。写了个几百字节的壳，页面上就是一块灰。"""

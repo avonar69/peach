@@ -9750,7 +9750,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "Faster video loading and seeking (Beta)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.",
 	"Faster section navigation (Beta)": "Faster section navigation (Beta)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.",
+	"Generating seek thumbnails": "Generating seek thumbnails",
+	"{0} of {1} videos": "{0} of {1} videos",
+	"{0} of {1} frames": "{0} of {1} frames",
+	"Stop thumbnail generation": "Stop thumbnail generation",
+	"Thumbnail generation progress": "Thumbnail generation progress"
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -17715,7 +17720,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "Carga y búsqueda de vídeo más rápidas (beta)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Precarga más los archivos locales y permite un búfer privado del navegador. Usa más red y memoria; se aplica al siguiente vídeo.",
 	"Faster section navigation (Beta)": "Navegación más rápida entre secciones (beta)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza los datos de navegación durante un máximo de 30 segundos. Las tareas, revisiones y ajustes conservan su actualización normal."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza los datos de navegación durante un máximo de 30 segundos. Las tareas, revisiones y ajustes conservan su actualización normal.",
+	"Generating seek thumbnails": "Generando miniaturas de búsqueda",
+	"{0} of {1} videos": "{0} de {1} vídeos",
+	"{0} of {1} frames": "{0} de {1} fotogramas",
+	"Stop thumbnail generation": "Detener generación de miniaturas",
+	"Thumbnail generation progress": "Progreso de generación de miniaturas"
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22060,7 +22070,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "Chargement et recherche vidéo rapides (bêta)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Précharge davantage les fichiers locaux et autorise un tampon privé du navigateur. Consomme plus de réseau et de mémoire ; prend effet à la prochaine vidéo.",
 	"Faster section navigation (Beta)": "Navigation rapide entre les sections (bêta)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Réutilise les données de navigation pendant 30 secondes au maximum. Les tâches, files de vérification et paramètres gardent leur actualisation normale."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Réutilise les données de navigation pendant 30 secondes au maximum. Les tâches, files de vérification et paramètres gardent leur actualisation normale.",
+	"Generating seek thumbnails": "Génération des aperçus de navigation",
+	"{0} of {1} videos": "{0} sur {1} vidéos",
+	"{0} of {1} frames": "{0} sur {1} images",
+	"Stop thumbnail generation": "Arrêter la génération des miniatures",
+	"Thumbnail generation progress": "Progression des miniatures"
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -26405,7 +26420,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "Schnelleres Laden und Spulen (Beta)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Lädt lokale Videos weiter voraus und erlaubt privaten Browserpuffer. Benötigt mehr Netzwerk und Speicher; gilt ab dem nächsten Video.",
 	"Faster section navigation (Beta)": "Schnellerer Seitenwechsel (Beta)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Verwendet Browserdaten bis zu 30 Sekunden erneut. Aufgaben, Prüfwarteschlangen und Einstellungen behalten ihre Aktualisierung."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Verwendet Browserdaten bis zu 30 Sekunden erneut. Aufgaben, Prüfwarteschlangen und Einstellungen behalten ihre Aktualisierung.",
+	"Generating seek thumbnails": "Vorschaubilder werden erstellt",
+	"{0} of {1} videos": "{0} von {1} Videos",
+	"{0} of {1} frames": "{0} von {1} Bildern",
+	"Stop thumbnail generation": "Vorschaubilderstellung stoppen",
+	"Thumbnail generation progress": "Fortschritt der Vorschaubilderstellung"
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -30750,7 +30770,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "Carregamento e busca de vídeo mais rápidos (beta)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Pré-carrega mais os arquivos locais e permite buffer privado no navegador. Usa mais rede e memória; aplica-se ao próximo vídeo.",
 	"Faster section navigation (Beta)": "Navegação mais rápida entre seções (beta)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza os dados de navegação por até 30 segundos. Tarefas, filas de revisão e configurações mantêm a atualização normal."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza os dados de navegação por até 30 segundos. Tarefas, filas de revisão e configurações mantêm a atualização normal.",
+	"Generating seek thumbnails": "Gerando miniaturas de navegação",
+	"{0} of {1} videos": "{0} de {1} vídeos",
+	"{0} of {1} frames": "{0} de {1} quadros",
+	"Stop thumbnail generation": "Parar geração de miniaturas",
+	"Thumbnail generation progress": "Progresso da geração de miniaturas"
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -35095,7 +35120,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "動画の読み込みとシークを高速化（ベータ）",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "ローカル動画の先読みとブラウザーのプライベートバッファを有効にします。通信量とメモリ使用量が増えます。次の動画から適用されます。",
 	"Faster section navigation (Beta)": "画面切り替えを高速化（ベータ）",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "閲覧データを最大30秒間再利用します。タスク、確認キュー、設定の更新頻度は維持されます。"
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "閲覧データを最大30秒間再利用します。タスク、確認キュー、設定の更新頻度は維持されます。",
+	"Generating seek thumbnails": "シーク用サムネイルを生成中",
+	"{0} of {1} videos": "{0} / {1} 本の動画",
+	"{0} of {1} frames": "{0} / {1} フレーム",
+	"Stop thumbnail generation": "サムネイル生成を停止",
+	"Thumbnail generation progress": "サムネイル生成の進行状況"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -39440,7 +39470,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "빠른 동영상 로딩 및 탐색 (베타)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "로컬 파일을 더 미리 읽고 브라우저의 비공개 버퍼를 허용합니다. 네트워크와 메모리 사용량이 늘어납니다. 다음 동영상부터 적용됩니다.",
 	"Faster section navigation (Beta)": "빠른 화면 이동 (베타)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "탐색 데이터를 최대 30초 동안 재사용합니다. 작업, 검토 대기열 및 설정은 정상적으로 갱신됩니다."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "탐색 데이터를 최대 30초 동안 재사용합니다. 작업, 검토 대기열 및 설정은 정상적으로 갱신됩니다.",
+	"Generating seek thumbnails": "탐색 미리보기 생성 중",
+	"{0} of {1} videos": "동영상 {0} / {1}개",
+	"{0} of {1} frames": "프레임 {0} / {1}개",
+	"Stop thumbnail generation": "미리보기 생성 중지",
+	"Thumbnail generation progress": "미리보기 생성 진행률"
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Thêm theo dõi",
 	"# 浏览记录口味分析": "# Phân tích hương vị lịch sử duyệt web",
@@ -43785,7 +43820,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "Tải và tua video nhanh hơn (Beta)",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Tải trước nhiều hơn và cho phép bộ đệm riêng của trình duyệt với tệp cục bộ. Dùng nhiều mạng và bộ nhớ hơn; áp dụng từ video tiếp theo.",
 	"Faster section navigation (Beta)": "Chuyển mục nhanh hơn (Beta)",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Tái sử dụng dữ liệu duyệt tối đa 30 giây. Tác vụ, hàng đợi xem xét và cài đặt vẫn cập nhật bình thường."
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Tái sử dụng dữ liệu duyệt tối đa 30 giây. Tác vụ, hàng đợi xem xét và cài đặt vẫn cập nhật bình thường.",
+	"Generating seek thumbnails": "Đang tạo ảnh thu nhỏ khi tua",
+	"{0} of {1} videos": "{0} / {1} video",
+	"{0} of {1} frames": "{0} / {1} khung hình",
+	"Stop thumbnail generation": "Dừng tạo ảnh thu nhỏ",
+	"Thumbnail generation progress": "Tiến độ tạo ảnh thu nhỏ"
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -48130,7 +48170,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "更快的影片載入與跳轉（實驗）",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "為本機檔案增加預載並允許瀏覽器私人緩衝。會增加網路和記憶體用量，下部影片生效。",
 	"Faster section navigation (Beta)": "更快的頁面切換（實驗）",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "瀏覽快照最多重用 30 秒。工作、複核佇列和設定維持正常更新。"
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "瀏覽快照最多重用 30 秒。工作、複核佇列和設定維持正常更新。",
+	"Generating seek thumbnails": "正在產生拖曳預覽圖",
+	"{0} of {1} videos": "已完成 {0} / {1} 部影片",
+	"{0} of {1} frames": "第 {0} / {1} 幀",
+	"Stop thumbnail generation": "停止產生縮圖",
+	"Thumbnail generation progress": "縮圖產生進度"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -48500,7 +48545,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Faster video loading and seeking (Beta)": "更快的视频载入与跳转（实验）",
 	"Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "为本地文件增加预载并允许浏览器私有缓冲。会增加网络和内存用量，下部影片生效。",
 	"Faster section navigation (Beta)": "更快的页面切换（实验）",
-	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "浏览快照最多复用 30 秒。任务、复核队列和设置保持正常刷新。"
+	"Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "浏览快照最多复用 30 秒。任务、复核队列和设置保持正常刷新。",
+	"Generating seek thumbnails": "正在生成拖动预览图",
+	"{0} of {1} videos": "已完成 {0} / {1} 部影片",
+	"{0} of {1} frames": "第 {0} / {1} 帧",
+	"Stop thumbnail generation": "停止生成缩略图",
+	"Thumbnail generation progress": "缩略图生成进度"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

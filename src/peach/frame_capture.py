@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess
+import time
 from pathlib import Path
 from .processing_control import checkpoint, ffmpeg_options
 
@@ -24,6 +25,41 @@ def _readable_image(path: Path) -> bool:
             return image.width > 0 and image.height > 0
     except (OSError, ValueError, Image.DecompressionBombError):
         return False
+
+
+def _thread_options(threads, filter_option=None):
+    if threads is None:
+        return ffmpeg_options(filter_option=filter_option)
+    value = str(max(1, int(threads)))
+    return ['-threads', value, *([filter_option, value] if filter_option else [])]
+
+
+def _run_capture(command, timeout, active=None):
+    flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+    if active is None:
+        return subprocess.run(command, capture_output=True, timeout=timeout, creationflags=flags)
+    if not active():
+        raise InterruptedError('Frame extraction stopped.')
+    # 与转换工作者相同的短轮询：仅终止本次启动的子进程，不扫描或终止其他 FFmpeg。
+    process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, creationflags=flags)
+    deadline = time.monotonic() + timeout
+    try:
+        while True:
+            if not active():
+                raise InterruptedError('Frame extraction stopped.')
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(command, timeout)
+            try:
+                stdout, stderr = process.communicate(timeout=min(.5, remaining))
+                return subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+            except subprocess.TimeoutExpired:
+                continue
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.communicate()
 
 #: 部分网盘视频把色彩原色写成 reserved（非法值），swscale 会拒绝缩放；声明为 bt709
 #: 只是覆盖坏的元数据，不改动像素。
@@ -40,7 +76,8 @@ COLOR_METADATA_ERROR = re.compile(
 
 def capture_frame(ffmpeg: str, path: str, timestamp: float, destination: Path, *,
                   width: int = 480, color_override: bool = False,
-                  timeout: float = 45, diagnostics: dict | None = None) -> tuple[bool, str]:
+                  timeout: float = 45, diagnostics: dict | None = None,
+                  threads: int | None = None, active=None) -> tuple[bool, str]:
     """抽一帧，返回（是否成功, stderr）。stderr 用于判断值不值得重试。
 
     `-ss` 在 `-i` 之前：那是输入端 seek，只解目标附近的帧。放到后面就是从头解码到
@@ -49,17 +86,16 @@ def capture_frame(ffmpeg: str, path: str, timestamp: float, destination: Path, *
     destination.unlink(missing_ok=True)
     command = [ffmpeg, "-y", "-v", "error", "-rw_timeout", "8000000"]
     checkpoint('frame')
-    command += ffmpeg_options(filter_option='-filter_threads')
+    command += _thread_options(threads, '-filter_threads')
     if color_override:
         command += COLOR_OVERRIDE
     command += [
         "-ss", f"{timestamp:.2f}", "-i", path, "-frames:v", "1",
         "-vf", f"scale={int(width)}:-1", "-q:v", "4",
-        *ffmpeg_options(), str(destination),
+        *_thread_options(threads), str(destination),
     ]
     try:
-        completed = subprocess.run(command, capture_output=True, timeout=timeout,
-                                   creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+        completed = _run_capture(command, timeout, active)
     except subprocess.TimeoutExpired as error:
         if diagnostics is not None:
             diagnostics.update(reason='timeout', returncode=None,
@@ -79,17 +115,18 @@ def capture_frame(ffmpeg: str, path: str, timestamp: float, destination: Path, *
 
 def capture_with_retry(ffmpeg: str, path: str, timestamp: float, destination: Path,
                        *, width: int = 480, timeout: float = 45,
-                       diagnostics: dict | None = None) -> bool:
+                       diagnostics: dict | None = None, threads: int | None = None, active=None) -> bool:
     """抽一帧；只在错误明说色彩元数据不合法时，带 bt709 声明重试一次。"""
     attempts = []
     detail = {}
+    options = {**({'threads': threads} if threads is not None else {}), **({'active': active} if active is not None else {})}
     ok, stderr = capture_frame(ffmpeg, path, timestamp, destination,
-                               width=width, timeout=timeout, diagnostics=detail)
+                               width=width, timeout=timeout, diagnostics=detail, **options)
     attempts.append(dict(detail, color_override=False))
     if not ok and COLOR_METADATA_ERROR.search(stderr):
         detail = {}
         ok, _ = capture_frame(ffmpeg, path, timestamp, destination,
-                              width=width, color_override=True, timeout=timeout, diagnostics=detail)
+                              width=width, color_override=True, timeout=timeout, diagnostics=detail, **options)
         attempts.append(dict(detail, color_override=True))
     if diagnostics is not None:
         diagnostics.update(detail, timestamp_seconds=timestamp, timeout_seconds=timeout,
@@ -104,7 +141,7 @@ def capture_with_retry(ffmpeg: str, path: str, timestamp: float, destination: Pa
 
 
 def tile_frames(ffmpeg: str, pattern: str, columns: int, rows: int, destination: Path,
-                *, timeout: float = 60) -> bool:
+                *, timeout: float = 60, threads: int | None = None, active=None) -> bool:
     """把 `pattern`（形如 `dir/s%02d.jpg`）指的那串帧拼成 columns×rows 一张。
 
     帧要先按连续序号改好名再进来：`image2` 读的是序号序列，中间缺一个号它就在那里停下，
@@ -112,17 +149,17 @@ def tile_frames(ffmpeg: str, pattern: str, columns: int, rows: int, destination:
     """
     destination.parent.mkdir(parents=True, exist_ok=True)
     checkpoint('frame')
-    options = ffmpeg_options(filter_option='-filter_complex_threads')
+    options = _thread_options(threads, '-filter_complex_threads')
     destination.unlink(missing_ok=True)
     from .error_reporting import subprocess_failure
     try:
-        completed = subprocess.run(
+        completed = _run_capture(
             [ffmpeg, "-y", "-v", "error", *options, "-i", pattern,
              "-filter_complex", f"tile={int(columns)}x{int(rows)}", "-q:v", "4",
-             *ffmpeg_options(), str(destination)],
-            capture_output=True, timeout=timeout,
-            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
-        )
+             *_thread_options(threads), str(destination)], timeout, active)
+    except InterruptedError:
+        destination.unlink(missing_ok=True)
+        raise
     except (OSError, subprocess.TimeoutExpired) as error:
         destination.unlink(missing_ok=True)
         subprocess_failure('frame-tile', tool=ffmpeg, error=error, timeout_seconds=timeout)

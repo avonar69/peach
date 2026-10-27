@@ -87,6 +87,21 @@ class BuildTests(unittest.TestCase):
         self.assertAlmostEqual(self.stamps[0], 1.0)
         self.assertAlmostEqual(self.stamps[3] - self.stamps[2], 10.0)
 
+    def test_progress_reports_each_frame_with_a_single_thread_budget(self):
+        progress = MagicMock()
+        with patch.object(timeline_sheets, 'capture_with_retry', side_effect=self._capture) as capture, \
+             patch.object(timeline_sheets, 'tile_frames', side_effect=self._tile) as tile:
+            timeline_sheets.build('ffmpeg', 'movie.mp4', 100, self.root, 9, 10, progress=progress)
+        self.assertEqual(progress.call_count, 10)
+        self.assertEqual(progress.call_args.kwargs, {'current_frame': 10, 'current_frames': 10})
+        self.assertTrue(all(call.kwargs['threads'] == 1 for call in capture.call_args_list))
+        self.assertEqual(tile.call_args.kwargs['threads'], 1)
+
+    def test_interrupted_capture_does_not_publish_an_incomplete_index(self):
+        with patch.object(timeline_sheets, 'capture_with_retry', side_effect=InterruptedError):
+            self.assertEqual(timeline_sheets.build('ffmpeg', 'movie.mp4', 100, self.root, 9, 10), {})
+        self.assertIsNone(timeline_sheets.read_meta(self.root, 9))
+
     def test_a_long_video_is_split_into_full_sheets_plus_a_remainder(self):
         meta = self._build(10 * 1000, 10)
         self.assertEqual(meta["sheets"], 10)

@@ -78,7 +78,21 @@ def q_thumbnail_jobs(contract, _args):
             'job_id': state.get('job_id') or '',
             'total': state.get('total') or 0, 'done': state.get('done') or 0,
             'made': state.get('made') or 0, 'skipped': state.get('skipped') or 0,
-            'failed': state.get('failed') or 0, 'stopped': state.get('stopped') or ''}
+            'failed': state.get('failed') or 0, 'stopped': state.get('stopped') or '',
+            'current_frame': state.get('current_frame') or 0, 'current_frames': state.get('current_frames') or 0}
+
+
+def _active(contract, job_id):
+    state = contract.thumbnail_job.snapshot() or {}
+    if state.get('job_id') != job_id or state.get('status') != 'running':
+        return False
+    if read_mode() == timeline_sheets.OFF or metadata_only(contract.follow_state_root):
+        return False
+    run_id = state.get('run_id')
+    if type(run_id) is int:
+        run = contract.task_runs.get(run_id)
+        return run is not None and run.active
+    return True
 
 
 def _with_progress(fields: dict) -> dict:
@@ -108,8 +122,7 @@ def w_thumbnail_jobs(contract, body):
         guard = DiskGuard(system_volume(), MIN_FREE_GB)
         result = timeline_sheets.generate_library(
             contract.db_path, root, interval, ffmpeg=str(choice.path),
-            active=lambda: ((contract.thumbnail_job.snapshot() or {}).get('job_id') == job_id
-                            and not metadata_only(contract.follow_state_root)),
+            active=lambda: _active(contract, job_id),
             report=lambda **fields: contract.thumbnail_job.update(job_id, **_with_progress(fields)),
             guard=guard, resume_state=contract.thumbnail_job.snapshot(),
             checkpoint=lambda **fields: contract.thumbnail_job.checkpoint(job_id, **fields))

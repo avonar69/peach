@@ -36,6 +36,7 @@ import {
 import { Providers } from '../providers';
 import { LibraryProcessingDock } from '../library-processing/library-processing-dock';
 import { DebridDownloadDock } from '../follow-manage/debrid-progress';
+import { ThumbnailGenerationNotice } from '../library-processing/thumbnail-generation-notice';
 import { SettingsMatch } from './pages/settings';
 import {
   BROWSE_ROUTES, CATALOG_PATHS, CATALOG_ROUTES, ENTITY_ROUTES, IMMERSE_ROUTES, INDEX_ROUTES, MANAGED_ROUTES, REDIRECT_ROUTES,
@@ -228,6 +229,7 @@ export function RouterRoot({ children, actions = null, background, processing = 
           <QueueRequests />
           {processing && actions ? <LibraryProcessingDock toast={actions.toast} /> : null}
           {processing && actions ? <DebridDownloadDock /> : null}
+          {processing && actions ? <ThumbnailGenerationNotice /> : null}
           <RouteGroups>{children}</RouteGroups>
         </PeachRouter>
       </ShellActionsContext.Provider>

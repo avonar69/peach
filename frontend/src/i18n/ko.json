@@ -4342,5 +4342,10 @@
   "Faster video loading and seeking (Beta)": "빠른 동영상 로딩 및 탐색 (베타)",
   "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "로컬 파일을 더 미리 읽고 브라우저의 비공개 버퍼를 허용합니다. 네트워크와 메모리 사용량이 늘어납니다. 다음 동영상부터 적용됩니다.",
   "Faster section navigation (Beta)": "빠른 화면 이동 (베타)",
-  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "탐색 데이터를 최대 30초 동안 재사용합니다. 작업, 검토 대기열 및 설정은 정상적으로 갱신됩니다."
+  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "탐색 데이터를 최대 30초 동안 재사용합니다. 작업, 검토 대기열 및 설정은 정상적으로 갱신됩니다.",
+  "Generating seek thumbnails": "탐색 미리보기 생성 중",
+  "{0} of {1} videos": "동영상 {0} / {1}개",
+  "{0} of {1} frames": "프레임 {0} / {1}개",
+  "Stop thumbnail generation": "미리보기 생성 중지",
+  "Thumbnail generation progress": "미리보기 생성 진행률"
 }

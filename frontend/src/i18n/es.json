@@ -4342,5 +4342,10 @@
   "Faster video loading and seeking (Beta)": "Carga y búsqueda de vídeo más rápidas (beta)",
   "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Precarga más los archivos locales y permite un búfer privado del navegador. Usa más red y memoria; se aplica al siguiente vídeo.",
   "Faster section navigation (Beta)": "Navegación más rápida entre secciones (beta)",
-  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza los datos de navegación durante un máximo de 30 segundos. Las tareas, revisiones y ajustes conservan su actualización normal."
+  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Reutiliza los datos de navegación durante un máximo de 30 segundos. Las tareas, revisiones y ajustes conservan su actualización normal.",
+  "Generating seek thumbnails": "Generando miniaturas de búsqueda",
+  "{0} of {1} videos": "{0} de {1} vídeos",
+  "{0} of {1} frames": "{0} de {1} fotogramas",
+  "Stop thumbnail generation": "Detener generación de miniaturas",
+  "Thumbnail generation progress": "Progreso de generación de miniaturas"
 }

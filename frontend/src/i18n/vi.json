@@ -4342,5 +4342,10 @@
   "Faster video loading and seeking (Beta)": "Tải và tua video nhanh hơn (Beta)",
   "Preloads more video and allows private browser buffering for local files. Uses more network and memory; applies to the next video.": "Tải trước nhiều hơn và cho phép bộ đệm riêng của trình duyệt với tệp cục bộ. Dùng nhiều mạng và bộ nhớ hơn; áp dụng từ video tiếp theo.",
   "Faster section navigation (Beta)": "Chuyển mục nhanh hơn (Beta)",
-  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Tái sử dụng dữ liệu duyệt tối đa 30 giây. Tác vụ, hàng đợi xem xét và cài đặt vẫn cập nhật bình thường."
+  "Reuses browsing snapshots for up to 30 seconds. Tasks, review queues and settings keep their normal refresh behavior.": "Tái sử dụng dữ liệu duyệt tối đa 30 giây. Tác vụ, hàng đợi xem xét và cài đặt vẫn cập nhật bình thường.",
+  "Generating seek thumbnails": "Đang tạo ảnh thu nhỏ khi tua",
+  "{0} of {1} videos": "{0} / {1} video",
+  "{0} of {1} frames": "{0} / {1} khung hình",
+  "Stop thumbnail generation": "Dừng tạo ảnh thu nhỏ",
+  "Thumbnail generation progress": "Tiến độ tạo ảnh thu nhỏ"
 }

@@ -103,6 +103,7 @@ const pageRoutes = (sources: MediaSourcesData): Record<string, Route> => ({
   '/api/items?state=trash&limit=1': { total: 9, bytes: 3 * 1073741824 },
   '/api/sources': sources,
   '/api/library-processing': { status: 'idle' },
+  '/api/thumbnail-jobs': { status: 'idle', mode: 'off' },
   '/api/media-repair': IDLE_REPAIR,
   '/api/libraries': { libraries: [] },
   '/api/organize': organizeIdle,

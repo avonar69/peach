@@ -13,6 +13,7 @@ import { spriteGlyph, type Glyph } from '../components/sprite-glyph';
 import { PLAIN_STAT_STRIP, PlainStat, plainStatClass } from '../components/stat-card';
 import { DUPLICATES_KEY, fetchDuplicates } from '../duplicates/duplicates';
 import { LibraryProcessingCard } from '../library-processing/library-processing-card';
+import { ThumbnailGenerationCard } from '../library-processing/thumbnail-generation-notice';
 import { MediaRepairCard } from '../media-repair/media-repair-card';
 import { fetchMediaSources, MEDIA_SOURCES_KEY } from '../media-sources';
 import { fetchQualityGoals, QUALITY_GOALS_KEY } from '../quality-goals/quality-goals';
@@ -100,6 +101,7 @@ export function DataCleanupPage({ toast, failure, open }: DataCleanupProps) {
         <div id="libraryProcessing" className="scroll-mt-20">
           <LibraryProcessingCard toast={notify} monitor onComplete={refreshReadings} />
         </div>
+        <ThumbnailGenerationCard />
         <div id="mediaRepair"><MediaRepairCard /></div>
         <OrganizeCard toast={notify} failure={failure} />
       </div>
