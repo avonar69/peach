@@ -892,8 +892,13 @@ class StandaloneConfigurationTests(_Case):
                            {'actors': False, 'studios': False}):
                 saved = client.post(path, headers=headers, json=policy)
                 self.assertEqual(saved.status_code, 200, saved.text)
-                self.assertEqual(saved.json(), policy)
-                self.assertEqual(client.get('/api/configuration', headers=headers).json()['filename_matching'], policy)
+                self.assertEqual(saved.json(), {**policy, 'ignore_terms': ''})
+                self.assertEqual(client.get('/api/configuration', headers=headers).json()['filename_matching'], {**policy, 'ignore_terms': ''})
+            ignored = {'actors': True, 'studios': True, 'ignore_terms': '!\nRelease Group'}
+            self.assertEqual(client.post(path, headers=headers, json=ignored).json(), ignored)
+            self.assertEqual(client.post(path, headers=headers, json={'actors': True, 'studios': True}).json(), ignored)
+            for value in (['!'], 'x' * 2001, '\n'.join(str(index) for index in range(65))):
+                self.assertEqual(client.post(path, headers=headers, json={**ignored, 'ignore_terms': value}).status_code, 400)
             self.assertEqual(client.post(path, headers=headers, json={'actors': 'yes', 'studios': True}).status_code, 400)
         with self.client(address='192.0.2.9') as client:
             self.assertEqual(client.post(path, headers=headers, json={'actors': True, 'studios': True}).status_code, 403)
