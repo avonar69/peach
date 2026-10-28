@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { RSSDownloads, supports } from '../../src/react/follow-manage/rss-downloads';
 import { queryClient } from '../../src/react/query';
 import { buttonNamed, click, mount, type, submit } from './render';
+import { rssSelection } from '../../src/rss-selection';
 
 notifyManager.setScheduler(callback => callback());
 beforeEach(() => localStorage.setItem('peach.language', 'en'));
@@ -10,6 +11,46 @@ afterEach(() => { queryClient.clear(); localStorage.clear(); });
 
 const provider = { id: 'alldebrid', label: 'AllDebrid', configured: true, hosts: ['rg.to'], download_folder: '' };
 const link = { url: 'https://rg.to/file/example', kind: 'link' };
+
+it('NZB 保留扩展可读取的下载链接并单次提交 SABnzbd', async () => {
+  const served = serve();
+  const download = 'https://example.org/movie.nzb?key=example';
+  Object.assign(served.state, { sabnzbd: { configured: true } });
+  Object.assign(served.state.items[0]!, { link: 'https://example.org/details/example', links: [{ url: download, kind: 'nzb' }] });
+  const host = await mount(<QueryClientProvider client={queryClient}>
+    <RSSDownloads readOnly={false} toast={vi.fn()} />
+  </QueryClientProvider>);
+  expect([...host.querySelectorAll('a')].find(anchor => anchor.textContent === 'Download NZB')?.href).toBe(download);
+  expect([...host.querySelectorAll('a')].find(anchor => anchor.textContent === 'View page')?.href).toBe('https://example.org/details/example');
+  expect(supports(provider, { url: download, kind: 'nzb' })).toBe(false);
+  await click(buttonNamed('Send to SABnzbd', host));
+  expect(served.posts[0]).toEqual({ path: '/api/rss/sabnzbd', body: { entry_id: 1, link_index: 0 } });
+  expect(buttonNamed('Sent to SABnzbd', host)?.disabled).toBe(true);
+});
+
+it('NZBGet 与 SABnzbd 目的地分别保留发送状态', async () => {
+  const served = serve();
+  Object.assign(served.state, { sabnzbd: { configured: true }, nzbget: { configured: true } });
+  served.state.items[0]!.links = [{ url: 'https://example.org/demo.nzb', kind: 'nzb' }];
+  const host = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  await click(buttonNamed('Send to NZBGet', host));
+  expect(served.posts[0]).toEqual({ path: '/api/rss/nzbget', body: { entry_id: 1, link_index: 0 } });
+  expect(buttonNamed('Sent to NZBGet', host)?.disabled).toBe(true);
+  expect(buttonNamed('Send to SABnzbd', host)?.disabled).toBe(false);
+});
+
+it('多选来源保存到本浏览器并加入分页请求', async () => {
+  const served = serve();
+  served.state.sources.push({ ...served.state.sources[0]!, id: 2, name: 'Other feed' });
+  const host = await mount(<QueryClientProvider client={queryClient}>
+    <RSSDownloads readOnly={false} toast={vi.fn()} />
+  </QueryClientProvider>);
+  await click(buttonNamed('RSS feeds', host));
+  const other = [...document.querySelectorAll('[role="menuitemcheckbox"]')].find(item => item.textContent === 'Other feed');
+  await click(other);
+  expect(rssSelection()).toEqual(['1']);
+  expect(vi.mocked(fetch).mock.calls.some(([url]) => String(url).includes('sources=1'))).toBe(true);
+});
 
 function serve(folder = '') {
   const posts: Array<{ path: string; body: Record<string, unknown> }> = [];

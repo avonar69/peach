@@ -59,7 +59,8 @@ def _link(url, base, media_type=''):
     except ValueError:
         return None
     torrent = 'bittorrent' in media_type or urlsplit(address).path.lower().endswith('.torrent')
-    return {'url': address, 'kind': 'torrent' if torrent else 'link'}
+    nzb = 'x-nzb' in media_type or urlsplit(address).path.lower().split('&', 1)[0].endswith('.nzb')
+    return {'url': address, 'kind': 'nzb' if nzb else 'torrent' if torrent else 'link'}
 
 
 def _content(item):
@@ -110,8 +111,26 @@ def _links(item, base, html):
             continue
         link = _link(url, base, kind)
         if link:
-            found.setdefault(link['url'], link)
+            if link['url'] not in found or link['kind'] == 'nzb':
+                found[link['url']] = link
     return list(found.values())[:50]
+
+
+def _presentation(item, html, links, base):
+    images = _images(item, html, base)
+    page = item.get('link')
+    if any(link['kind'] == 'nzb' for link in links):
+        candidates = [item.get('id'), item.get('comments'), *html.links]
+        for candidate in candidates:
+            parts = urlsplit(str(candidate or ''))
+            match = re.fullmatch(r'/details/([a-fA-F0-9]{40})/?', parts.path)
+            if parts.scheme == 'https' and parts.netloc.lower() in ('drunkenslug.com', 'www.drunkenslug.com') and match:
+                identity = match[1].lower()
+                page = f'https://drunkenslug.com/details/{identity}'
+                images = {'main': {'src': f'https://drunkenslug.com/covers/sample/{identity}_thumb.jpg', 'href': page}, 'previews': []}
+                links = [link for link in links if link['kind'] == 'nzb']
+                break
+    return page, links, images
 
 
 def parse(body, url):
@@ -133,10 +152,11 @@ def parse(body, url):
             date = datetime.fromtimestamp(calendar.timegm(published), timezone.utc).isoformat() if published else None
         except (ValueError, OverflowError, OSError):
             date = None
+        page, links, images = _presentation(item, html, links, url)
         rows.append({'key': hashlib.sha256(key.encode()).hexdigest(), 'title': title,
-                     'post_url': item.get('link'),
-                     'link': next((link['url'] for link in links if link['kind'] == 'link'), None),
-                     'published_at': date, 'links': links, 'images': _images(item, html, url)})
+                     'post_url': page,
+                     'link': page or next((link['url'] for link in links if link['kind'] == 'link'), None),
+                     'published_at': date, 'links': links, 'images': images})
     return str(document.feed.get('title') or '')[:200], rows
 
 
@@ -250,13 +270,17 @@ def count_items(database):
         return connection.execute(f"SELECT count(*) FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {VISIBLE}").fetchone()[0]
 
 
-def items(database, *, offset=0, limit=20):
+def items(database, *, offset=0, limit=20, source_ids=None):
+    where, params = VISIBLE, []
+    if source_ids is not None:
+        where += ' AND s.id IN (' + (','.join('?' for _ in source_ids) or 'NULL') + ')'
+        params.extend(source_ids)
     with database.read_connection() as connection:
         result = [dict(row) for row in connection.execute(
             "SELECT i.id,i.source_id,i.title,i.link,i.published_at,i.first_seen,i.download_links_json,i.rss_images_json,s.name AS feed_name "
-            f"FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {VISIBLE} "
-            'ORDER BY COALESCE(i.published_at,i.first_seen) DESC,i.id DESC LIMIT ? OFFSET ?', (limit, offset))]
-        total = connection.execute(f"SELECT count(*) FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {VISIBLE}").fetchone()[0]
+            f"FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {where} "
+            'ORDER BY COALESCE(i.published_at,i.first_seen) DESC,i.id DESC LIMIT ? OFFSET ?', (*params, limit, offset))]
+        total = connection.execute(f"SELECT count(*) FROM feed_item i JOIN feed_source s ON s.id=i.source_id WHERE {where}", params).fetchone()[0]
     for row in result:
         row['links'] = json.loads(row.pop('download_links_json'))
         row['images'] = json.loads(row.pop('rss_images_json'))

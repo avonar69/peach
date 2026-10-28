@@ -210,6 +210,7 @@ video.video-js{vertical-align:top;font-size:10px;line-height:1;font-family:Arial
   border-radius:var(--floating-radius);background:var(--surface);color:var(--ink);pointer-events:none;
   font-size:var(--fs-md);font-variant-numeric:tabular-nums;text-align:center}
 .peach-fullscreen-seek progress{width:100%;height:6px;accent-color:var(--tungsten)}
+.video-js video.vjs-tech{touch-action:manipulation}
 :fullscreen > .peach-fullscreen-seek{display:flex}
 /* 取景框自己裁，图在里面挪。时间轴预览取回来的是一张 10×10 的接触印相，要看的那一格
    靠把图放大十倍再往左上推整格数得到；边框和圆角画在框上，图挪动时不跟着走。 */

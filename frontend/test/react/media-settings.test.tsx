@@ -6,7 +6,7 @@ import type { ConfigurationData } from '../../src/react/bundle';
 import { CloudDriveGuide } from '../../src/react/settings/clouddrive-guide';
 import { MEDIA_SOURCE_ICONS } from '../../src/ui-kit/media-source-icons';
 import { MediaSettings } from '../../src/react/settings/media-settings';
-import { buttonNamed, choose, click, fetchMock, mount, section, sentBody, settle, submit } from './render';
+import { buttonNamed, choose, click, fetchMock, mount, section, sentBody, settle, submit, type } from './render';
 
 vi.mock('../../src/react/settings/service-preferences', () => ({ VideoThumbnailRow: () => null }));
 vi.mock('@peach/legacy/ui', async (original) => ({
@@ -51,6 +51,21 @@ it('不能编辑时只说原因，不画表单', async () => {
 });
 
 describe('媒体目录', () => {
+  it('保存每个目录的扫描开关与默认关闭的重扫时钟', async () => {
+    const fetcher = fetchMock(200, { saved: true, url: '/', revision: 'rev-2' });
+    vi.stubGlobal('fetch', fetcher);
+    const host = await open({ windows: false, media_sources: [
+      { location: 'local', root: 'R:\\videos', path: '/videos' },
+    ] });
+    const checkbox = rows(host)[0]?.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    expect(checkbox?.checked).toBe(true);
+    const interval = host.querySelector<HTMLInputElement>('input[type="number"]');
+    expect(interval?.value).toBe('0');
+    await click(checkbox);
+    await type(interval, '2');
+    await submit(host.querySelector('form'));
+    expect(sentBody(fetcher).media_sources[0]).toMatchObject({ scan_updates: false, scan_hours: 2 });
+  });
   it.each([['guangya', '光鸭云盘'], ['onedrive', 'OneDrive'], ['mounted', '其他已挂载网盘']])(
     '%s 来源回填名称、挂载帮助和现有图标，保存带上来源', async (location, label) => {
     const fetcher = fetchMock(200, { saved: true, url: '/', revision: 'rev-2' });
@@ -67,7 +82,7 @@ describe('媒体目录', () => {
     await submit(host.querySelector('form'));
     expect(sentBody(fetcher).media_sources).toEqual([
       { location, root: 'G:\\Movies', path: 'G:\\Movies', library: '', library_icon: '',
-        cost: location === 'guangya' ? 'free' : 'metered' },
+        cost: location === 'guangya' ? 'free' : 'metered', scan_updates: true, scan_hours: 0 },
     ]);
   });
 
@@ -108,8 +123,8 @@ describe('媒体目录', () => {
     await submit(host.querySelector('form'));
     await settle();
     expect(sentBody(fetcher).media_sources).toEqual([
-      { location: '115', root: 'B:\\', path: '/Volumes/115', library: '收藏', library_icon: 'heart', cost: 'free' },
-      { location: 'pikpak', root: 'A:\\', path: '/Volumes/PikPak', library: '', library_icon: '', cost: 'metered' },
+      { location: '115', root: 'B:\\', path: '/Volumes/115', library: '收藏', library_icon: 'heart', cost: 'free', scan_updates: true, scan_hours: 0 },
+      { location: 'pikpak', root: 'A:\\', path: '/Volumes/PikPak', library: '', library_icon: '', cost: 'metered', scan_updates: true, scan_hours: 0 },
     ]);
   });
 
@@ -124,7 +139,7 @@ describe('媒体目录', () => {
     await choose(policy, '正常读取');
     await submit(host.querySelector('form'));
     expect(sentBody(fetcher).media_sources).toEqual([
-      { location: 'onedrive', root: 'O:\\Movies', path: 'O:\\Movies', library: '', library_icon: '', cost: 'free' },
+      { location: 'onedrive', root: 'O:\\Movies', path: 'O:\\Movies', library: '', library_icon: '', cost: 'free', scan_updates: true, scan_hours: 0 },
     ]);
   });
 

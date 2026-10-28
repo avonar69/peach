@@ -5,6 +5,7 @@ import { mountFullscreenSizing } from './fullscreen-sizing';
 import { configuredSeekKeys, rememberVolume, wheelVolume } from './playback-preferences';
 import { performancePreferences } from '../performance-preferences';
 import { playerHost } from './host';
+import { touchSeek } from './touch-seek';
 
 interface HlsEngine {
   bandwidthEstimate: number;
@@ -32,6 +33,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
   const disposeWheel = wheelVolume(root, video, () => playerHost().settings().scrollVolume === true);
   const disposeKeys = configuredSeekKeys(root, video, () => playerHost().settings());
   const disposeVolume = options.controls !== false ? rememberVolume(video) : () => {};
+  const disposeTouch = options.controls !== false ? touchSeek(video, () => playerHost().settings()) : () => {};
   const container = document.createElement('media-container');
   let media = document.createElement('hlsjs-video') as MediaElement;
   const parent = video.parentNode;
@@ -150,7 +152,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
     isDisposed: () => disposed,
     dispose: () => {
       if (disposed) return;
-      emit('dispose'); disposed = true; disposeSizing(); disposeWheel(); disposeKeys(); disposeVolume(); cleanup.abort(); if (idle) clearTimeout(idle);
+      emit('dispose'); disposed = true; disposeSizing(); disposeWheel(); disposeKeys(); disposeVolume(); disposeTouch(); cleanup.abort(); if (idle) clearTimeout(idle);
       media.adapter.destroy(); video.pause(); video.removeAttribute('src'); video.load(); root.remove();
     },
     trigger: emit,

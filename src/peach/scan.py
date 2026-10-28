@@ -99,13 +99,15 @@ def medium_of(name: str) -> str:
     return "other"
 
 
-def _hide_missing_local(connection, location, ledger_root, walk_root):
+def _hide_missing_local(connection, location, ledger_root, walk_root, excluded_roots=()):
     """本机根可读时，对齐在库路径；缺失行只标记，不删除记录。"""
     if location != 'local' or not root_online(walk_root):
         return
     directories = {}
     for asset_id, path in connection.execute('SELECT id,path FROM asset WHERE location=? AND disposal IS NULL', (location,)):
         recorded = PureWindowsPath(path)
+        if any(recorded.is_relative_to(PureWindowsPath(root)) for root in excluded_roots):
+            continue
         if not recorded.is_relative_to(ledger_root):
             continue
         actual = walk_root.joinpath(*recorded.relative_to(ledger_root).parts)
@@ -361,7 +363,7 @@ class ScanResult:
                 f"字幕 {self.subtitles:,} 条（孤立 {self.orphan_subtitles:,} 条）")
 
 
-def _walk(top: Path, pending: list[str] | None = None):
+def _walk(top: Path, pending: list[str] | None = None, *, excluded=()):
     """自顶向下遍历，每个目录给出它里面的非目录条目（`os.DirEntry`）。
 
     与 `os.walk` 的差别只在一处：条目的大小与时间从 `DirEntry.stat()` 拿。Windows 的目录
@@ -372,6 +374,8 @@ def _walk(top: Path, pending: list[str] | None = None):
     while stack:
         checkpoint('scan')
         directory = stack.pop()
+        if any(Path(directory).is_relative_to(path) for path in excluded):
+            continue
         try:
             with os.scandir(directory) as scanner:
                 entries = list(scanner)
@@ -409,6 +413,12 @@ class _ScanProgress:
         if force or files == 1 or now - self.reported_at >= 0.5:
             self.callback(files, total_bytes)
             self.reported_at = now
+
+
+def _walk_scope(walk_root, pending, ledger_root, excluded_roots):
+    """将子目录的账本范围转换为当前挂载内的遍历边界。"""
+    excluded = [walk_root.joinpath(*PureWindowsPath(value).relative_to(ledger_root).parts) for value in excluded_roots]
+    return _walk(walk_root, pending, excluded=excluded) if excluded else _walk(walk_root, pending)
 
 
 def scan_location(db_path, location, root, **kwargs) -> ScanResult:
@@ -452,6 +462,7 @@ def _scan_location(
     resume_state: dict | None = None,
     save_checkpoint: Callable[[dict], None] = lambda state: None,
     find_new: bool = False,
+    excluded_roots=(),
 ) -> ScanResult:
     """遍历 `root`（数据库中的路径格式）对应的本机目录，把文件元数据 upsert 进 `asset`。
 
@@ -495,7 +506,7 @@ def _scan_location(
         if initial_id is None:
             initial_id = connection.execute('SELECT COALESCE(MAX(id),0) FROM asset').fetchone()[0]
             save_directory(previous.get('current_directory'), previous.get('cursor'), previous.get('here'))
-        for directory, entries in _walk(walk_root, pending):
+        for directory, entries in _walk_scope(walk_root, pending, ledger_root, excluded_roots):
             checkpoint('scan')
             relative = Path(directory).relative_to(walk_root).parts
             continuing = directory == previous.get('current_directory')
@@ -548,7 +559,7 @@ def _scan_location(
         if batch:
             connection.executemany(_UPSERT, batch)
         connection.commit()
-        _hide_missing_local(connection, location, ledger_root, walk_root)
+        _hide_missing_local(connection, location, ledger_root, walk_root, excluded_roots)
         # 持久水位不依赖秒级时间，同一秒发起的两次扫描仍有独立新增集合。
         new_ids = _new_asset_ids(connection, location, ledger_root, initial_id)
         reattached = len(record_rehome.reattach(connection, new_ids, now=now))

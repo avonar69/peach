@@ -60,6 +60,8 @@ def rows(config, *, windows: bool, probe: bool = False) -> list[dict[str, Any]]:
             result.append({"location": location, "root": root, "path": mount,
                            "library": config.library_names.get(root) or PureWindowsPath(root).name or root,
                            "library_icon": config.library_icons.get(root, ""),
+                           "scan_updates": config.media_scan_updates.get(root, True),
+                           "scan_hours": config.media_scan_hours.get(root, 0),
                            "cost": cost_for(location, root, config),
                            "online": platform.root_online(Path(mount)) if probe and mount else False})
     return result
@@ -109,7 +111,20 @@ def prepare_sources(raws: object, *, windows: bool, config=None) -> object:
         if not isinstance(row, dict) or str(row.get("root", "")).strip():
             continue
         _prepare_source(row, existing, used)
+    _align_nested_roots(result)
     return result
+
+
+def _align_nested_roots(rows):
+    """嵌套挂载沿用父目录的账本前缀，使同一文件始终只有一个路径身份。"""
+    valid = [row for row in rows if isinstance(row, dict) and str(row.get('path', '')).startswith('/')]
+    for row in sorted(valid, key=lambda item: len(PurePosixPath(item['path']).parts)):
+        path = PurePosixPath(row['path'])
+        parents = [parent for parent in valid if parent is not row and parent.get('location') == row.get('location')
+                   and path != PurePosixPath(parent['path']) and path.is_relative_to(PurePosixPath(parent['path']))]
+        if parents:
+            parent = max(parents, key=lambda item: len(PurePosixPath(item['path']).parts))
+            row['root'] = str(PureWindowsPath(parent['root']).joinpath(*path.relative_to(PurePosixPath(parent['path'])).parts))
 
 
 def _validated_paths(row: dict, *, windows: bool) -> tuple[PureWindowsPath, PurePath]:
@@ -132,6 +147,27 @@ def _validated_paths(row: dict, *, windows: bool) -> tuple[PureWindowsPath, Pure
     return PureWindowsPath(root), path
 
 
+def _validate_row_scope(row, declared, path, seen, *, windows):
+    """校验单行的扫描策略以及它与已有目录的身份映射。"""
+    if type(row.get('scan_updates', True)) is not bool:
+        raise ValueError('Choose whether to scan this folder for updates.')
+    if type(row.get('scan_hours', 0)) is not int or not 0 <= row.get('scan_hours', 0) <= 8760:
+        raise ValueError('Choose a rescan interval from 0 to 8760 hours.')
+    for other_root, other_path, other_location in seen:
+        if declared == other_root:
+            raise ValueError("媒体路径与另一文件夹重复或互相包含" if windows else "配置文件中的目录对应关系重复或互相包含")
+        if path == other_path:
+            raise ValueError("媒体目录与另一行重复或互相包含")
+        if row['location'] != other_location and (path.is_relative_to(other_path) or other_path.is_relative_to(path)):
+            raise ValueError('Nested media folders must use the same source.')
+        for child, parent, child_path, parent_path in ((declared, other_root, path, other_path), (other_root, declared, other_path, path)):
+            if child.is_relative_to(parent) != child_path.is_relative_to(parent_path):
+                raise ValueError('Nested media folders must use the same path mapping.')
+            if child.is_relative_to(parent) and (tuple(part.casefold() for part in child.relative_to(parent).parts)
+                    != tuple(part.casefold() for part in child_path.relative_to(parent_path).parts)):
+                raise ValueError('Nested media folders must use the same path mapping.')
+
+
 def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, list[str]]:
     """离线来源允许保存；绝对路径、盘符根与来源间重叠在保存前校验。"""
     if not isinstance(raws, list) or not raws or len(raws) > 100:
@@ -140,7 +176,7 @@ def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, l
     locations: dict[str, list[str]] = {}
     mounts: dict[str, list[str]] = {}
     errors = [""] * len(raws)
-    seen: list[tuple[PureWindowsPath, PurePath]] = []
+    seen: list[tuple[PureWindowsPath, PurePath, str]] = []
     for index, row in enumerate(raws):
         try:
             if not isinstance(row, dict):
@@ -151,14 +187,8 @@ def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, l
             if "cost" in row and row["cost"] not in ("free", "metered"):
                 raise ValueError("请选择代理流量保护设置")
             declared, path = _validated_paths(row, windows=windows)
-            for other_root, other_path in seen:
-                if (declared == other_root or declared.is_relative_to(other_root)
-                        or other_root.is_relative_to(declared)):
-                    raise ValueError("媒体路径与另一文件夹重复或互相包含" if windows
-                                     else "配置文件中的目录对应关系重复或互相包含")
-                if path == other_path or path.is_relative_to(other_path) or other_path.is_relative_to(path):
-                    raise ValueError("媒体目录与另一行重复或互相包含")
-            seen.append((declared, path))
+            _validate_row_scope(row, declared, path, seen, windows=windows)
+            seen.append((declared, path, location))
             locations.setdefault(location, []).append(str(declared))
             if not windows:
                 mounts.setdefault(location, []).append(str(path))
@@ -179,3 +209,13 @@ def costs(raws: list[dict], config, *, windows: bool) -> dict[str, str]:
                 del result[previous]
         result[root] = row.get("cost", cost_for(row["location"], root, config))
     return result
+
+
+def scan_preferences(rows, *, windows):
+    """只保存当前表单中目录的发现开关与小时数。"""
+    updates, hours = {}, {}
+    for row in rows:
+        root = str(PureWindowsPath(row['path'] if windows else row['root']))
+        updates[root] = row.get('scan_updates', True)
+        hours[root] = row.get('scan_hours', 0)
+    return {'media_scan_updates': updates, 'media_scan_hours': hours}

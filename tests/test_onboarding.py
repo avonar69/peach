@@ -759,7 +759,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         cases = {
             "目录不存在与端口越界": self._body(media_dir=self._rows(self.root / "nope"), port="0"),
             "超过 100 行": self._body(media_dir=self._rows(*[self.media] * 101)),
-            "第二行嵌在第一行里": self._body(media_dir=self._rows(self.media, nested)),
+            "第二行重复第一行": self._body(media_dir=self._rows(self.media, self.media)),
             "云盘行不是绝对路径": self._body(media_dir=self._rows(self.media) + [
                 {"path": "relative", "location": "115", "root": "" if NATIVE_WINDOWS else "R:\\cloud"}]),
             "开关开着没填密码": self._body(access_enabled=True),
@@ -773,7 +773,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         }
         expected_keys = {
             "目录不存在与端口越界": {"media_dir", "port"}, "超过 100 行": {"media_dir"},
-            "第二行嵌在第一行里": {"media_dir"}, "云盘行不是绝对路径": {"media_dir"},
+            "第二行重复第一行": {"media_dir"}, "云盘行不是绝对路径": {"media_dir"},
             "开关开着没填密码": {"access_password"}, "两次密码不一致": {"access_password"},
             "密码太短": {"access_password"}, "高级设置的端口越界": {"port"},
             "局域网地址不合规": {"mdns_name"}, "谁可以访问不认识": {"host"}, "数据目录是文件": {"data_root"},
@@ -782,7 +782,7 @@ class SetupJsonContractTests(_SetupHttpCase):
             with self.subTest(name):
                 self.assertEqual(set(self._errors(body)), expected_keys[name])
         # 媒体库的错误按行对齐；整表不成立时只有一句，长度与行数不等。
-        rows = self._errors(cases["第二行嵌在第一行里"])
+        rows = self._errors(cases["第二行重复第一行"])
         self.assertEqual(len(rows["media_dir"]), 2)
         self.assertEqual(rows["media_dir"][0], "")
         self.assertTrue(rows["media_dir"][1])

@@ -48,12 +48,14 @@ def poll_source(contract, source):
     return report
 
 
-def snapshot(contract, offset=0, limit=20):
-    from . import debrid_client, settings_file
+def snapshot(contract, offset=0, limit=20, source_ids=None):
+    from . import debrid_client, nzbget_client, sabnzbd_client, settings_file
     with contract.database.read_connection() as connection:
         sources = [row for row in feeds.sources(connection) if row['kind'] == 'rss']
-    return {**rss_feeds.items(contract.database, offset=offset, limit=limit), 'sources': sources,
-            **debrid_client.settings(settings_file.active()), 'jobs': contract.debrid.snapshot()}
+    return {**rss_feeds.items(contract.database, offset=offset, limit=limit, source_ids=source_ids), 'sources': sources,
+            **debrid_client.settings(settings_file.active()), 'jobs': contract.debrid.snapshot(),
+            'sabnzbd': {'configured': sabnzbd_client.settings(settings_file.active())['configured']},
+            'nzbget': {'configured': nzbget_client.settings(settings_file.active())['configured']}}
 
 
 def _save_retention(connection, identity, body):
@@ -98,7 +100,7 @@ def source_action(contract, body):
     return {'ok': True}
 
 
-def resolve(contract, body):
+def download_link(contract, body):
     identity, index = body.get('entry_id'), body.get('link_index')
     if type(identity) is not int or type(index) is not int or index < 0:
         raise ValueError('Choose an RSS download link.')
@@ -108,6 +110,13 @@ def resolve(contract, body):
     links = json.loads(row[0]) if row else []
     if index >= len(links):
         raise ValueError('Choose an RSS download link.')
-    job = contract.debrid.submit(identity, links[index], str(body.get('provider') or ''),
+    return identity, links[index]
+
+
+def resolve(contract, body):
+    identity, link = download_link(contract, body)
+    if link['kind'] == 'nzb':
+        raise ValueError('Send NZB links to SABnzbd.')
+    job = contract.debrid.submit(identity, link, str(body.get('provider') or ''),
                                 auto_download=body.get('auto_download') is True)
     return {'ok': True, 'id': job['id']}

@@ -778,3 +778,11 @@ StashDB 的手工查找与排队复核复用人工复核页的分类导航、Boa
 ## 演员性别与播放位置反馈
 
 性别字段沿用 StashDB 的 [Stash-box 官方模型](https://github.com/stashapp/stash-box)，使用 `MALE`、`FEMALE`、`TRANSGENDER_MALE`、`TRANSGENDER_FEMALE`、`INTERSEX`、`NON_BINARY`；未知单独归类。复用现有 GraphQL 演员查询、资料来源快照与手工覆盖、React Aria 多选菜单和原生 `progress`，没有新增依赖。性别筛选与全屏快进反馈属于 Peach 的浏览偏好和播放器交互。
+
+目录定时发现复用 APScheduler 3.11.3（MIT）的既有 `FollowUpdateScheduler`、统一处理任务的停点和恢复记录，以及 filelock 4.2.0 的状态写入锁；没有新增依赖。嵌套目录复用 `PureWindowsPath` 的账本身份与最长前缀挂载解析，Peach 只补目录归属、扫描开关和遍历剪枝。演员与 RSS 多选共享 React Aria Components 1.22.1（Apache-2.0）菜单与 BoardUI 样式；触屏双击使用原生 Pointer Events，与既有沉浸模式保持同侧双击及延迟单击语义，复用四向步长与全屏反馈。
+
+NZB 下载交接采用 [SABnzbd 5.1 官方 API](https://sabnzbd.org/wiki/configuration/5.1/api) 的 `queue` 身份验证与 `addurl` 入队协议，HTTP 复用当前固定版 HTTPX，本机密钥复用 `CredentialStore`，不新增依赖或复制 SABnzbd 服务端实现。请求表单携带密钥与签名下载地址，不放入请求 URL，不跟随重定向，响应上限 1 MB；隔离实证验证认证失败、分类、队列身份、签名保留与秘密不出现在请求 URL。真实 SABnzbd 服务和 Docker 网络验收未取得。
+
+[SABconnect++](https://github.com/gboudreau/sabconnectplusplus) 为 GPL-3.0 的浏览器扩展，项目声明暂无维护者。仅沿用其普通链接右键发送能力，不复制或打包其代码，不建立未经支持的网页通信桥；实际扩展操作验收未取得。RSS 的 XML、HTML 和日期继续复用 feedparser 与标准库；Peach 仅补 NZB 类型、DrunkenSlug 发布 ID 展示规则和下载目的地选择。
+
+NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 Basic Auth、`version` 与 `append`，使用自 v13 稳定的九参数 URL 入队形态，保留分类与默认去重模式。核对维护中的 [nzbgetcom/nzbget 服务端实现](https://github.com/nzbgetcom/nzbget/blob/develop/daemon/remote/XmlRpc.cpp) 确认后续可选参数和正数 NZBID；未复制 GPL-2.0-or-later 服务端代码。SABnzbd 与 NZBGet 共用有界 HTTPX 传输、本机凭据存储和前端表单，没有新增依赖；临时凭据与假 HTTP 服务覆盖密码保留／撤销、认证、签名 URL、RPC 错误和失败身份。真实 NZBGet 服务验收未取得。

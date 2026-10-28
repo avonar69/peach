@@ -228,6 +228,7 @@ export interface UpdateJob {
 }
 
 export interface MediaSource {
+  scan_updates?: boolean; scan_hours?: number;
   location: string; root: string; path: string; online?: boolean; library?: string; library_icon?: string; cost?: 'free' | 'metered';
 }
 

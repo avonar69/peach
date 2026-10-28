@@ -13,19 +13,22 @@ import { Help, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import type { DebridProvider } from '../settings/debrid-settings';
 import { DebridTaskProgress, fileDownload, fileNeedsDownload, trackDebridJob, type DebridJob as Job } from './debrid-progress';
+import { MultiChoiceMenu } from '../components/multi-choice-menu';
+import { rssSelection, saveRSSSelection } from '../../rss-selection';
 
 interface Link { url: string; kind: string }
 interface Picture { src: string; href: string }
-interface Entry { id: number; source_id: number; title: string; feed_name: string; published_at: string | null; links: Link[];
+interface Entry { id: number; source_id: number; title: string; feed_name: string; published_at: string | null; links: Link[]; link?: string | null;
   images?: { main?: Picture; previews?: Picture[] } }
 interface Source { id: number; name: string; enabled: boolean; interval_minutes?: number; next_fetch_at?: string | null;
   rss_retention_count?: number | null; rss_retention_unit?: string;
   hide_unsupported?: boolean; last_error: string | null; last_fetched_at: string | null }
-interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number; read_only?: boolean }
+interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number; read_only?: boolean;
+  sabnzbd?: { configured: boolean }; nzbget?: { configured: boolean } }
 const KEY = ['rss-downloads'];
 
 export function supports(provider: DebridProvider, link: Link, confirmed = false): boolean {
-  if (!provider.configured) return false;
+  if (!provider.configured || link.kind === 'nzb') return false;
   if (link.kind !== 'link') return true;
   if (!provider.hosts?.length) return !confirmed;
   try {
@@ -50,6 +53,8 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   readOnly: boolean; toast(message: string): void; feedOnly?: boolean; onVisibleCount?(count: number): void; download?(url: string): void;
 }) {
   const [name, setName] = useState(''), [url, setUrl] = useState(''), [offset, setOffset] = useState(0);
+  const [selected, setSelected] = useState(rssSelection);
+  const [sentNZBs, setSentNZBs] = useState<string[]>([]);
   const [pageSize, setPageSize] = useState(() => {
     try { const saved = Number(localStorage.getItem('peach.rss-page-size')); return [10, 20, 50, 100].includes(saved) ? saved : 20; }
     catch { return 20; }
@@ -57,7 +62,8 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   const [waiting, setWaiting] = useState<string[]>([]);
   const delivered = useRef(new Set<string>());
   const action = useAction();
-  const state = useQuery({ queryKey: [...KEY, offset, pageSize], queryFn: ({ signal }) => apiGet<Data>(`/api/rss?offset=${offset}&limit=${pageSize}`, signal), refetchInterval: 3000 });
+  const filter = selected === null ? '' : `&sources=${encodeURIComponent(selected.join(',') || 'none')}`;
+  const state = useQuery({ queryKey: [...KEY, offset, pageSize, selected], queryFn: ({ signal }) => apiGet<Data>(`/api/rss?offset=${offset}&limit=${pageSize}${filter}`, signal), refetchInterval: 3000 });
   const data = state.data;
   useEffect(() => { onVisibleCount?.(data?.items.length || 0); }, [onVisibleCount, data?.items.length]);
   useEffect(() => {
@@ -105,10 +111,15 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   if (state.isPending) return <p role="status">Loading RSS feeds…</p>;
   if (state.isError || !data) return <Note tone="error">Could not load RSS feeds.</Note>;
   readOnly = readOnly || !!data.read_only;
-  if (feedOnly && !data.items.length) return null;
+  if (feedOnly && !data.sources.length) return null;
+  const selectFeeds = (value: string[] | null) => { setSelected(value); saveRSSSelection(value); setOffset(0) };
   const filteredSources = new Set(data.sources.filter(source => source.hide_unsupported).map(source => source.id));
   return <Stack>
     <h2 className="text-title-2-medium">{feedOnly ? 'RSS updates' : 'RSS downloads'}</h2>
+    {data.sources.length > 1 || selected !== null ? <MultiChoiceMenu label="RSS feeds" symbol="rss" verbatim
+      options={data.sources.map(source => ({ id: String(source.id), label: source.name }))}
+      selected={selected ?? data.sources.map(source => String(source.id))}
+      onChange={keys => selectFeeds([...keys])} allLabel="All RSS feeds" onAll={() => selectFeeds(null)} /> : null}
     {feedOnly ? <a href="/subscriptions?tab=rss" className="underline">Manage RSS feeds</a> : <>
     <form className="flex flex-col gap-3" onSubmit={event => {
       event.preventDefault();
@@ -153,7 +164,7 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
     </div>)}
     <h3 className="text-title-2-medium">New videos</h3>
     </>}
-    {!data.items.length ? <Help>No RSS items yet. Add a feed and check for updates.</Help> : null}
+    {!data.items.length ? <Help>{selected === null ? 'No RSS items yet. Add a feed and check for updates.' : 'No posts from the selected RSS feeds.'}</Help> : null}
     {data.items.map(entry => <article key={entry.id} className="flex min-w-0 flex-col gap-3 border-b border-border-button-default py-4">
       <h4 className="break-words text-body-medium" data-i18n-ignore="">{entry.title}</h4>
       <p className="text-caption-1-regular" data-i18n-ignore="">{entry.feed_name} {entry.published_at ? new Date(entry.published_at).toLocaleString() : ''}</p>
@@ -166,9 +177,19 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
           </div>
         </div> : null}
       </div> : null}
-      {entry.links.map((link, index) => filteredSources.has(entry.source_id) && !data.providers.some(provider => supports(provider, link, true))
+      {entry.links.some(link => link.kind === 'nzb') && entry.link && !entry.links.some(link => link.url === entry.link)
+        ? <a href={entry.link} target="_blank" rel="noopener noreferrer" className="underline">View page</a> : null}
+      {entry.links.map((link, index) => link.kind !== 'nzb' && filteredSources.has(entry.source_id) && !data.providers.some(provider => supports(provider, link, true))
         ? null : <div key={link.url} className="flex min-w-0 flex-wrap items-center gap-2">
-        <a href={link.url} className="min-w-0 break-all underline" rel="noreferrer" target="_blank" data-i18n-ignore="">{link.url}</a>
+        <a href={link.url} className="min-w-0 break-all underline" rel="noreferrer" target="_blank"
+          type={link.kind === 'nzb' ? 'application/x-nzb' : undefined}>
+          {link.kind === 'nzb' ? 'Download NZB' : <span data-i18n-ignore="">{link.url}</span>}</a>
+        {link.kind === 'nzb' ? (['sabnzbd', 'nzbget'] as const).filter(provider => data[provider]?.configured).map(provider => <Button key={provider} size="small" variant="secondary" disabled={readOnly || sentNZBs.includes(`${provider}:${entry.id}:${index}`)}
+          {...busyProps(action.busy === provider)} onClick={() => void action.run(provider, signal => apiSend(`/api/rss/${provider}`, {
+            entry_id: entry.id, link_index: index,
+          }, 'POST', signal), () => {
+            setSentNZBs(previous => [...previous, `${provider}:${entry.id}:${index}`]); toast(formatTranslation('NZB sent to {0}.', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet'));
+          })}>{formatTranslation(sentNZBs.includes(`${provider}:${entry.id}:${index}`) ? 'Sent to {0}' : 'Send to {0}', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet')}</Button>) : null}
         {data.providers.filter(provider => supports(provider, link)).map(provider => <Button key={provider.id} size="small" variant="secondary" iconOnly
           leadingIcon={RiDownloadCloud2Line} title={formatTranslation('Download with {0}', provider.label)} aria-label={formatTranslation('Download with {0}', provider.label)}
           disabled={readOnly} {...busyProps(action.busy === 'resolve')} onClick={() => clickDebrid(entry, index, provider)} />)}

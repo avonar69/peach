@@ -614,6 +614,7 @@ def _validate(body: dict[str, Any], config) -> tuple[dict[str, Any], dict[str, A
         validated.update(locations=locations, mounts=mounts)
         if not problems:
             validated["media_costs"] = media_configuration.costs(sources, config, windows=os.name == "nt")
+            validated.update(media_configuration.scan_preferences(sources, windows=os.name == 'nt'))
         names, icons = {}, {}
         if not problems:
             for index, row in enumerate(sources):
@@ -885,6 +886,8 @@ def save_configuration(request: Request, body: dict[str, Any] = Body(default_fac
                            library_names=validated.get("library_names", config.library_names),
                            library_icons=validated.get("library_icons", config.library_icons),
                            media_costs=validated.get("media_costs", config.media_costs),
+                           media_scan_updates=validated.get('media_scan_updates', config.media_scan_updates),
+                           media_scan_hours=validated.get('media_scan_hours', config.media_scan_hours),
                            server=replace(config.server, port=validated["port"], host=validated.get('host', config.server.host)))
         temporary = config.path.with_suffix(".pending.toml")
         try:

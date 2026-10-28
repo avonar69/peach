@@ -230,6 +230,8 @@ class PeachConfig:
     library_names: dict[str, str] = field(default_factory=dict)
     library_icons: dict[str, str] = field(default_factory=dict)
     media_costs: dict[str, str] = field(default_factory=dict)
+    media_scan_updates: dict[str, bool] = field(default_factory=dict)
+    media_scan_hours: dict[str, int] = field(default_factory=dict)
     #: `asset.location` -> 数据库中的目录前缀，至少一个。
     locations: dict[str, tuple[str, ...]] = field(
         default_factory=lambda: dict(DEFAULT_LOCATION_ROOTS))
@@ -356,7 +358,7 @@ def _merge(
         raise _fail(path, "`directories` 里有不认识的键：" + "、".join(unknown))
 
     media = _table(document, "media", path)
-    stray = sorted(set(media) - {_LOCATIONS_KEY, _MOUNTS_KEY, "libraries", "library_icons", "costs"})
+    stray = sorted(set(media) - {_LOCATIONS_KEY, _MOUNTS_KEY, "libraries", "library_icons", "costs", "scan_updates", "scan_hours"})
     if stray:
         # 第一阶段的 `[media] R = '/Volumes/Media'`。键空间从盘符换成了 location ID，
         # 把它当未知键忽略等于「所有来源都没挂」——整台机器安静地进脱盘模式。
@@ -442,12 +444,19 @@ def _merge(
     media_costs = _string_map(_table(media, "costs", path), path, "media.costs.")
     if any(cost not in {"free", "metered"} for cost in media_costs.values()):
         raise _fail(path, "`[media.costs]` 只接受 free 或 metered")
+    scan_updates = _table(media, 'scan_updates', path)
+    scan_hours = _table(media, 'scan_hours', path)
+    if any(type(value) is not bool for value in scan_updates.values()):
+        raise _fail(path, '`[media.scan_updates]` 只接受布尔值')
+    if any(type(value) is not int or not 0 <= value <= 8760 for value in scan_hours.values()):
+        raise _fail(path, '`[media.scan_hours]` 只接受 0 到 8760 小时')
     config = PeachConfig(
         data_root=data_root, path=path, present=present, data_root_found=found,
         directories=directories, mounts=mounts, locations=locations,
         library_names=_string_map(_table(media, "libraries", path), path, "media.libraries."),
         library_icons=_string_map(_table(media, "library_icons", path), path, "media.library_icons."),
         media_costs=media_costs,
+        media_scan_updates=scan_updates, media_scan_hours=scan_hours,
         server=server, replication=replication, tunnel=tunnel,
     )
     return _apply_environment(config, environ)
@@ -629,6 +638,10 @@ def render(config: PeachConfig) -> str:
     lines += [f"{_render_value(root)} = {_render_value(icon)}" for root, icon in config.library_icons.items()]
     lines += ["", "[media.costs]", "# [media.locations] 中的目录前缀 -> 代理流量保护。free 关闭，metered 开启。"]
     lines += [f"{_render_value(root)} = {_render_value(cost)}" for root, cost in config.media_costs.items()]
+    lines += ['', '[media.scan_updates]', '# 目录是否参与新增文件发现；未列出的目录默认开启。']
+    lines += [f'{_render_value(root)} = {_render_value(value)}' for root, value in config.media_scan_updates.items()]
+    lines += ['', '[media.scan_hours]', '# 每个目录的自动重扫间隔，单位为小时，0 关闭自动重扫，默认 0。']
+    lines += [f'{_render_value(root)} = {_render_value(value)}' for root, value in config.media_scan_hours.items()]
     lines += [
         "",
         "[media.mounts]",

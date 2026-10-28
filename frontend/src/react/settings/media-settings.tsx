@@ -29,16 +29,17 @@ import {
   ErrorText, ExternalLink, Fact, FactList, FieldLabel, Footer, Help, Section, SourceMark, Stack,
 } from './section';
 import { busyProps, useAction } from './use-action';
+import { formatTranslation } from '../../i18n';
 
 const sourceName = (location: string) => MEDIA_SOURCES.find(([kind]) => kind === location)?.[1] ?? location;
 const pickFolder = async (initial: string) =>
   (await apiSend<{ path: string | null }>(PICK_FOLDER_URL, { initial })).path;
 
-interface MediaRow { path: string; location: string; root: string; library: string; library_icon: string; cost: SourceCost | '' }
+interface MediaRow { path: string; location: string; root: string; library: string; library_icon: string; cost: SourceCost | ''; scan_updates: boolean; scan_hours: number }
 interface FieldErrors { media_dirs?: string[]; port?: string }
 interface SaveResult { saved: boolean; url: string; revision: string }
 
-const blankRow = (path = ''): MediaRow => ({ path, location: 'local', root: '', library: '', library_icon: '', cost: 'free' });
+const blankRow = (path = ''): MediaRow => ({ path, location: 'local', root: '', library: '', library_icon: '', cost: 'free', scan_updates: true, scan_hours: 0 });
 
 function initialRows(data: ConfigurationData): MediaRow[] {
   const known = data.media_sources?.filter((row) => MEDIA_SOURCES.some(([kind]) => kind === row.location));
@@ -46,6 +47,7 @@ function initialRows(data: ConfigurationData): MediaRow[] {
     return known.map((row) => ({
       path: row.path, location: row.location, root: row.root, library: row.library || '', library_icon: row.library_icon || '',
       cost: row.cost ?? sourceDefaultCost(row.location),
+      scan_updates: row.scan_updates ?? true, scan_hours: row.scan_hours ?? 0,
     }));
   }
   return (data.media_dirs.length ? data.media_dirs : ['']).map((path) => blankRow(path));
@@ -151,6 +153,14 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
                   value={row.library} onChange={(library) => edit(index, { library })} />
                 <LibraryIconPicker label={`媒体库图标 ${index + 1}`} value={row.library_icon} kind={row.location}
                   onChange={(library_icon) => edit(index, { library_icon })} />
+                <div className="flex w-full flex-wrap items-center gap-3">
+                  <Checkbox isSelected={row.scan_updates} aria-label={formatTranslation('Scan for updates in folder {0}', String(index + 1))}
+                    onChange={scan_updates => edit(index, { scan_updates })}>Scan for Updates</Checkbox>
+                  <Input label="Automatic rescan interval (hours)" aria-label={formatTranslation('Automatic rescan interval for folder {0} (hours)', String(index + 1))}
+                    type="number" value={String(row.scan_hours)}
+                    onChange={value => edit(index, { scan_hours: Number(value) })} />
+                  <Help>0 disables automatic rescans. Uncheck Scan for Updates to skip this folder during manual and automatic file discovery.</Help>
+                </div>
               </FolderRow>
             ))}
           </div>

@@ -29,6 +29,18 @@ RSS = f'''<rss version="2.0"><channel><title>Example feed</title><item><guid>sce
 
 
 class RSSDebridTests(unittest.TestCase):
+    def test_multiple_feed_filter_counts_and_pages_only_selected_sources(self):
+        with self.database.write_transaction() as connection:
+            other = feeds.add_source(connection, url='https://example.org/other.xml', name='Other', kind='rss')
+            for source in feeds.sources(connection):
+                rss_feeds.poll(connection, source, RSS)
+        self.assertEqual(rss_feeds.items(self.database, source_ids=[])['total'], 0)
+        self.assertEqual(rss_feeds.items(self.database, source_ids=[other])['items'][0]['source_id'], other)
+        both = rss_feeds.items(self.database, source_ids=[self.source, other], limit=1)
+        next_page = rss_feeds.items(self.database, source_ids=[self.source, other], limit=1, offset=1)
+        self.assertEqual(both['total'], 2)
+        self.assertNotEqual(both['items'][0]['source_id'], next_page['items'][0]['source_id'])
+
     def test_saved_posts_survive_feed_rotation_and_changed_ids_merge_links(self):
         with self.database.write_transaction() as connection:
             source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
@@ -472,6 +484,39 @@ class RSSDebridTests(unittest.TestCase):
         app.state.sync = SimpleNamespace(read_only=False)
         with patch('peach.settings_file.active', return_value=self.config), TestClient(app) as client:
             self.assertEqual(client.get('/api/rss').json()['total'], 1)
+            self.assertEqual(client.get(f'/api/rss?sources={self.source}').json()['total'], 1)
+            self.assertEqual(client.get('/api/rss?sources=none').json()['total'], 0)
+            self.assertEqual(client.get('/api/rss?sources=bad').status_code, 400)
+            with patch('peach.routes_rss.local_only'):
+                saved = client.post('/api/configuration/sabnzbd/settings', json={
+                    'url': 'http://sabnzbd:8080', 'api_key': 'test-private-key', 'category': 'movies'})
+                self.assertEqual(saved.status_code, 200)
+                self.assertNotIn('test-private-key', saved.text)
+                self.assertTrue(client.get('/api/configuration/sabnzbd').json()['configured'])
+                self.assertTrue(client.get('/api/rss').json()['sabnzbd']['configured'])
+                with patch('peach.sabnzbd_client.request', return_value={'ok': True, 'ids': ['example']}) as submit:
+                    self.assertEqual(client.post('/api/configuration/sabnzbd/check', json={}).status_code, 200)
+                    submit.reset_mock()
+                    entry = client.get('/api/rss').json()['items'][0]
+                    self.assertEqual(client.post('/api/rss/sabnzbd', json={'entry_id': entry['id'], 'link_index': 0}).status_code, 400)
+                    submit.assert_not_called()
+                    nzb = {'url': 'https://example.org/release.nzb?token=example', 'kind': 'nzb'}
+                    with self.database.write_transaction() as connection:
+                        connection.execute('UPDATE feed_item SET download_links_json=? WHERE id=?', (json.dumps([nzb]), entry['id']))
+                    self.assertEqual(client.post('/api/rss/sabnzbd', json={'entry_id': entry['id'], 'link_index': 0}).status_code, 200)
+                    self.assertEqual(submit.call_args.kwargs['nzb_url'], nzb['url'])
+                saved = client.post('/api/configuration/nzbget/settings', json={
+                    'url': 'http://nzbget:6789', 'username': 'demo', 'password': 'example-private-password', 'category': 'movies'})
+                self.assertEqual(saved.status_code, 200)
+                self.assertNotIn('example-private-password', saved.text)
+                self.assertTrue(client.get('/api/configuration/nzbget').json()['configured'])
+                self.assertTrue(client.get('/api/rss').json()['nzbget']['configured'])
+                with patch('peach.nzbget_client.request', return_value={'ok': True, 'ids': [123]}) as submit:
+                    self.assertEqual(client.post('/api/configuration/nzbget/check', json={}).status_code, 200)
+                    self.assertEqual(submit.call_args.args[1], 'version')
+                    self.assertEqual(client.post('/api/rss/nzbget', json={'entry_id': entry['id'], 'link_index': 0}).status_code, 200)
+                    self.assertEqual(submit.call_args.args[1], 'append')
+                    self.assertEqual(submit.call_args.kwargs['nzb_url'], nzb['url'])
             with self.database.write_transaction() as connection:
                 feeds.set_enabled(connection, self.source, False)
             with patch('peach.web_feeds.w_feed_check', return_value={'ok': True}) as run:
@@ -479,6 +524,10 @@ class RSSDebridTests(unittest.TestCase):
                 self.assertEqual(run.call_args.args[1]['sources'], [self.source])
             app.state.sync.read_only = True
             self.assertEqual(client.post('/api/rss/source', json={'action': 'remove', 'id': self.source}).status_code, 403)
+            self.assertEqual(client.post('/api/rss/sabnzbd', json={'entry_id': entry['id'], 'link_index': 0}).status_code, 403)
+            self.assertEqual(client.post('/api/rss/nzbget', json={'entry_id': entry['id'], 'link_index': 0}).status_code, 403)
+            with patch('peach.routes_rss.local_only'):
+                self.assertEqual(client.post('/api/configuration/sabnzbd/settings', json={}).status_code, 403)
 
     def test_rate_limit_cooldown_blocks_another_provider_request(self):
         client = self.provider(handler=lambda request: httpx.Response(429, headers={'retry-after': '120'}))

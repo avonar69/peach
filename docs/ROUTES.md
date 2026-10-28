@@ -153,3 +153,19 @@ RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 
 ## 演员性别筛选契约
 
 `/api/index?kind=performers` 与 `/api/tops` 接受 `genders`，用逗号分隔 StashDB 性别枚举或 `UNKNOWN`。省略或 `all` 表示全部，`none` 表示不选演员；过滤先于分页与随机抽样，厂牌不受影响。值来自演员手工覆盖或 StashDB 来源快照，不从名字或图片推断。浏览器偏好保存在 `peach.actor-genders.v1`，跨页面与重新打开浏览器沿用。
+
+## 目录重扫与 RSS 来源选择
+
+配置接口的 `media_sources` 每行包含 `scan_updates`（默认 `true`）和 `scan_hours`（整数 0–8760，默认 0）。设置文件分别保存到 `[media.scan_updates]` 与 `[media.scan_hours]`；0 关闭自动扫描。嵌套目录须使用相同来源和一致的账本路径映射。发现过程跳过所有独立子目录，再按各自开关分别处理，不删除已有馆藏。
+
+统一处理任务可传 `scan_roots` 限定已配置根；该范围进入恢复记录。自动重扫复用统一任务的 `find_new` 阶段，写者每 15 分钟检查到期目录，忙态下等待；成功发现后更新 `state/media-folder-scans.json`，初次启用从首次检查起计时。
+
+`GET /api/rss` 接受逗号分隔的 `sources` 来源 ID，省略表示全部，`none` 表示空选择。条目与总数先筛选再分页，来源清单仍完整返回以便改选；无效值返回 400。浏览器选择保存于 `peach.rss-selected-feeds.v1`，不写入账本。
+
+## NZB 下载交接
+
+`GET /api/configuration/sabnzbd` 返回服务器地址、分类、密钥存在性与可写状态，绝不返回密钥；`POST /api/configuration/sabnzbd/settings` 保存本机配置，空密钥保留已存密钥，`remove_key=true` 撤销密钥；`POST /api/configuration/sabnzbd/check` 执行只读队列查询验证认证。这些配置接口沿用登录、本机配置与只读副本限制。
+
+`GET /api/rss` 的 `sabnzbd.configured` 控制发送按钮。`POST /api/rss/sabnzbd` 接受 `entry_id`、`link_index`，从已存 RSS 条目取得 NZB 地址，拒绝非 NZB，成功返回 SABnzbd 队列身份。只读副本禁止入队；debrid 解析不接受 NZB。条目的 `link` 用于详情页，`links` 中的 `kind=nzb` 保留原始下载地址，主图与预览沿用 `images` 契约。
+
+NZBGet 使用相同访问边界：`GET /api/configuration/nzbget` 返回地址、用户名、分类与凭据存在性，不返回密码；`POST /api/configuration/nzbget/settings` 接受 `url`、`username`、`password`、`category`，空密码保留已存值，`remove_key=true` 撤销密码；`POST /api/configuration/nzbget/check` 通过 Basic Auth 执行 JSON-RPC `version`。`POST /api/rss/nzbget` 接受已存条目与链接索引，通过 `append` 入队，返回正数 NZBID；失败和零身份不显示成功。RSS 快照的 `nzbget.configured` 控制发送按钮。

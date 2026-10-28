@@ -6,10 +6,36 @@ import { seekVideoBy } from '../src/player/playback';
 import { actorGenderSelection, saveActorGenders } from '../src/actor-genders';
 import { indexQuery } from '../src/react/index/index-data';
 import { topsKey } from '../src/catalog-bars';
+import { touchSeek } from '../src/player/touch-seek';
+import { rssSelection, saveRSSSelection } from '../src/rss-selection';
 
 afterEach(() => { localStorage.clear(); queryClient.clear(); document.body.replaceChildren() });
 
 describe('independent playback preferences', () => {
+  it('touch double taps use the separate small steps without toggling playback', () => {
+    vi.useFakeTimers();
+    const video = document.createElement('video'); document.body.append(video);
+    Object.defineProperty(video, 'duration', { configurable: true, value: 500 });
+    vi.spyOn(video, 'getBoundingClientRect').mockReturnValue({ left: 0, width: 400 } as DOMRect);
+    const play = vi.spyOn(video, 'play').mockResolvedValue(), pause = vi.spyOn(video, 'pause');
+    const settings = seekConfig(undefined); settings.smallForward.seconds = 17; settings.smallRewind.seconds = 7;
+    const stop = touchSeek(video, () => ({ playerSeek: settings, seekSeconds: 10 }));
+    const tap = (x: number, endX = x) => {
+      video.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', pointerId: 1, isPrimary: true, clientX: x, clientY: 20 }));
+      video.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'touch', pointerId: 1, isPrimary: true, clientX: endX, clientY: 20, cancelable: true }));
+    };
+    try {
+      video.currentTime = 100; tap(300); vi.advanceTimersByTime(100); tap(300);
+      expect(video.currentTime).toBe(117); expect(play).not.toHaveBeenCalled(); expect(pause).not.toHaveBeenCalled();
+      tap(50); vi.advanceTimersByTime(100); tap(50); expect(video.currentTime).toBe(110);
+      tap(50, 100); vi.advanceTimersByTime(500); expect(video.currentTime).toBe(110);
+      tap(300); vi.advanceTimersByTime(301); expect(play).toHaveBeenCalledOnce();
+      tap(300); stop(); vi.advanceTimersByTime(500); expect(play).toHaveBeenCalledOnce();
+      saveRSSSelection(['1', '3']); expect(rssSelection()).toEqual(['1', '3']);
+      saveRSSSelection([]); expect(rssSelection()).toEqual([]);
+      saveRSSSelection(null); expect(rssSelection()).toBeNull();
+    } finally { stop(); vi.useRealTimers() }
+  });
   it('persists multiple genders and separates actor and suggestion query caches', () => {
     expect(actorGenderSelection()).toBe('all');
     const before = topsKey('n=20', '');

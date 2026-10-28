@@ -1766,12 +1766,14 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
                 continue
             result.online_roots.append(translated_root)
             if scan:
+                from .media_scan_schedule import child_roots, record_scanned
                 key = f'{source}:{root}'
                 def remember(value, key=key):
                     scan_checkpoints[key] = value
                     save_checkpoint()
                 registered = scan_location(db_path, source, root, declared_roots=config.locations,
                                            find_new=stage == FIND_NEW_STAGE,
+                                           excluded_roots=child_roots(config, source, root),
                                            mounts=mounts, report=lambda line: None,
                                            resume_state=scan_checkpoints.get(key), save_checkpoint=remember,
                                            progress=lambda files, size: update(
@@ -1779,6 +1781,7 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
                                                scanned_bytes=result.scanned_bytes + size,
                                                checked=0, total=0, current_action='scanning_files'))
                 result.scanned += registered.files
+                record_scanned(config, root)
                 result.new_ids.extend(registered.new_ids)
                 result.scanned_bytes += registered.total_bytes
                 if stage == SCAN_STAGE:
@@ -2216,7 +2219,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                     report=lambda state: None, provider_factory=None, job_id=None,
                     retry_ids=None, active=lambda: True, stage=ALL_STAGES,
                     database=None, route_overrides=None, state_file=None, asset_ids=None,
-                    resume_state=None, speed_mode=None):
+                    resume_state=None, speed_mode=None, scan_roots=None):
     """登记文件与确定的番号，外部资料保留为可复核候选。
 
     `retry_ids` 为 `None` 时处理整个馆藏；给定时只处理这些项目（上一任务记录的
@@ -2258,7 +2261,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
         state = dict(job_id=identity, status='running',
                      stage='检查配套文件' if retrying else '扫描文件',
                      checked=0, total=0, scanned=0, scanned_bytes=0, probed=0, identified=0, candidates=0, covers=0, previews=0,
-                     requested_stage=stage, asset_ids=scope_ids,
+                     requested_stage=stage, asset_ids=scope_ids, scan_roots=scan_roots,
                      issue_count=0, paused_count=0, issue_preview=[], issues_truncated=False,
                      notes={}, retryable_asset_ids=[],
                      last_progress_at=time.time(), progress_seq=0,
@@ -2340,7 +2343,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 finish_step('collect')
                 update(**_completion_values(state), stashdb_applied=count, current_asset_name='')
                 return state
-            locations = config.locations if location == 'configured' else {location: config.locations[location]}
+            from .media_scan_schedule import processing_locations
+            locations = processing_locations(config, location, stage, targeted, scan_roots)
             sources = _scan_sources(config, db_path, locations=locations, asset_ids=scope_ids,
                                     stage=stage, guard=guard, update=update, issue=issue,
                                     scan_checkpoints=state['scan_checkpoints'],

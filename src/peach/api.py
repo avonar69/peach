@@ -339,6 +339,10 @@ def create_app(
         available=_writer(sync), job_id='peach-rss-update', filename='rss-schedule.json',
         default=FollowScheduleConfig(enabled=True, interval_minutes=15))
     from .web_job_recovery import RecoveryService
+    from .web_media_scan_schedule import check_due as scan_media_due
+    media_scan_scheduler = FollowUpdateScheduler(settings.follow_state_root,
+        lambda: scan_media_due(contract), available=_writer(sync), job_id='peach-media-folder-update',
+        filename='media-folder-schedule.json', default=FollowScheduleConfig(enabled=True, interval_minutes=15))
     recovery_service = RecoveryService(contract, available=_writer(sync))
     contract.header_repairs = header_repairs
     contract.transcode_service = transcode_service
@@ -388,7 +392,7 @@ def create_app(
         ledger_ready = False
         if settings.configured:
             ledger_ready = _start_ledger_services(settings, contract,
-                (follow_scheduler, feed_scheduler, rss_scheduler, push_discovery, downloads, recovery_service, jav_browser, contract.debrid))
+                (follow_scheduler, feed_scheduler, rss_scheduler, media_scan_scheduler, push_discovery, downloads, recovery_service, jav_browser, contract.debrid))
             automatic_updates.start()
             if ledger_ready:
                 sharing.start()
@@ -414,6 +418,7 @@ def create_app(
             follow_scheduler.stop()
             feed_scheduler.stop()
             rss_scheduler.stop()
+            media_scan_scheduler.stop()
             automatic_updates.stop()
             await asyncio.to_thread(sharing.stop)
             push_discovery.stop()

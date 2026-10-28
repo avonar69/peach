@@ -204,6 +204,9 @@ def w_library_processing(contract, body, *, resume=False):
     if previous.get('status') in ACTIVE and not resume:
         return previous
     retry_ids, asset_ids, stage = _processing_request(contract, config, previous, body)
+    scan_roots = (body or {}).get('scan_roots', previous.get('scan_roots') if resume else None)
+    from .media_scan_schedule import selected_locations
+    selected_locations(config, config.locations, scan_roots)
     if retry_ids is not None and not retry_ids:
         return previous
     mode = valid_mode(control_for(config).mode if resume else
@@ -213,6 +216,7 @@ def w_library_processing(contract, body, *, resume=False):
         try:
             result = process_library(config, contract.db_path, contract.candidate_root, contract.cover_root,
                 job_id=job_id, retry_ids=retry_ids, stage=stage, asset_ids=asset_ids,
+                scan_roots=scan_roots,
                 # 自动落库与页面写的是同一个 `LedgerDatabase`：进程内写锁在实例上，
                 # 另建一个就是在同一个进程里开第二条写入路径。
                 database=contract.database,
@@ -239,6 +243,7 @@ def w_library_processing(contract, body, *, resume=False):
               'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios'}
     return contract.library_processing_job.start(
         work, restart=True, initial={'stage': labels[stage], 'requested_stage': stage,
+                                    'scan_roots': scan_roots,
                                     **initial_estimate(config, contract.db_path, stage, asset_ids or retry_ids, mode)},
-        recovery={'stage': stage, 'speed_mode': mode, **({'asset_ids': asset_ids or retry_ids}
+        recovery={'stage': stage, 'speed_mode': mode, 'scan_roots': scan_roots, **({'asset_ids': asset_ids or retry_ids}
                                     if asset_ids is not None or retry_ids is not None else {})})
