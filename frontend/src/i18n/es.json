@@ -4462,5 +4462,18 @@
   "Filename assignments updated: {0}.": "Asignaciones por nombre actualizadas: {0}.",
   "Rematch affected filenames": "Volver a buscar nombres afectados",
   "Rematch affected files with StashDB": "Buscar afectados en StashDB",
-  "Save a StashDB API key before rematching.": "Guarda una clave API de StashDB antes de volver a buscar."
+  "Save a StashDB API key before rematching.": "Guarda una clave API de StashDB antes de volver a buscar.",
+  "Rematch metadata": "Volver a buscar metadatos",
+  "Scene rematching started.": "Se inició la búsqueda de la escena.",
+  "Metadata synced.": "Metadatos sincronizados.",
+  "Edit scene": "Editar escena",
+  "Actors, one per line": "Intérpretes, uno por línea",
+  "Cover image": "Imagen de portada",
+  "Thumbnail image": "Imagen en miniatura",
+  "Loading scene details…": "Cargando detalles de la escena…",
+  "Save scene": "Guardar escena",
+  "Scene details saved.": "Detalles de la escena guardados.",
+  "Image must be no larger than 6 MB.": "La imagen no debe superar los 6 MB.",
+  "Could not read image.": "No se pudo leer la imagen.",
+  "重新匹配作品资料": "Volver a buscar la escena"
 }

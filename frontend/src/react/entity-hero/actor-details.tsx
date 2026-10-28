@@ -9,6 +9,7 @@ import type { FactRow } from './entity-hero';
 import { translate } from '../../i18n';
 import { ACTOR_GENDERS } from '../../actor-genders';
 import { Select, SelectItem } from '@/components/base/select/select';
+import { RiEditLine } from '@remixicon/react';
 
 export const ACTOR_FIELDS = [
   ['gender', 'Gender'],
@@ -35,8 +36,8 @@ export function actorFactRows(details: ActorDetails): FactRow[] {
     text: start || end ? `${translate(end ? 'Retired' : 'Active')} (${start || '—'} – ${end || translate('Present')})` : '—', tone: 'plain' as const }] }, ...values];
 }
 
-export function ActorDetailsEditor({ entityId, details, onSaved, receipt }: {
-  entityId: number; details: ActorDetails; onSaved(): void; receipt(message: string): void;
+export function ActorDetailsEditor({ entityId, details, onSaved, receipt, iconOnly = false }: {
+  entityId: number; details: ActorDetails; onSaved(): void; receipt(message: string): void; iconOnly?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<ActorDetails>({});
@@ -49,7 +50,8 @@ export function ActorDetailsEditor({ entityId, details, onSaved, receipt }: {
     });
   };
   return <>
-    <Button type="button" variant="secondary" onClick={() => { setValues(details); action.setError(''); setOpen(true); }}>Edit actor info</Button>
+    <Button type="button" variant="secondary" iconOnly={iconOnly} size={iconOnly ? 'small' : 'medium'} leadingIcon={iconOnly ? RiEditLine : undefined}
+      aria-label="Edit actor info" title={translate('Edit actor info')} onClick={() => { setValues(details); action.setError(''); setOpen(true); }}>{iconOnly ? null : 'Edit actor info'}</Button>
     <ModalFrame isOpen={open} onOpenChange={setOpen} width="form" label="Edit actor info">
       <form className="flex min-w-0 flex-col gap-4 p-5" onSubmit={event => { event.preventDefault(); save(); }}>
         <h2 className="text-title-2-medium">Edit actor info</h2>

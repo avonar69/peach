@@ -4462,5 +4462,18 @@
   "Filename assignments updated: {0}.": "파일 이름 할당 {0}개를 업데이트했습니다.",
   "Rematch affected filenames": "영향받는 파일 이름 재매칭",
   "Rematch affected files with StashDB": "영향받는 파일 StashDB 재매칭",
-  "Save a StashDB API key before rematching.": "재매칭 전에 StashDB API 키를 저장하세요."
+  "Save a StashDB API key before rematching.": "재매칭 전에 StashDB API 키를 저장하세요.",
+  "Rematch metadata": "메타데이터 다시 일치시키기",
+  "Scene rematching started.": "장면 다시 일치시키기를 시작했습니다.",
+  "Metadata synced.": "메타데이터를 동기화했습니다.",
+  "Edit scene": "장면 편집",
+  "Actors, one per line": "배우, 한 줄에 한 명",
+  "Cover image": "표지 이미지",
+  "Thumbnail image": "썸네일 이미지",
+  "Loading scene details…": "장면 정보 불러오는 중…",
+  "Save scene": "장면 저장",
+  "Scene details saved.": "장면 정보를 저장했습니다.",
+  "Image must be no larger than 6 MB.": "이미지는 6 MB 이하여야 합니다.",
+  "Could not read image.": "이미지를 읽을 수 없습니다.",
+  "重新匹配作品资料": "장면 정보 다시 일치시키기"
 }

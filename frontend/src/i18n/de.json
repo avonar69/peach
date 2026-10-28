@@ -4462,5 +4462,18 @@
   "Filename assignments updated: {0}.": "Dateinamen-Zuordnungen aktualisiert: {0}.",
   "Rematch affected filenames": "Betroffene Dateinamen zuordnen",
   "Rematch affected files with StashDB": "Erneut mit StashDB abgleichen",
-  "Save a StashDB API key before rematching.": "Vor dem erneuten Zuordnen einen StashDB-API-Schlüssel speichern."
+  "Save a StashDB API key before rematching.": "Vor dem erneuten Zuordnen einen StashDB-API-Schlüssel speichern.",
+  "Rematch metadata": "Metadaten erneut zuordnen",
+  "Scene rematching started.": "Die Szenenzuordnung wurde gestartet.",
+  "Metadata synced.": "Metadaten synchronisiert.",
+  "Edit scene": "Szene bearbeiten",
+  "Actors, one per line": "Darsteller, einer pro Zeile",
+  "Cover image": "Titelbild",
+  "Thumbnail image": "Vorschaubild",
+  "Loading scene details…": "Szenendetails werden geladen…",
+  "Save scene": "Szene speichern",
+  "Scene details saved.": "Szenendetails gespeichert.",
+  "Image must be no larger than 6 MB.": "Das Bild darf höchstens 6 MB groß sein.",
+  "Could not read image.": "Das Bild konnte nicht gelesen werden.",
+  "重新匹配作品资料": "Szene erneut zuordnen"
 }

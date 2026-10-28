@@ -4462,5 +4462,18 @@
   "Filename assignments updated: {0}.": "已更新 {0} 個檔名歸屬。",
   "Rematch affected filenames": "重新比對受影響的檔名",
   "Rematch affected files with StashDB": "用 StashDB 重新比對受影響影片",
-  "Save a StashDB API key before rematching.": "請先儲存 StashDB API 金鑰。"
+  "Save a StashDB API key before rematching.": "請先儲存 StashDB API 金鑰。",
+  "Rematch metadata": "重新比對資料",
+  "Scene rematching started.": "已開始重新比對作品。",
+  "Metadata synced.": "已同步資料。",
+  "Edit scene": "編輯作品",
+  "Actors, one per line": "演員，每行一位",
+  "Cover image": "封面圖片",
+  "Thumbnail image": "縮圖圖片",
+  "Loading scene details…": "正在讀取作品資料…",
+  "Save scene": "儲存作品",
+  "Scene details saved.": "已儲存作品資料。",
+  "Image must be no larger than 6 MB.": "圖片最多 6 MB。",
+  "Could not read image.": "圖片無法讀取。",
+  "重新匹配作品资料": "重新比對作品資料"
 }

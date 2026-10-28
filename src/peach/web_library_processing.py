@@ -190,6 +190,8 @@ def _processing_request(contract, config, previous, body):
                 (previous.get('requested_stage') if retry_ids is not None else None) or FIND_NEW_STAGE)
     if stage not in STAGES:
         raise ValueError('处理阶段无效')
+    if stage == 'rematch' and asset_ids is None:
+        raise ValueError('请选择要重新匹配的作品')
     from .matching_jobs import REMATCH_STAGES, selection
     if stage in REMATCH_STAGES:
         asset_ids = [row['id'] for row in selection(config, contract.database, stage, asset_ids or retry_ids)]
@@ -207,7 +209,7 @@ def w_library_processing(contract, body, *, resume=False):
     previous = _current(contract)
     if previous.get('status') in ACTIVE and not resume:
         from .matching_jobs import REMATCH_STAGES
-        if (body or {}).get('stage') in REMATCH_STAGES:
+        if (body or {}).get('stage') in (*REMATCH_STAGES, 'rematch'):
             raise ValueError('A scan is already running. Stop it or wait for it to finish, then start resync.')
         return previous
     retry_ids, asset_ids, stage = _processing_request(contract, config, previous, body)
@@ -247,7 +249,7 @@ def w_library_processing(contract, body, *, resume=False):
     # 人会以为点错了。
     labels = {FIND_NEW_STAGE: '准备扫描文件', ALL_STAGES: '准备处理', SCAN_STAGE: '准备扫描文件', COLLECT_STAGE: '准备采集资料',
               METADATA_STAGE: '准备采集资料', PREVIEWS_STAGE: '准备生成预览图',
-              **SPECIAL_LABELS}
+              'rematch': '重新匹配作品资料', **SPECIAL_LABELS}
     return contract.library_processing_job.start(
         work, restart=True, initial={'stage': labels[stage], 'requested_stage': stage,
                                     'scan_roots': scan_roots,

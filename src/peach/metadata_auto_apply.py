@@ -929,7 +929,7 @@ def _auto_apply_targets(connection, row: dict, code: str, field: str):
     targets = _codes_matching(connection, [code, query], "code,name,path,field_owners")
     if not targets or not _group_identifies_code(code, targets):
         return []
-    column = METADATA_FIELD_COLUMNS.get(field)
+    column = 'performers' if field == 'performers' else METADATA_FIELD_COLUMNS.get(field)
     if column and any(is_protected(owner_of(target["field_owners"], column)) for target in targets):
         return []
     return targets

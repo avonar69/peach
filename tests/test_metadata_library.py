@@ -2773,6 +2773,20 @@ class LibraryWatchdogTests(unittest.TestCase):
 
 
 class LibraryPreviewCompletionTests(unittest.TestCase):
+    def test_scene_rematch_is_scoped_metadata_without_discovery_or_previews(self):
+        with patch('peach.library_processing._generate_previews') as generate, \
+                patch('peach.library_processing.scan_location') as discover, \
+                patch('peach.library_processing._finish_collection', return_value={}), \
+                patch('peach.stashdb.scan_assets', return_value={'applied': 0, 'review': 1}) as stash:
+            result = self.run_processing(stage='rematch', asset_ids=[1])
+        self.assertEqual(result['status'], 'complete')
+        self.assertEqual(result['requested_stage'], 'rematch')
+        self.assertEqual(result['asset_ids'], [1])
+        self.assertEqual([row['id'] for row in stash.call_args.args[2]], [1])
+        self.assertTrue(stash.call_args.kwargs['force'])
+        generate.assert_not_called()
+        discover.assert_not_called()
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

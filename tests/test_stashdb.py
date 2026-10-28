@@ -32,6 +32,84 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def scene_contract(self):
+        return SimpleNamespace(database=self.database, read_connection=self.database.read_connection,
+            write_transaction=self.database.write_transaction, cover_root=self.root / 'covers', cache_bust=mock.Mock())
+
+    def test_scene_edit_saves_fields_and_cast_with_manual_protection(self):
+        from peach import web_scene_metadata, filename_actors
+        from peach.field_owners import owner_of, RevisionConflict
+        contract = self.scene_contract()
+        with mock.patch('peach.web_scene_metadata.q_item', return_value={'id': 1}):
+            web_scene_metadata.w_scene_metadata(contract, {'id': 1, 'expected_revision': 0,
+                'values': {'catalog_title': 'Manual title', 'release_date': '2026-10-22', 'studio': 'Manual studio'},
+                'performers': ['Clara Fargo', 'Jane Doe']})
+        saved = web_scene_metadata.q_scene_metadata(contract, {'id': '1'})
+        self.assertEqual(saved['catalog_title'], 'Manual title')
+        self.assertEqual(saved['performers'], ['Clara Fargo', 'Jane Doe'])
+        with self.database.write_transaction() as connection:
+            row = connection.execute('SELECT field_owners FROM asset WHERE id=1').fetchone()
+            self.assertEqual(owner_of(row[0], 'performers'), 'user:manual')
+            self.assertFalse(stashdb._write_cast(connection, 1, scene(), True, stashdb.SOURCE, False))
+            self.assertEqual(filename_actors.apply(connection, [1], actors=True), 0)
+        with self.assertRaises(RevisionConflict), mock.patch('peach.web_scene_metadata.q_item', return_value={}):
+            web_scene_metadata.w_scene_metadata(contract, {'id': 1, 'expected_revision': 0, 'values': {'catalog_title': 'Stale'}})
+
+    def test_empty_manual_cast_stays_empty_during_automatic_matching(self):
+        from peach import web_scene_metadata, filename_actors
+        contract = self.scene_contract()
+        with mock.patch('peach.web_scene_metadata.q_item', return_value={}):
+            web_scene_metadata.w_scene_metadata(contract, {'id': 1, 'expected_revision': 0, 'values': {}, 'performers': []})
+        with self.database.write_transaction() as connection:
+            self.assertFalse(stashdb._write_cast(connection, 1, scene(), True, stashdb.SOURCE, True))
+            filename_actors.apply(connection, [1])
+        self.assertEqual(web_scene_metadata.q_scene_metadata(contract, {'id': 1})['performers'], [])
+
+    def test_scene_pictures_are_scoped_to_asset_and_validate_before_writing(self):
+        import base64
+        from peach import web_scene_metadata
+        contract = self.scene_contract()
+        image = io.BytesIO()
+        Image.new('RGB', (640, 360), 'blue').save(image, 'JPEG')
+        encoded = base64.b64encode(image.getvalue()).decode()
+        detector = SimpleNamespace(detect=lambda image: [])
+        with mock.patch('peach.web_scene_metadata.q_item', return_value={}), mock.patch('peach.cover_artwork._default_detector', return_value=detector):
+            web_scene_metadata.w_scene_metadata(contract, {'id': 1, 'expected_revision': 0, 'values': {}, 'cover': encoded, 'thumbnail': encoded})
+        self.assertTrue((contract.cover_root / 'MANUAL-ASSET-1.jpg').is_file())
+        self.assertTrue((contract.cover_root / 'MANUAL-THUMB-1.jpg').is_file())
+        from peach.web_state import WebContract
+        from peach.web_catalog import attach_artwork_fields
+        web = WebContract(self.database.db_path, cover_root=contract.cover_root, database=self.database)
+        selected, sibling = {'id': 1, 'code': 'ABW-001'}, {'id': 2, 'code': 'ABW-001'}
+        attach_artwork_fields(web, selected)
+        attach_artwork_fields(web, sibling)
+        self.assertEqual(selected['cover_key'], 'MANUAL-ASSET-1')
+        self.assertEqual(selected['thumbnail_key'], 'MANUAL-THUMB-1')
+        self.assertFalse(sibling['has_cover'])
+        saved = web_scene_metadata.q_scene_metadata(contract, {'id': 1})
+        self.assertGreater(saved['mutation_revision'], 0)
+        with self.assertRaises(ValueError):
+            web_scene_metadata.w_scene_metadata(contract, {'id': 1, 'expected_revision': saved['mutation_revision'], 'values': {'catalog_title': 'Invalid picture'}, 'cover': 'not base64'})
+        self.assertNotEqual(web_scene_metadata.q_scene_metadata(contract, {'id': 1})['catalog_title'], 'Invalid picture')
+
+    def test_single_scene_rematch_starts_only_selected_metadata_job(self):
+        from peach import web_scene_metadata
+        with mock.patch('peach.web_library_processing.w_library_processing', return_value={'requested_stage': 'rematch'}) as start:
+            result = web_scene_metadata.w_rematch_metadata(self.scene_contract(), {'id': 1, 'kind': 'scene'})
+        self.assertEqual(start.call_args.args[1], {'stage': 'rematch', 'asset_ids': [1]})
+        self.assertEqual(result['requested_stage'], 'rematch')
+
+    def test_single_entity_rematch_uses_only_requested_identity(self):
+        from peach import web_scene_metadata
+        with self.database.write_transaction() as connection:
+            entity_id = upsert_asset_entity(connection, kind='studio', name='Example Studio', asset_id=1, role='studio', source='test')
+        with mock.patch('peach.settings_file.active', return_value=self.config), mock.patch('peach.stashdb_client.Client') as client, mock.patch('peach.stashdb_entities._match', return_value={'id': STUDIO}) as match, mock.patch('peach.stashdb_entities._apply') as apply:
+            self.assertTrue(web_scene_metadata.w_rematch_metadata(self.scene_contract(), {'id': entity_id, 'kind': 'studio'})['ok'])
+        self.assertEqual(match.call_args.args[1]['id'], entity_id)
+        self.assertEqual(apply.call_args.args[3]['kind'], 'studio')
+        client.return_value.scenes.assert_not_called()
+        client.return_value.close.assert_called_once()
+
     def test_actor_details_aliases_manual_override_and_birthday(self):
         from datetime import date
         from peach import actor_details

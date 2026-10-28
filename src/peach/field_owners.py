@@ -98,7 +98,7 @@ def parse_owners(value: object) -> dict[str, str]:
     if not isinstance(parsed, Mapping):
         return {}
     return {str(key): str(owner) for key, owner in parsed.items()
-            if key in OWNED_FIELDS and isinstance(owner, str) and owner}
+            if key in (*OWNED_FIELDS, 'performers') and isinstance(owner, str) and owner}
 
 
 def owner_of(value: object, field: str | None) -> str:

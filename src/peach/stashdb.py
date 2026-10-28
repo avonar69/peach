@@ -214,6 +214,9 @@ def _scene_cast(scene):
 
 
 def _write_cast(connection, asset_id, scene, enabled, source, manual):
+    owners = connection.execute('SELECT field_owners FROM asset WHERE id=?', (asset_id,)).fetchone()
+    if owners and owner_of(owners[0], 'performers').startswith('user:'):
+        return False
     performers, safe = _scene_cast(scene)
     if not enabled or not safe or len(safe) != len(performers):
         return False

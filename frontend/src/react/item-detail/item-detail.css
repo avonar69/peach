@@ -164,6 +164,7 @@
   align-self: center;
   justify-self: center;
 }
+.peach-react [data-item-detail] [data-title-tools] button > svg.remixicon { stroke: none; fill: currentColor; }
 .peach-react [data-item-detail] [data-title-tools] button:hover { background: var(--hover); color: var(--ink); }
 .peach-react [data-item-detail] [data-title-tools] button:disabled {
   background: var(--sunk);

@@ -1,5 +1,7 @@
 # 复用清单
 
+单条作品编辑复用 `write_owned_fields`、`check_revision`、规范实体写入和 Pillow 图片校验；封面安装复用 `install_cover` 的整组原子替换，作品封面与缩略图使用独立缓存键。React 弹层复用 `ModalFrame`、`overlayHost` 与 React Aria 的容器提供器，使原生播放弹层内的编辑可交互。作品重匹配复用馆藏资料流水线及配置来源，演员／厂牌复用 StashDB 单实体身份和资料安装逻辑，不新增依赖。
+
 ## 时间轴缩略图任务
 
 通用原片能力复用 FFprobe 的既有文件指纹缓存，编码描述遵循 [MDN 的 MIME codecs 参数](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/codecs_parameter)，浏览器使用 `canPlayType` 与可用时的 `MediaCapabilities`，不维护按浏览器名称区分的解码白名单。转换回退沿用现有 HLS 与 FFmpeg 服务，决定随片段 URL 传递。

@@ -60,7 +60,7 @@ SCAN_STAGE, COLLECT_STAGE, ALL_STAGES = 'scan', 'collect', 'all'
 FIND_NEW_STAGE = 'find_new'
 METADATA_STAGE, PREVIEWS_STAGE = 'metadata', 'previews'
 from .matching_jobs import LABELS as SPECIAL_LABELS
-STAGES = (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, *SPECIAL_LABELS)
+STAGES = (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, 'rematch', *SPECIAL_LABELS)
 
 #: 没有动作截止时间的阶段（本地读取）超过这么久没有心跳就在页面上预警。
 STALL_AFTER_SECONDS = 120.0
@@ -2215,6 +2215,24 @@ def _completion_values(state):
         completed_at=time.time(), error=issue_summary(state['issue_count'], state['paused_count']))
 
 
+def _metadata_stage(stage, selected_ids):
+    """手动重匹配必须冻结所选作品范围。"""
+    if stage == 'rematch':
+        if selected_ids is None:
+            raise ValueError('请选择要重新匹配的作品')
+        return METADATA_STAGE
+    return stage
+
+
+def _remote_evidence(remote, row, code, fields, verify, rematching, groups, cover_root, update, issue, publish):
+    """定向重匹配查询完整资料，其余任务只补未取得字段。"""
+    complete = verify or rematching
+    missing = list(COLLECTED_FIELDS) if complete else _missing_fields(row, fields)
+    return remote.collect(row, code, missing, cover_root, update=update, issue=issue,
+        answered=() if complete else _answered_sources(groups, f"asset:{row['id']}", missing),
+        received=lambda entries: publish(row, code, fields, verify, entries))
+
+
 def process_library(config, db_path, candidate_root, cover_root, *, location='configured',
                     report=lambda state: None, provider_factory=None, job_id=None,
                     retry_ids=None, active=lambda: True, stage=ALL_STAGES,
@@ -2238,6 +2256,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
     `state_file` 给后台定向任务保存独立进度，共享候选写入仍使用全库处理锁。
     """
     selected_ids = _validate_processing_request(config, db_path, stage, asset_ids, retry_ids, database)
+    rematching = stage == 'rematch'
+    stage = _metadata_stage(stage, selected_ids)
     routes = metadata_routes.parse_route_overrides(route_overrides)
     path = Path(state_file) if state_file is not None else state_path(config)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -2261,7 +2281,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
         state = dict(job_id=identity, status='running',
                      stage='检查配套文件' if retrying else '扫描文件',
                      checked=0, total=0, scanned=0, scanned_bytes=0, probed=0, identified=0, candidates=0, covers=0, previews=0,
-                     requested_stage=stage, asset_ids=scope_ids, scan_roots=scan_roots,
+                     requested_stage='rematch' if rematching else stage, asset_ids=scope_ids, scan_roots=scan_roots,
                      issue_count=0, paused_count=0, issue_preview=[], issues_truncated=False,
                      notes={}, retryable_asset_ids=[],
                      last_progress_at=time.time(), progress_seq=0,
@@ -2330,7 +2350,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
 
         update()
         remote = _RemoteSession(config, provider_factory, _MissCache(misses_path(config)),
-                                retrying=retrying, routes=routes)
+                                retrying=retrying or rematching, routes=routes)
         flush_candidates = lambda force=False: None
 
         try:
@@ -2465,12 +2485,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 update(stage='采集缺失资料', checked=completed_count + position,
                        total=completed_count + len(prepared), current_asset_id=row['id'],
                        current_asset_name=Path(str(row['name'] or '')).name)
-                target_key = f"asset:{row['id']}"
-                missing = list(COLLECTED_FIELDS) if verify_existing else _missing_fields(row, local_fields)
-                found, covers = remote.collect(row, code, missing, cover_root, update=update, issue=issue,
-                    answered=() if verify_existing else _answered_sources(groups, target_key, missing),
-                    received=lambda entries, row=row, code=code, fields=local_fields, verify=verify_existing:
-                        publish(row, code, fields, verify, entries))
+                found, covers = _remote_evidence(remote, row, code, local_fields, verify_existing,
+                    rematching, groups, cover_root, update, issue, publish)
                 state['covers'] += covers
                 covered.append((row['id'], covers))
                 update(stage='保存待确认资料', current_action='writing_candidates',
@@ -2490,7 +2506,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
             summary['auto_applied'] = summary.get('auto_applied', 0) + state['auto_applied']
             summary['auto_rejected'] = summary.get('auto_rejected', 0) + state['auto_rejected']
             from . import stashdb
-            stash_result = stashdb.scan_assets(config, database, rows, progress=update, issue=issue, active=active)
+            stash_result = stashdb.scan_assets(config, database, rows, progress=update, issue=issue, active=active, force=rematching)
             summary['stashdb_applied'] = stash_result['applied']
             summary['stashdb_review'] = stash_result['review']
             summary['stashdb_skipped'] = stash_result.get('skipped', 0)

@@ -4462,5 +4462,18 @@
   "Filename assignments updated: {0}.": "ファイル名の関連付けを {0} 件更新しました。",
   "Rematch affected filenames": "対象のファイル名を再照合",
   "Rematch affected files with StashDB": "対象のファイルを StashDB で再照合",
-  "Save a StashDB API key before rematching.": "再照合の前に StashDB の API キーを保存してください。"
+  "Save a StashDB API key before rematching.": "再照合の前に StashDB の API キーを保存してください。",
+  "Rematch metadata": "メタデータを再照合",
+  "Scene rematching started.": "シーンの再照合を開始しました。",
+  "Metadata synced.": "メタデータを同期しました。",
+  "Edit scene": "シーンを編集",
+  "Actors, one per line": "出演者（1行に1人）",
+  "Cover image": "カバー画像",
+  "Thumbnail image": "サムネイル画像",
+  "Loading scene details…": "シーンの詳細を読み込み中…",
+  "Save scene": "シーンを保存",
+  "Scene details saved.": "シーンの詳細を保存しました。",
+  "Image must be no larger than 6 MB.": "画像は6 MB以下にしてください。",
+  "Could not read image.": "画像を読み込めませんでした。",
+  "重新匹配作品资料": "シーン情報を再照合"
 }

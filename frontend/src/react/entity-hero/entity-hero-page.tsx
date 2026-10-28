@@ -24,6 +24,7 @@ import { Glyph } from './glyph';
 import { FeedSwitch, MorePop } from './hero-pop';
 import { NamePicker } from './name-picker';
 import { ActorDetailsEditor, actorFactRows } from './actor-details';
+import { MetadataRematch } from '../components/metadata-rematch';
 import {
   COMPANY_ALIASES_SHOWN, agencyOf, companyFactRows, entityFeedTip, entryMarks, factRows, heroLinks, isCompany, isPeople, nameChoices, nameLine, shownTags,
   type EntityHeroActions, type EntityHeroData, type EntityHeroHelpers, type EntityHeroProps,
@@ -73,6 +74,10 @@ export function EntityHeroPage({ kind, name, entity, feedNew, feedHost, actions,
               {kind !== 'tag' ? <NamePicker current={entity.canonical_name} choices={nameChoices(entity)}
                 onChoose={actions.chooseName} onAddAlias={actions.addAlias} /> : null}
               {entity.id ? <FavoriteButton item={{ entity_id: Number(entity.id), kind, name: entity.canonical_name || name, favorite: entity.favorite }} /> : null}
+              {entity.id && (kind === 'performer' || kind === 'studio') ? <MetadataRematch kind={kind} id={Number(entity.id)}
+                onSaved={actions.avatarPicked} receipt={helpers.receipt} /> : null}
+              {kind === 'performer' && entity.id ? <ActorDetailsEditor entityId={Number(entity.id)} details={entity.actor_details || {}}
+                iconOnly onSaved={actions.avatarPicked} receipt={helpers.receipt} /> : null}
             </div>
             <AliasLine kind={kind} entity={entity} actions={actions} />
             {entity.related_identities?.length ? (
@@ -98,9 +103,6 @@ export function EntityHeroPage({ kind, name, entity, feedNew, feedHost, actions,
           </div>
           {facts.length ? (
             <dl data-entity-facts="">
-              {kind === 'performer' && entity.actor_details ? <dd data-actor-edit="">
-                <ActorDetailsEditor entityId={entity.id} details={entity.actor_details} onSaved={actions.avatarPicked} receipt={helpers.receipt} />
-              </dd> : null}
               {facts.map((row) => (
                 <FactRowView key={row.label} glyph={row.glyph} label={row.label} clip={row.clip}>
                   {row.tags ? <FactTags tags={row.tags} />

@@ -4462,5 +4462,18 @@
   "Filename assignments updated: {0}.": "Đã cập nhật {0} liên kết từ tên tệp.",
   "Rematch affected filenames": "Khớp lại tên tệp bị ảnh hưởng",
   "Rematch affected files with StashDB": "Khớp lại tệp bằng StashDB",
-  "Save a StashDB API key before rematching.": "Lưu khóa API StashDB trước khi khớp lại."
+  "Save a StashDB API key before rematching.": "Lưu khóa API StashDB trước khi khớp lại.",
+  "Rematch metadata": "Đối sánh lại siêu dữ liệu",
+  "Scene rematching started.": "Đã bắt đầu đối sánh lại cảnh.",
+  "Metadata synced.": "Đã đồng bộ siêu dữ liệu.",
+  "Edit scene": "Chỉnh sửa cảnh",
+  "Actors, one per line": "Diễn viên, mỗi dòng một người",
+  "Cover image": "Ảnh bìa",
+  "Thumbnail image": "Ảnh thu nhỏ",
+  "Loading scene details…": "Đang tải thông tin cảnh…",
+  "Save scene": "Lưu cảnh",
+  "Scene details saved.": "Đã lưu thông tin cảnh.",
+  "Image must be no larger than 6 MB.": "Ảnh không được lớn hơn 6 MB.",
+  "Could not read image.": "Không thể đọc ảnh.",
+  "重新匹配作品资料": "Đối sánh lại thông tin cảnh"
 }

@@ -149,7 +149,8 @@ def apply(connection, asset_ids, *, actors=True, studios=False, ignore_terms='',
         filename = clean(str(row[0] or ''), ignore_terms)
         if studios:
             count += _studio(connection, asset_id, filename)
-        if not actors:
+        owners = connection.execute('SELECT field_owners FROM asset WHERE id=?', (asset_id,)).fetchone()
+        if not actors or owner_of(owners[0], 'performers').startswith(('user:', 'review:')):
             continue
         connection.execute('DELETE FROM asset_entity WHERE asset_id=? AND source=?', (asset_id, SOURCE))
         connection.execute('DELETE FROM asset_tag WHERE asset_id=? AND source=?', (asset_id, SOURCE))

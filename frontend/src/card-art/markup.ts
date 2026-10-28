@@ -39,8 +39,9 @@ export const withVersion = (url: string, version: string | null | undefined): st
   version ? `${url}&v=${encodeURIComponent(version)}` : url;
 
 /** 封面地址。`thumb` 是派生档，`upgradeCover` 把它摘掉换原件，版本号留在后面。 */
-export const coverUrl = (item: { code?: string | null; cover_key?: string; cover_version?: string }, thumb = false): string =>
-  withVersion(`/cover?code=${encodeURIComponent(item.cover_key || item.code || '')}${thumb ? '&thumb=1' : ''}`, item.cover_version);
+export const coverUrl = (item: { code?: string | null; cover_key?: string; cover_version?: string; thumbnail_key?: string; thumbnail_version?: string }, thumb = false): string =>
+  withVersion(`/cover?code=${encodeURIComponent((thumb && item.thumbnail_key) || item.cover_key || item.code || '')}${thumb ? '&thumb=1' : ''}`,
+    thumb && item.thumbnail_key ? item.thumbnail_version : item.cover_version);
 
 /** 厂牌标识地址，`variant` 跟着位置走：大位要字标、小位要方形图标。 */
 export const logoUrl = (studio: string, variant: string, version?: string | null): string =>
@@ -197,6 +198,8 @@ export interface CoverItem {
   id?: number;
   code?: string;
   cover_key?: string;
+  thumbnail_key?: string;
+  thumbnail_version?: string;
   is_jav?: boolean;
   has_cover?: boolean;
   cover_version?: string;
@@ -213,7 +216,7 @@ export interface CoverItem {
 export function coverImage(item: CoverItem, layout: 'big' | 'small', eager = false): string {
   const src = coverUrl(item, true);
   const wide = /ブルーレイ|blu[\s-]?ray/i.test(String(item.title || item.display_title || item.name || ''));
-  const f = item.cover_frame || {};
+  const f = item.thumbnail_key ? { layout: 'still' } : item.cover_frame || {};
   const still = item.poster_box?.method !== 'manual' && (f.layout === 'still'
     || /^(IENEE|IENFE|SDHS)-/i.test(String(item.code || ''))
     || /(?:【|\[|\(|（)\s*(?:[48]K\s*)?VR\s*(?:】|\]|\)|）)/i.test(String(item.title || item.display_title || item.name || '')));
@@ -222,7 +225,7 @@ export function coverImage(item: CoverItem, layout: 'big' | 'small', eager = fal
     faceY != null ? ` data-cy="${faceY}"` : ''].join('');
   /* 正封那一块的取景框，源图像素坐标加源图尺寸，由 `posterPanel` 在加载后换算成
      百分比。`map(Number)` 既是校验也是转义：进到属性里的一定是数字。 */
-  const pb = item.poster_box;
+  const pb = item.thumbnail_key ? null : item.poster_box;
   const box = pb ? ` data-posterbox="${[pb.x0, (pb.px || [])[0], (pb.px || [])[1], pb.y0, pb.x1, pb.y1].map(Number).join(' ')}"` : '';
   // 小图看整张（含剧照拼贴），大图只取右侧正封。
   return `<img class="poster cover ${layout === 'small' ? 'whole' : 'front'}" src="${src}"

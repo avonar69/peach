@@ -54,6 +54,15 @@ def attach_artwork_fields(contract: WebContract, item: dict) -> None:
         item['size'] = None
         item['is_strm'] = True
     key = artwork_key(item['id'], item.get('code'))
+    manual = f"MANUAL-ASSET-{item['id']}"
+    if contract.has_cover(manual):
+        key = manual
+    thumbnail = f"MANUAL-THUMB-{item['id']}"
+    if contract.has_cover(thumbnail):
+        item['thumbnail_key'] = thumbnail
+        item['thumbnail_version'] = contract.cover_version(thumbnail)
+        if not contract.has_cover(key):
+            key = thumbnail
     item['has_cover'] = contract.has_cover(key)
     item['cover_key'] = key if item['has_cover'] else ''
     if item['has_cover']:

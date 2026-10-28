@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from .follow_discovery import MAX_SUGGESTIONS, MAX_TERM_LENGTH
 from .actor_details import write as w_actor_details
+from .web_scene_metadata import q_scene_metadata, w_scene_metadata, w_rematch_metadata
 from .review_csv import candidate_root_version
 from .web_activity import (
     w_activity,
@@ -364,6 +365,7 @@ GET_HANDLERS = {
     "/api/parts": q_parts,
     "/api/editions": q_editions,
     "/api/entity": q_entity,
+    "/api/scene-metadata": q_scene_metadata,
     "/api/entity/shapes": _get_entity_shapes,
     "/api/links": w_links,
     "/api/photos": q_entity_photos,
@@ -450,6 +452,8 @@ POST_HANDLERS = {
     "/api/entity-name": w_entity_name,
     "/api/entity-alias": w_entity_alias,
     "/api/actor-details": w_actor_details,
+    "/api/scene-metadata": w_scene_metadata,
+    "/api/rematch-metadata": w_rematch_metadata,
 }
 
 
