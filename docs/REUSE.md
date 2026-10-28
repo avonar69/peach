@@ -1,5 +1,7 @@
 # 复用清单
 
+演员合并复用 `entities.merge_entity`、规范名与扁平投影、收藏迁移、演员资料快照、`migrations.sqlite_backup` 和 `install_entity_avatar`。建议按 Unicode 词元、已登记别名和 Python 标准库 `difflib.SequenceMatcher` 生成，姓名前缀索引用于标题后缀，有界同名邻域避免全库两两比较；属于 Peach 身份候选策略，不新增依赖。确认弹层、Checkbox、人工复核分类与 Query 失效复用现有界面；备份、冻结证据令牌及外键检查在服务端执行。
+
 单条作品编辑复用 `write_owned_fields`、`check_revision`、规范实体写入和 Pillow 图片校验；封面安装复用 `install_cover` 的整组原子替换，作品封面与缩略图使用独立缓存键。React 弹层复用 `ModalFrame`、`overlayHost` 与 React Aria 的容器提供器，使原生播放弹层内的编辑可交互。作品重匹配复用馆藏资料流水线及配置来源，演员／厂牌复用 StashDB 单实体身份和资料安装逻辑，不新增依赖。
 
 ## 时间轴缩略图任务

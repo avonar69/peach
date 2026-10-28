@@ -1,5 +1,9 @@
 # 页面路由
 
+`GET /api/actor-merge` 返回演员合并建议组，支持 `query` 与 `offset`，每页 20 组。`actor_id` 返回该组完整候选、作品数、别名、头像标记、相似原因、来源冲突与各演员证据令牌。姓名包含、共同姓和名、已登记别名及有界的相似名比较只生成建议，不确认身份。`GET /api/review?counts=1` 的 `actor_merge` 计入同一队列。
+
+`POST /api/actor-merge` 接受 `actor_id`、明确的 `merge_ids`、可选规范名 `name`、各所选演员的 `expected` 令牌及 `confirmed=true`。空选择、混入当前建议以外的身份、资料变化、规范名冲突和来源身份冲突均拒绝。操作复用实体合并事务，先备份 SQLite 并保存复核记录，再迁移所选身份；仅保留作品数最多的实体标识，采用用户选定名称。图片换装与事务失败同步恢复，既有外键问题之外不得新增悬空引用。写入沿用标准鉴权与只读端限制。
+
 `GET /api/scene-metadata?id=` 返回原始作品字段、完整演员名单与 `mutation_revision`。`POST /api/scene-metadata` 接受 `id`、`expected_revision`、`values` 和可选的 `performers` 数组；空数组表示手工清空演员。可选 `cover`、`thumbnail` 为最多 6 MB 的单张图片的 Base64 数据，解码后最多 2400 万像素，按作品保存独立封面键。写入经字段归属、乐观并发及标准鉴权／只读门槛。
 
 `POST /api/rematch-metadata` 接受 `kind=scene|performer|studio` 与 `id`。作品启动 `stage=rematch` 的定向资料任务，要求明确的 `asset_ids`，不发现新文件或生成视频预览；沿用任务状态、暂停、恢复、停止与复核入口，重查已配置来源且保留手工字段。演员与厂牌只请求当前 StashDB 身份，不查询作品。手工演员列表的归属保存在 `field_owners.performers`，自动资料、文件名及 StashDB 匹配均尊重该归属。

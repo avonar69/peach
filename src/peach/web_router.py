@@ -13,6 +13,7 @@ from __future__ import annotations
 from .follow_discovery import MAX_SUGGESTIONS, MAX_TERM_LENGTH
 from .actor_details import write as w_actor_details
 from .web_scene_metadata import q_scene_metadata, w_scene_metadata, w_rematch_metadata
+from .web_actor_merge import q_actor_merge, w_actor_merge
 from .review_csv import candidate_root_version
 from .web_activity import (
     w_activity,
@@ -261,6 +262,8 @@ def _get_review(contract, args):
     from .stashdb import review_queue
     stash_count = len(review_queue(None, contract.database, state_root=contract.follow_state_root, limit=None))
     payload = {**payload, 'counts': {**payload.get('counts', {}), 'stashdb': stash_count}}
+    from .web_actor_merge import snapshot as actor_merge_snapshot
+    payload['counts']['actor_merge'] = len(actor_merge_snapshot(contract)['groups'])
     # 数据管理页只要一个待复核条数。完整 payload 带着每条候选的全文，实测是
     # 兆级；卡片上的一个数字不值这趟传输，但计数本身仍来自同一份缓存快照，
     # 不另立一套口径。
@@ -366,6 +369,7 @@ GET_HANDLERS = {
     "/api/editions": q_editions,
     "/api/entity": q_entity,
     "/api/scene-metadata": q_scene_metadata,
+    "/api/actor-merge": q_actor_merge,
     "/api/entity/shapes": _get_entity_shapes,
     "/api/links": w_links,
     "/api/photos": q_entity_photos,
@@ -454,6 +458,7 @@ POST_HANDLERS = {
     "/api/actor-details": w_actor_details,
     "/api/scene-metadata": w_scene_metadata,
     "/api/rematch-metadata": w_rematch_metadata,
+    "/api/actor-merge": w_actor_merge,
 }
 
 

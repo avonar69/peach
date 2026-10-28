@@ -26,6 +26,7 @@ import { BulkToolbar } from './bulk-toolbar';
 import { GenreTagList } from './candidate-form';
 import { ReviewCard } from './review-card';
 import { StashDBReview } from './stashdb-review';
+import { ActorMergeReview } from './actor-merge-review';
 import type { DecisionStatus, ReviewCategory, ReviewData, ReviewGrouping, ReviewRow, RowChoice } from './review';
 import {
   canApprove, currentReviewRow, DEFAULT_CATEGORY, decisionPayload, decisionReceipt, defaultChoice,
@@ -270,7 +271,8 @@ export function ReviewPage(props: ReviewProps) {
         </div>
 
         <TabPanel id={category} className="flex min-w-0 flex-1 flex-col gap-5">
-          {category === 'stashdb' ? <StashDBReview readOnly={locked} receipt={toast} onCount={setStashCount} /> : <>
+          {category === 'actor_merge' ? <ActorMergeReview readOnly={locked} receipt={toast} openEntity={openEntity} />
+          : category === 'stashdb' ? <StashDBReview readOnly={locked} receipt={toast} onCount={setStashCount} /> : <>
           {queue.length && !locked ? (
             <BulkToolbar groupOptions={groupOptions} groupBy={activeGroupBy}
               onGroupBy={(next) => { setGroupBy(next); setFilter(''); setPage(1) }}
