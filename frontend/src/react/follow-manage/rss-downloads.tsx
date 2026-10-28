@@ -16,7 +16,7 @@ import { DebridTaskProgress, fileDownload, fileNeedsDownload, trackDebridJob, ty
 import { MultiChoiceMenu } from '../components/multi-choice-menu';
 import { rssSelection, saveRSSSelection } from '../../rss-selection';
 
-interface Link { url: string; kind: string }
+interface Link { url: string; kind: string; size?: string; group?: string; group_url?: string }
 interface Picture { src: string; href: string }
 interface Entry { id: number; source_id: number; title: string; feed_name: string; published_at: string | null; links: Link[]; link?: string | null;
   images?: { main?: Picture; previews?: Picture[] } }
@@ -185,6 +185,12 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
         ? <a href={entry.link} target="_blank" rel="noopener noreferrer" className="underline">View page</a> : null}
       {entry.links.map((link, index) => link.kind !== 'nzb' && filteredSources.has(entry.source_id) && !data.providers.some(provider => supports(provider, link, true))
         ? null : <div key={link.url} className="flex min-w-0 flex-wrap items-center gap-2">
+        {link.kind === 'nzb' && (link.size || link.group) ? <div className="w-full min-w-0 break-all text-caption-1-regular text-text-secondary">
+          {link.size ? <div><span>大小</span>: <span data-i18n-ignore="">{link.size}</span></div> : null}
+          {link.group ? <div><span>组</span>: {link.group_url
+            ? <a href={link.group_url} target="_blank" rel="noopener noreferrer" className="underline" data-i18n-ignore="">{link.group}</a>
+            : <span data-i18n-ignore="">{link.group}</span>}</div> : null}
+        </div> : null}
         <a href={link.url} className="min-w-0 break-all underline" rel="noreferrer" target="_blank"
           type={link.kind === 'nzb' ? 'application/x-nzb' : undefined}>
           {link.kind === 'nzb' ? 'Download NZB' : <span data-i18n-ignore="">{link.url}</span>}</a>

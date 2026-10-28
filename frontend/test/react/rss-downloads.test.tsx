@@ -16,11 +16,14 @@ it('NZB 保留扩展可读取的下载链接并单次提交 SABnzbd', async () =
   const served = serve();
   const download = 'https://example.org/movie.nzb?key=example';
   Object.assign(served.state, { sabnzbd: { configured: true } });
-  Object.assign(served.state.items[0]!, { link: 'https://example.org/details/example', links: [{ url: download, kind: 'nzb' }] });
+  Object.assign(served.state.items[0]!, { link: 'https://example.org/details/example', links: [{ url: download, kind: 'nzb', size: '4GB', group: 'alt.binaries.sheep' }] });
   const host = await mount(<QueryClientProvider client={queryClient}>
     <RSSDownloads readOnly={false} toast={vi.fn()} />
   </QueryClientProvider>);
   expect([...host.querySelectorAll('a')].find(anchor => anchor.textContent === 'Download NZB')?.href).toBe(download);
+  expect(host.textContent).toContain('Size: 4GB');
+  expect(host.textContent).toContain('Group: alt.binaries.sheep');
+  expect(host.textContent!.indexOf('alt.binaries.sheep')).toBeLessThan(host.textContent!.indexOf('Download NZB'));
   expect([...host.querySelectorAll('a')].find(anchor => anchor.textContent === 'View page')?.href).toBe('https://example.org/details/example');
   expect(supports(provider, { url: download, kind: 'nzb' })).toBe(false);
   await click(buttonNamed('Send to SABnzbd', host));

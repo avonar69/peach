@@ -23,21 +23,41 @@ class _Anchors(HTMLParser):
         self.anchor = None
         self.images = []
         self.preview = False
+        self.details = {}
+        self.detail_text = None
+        self.detail_link = None
 
     def handle_starttag(self, tag, attrs):
+        if tag.lower() == 'li':
+            self.detail_text = []
+            self.detail_link = None
         if tag.lower() == 'a':
             self.links.extend(value for name, value in attrs if name == 'href' and value)
             self.anchor = dict(attrs).get('href')
+            if self.detail_text is not None:
+                self.detail_link = self.anchor
         elif tag.lower() == 'img' and len(self.images) < 100:
             values = dict(attrs)
             self.images.append({'src': values.get('src') or values.get('data-src'), 'href': self.anchor,
                                 'preview': self.preview, 'width': values.get('width'), 'height': values.get('height')})
 
     def handle_endtag(self, tag):
+        if tag.lower() == 'li' and self.detail_text is not None:
+            match = re.fullmatch(r'\s*(Group|Size)\s*:\s*(.+?)\s*', ''.join(self.detail_text), re.I)
+            if match:
+                self.details[match[1].lower()] = match[2][:200]
+                if match[1].lower() == 'group' and self.detail_link:
+                    try:
+                        self.details['group_url'] = web_url(self.detail_link)
+                    except ValueError:
+                        pass
+            self.detail_text = None
         if tag.lower() == 'a':
             self.anchor = None
 
     def handle_data(self, data):
+        if self.detail_text is not None:
+            self.detail_text.append(data)
         if re.fullmatch(r'\s*(?:previews?|screenshots?)\s*:\s*', data, re.I):
             self.preview = True
         elif re.fullmatch(r'\s*(?:downloads?|download links|links|info|information)\s*:\s*', data, re.I):
@@ -120,6 +140,8 @@ def _presentation(item, html, links, base):
     images = _images(item, html, base)
     page = item.get('link')
     if any(link['kind'] == 'nzb' for link in links):
+        details = _nzb_details(item, html)
+        links = [{**link, **details} if link['kind'] == 'nzb' else link for link in links]
         candidates = [item.get('id'), item.get('comments'), *html.links]
         for candidate in candidates:
             parts = urlsplit(str(candidate or ''))
@@ -131,6 +153,27 @@ def _presentation(item, html, links, base):
                 links = [link for link in links if link['kind'] == 'nzb']
                 break
     return page, links, images
+
+
+def _nzb_details(item, html):
+    details = dict(html.details)
+    attrs = [row for key, rows in item.items() if key.endswith('_attr') and isinstance(rows, list) for row in rows if isinstance(row, dict)]
+    for row in attrs:
+        if row.get('name') == 'group' and row.get('value'):
+            details.setdefault('group', str(row['value'])[:200])
+    sizes = [row.get('value') for row in attrs if row.get('name') == 'size']
+    sizes.extend(row.get('length') for row in item.get('enclosures', []))
+    if 'size' not in details:
+        for value in sizes:
+            if str(value or '').isdigit() and len(str(value)) <= 20:
+                size = int(value)
+                for unit in ('B', 'KB', 'MB', 'GB', 'TB'):
+                    if size < 1000 or unit == 'TB':
+                        details['size'] = f'{size:.2f}'.rstrip('0').rstrip('.') + ' ' + unit
+                        break
+                    size /= 1000
+                break
+    return details
 
 
 def parse(body, url):

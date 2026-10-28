@@ -183,6 +183,8 @@ macOS 可在本机构建独立 `.app` 与 DMG，运行不需要 Python、源码�
 
 ## NZB 与 SABnzbd
 
+NZB 条目在下载按钮前显示 RSS 提供的大小与发布组；缺少可读大小时使用附件字节数换算。已保存条目在订阅刷新后补充这些信息。
+
 Following 的 NZB 条目区分详情页与下载链接；DrunkenSlug 条目按发布 ID 显示缩略图，保留订阅中的原始 NZB 下载地址。Peach 配置 → 下载渠道 → SABnzbd 可填写服务器地址、完整 API 密钥与分类，保存后测试连接。Docker 中须填写 Peach 容器可访问的地址；点击条目旁的「发送到 SABnzbd」将 NZB 加入 SABnzbd 队列，文件写入 SABnzbd 自己配置的目录。
 
 SABconnect++ 使用浏览器中独立保存的 SABnzbd 配置；右键点击「下载 NZB」，使用扩展的发送动作。Peach 提供普通下载链接，不会自动安装扩展或向扩展传递 API 密钥。Newznab／DrunkenSlug 负责提供索引和 RSS，SABnzbd 负责下载。

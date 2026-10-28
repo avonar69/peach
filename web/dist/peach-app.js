@@ -102219,6 +102219,31 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, onUpda
 				n.links.map((r, i) => r.kind !== "nzb" && M.has(n.source_id) && !E.providers.some((e) => HH(e, r, !0)) ? null : /* @__PURE__ */ K("div", {
 					className: "flex min-w-0 flex-wrap items-center gap-2",
 					children: [
+						r.kind === "nzb" && (r.size || r.group) ? /* @__PURE__ */ K("div", {
+							className: "w-full min-w-0 break-all text-caption-1-regular text-text-secondary",
+							children: [r.size ? /* @__PURE__ */ K("div", { children: [
+								/* @__PURE__ */ G("span", { children: "大小" }),
+								": ",
+								/* @__PURE__ */ G("span", {
+									"data-i18n-ignore": "",
+									children: r.size
+								})
+							] }) : null, r.group ? /* @__PURE__ */ K("div", { children: [
+								/* @__PURE__ */ G("span", { children: "组" }),
+								": ",
+								r.group_url ? /* @__PURE__ */ G("a", {
+									href: r.group_url,
+									target: "_blank",
+									rel: "noopener noreferrer",
+									className: "underline",
+									"data-i18n-ignore": "",
+									children: r.group
+								}) : /* @__PURE__ */ G("span", {
+									"data-i18n-ignore": "",
+									children: r.group
+								})
+							] }) : null]
+						}) : null,
 						/* @__PURE__ */ G("a", {
 							href: r.url,
 							className: "min-w-0 break-all underline",

@@ -29,6 +29,23 @@ RSS = f'''<rss version="2.0"><channel><title>Example feed</title><item><guid>sce
 
 
 class RSSDebridTests(unittest.TestCase):
+    def test_nzb_size_and_group_survive_storage_and_feed_updates(self):
+        body = b'''<rss version="2.0"><channel><item><guid>nzb-example</guid><title>Example</title>
+        <enclosure url="https://example.org/movie.nzb" type="application/x-nzb" length="4000000000"/>
+        <description><![CDATA[<li>Group: <a href="https://example.org/browse?g=alt.binaries.sheep">alt.binaries.sheep</a></li>
+        <li>Size: 4GB</li>]]></description></item></channel></rss>'''
+        with self.database.write_transaction() as connection:
+            source = connection.execute('SELECT * FROM feed_source WHERE id=?', (self.source,)).fetchone()
+            rss_feeds.poll(connection, source, body)
+            rss_feeds.poll(connection, source, body)
+        saved = rss_feeds.items(self.database)
+        self.assertEqual(saved['total'], 1)
+        link = next(link for link in saved['items'][0]['links'] if link['kind'] == 'nzb')
+        self.assertEqual((link['size'], link['group']), ('4GB', 'alt.binaries.sheep'))
+        self.assertEqual(link['group_url'], 'https://example.org/browse?g=alt.binaries.sheep')
+        fallback = body.replace(b'<li>Size: 4GB</li>', b'')
+        self.assertEqual(next(link for link in rss_feeds.parse(fallback, 'https://example.org/rss')[1][0]['links'] if link['kind'] == 'nzb')['size'], '4 GB')
+
     def test_multiple_feed_filter_counts_and_pages_only_selected_sources(self):
         with self.database.write_transaction() as connection:
             other = feeds.add_source(connection, url='https://example.org/other.xml', name='Other', kind='rss')
