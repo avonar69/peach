@@ -49,8 +49,8 @@ function PostPicture({ picture, title, preview = false }: { picture?: Picture; t
   </a>;
 }
 
-export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount, download = (url: string) => window.location.assign(url) }: {
-  readOnly: boolean; toast(message: string): void; feedOnly?: boolean; onVisibleCount?(count: number): void; download?(url: string): void;
+export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount, onUpdatedAt, download = (url: string) => window.location.assign(url) }: {
+  readOnly: boolean; toast(message: string): void; feedOnly?: boolean; onVisibleCount?(count: number): void; onUpdatedAt?(stamp: string): void; download?(url: string): void;
 }) {
   const [name, setName] = useState(''), [url, setUrl] = useState(''), [offset, setOffset] = useState(0);
   const [selected, setSelected] = useState(rssSelection);
@@ -66,6 +66,10 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   const state = useQuery({ queryKey: [...KEY, offset, pageSize, selected], queryFn: ({ signal }) => apiGet<Data>(`/api/rss?offset=${offset}&limit=${pageSize}${filter}`, signal), refetchInterval: 3000 });
   const data = state.data;
   useEffect(() => { onVisibleCount?.(data?.items.length || 0); }, [onVisibleCount, data?.items.length]);
+  useEffect(() => {
+    const stamps = (data?.sources || []).map(source => source.last_fetched_at || '').filter(stamp => Number.isFinite(Date.parse(stamp)));
+    onUpdatedAt?.(stamps.sort((a, b) => Date.parse(b) - Date.parse(a))[0] || '');
+  }, [onUpdatedAt, data?.sources]);
   useEffect(() => {
     if (feedOnly && data) void queryClient.invalidateQueries({ queryKey: ['follow-feed'] });
   }, [feedOnly, data?.total]); // eslint-disable-line react-hooks/exhaustive-deps

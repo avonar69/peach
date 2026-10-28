@@ -4,7 +4,7 @@ import time
 
 from . import settings_file
 from .library_processing import (ALL_STAGES, FIND_NEW_STAGE, COLLECT_STAGE, SCAN_STAGE, STAGES,
-                                METADATA_STAGE, PREVIEWS_STAGE, _asset_selection,
+                                METADATA_STAGE, PREVIEWS_STAGE, SPECIAL_LABELS, _asset_selection,
                                 decorate, issues_path, process_library, snapshot)
 from .processing_control import control_for, initial_estimate, valid_mode, mode_ratio
 
@@ -190,6 +190,10 @@ def _processing_request(contract, config, previous, body):
                 (previous.get('requested_stage') if retry_ids is not None else None) or FIND_NEW_STAGE)
     if stage not in STAGES:
         raise ValueError('处理阶段无效')
+    from .matching_jobs import REMATCH_STAGES, selection
+    if stage in REMATCH_STAGES:
+        asset_ids = [row['id'] for row in selection(config, contract.database, stage, asset_ids or retry_ids)]
+        retry_ids = None
     from .media_processing_policy import metadata_only
     if stage == PREVIEWS_STAGE and metadata_only(config.directory('state')):
         raise ValueError('视频预览生成已关闭，请先在媒体库设置中开启')
@@ -202,6 +206,9 @@ def w_library_processing(contract, body, *, resume=False):
         return _control_action(contract, config, body)
     previous = _current(contract)
     if previous.get('status') in ACTIVE and not resume:
+        from .matching_jobs import REMATCH_STAGES
+        if (body or {}).get('stage') in REMATCH_STAGES:
+            raise ValueError('A scan is already running. Stop it or wait for it to finish, then start resync.')
         return previous
     retry_ids, asset_ids, stage = _processing_request(contract, config, previous, body)
     scan_roots = (body or {}).get('scan_roots', previous.get('scan_roots') if resume else None)
@@ -240,7 +247,7 @@ def w_library_processing(contract, body, *, resume=False):
     # 人会以为点错了。
     labels = {FIND_NEW_STAGE: '准备扫描文件', ALL_STAGES: '准备处理', SCAN_STAGE: '准备扫描文件', COLLECT_STAGE: '准备采集资料',
               METADATA_STAGE: '准备采集资料', PREVIEWS_STAGE: '准备生成预览图',
-              'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios'}
+              **SPECIAL_LABELS}
     return contract.library_processing_job.start(
         work, restart=True, initial={'stage': labels[stage], 'requested_stage': stage,
                                     'scan_roots': scan_roots,

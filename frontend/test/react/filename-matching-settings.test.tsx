@@ -1,6 +1,27 @@
 import { expect, it, vi } from 'vitest';
+import { act } from 'react';
 import { FilenameMatchingSettings } from '../../src/react/settings/filename-matching-settings';
-import { click, mount, pending, settle } from './render';
+import { buttonNamed, click, mount, pending, settle } from './render';
+
+it('保存忽略词后只启动文件名重匹配阶段', async () => {
+  localStorage.setItem('peach.language', 'en');
+  const calls: { path: string; body: unknown }[] = [];
+  vi.stubGlobal('fetch', vi.fn(async (path: string, init?: RequestInit) => {
+    const body = JSON.parse(String(init?.body)); calls.push({ path, body });
+    return { ok: true, status: 200, json: async () => path.endsWith('filename-matching') ? body : { requested_stage: 'filename_ignored' } };
+  }));
+  const host = await mount(<FilenameMatchingSettings initial={{ actors: true, studios: true }} receipt={vi.fn()} />);
+  await act(async () => {
+    const textarea = host.querySelector('textarea')!;
+    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(textarea, '!');
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await click(buttonNamed('Rematch affected filenames', host));
+  expect(calls.map(call => call.path)).toEqual(['/api/configuration/filename-matching', '/api/library-processing']);
+  expect(calls[0]?.body).toEqual({ actors: true, studios: true, ignore_terms: '!' });
+  expect(calls[1]?.body).toEqual({ stage: 'filename_ignored' });
+  localStorage.removeItem('peach.language');
+});
 
 it('saves independent actor and studio switches after server confirmation', async () => {
   const saved = pending<{ actors: boolean; studios: boolean }>();

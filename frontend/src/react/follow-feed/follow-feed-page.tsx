@@ -17,6 +17,7 @@ import { emptyStateHtml, spinnerHtml } from '@peach/legacy/ui';
 import { Button } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend } from '../../api';
+import { formatTranslation } from '../../i18n';
 import { LoadMore } from '../catalog-grid/catalog-grid-page';
 import { FilterGlassRows, FilterPill } from '../components/filter-glass';
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
@@ -103,6 +104,7 @@ type Facets = ReturnType<typeof useFacets>;
 
 export function FollowFeedPage(props: FollowFeedProps) {
   const [rssVisible, setRSSVisible] = useState(0);
+  const [rssUpdatedAt, setRSSUpdatedAt] = useState('');
   const { view, seed, revision, actions } = props;
   const query = followFeedQuery(view, revision);
   const result = useInfiniteQuery(query);
@@ -167,15 +169,18 @@ export function FollowFeedPage(props: FollowFeedProps) {
       {!job.busy && job.report ? <Note tone="neutral" title="检查结果">{job.report}</Note> : null}
       <div data-follow-feed="" data-select-mode={props.selectMode ? '' : undefined}>
         <Head onManage={actions.openManage}>
-          {facets.sources.length ? (
-            <Button variant="primary" data-follow-recheck="" aria-label="检查每个来源的更新"
+            <Button variant="primary" data-follow-recheck="" aria-label="Refresh all" disabled={job.busy}
               aria-busy={job.busy || undefined}
               onClick={() => void job.start(false)}>
               {job.starting === 'check'
                 ? <span className="contents" dangerouslySetInnerHTML={{ __html: spinnerHtml('检查中') }} />
-                : '检查更新'}
+                : 'Refresh all'}
             </Button>
-          ) : null}
+            <span className="text-caption-1-regular text-text-secondary" data-follow-updated="">{(() => {
+              const stamps = [rssUpdatedAt, ...facets.sources.map(source => String(source.last_checked_at || ''))]
+                .filter(stamp => Number.isFinite(Date.parse(stamp))).sort((a, b) => Date.parse(b) - Date.parse(a));
+              return stamps[0] ? formatTranslation('Last updated: {0}', new Date(stamps[0]).toLocaleString()) : 'Never updated';
+            })()}</span>
         </Head>
         <Authors facets={facets} pressed={facets.author} context={context} props={props}
           onPick={(key) => route({ author: facets.author === key ? '' : key })} />
@@ -185,7 +190,7 @@ export function FollowFeedPage(props: FollowFeedProps) {
         <Combo conditions={conditions} onDrop={(row) => actions.route(dropCondition(view, row))}
           onClear={() => route({ author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0 })} />
         {facets.broken.length ? <BrokenNote count={facets.broken.length} onManage={actions.openManage} /> : null}
-        {showRSS && data.rss_count !== undefined ? <section data-follow-rss=""><RSSDownloads feedOnly onVisibleCount={setRSSVisible} readOnly={false} toast={actions.toast} /></section> : null}
+        {showRSS && data.rss_count !== undefined ? <section data-follow-rss=""><RSSDownloads feedOnly onVisibleCount={setRSSVisible} onUpdatedAt={setRSSUpdatedAt} readOnly={false} toast={actions.toast} /></section> : null}
         {showRSS && Number(data.rss_count || 0) > 0 && !facets.visible.length && !listPending ? null
           : <List key={query.queryKey.join('\u0000')} retryKey={result.dataUpdatedAt} pending={listPending} facets={facets} data={data} context={context}
             props={props} />}
@@ -290,6 +295,7 @@ function useFollowJob(props: FollowFeedProps, ready: boolean) {
         setRunning(false);
         setOlderRun(false);
         void queryClient.invalidateQueries({ queryKey: ['follow-feed'] });
+        void queryClient.invalidateQueries({ queryKey: ['rss-downloads'] });
         /* 跟完的那一路不再盯：重新挂一路，别处再起的下一趟也接得上。 */
         setGeneration((value) => value + 1);
       },
@@ -305,7 +311,11 @@ function useFollowJob(props: FollowFeedProps, ready: boolean) {
     setReport('');
     let started = false;
     try {
-      const job = await apiSend<{ job_id: string }>(FOLLOW_CHECK_URL, older ? { older: true, background: true } : { background: true });
+      const [job] = await Promise.all([
+        apiSend<{ job_id: string }>(FOLLOW_CHECK_URL, older ? { older: true, background: true } : { background: true }),
+        ...(!older ? [apiSend('/api/rss/check', {})] : []),
+      ]);
+      if (!older) void queryClient.invalidateQueries({ queryKey: ['rss-downloads'] });
       sessionStorage.setItem('peach-follow-job', job.job_id);
       started = true;
       setRunning(true);

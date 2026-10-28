@@ -135,23 +135,25 @@ def _studio(connection, asset_id, filename):
     return 1
 
 
-def apply(connection, asset_ids, *, actors=True, studios=False):
+def apply(connection, asset_ids, *, actors=True, studios=False, ignore_terms='', index=None):
     """扫描与推送共用；只重建本来源的关系及兼容标签。"""
     if not connection.execute("SELECT 1 FROM sqlite_schema WHERE name='asset_entity'").fetchone():
         return 0
-    index = actor_index(connection) if actors else None
+    from .filename_text import clean
+    index = actor_index(connection) if actors and index is None else index
     count = 0
     for asset_id in asset_ids:
         row = connection.execute('SELECT name,medium FROM asset WHERE id=?', (asset_id,)).fetchone()
         if row is None or row[1] != 'video':
             continue
+        filename = clean(str(row[0] or ''), ignore_terms)
         if studios:
-            count += _studio(connection, asset_id, row[0])
+            count += _studio(connection, asset_id, filename)
         if not actors:
             continue
         connection.execute('DELETE FROM asset_entity WHERE asset_id=? AND source=?', (asset_id, SOURCE))
         connection.execute('DELETE FROM asset_tag WHERE asset_id=? AND source=?', (asset_id, SOURCE))
-        for name in names_from_filename(row[0], index):
+        for name in names_from_filename(filename, index):
             entity_id = upsert_asset_entity(connection, kind='performer', name=name, asset_id=asset_id,
                 role='performer', source=SOURCE, metadata={'filename': row[0]}, update_entity_metadata=False)
             if entity_id is not None:

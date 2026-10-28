@@ -22,8 +22,8 @@ def words(value):
 
 def hints(row, actors=(), *, ignore_terms=''):
     stem = PureWindowsPath(row['name']).stem
-    for term in sorted(filter(None, ignore_terms.splitlines()), key=len, reverse=True):
-        stem = re.sub(re.escape(term), ' ' if any(char.isalnum() for char in term) else '', stem, flags=re.I)
+    from .filename_text import clean
+    stem = clean(stem, ignore_terms)
     stem = stem.strip(' ._-')
     studio, released, tail = str(row.get('studio') or ''), str(row.get('release_date') or ''), stem
     match = DATED.fullmatch(stem)

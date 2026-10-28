@@ -13634,7 +13634,25 @@ var Ko = {
 	"Enter your password": "Enter your password",
 	"Remove password": "Remove password",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.",
-	"Check the NZBGet server URL, username, password and connection.": "Check the NZBGet server URL, username, password and connection."
+	"Check the NZBGet server URL, username, password and connection.": "Check the NZBGet server URL, username, password and connection.",
+	"Refresh all": "Refresh all",
+	"Last updated: {0}": "Last updated: {0}",
+	"Never updated": "Never updated",
+	"Save filename matching settings": "Save filename matching settings",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.",
+	"Filename rematching started. Follow its progress in Data management.": "Filename rematching started. Follow its progress in Data management.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.",
+	"StashDB rematching started. Follow its progress in Data management.": "StashDB rematching started. Follow its progress in Data management.",
+	"Rematch ignored filenames with StashDB": "Rematch ignored filenames with StashDB",
+	"Rematch actors and studios from filenames": "Rematch actors and studios from filenames",
+	"Add filename ignore text before rematching.": "Add filename ignore text before rematching.",
+	"No library filenames contain the configured ignore text.": "No library filenames contain the configured ignore text.",
+	"Enable actor or studio filename matching before rematching.": "Enable actor or studio filename matching before rematching.",
+	"Filename assignments": "Filename assignments",
+	"Filename assignments updated: {0}.": "Filename assignments updated: {0}.",
+	"Rematch affected filenames": "Rematch affected filenames",
+	"Rematch affected files with StashDB": "Rematch affected files with StashDB",
+	"Save a StashDB API key before rematching.": "Save a StashDB API key before rematching."
 }, qo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -21701,7 +21719,25 @@ var Ko = {
 	"Enter your password": "Introduce tu contraseña",
 	"Remove password": "Eliminar contraseña",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "Usa tu usuario y contraseña de NZBGet. En Docker, usa una dirección accesible desde el contenedor de Peach.",
-	"Check the NZBGet server URL, username, password and connection.": "Comprueba la URL de NZBGet, el usuario, la contraseña y la conexión."
+	"Check the NZBGet server URL, username, password and connection.": "Comprueba la URL de NZBGet, el usuario, la contraseña y la conexión.",
+	"Refresh all": "Actualizar todo",
+	"Last updated: {0}": "Última actualización: {0}",
+	"Never updated": "Sin actualizar",
+	"Save filename matching settings": "Guardar ajustes de coincidencia por nombre",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "Guarda los ajustes y busca solo nombres que contengan al menos un término ignorado. Conserva las asignaciones manuales.",
+	"Filename rematching started. Follow its progress in Data management.": "Búsqueda por nombre iniciada. Sigue el progreso en Gestión de datos.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "Guarda los ajustes y busca de nuevo solo nombres con texto ignorado, incluidos resultados anteriores o fallidos. Se mantienen las opciones de imágenes y reparto.",
+	"StashDB rematching started. Follow its progress in Data management.": "Búsqueda en StashDB iniciada. Sigue el progreso en Gestión de datos.",
+	"Rematch ignored filenames with StashDB": "Buscar de nuevo nombres con texto ignorado en StashDB",
+	"Rematch actors and studios from filenames": "Volver a buscar actores y estudios por nombre",
+	"Add filename ignore text before rematching.": "Añade texto ignorado antes de volver a buscar.",
+	"No library filenames contain the configured ignore text.": "Ningún nombre de archivo contiene el texto ignorado configurado.",
+	"Enable actor or studio filename matching before rematching.": "Activa la coincidencia de actores o estudios por nombre antes de volver a buscar.",
+	"Filename assignments": "Asignaciones por nombre",
+	"Filename assignments updated: {0}.": "Asignaciones por nombre actualizadas: {0}.",
+	"Rematch affected filenames": "Volver a buscar nombres afectados",
+	"Rematch affected files with StashDB": "Buscar afectados en StashDB",
+	"Save a StashDB API key before rematching.": "Guarda una clave API de StashDB antes de volver a buscar."
 }, Yo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -26148,7 +26184,25 @@ var Ko = {
 	"Enter your password": "Saisissez votre mot de passe",
 	"Remove password": "Supprimer le mot de passe",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "Utilisez votre nom d’utilisateur et mot de passe NZBGet. Dans Docker, indiquez une adresse accessible depuis le conteneur Peach.",
-	"Check the NZBGet server URL, username, password and connection.": "Vérifiez l’URL du serveur NZBGet, le nom d’utilisateur, le mot de passe et la connexion."
+	"Check the NZBGet server URL, username, password and connection.": "Vérifiez l’URL du serveur NZBGet, le nom d’utilisateur, le mot de passe et la connexion.",
+	"Refresh all": "Tout actualiser",
+	"Last updated: {0}": "Dernière mise à jour : {0}",
+	"Never updated": "Jamais mis à jour",
+	"Save filename matching settings": "Enregistrer la correspondance des noms",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "Enregistre les paramètres et recherche uniquement les noms contenant au moins un terme ignoré. Conserve les associations manuelles.",
+	"Filename rematching started. Follow its progress in Data management.": "Recherche par nom démarrée. Suivez la progression dans Gestion des données.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "Enregistre les paramètres et recherche à nouveau les noms contenant du texte ignoré, même déjà traités ou en échec. Les options d’images et de distribution restent appliquées.",
+	"StashDB rematching started. Follow its progress in Data management.": "Recherche StashDB démarrée. Suivez la progression dans Gestion des données.",
+	"Rematch ignored filenames with StashDB": "Rechercher les noms avec texte ignoré dans StashDB",
+	"Rematch actors and studios from filenames": "Rechercher les acteurs et studios à partir des noms",
+	"Add filename ignore text before rematching.": "Ajoutez du texte à ignorer avant de relancer la recherche.",
+	"No library filenames contain the configured ignore text.": "Aucun nom de fichier ne contient le texte ignoré configuré.",
+	"Enable actor or studio filename matching before rematching.": "Activez la correspondance des acteurs ou studios par nom avant de relancer la recherche.",
+	"Filename assignments": "Associations par nom",
+	"Filename assignments updated: {0}.": "Associations par nom mises à jour : {0}.",
+	"Rematch affected filenames": "Relancer la correspondance",
+	"Rematch affected files with StashDB": "Relancer dans StashDB",
+	"Save a StashDB API key before rematching.": "Enregistrez une clé API StashDB avant de relancer la recherche."
 }, Xo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -30595,7 +30649,25 @@ var Ko = {
 	"Enter your password": "Passwort eingeben",
 	"Remove password": "Passwort entfernen",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "Verwende deinen NZBGet-Benutzernamen und dein Passwort. Unter Docker muss der Server vom Peach-Container erreichbar sein.",
-	"Check the NZBGet server URL, username, password and connection.": "Prüfe die NZBGet-Server-URL, Benutzername, Passwort und Verbindung."
+	"Check the NZBGet server URL, username, password and connection.": "Prüfe die NZBGet-Server-URL, Benutzername, Passwort und Verbindung.",
+	"Refresh all": "Alle aktualisieren",
+	"Last updated: {0}": "Zuletzt aktualisiert: {0}",
+	"Never updated": "Noch nicht aktualisiert",
+	"Save filename matching settings": "Dateinamen-Zuordnung speichern",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "Speichert die Einstellungen und bearbeitet nur Dateinamen mit mindestens einem ignorierten Begriff. Manuelle Zuordnungen bleiben erhalten.",
+	"Filename rematching started. Follow its progress in Data management.": "Dateinamen-Zuordnung gestartet. Fortschritt in der Datenverwaltung ansehen.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "Speichert die Einstellungen und sucht nur Dateinamen mit ignoriertem Text erneut, einschließlich zugeordneter oder fehlgeschlagener Einträge. Bild- und Besetzungsoptionen gelten weiter.",
+	"StashDB rematching started. Follow its progress in Data management.": "StashDB-Suche gestartet. Fortschritt in der Datenverwaltung ansehen.",
+	"Rematch ignored filenames with StashDB": "Dateinamen mit ignoriertem Text in StashDB neu zuordnen",
+	"Rematch actors and studios from filenames": "Darsteller und Studios anhand der Dateinamen neu zuordnen",
+	"Add filename ignore text before rematching.": "Vor dem erneuten Zuordnen zu ignorierenden Text hinzufügen.",
+	"No library filenames contain the configured ignore text.": "Kein Dateiname enthält den konfigurierten ignorierten Text.",
+	"Enable actor or studio filename matching before rematching.": "Vor dem erneuten Zuordnen die Darsteller- oder Studiozuordnung aktivieren.",
+	"Filename assignments": "Dateinamen-Zuordnungen",
+	"Filename assignments updated: {0}.": "Dateinamen-Zuordnungen aktualisiert: {0}.",
+	"Rematch affected filenames": "Betroffene Dateinamen zuordnen",
+	"Rematch affected files with StashDB": "Erneut mit StashDB abgleichen",
+	"Save a StashDB API key before rematching.": "Vor dem erneuten Zuordnen einen StashDB-API-Schlüssel speichern."
 }, Zo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -35042,7 +35114,25 @@ var Ko = {
 	"Enter your password": "Digite sua senha",
 	"Remove password": "Remover senha",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "Use seu usuário e senha do NZBGet. No Docker, use um endereço acessível pelo contêiner do Peach.",
-	"Check the NZBGet server URL, username, password and connection.": "Verifique a URL do servidor NZBGet, o usuário, a senha e a conexão."
+	"Check the NZBGet server URL, username, password and connection.": "Verifique a URL do servidor NZBGet, o usuário, a senha e a conexão.",
+	"Refresh all": "Atualizar tudo",
+	"Last updated: {0}": "Última atualização: {0}",
+	"Never updated": "Nunca atualizado",
+	"Save filename matching settings": "Salvar correspondência por nome",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "Salva os ajustes e busca apenas nomes que contenham ao menos um termo ignorado. Mantém vínculos manuais.",
+	"Filename rematching started. Follow its progress in Data management.": "Busca por nome iniciada. Acompanhe em Gerenciamento de dados.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "Salva os ajustes e busca novamente apenas nomes com texto ignorado, incluindo itens já encontrados ou com falha. As opções de imagens e elenco continuam valendo.",
+	"StashDB rematching started. Follow its progress in Data management.": "Busca no StashDB iniciada. Acompanhe em Gerenciamento de dados.",
+	"Rematch ignored filenames with StashDB": "Buscar nomes com texto ignorado no StashDB",
+	"Rematch actors and studios from filenames": "Buscar atores e estúdios pelos nomes dos arquivos",
+	"Add filename ignore text before rematching.": "Adicione texto a ignorar antes de buscar novamente.",
+	"No library filenames contain the configured ignore text.": "Nenhum nome de arquivo contém o texto ignorado configurado.",
+	"Enable actor or studio filename matching before rematching.": "Ative a correspondência de atores ou estúdios antes de buscar novamente.",
+	"Filename assignments": "Vínculos por nome",
+	"Filename assignments updated: {0}.": "Vínculos por nome atualizados: {0}.",
+	"Rematch affected filenames": "Buscar nomes afetados",
+	"Rematch affected files with StashDB": "Buscar arquivos no StashDB",
+	"Save a StashDB API key before rematching.": "Salve uma chave API do StashDB antes de buscar novamente."
 }, Qo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -39489,7 +39579,25 @@ var Ko = {
 	"Enter your password": "パスワードを入力",
 	"Remove password": "パスワードを削除",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "NZBGet のユーザー名とパスワードを使ってください。Docker では Peach コンテナーからアクセスできるアドレスを指定してください。",
-	"Check the NZBGet server URL, username, password and connection.": "NZBGet サーバー URL、ユーザー名、パスワード、接続を確認してください。"
+	"Check the NZBGet server URL, username, password and connection.": "NZBGet サーバー URL、ユーザー名、パスワード、接続を確認してください。",
+	"Refresh all": "すべて更新",
+	"Last updated: {0}": "最終更新：{0}",
+	"Never updated": "未更新",
+	"Save filename matching settings": "ファイル名の照合設定を保存",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "設定を保存し、無視する文字列を含むファイル名だけを再照合します。手動の関連付けは保持します。",
+	"Filename rematching started. Follow its progress in Data management.": "ファイル名の再照合を開始しました。データ管理で進行状況を確認できます。",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "設定を保存し、照合済みや失敗した項目も含め、無視する文字列を含むファイル名だけを再検索します。画像と出演者の設定は引き続き適用されます。",
+	"StashDB rematching started. Follow its progress in Data management.": "StashDB の再照合を開始しました。データ管理で進行状況を確認できます。",
+	"Rematch ignored filenames with StashDB": "無視する文字列を含むファイル名を StashDB で再照合",
+	"Rematch actors and studios from filenames": "ファイル名から出演者とスタジオを再照合",
+	"Add filename ignore text before rematching.": "再照合の前に無視する文字列を追加してください。",
+	"No library filenames contain the configured ignore text.": "設定した無視する文字列を含むファイル名がありません。",
+	"Enable actor or studio filename matching before rematching.": "再照合の前に出演者またはスタジオのファイル名照合を有効にしてください。",
+	"Filename assignments": "ファイル名の関連付け",
+	"Filename assignments updated: {0}.": "ファイル名の関連付けを {0} 件更新しました。",
+	"Rematch affected filenames": "対象のファイル名を再照合",
+	"Rematch affected files with StashDB": "対象のファイルを StashDB で再照合",
+	"Save a StashDB API key before rematching.": "再照合の前に StashDB の API キーを保存してください。"
 }, $o = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -43936,7 +44044,25 @@ var Ko = {
 	"Enter your password": "비밀번호 입력",
 	"Remove password": "비밀번호 제거",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "NZBGet 사용자 이름과 비밀번호를 사용하세요. Docker에서는 Peach 컨테이너에서 접근 가능한 주소를 입력하세요.",
-	"Check the NZBGet server URL, username, password and connection.": "NZBGet 서버 URL, 사용자 이름, 비밀번호 및 연결을 확인하세요."
+	"Check the NZBGet server URL, username, password and connection.": "NZBGet 서버 URL, 사용자 이름, 비밀번호 및 연결을 확인하세요.",
+	"Refresh all": "모두 새로고침",
+	"Last updated: {0}": "마지막 업데이트: {0}",
+	"Never updated": "아직 업데이트하지 않음",
+	"Save filename matching settings": "파일 이름 매칭 설정 저장",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "설정을 저장하고 무시할 용어가 하나 이상 포함된 파일 이름만 다시 매칭합니다. 수동 할당은 유지됩니다.",
+	"Filename rematching started. Follow its progress in Data management.": "파일 이름 재매칭을 시작했습니다. 데이터 관리에서 진행 상황을 확인하세요.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "설정을 저장하고 이미 매칭했거나 실패한 항목을 포함하여 무시할 텍스트가 있는 파일 이름만 다시 검색합니다. 이미지 및 출연자 옵션은 그대로 적용됩니다.",
+	"StashDB rematching started. Follow its progress in Data management.": "StashDB 재매칭을 시작했습니다. 데이터 관리에서 진행 상황을 확인하세요.",
+	"Rematch ignored filenames with StashDB": "무시할 텍스트가 포함된 파일을 StashDB로 재매칭",
+	"Rematch actors and studios from filenames": "파일 이름에서 배우와 스튜디오 다시 매칭",
+	"Add filename ignore text before rematching.": "재매칭 전에 무시할 파일 이름 텍스트를 추가하세요.",
+	"No library filenames contain the configured ignore text.": "설정한 무시 텍스트가 포함된 파일 이름이 없습니다.",
+	"Enable actor or studio filename matching before rematching.": "재매칭 전에 배우 또는 스튜디오 파일 이름 매칭을 활성화하세요.",
+	"Filename assignments": "파일 이름 할당",
+	"Filename assignments updated: {0}.": "파일 이름 할당 {0}개를 업데이트했습니다.",
+	"Rematch affected filenames": "영향받는 파일 이름 재매칭",
+	"Rematch affected files with StashDB": "영향받는 파일 StashDB 재매칭",
+	"Save a StashDB API key before rematching.": "재매칭 전에 StashDB API 키를 저장하세요."
 }, es = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -48383,7 +48509,25 @@ var Ko = {
 	"Enter your password": "Nhập mật khẩu",
 	"Remove password": "Xóa mật khẩu",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "Dùng tên người dùng và mật khẩu NZBGet. Với Docker, dùng địa chỉ mà container Peach truy cập được.",
-	"Check the NZBGet server URL, username, password and connection.": "Kiểm tra URL máy chủ NZBGet, tên người dùng, mật khẩu và kết nối."
+	"Check the NZBGet server URL, username, password and connection.": "Kiểm tra URL máy chủ NZBGet, tên người dùng, mật khẩu và kết nối.",
+	"Refresh all": "Làm mới tất cả",
+	"Last updated: {0}": "Cập nhật lần cuối: {0}",
+	"Never updated": "Chưa cập nhật",
+	"Save filename matching settings": "Lưu cài đặt khớp tên tệp",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "Lưu cài đặt và chỉ khớp lại các tên tệp chứa ít nhất một mục bỏ qua. Giữ nguyên liên kết thủ công.",
+	"Filename rematching started. Follow its progress in Data management.": "Đã bắt đầu khớp lại tên tệp. Xem tiến trình trong Quản lý dữ liệu.",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "Lưu cài đặt và chỉ tìm lại tên tệp chứa nội dung bỏ qua, kể cả mục đã khớp hoặc thất bại. Vẫn áp dụng tùy chọn ảnh và diễn viên.",
+	"StashDB rematching started. Follow its progress in Data management.": "Đã bắt đầu khớp lại StashDB. Xem tiến trình trong Quản lý dữ liệu.",
+	"Rematch ignored filenames with StashDB": "Khớp lại tên tệp có nội dung bỏ qua bằng StashDB",
+	"Rematch actors and studios from filenames": "Khớp lại diễn viên và hãng phim từ tên tệp",
+	"Add filename ignore text before rematching.": "Thêm nội dung bỏ qua trong tên tệp trước khi khớp lại.",
+	"No library filenames contain the configured ignore text.": "Không có tên tệp nào trong thư viện chứa nội dung bỏ qua đã cấu hình.",
+	"Enable actor or studio filename matching before rematching.": "Bật khớp diễn viên hoặc hãng phim từ tên tệp trước khi khớp lại.",
+	"Filename assignments": "Liên kết từ tên tệp",
+	"Filename assignments updated: {0}.": "Đã cập nhật {0} liên kết từ tên tệp.",
+	"Rematch affected filenames": "Khớp lại tên tệp bị ảnh hưởng",
+	"Rematch affected files with StashDB": "Khớp lại tệp bằng StashDB",
+	"Save a StashDB API key before rematching.": "Lưu khóa API StashDB trước khi khớp lại."
 }, ts = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -52830,7 +52974,25 @@ var Ko = {
 	"Enter your password": "輸入密碼",
 	"Remove password": "移除密碼",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "使用 NZBGet 使用者名稱和密碼。在 Docker 中，請填寫 Peach 容器可存取的伺服器網址。",
-	"Check the NZBGet server URL, username, password and connection.": "請檢查 NZBGet 伺服器網址、使用者名稱、密碼和連線。"
+	"Check the NZBGet server URL, username, password and connection.": "請檢查 NZBGet 伺服器網址、使用者名稱、密碼和連線。",
+	"Refresh all": "重新整理全部",
+	"Last updated: {0}": "上次更新：{0}",
+	"Never updated": "尚未更新",
+	"Save filename matching settings": "儲存檔名比對設定",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "儲存這些設定，僅重新比對檔名含任一忽略詞的影片。保留手動歸屬。",
+	"Filename rematching started. Follow its progress in Data management.": "檔名重新比對已開始，可在資料管理中查看進度。",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "儲存這些設定，僅重新搜尋檔名含忽略詞的影片，包括已比對或失敗的項目。仍遵循圖片與演員歸屬選項。",
+	"StashDB rematching started. Follow its progress in Data management.": "StashDB 重新比對已開始，可在資料管理中查看進度。",
+	"Rematch ignored filenames with StashDB": "用 StashDB 重新比對含忽略詞的檔名",
+	"Rematch actors and studios from filenames": "從檔名重新比對演員與廠牌",
+	"Add filename ignore text before rematching.": "請先新增檔名忽略詞。",
+	"No library filenames contain the configured ignore text.": "館藏中沒有檔名含這些忽略詞的影片。",
+	"Enable actor or studio filename matching before rematching.": "請先啟用演員或廠牌檔名比對。",
+	"Filename assignments": "檔名歸屬",
+	"Filename assignments updated: {0}.": "已更新 {0} 個檔名歸屬。",
+	"Rematch affected filenames": "重新比對受影響的檔名",
+	"Rematch affected files with StashDB": "用 StashDB 重新比對受影響影片",
+	"Save a StashDB API key before rematching.": "請先儲存 StashDB API 金鑰。"
 }, ns = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -53302,7 +53464,25 @@ var Ko = {
 	"Enter your password": "输入密码",
 	"Remove password": "移除密码",
 	"Use your NZBGet username and password. In Docker, use a server address reachable from the Peach container.": "使用 NZBGet 用户名和密码。在 Docker 中，请填写 Peach 容器可访问的服务器地址。",
-	"Check the NZBGet server URL, username, password and connection.": "请检查 NZBGet 服务器地址、用户名、密码和连接。"
+	"Check the NZBGet server URL, username, password and connection.": "请检查 NZBGet 服务器地址、用户名、密码和连接。",
+	"Refresh all": "刷新全部",
+	"Last updated: {0}": "上次更新：{0}",
+	"Never updated": "尚未更新",
+	"Save filename matching settings": "保存文件名匹配设置",
+	"Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain.": "保存这些设置，仅重新匹配文件名含任一忽略词的影片。保留手工归属。",
+	"Filename rematching started. Follow its progress in Data management.": "文件名重新匹配已开始，可在数据管理中查看进度。",
+	"Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.": "保存这些设置，仅重新搜索文件名含忽略词的影片，包括已匹配或失败的项目。仍遵循图片与演员归属选项。",
+	"StashDB rematching started. Follow its progress in Data management.": "StashDB 重新匹配已开始，可在数据管理中查看进度。",
+	"Rematch ignored filenames with StashDB": "用 StashDB 重新匹配含忽略词的文件名",
+	"Rematch actors and studios from filenames": "从文件名重新匹配演员与厂牌",
+	"Add filename ignore text before rematching.": "请先添加文件名忽略词。",
+	"No library filenames contain the configured ignore text.": "馆藏中没有文件名含这些忽略词的影片。",
+	"Enable actor or studio filename matching before rematching.": "请先启用演员或厂牌文件名匹配。",
+	"Filename assignments": "文件名归属",
+	"Filename assignments updated: {0}.": "已更新 {0} 个文件名归属。",
+	"Rematch affected filenames": "重新匹配受影响的文件名",
+	"Rematch affected files with StashDB": "用 StashDB 重新匹配受影响影片",
+	"Save a StashDB API key before rematching.": "请先保存 StashDB API 密钥。"
 }, rs = [
 	["en", "English"],
 	["zh-CN", "简体中文"],
@@ -72891,7 +73071,7 @@ var QE = (e) => typeof e == "string" ? [e] : e, spe = (e, t) => {
 			n.matches(":focus-within,:hover") && n.querySelector("[aria-expanded=\"true\"]") || (n.classList.remove("vjs-user-active"), n.classList.add("vjs-user-inactive"));
 		}, 2500));
 	};
-	n.addEventListener("pointermove", x, { signal: p }), n.addEventListener("focusin", x, { signal: p }), e.addEventListener("click", () => {
+	n.addEventListener("pointermove", x, { signal: p }), n.addEventListener("pointerdown", x, { signal: p }), n.addEventListener("focusin", x, { signal: p }), e.addEventListener("click", () => {
 		e.paused ? e.play().catch(() => {}) : e.pause();
 	}, { signal: p }), e.addEventListener("dblclick", () => n.querySelector("media-fullscreen-button")?.click(), { signal: p });
 	let S = () => {
@@ -78786,6 +78966,7 @@ var KA = {
 	stashdb_applied: "StashDB applied",
 	stashdb_review: "StashDB awaiting review",
 	stashdb_skipped: "StashDB already up to date",
+	filename_matched: "Filename assignments",
 	auto_applied: "Saved automatically",
 	auto_rejected: "Skipped automatically",
 	performer_aliases: "Actor aliases",
@@ -98595,7 +98776,7 @@ var _ke = "这一项耗时较长，暂时没有新进展。任务结束后可以
 	if (!t && !n && !r && !i) return "";
 	let a = [`补齐女优资料：别名 ${t} 个，头像 ${n} 张`];
 	return r && a.push(`${r} 个同名冲突交回人工`), i && a.push(`${i} 张头像未取得`), `${a.join("，")}。`;
-}, yke = (e) => e.requested_stage === "previews" ? `已生成 ${e.previews || 0} 部视频预览。` : (e.requested_stage === "find_new" ? vs("New videos processed: {0}.").replace("{0}", String(e.total || 0)) : `已扫描 ${e.scanned || 0} 个文件，识别 ${e.identified || 0} 个番号，整理 ${e.candidates || 0} 组资料结果，自动保存 ${e.auto_applied || 0} 条。` + (e.previews ? `已生成 ${e.previews} 部视频预览。` : "")) + vke(e) + (e.stashdb_applied === void 0 ? "" : " " + vs("StashDB: {0} applied, {1} awaiting review, {2} already up to date.").replace("{0}", String(e.stashdb_applied || 0)).replace("{1}", String(e.stashdb_review || 0)).replace("{2}", String(e.stashdb_skipped || 0)));
+}, yke = (e) => e.requested_stage === "previews" ? `已生成 ${e.previews || 0} 部视频预览。` : (e.requested_stage === "find_new" ? vs("New videos processed: {0}.").replace("{0}", String(e.total || 0)) : `已扫描 ${e.scanned || 0} 个文件，识别 ${e.identified || 0} 个番号，整理 ${e.candidates || 0} 组资料结果，自动保存 ${e.auto_applied || 0} 条。` + (e.previews ? `已生成 ${e.previews} 部视频预览。` : "")) + vke(e) + (e.filename_matched === void 0 ? "" : " " + vs("Filename assignments updated: {0}.").replace("{0}", String(e.filename_matched))) + (e.stashdb_applied === void 0 ? "" : " " + vs("StashDB: {0} applied, {1} awaiting review, {2} already up to date.").replace("{0}", String(e.stashdb_applied || 0)).replace("{1}", String(e.stashdb_review || 0)).replace("{2}", String(e.stashdb_skipped || 0)));
 function bke({ state: e, problem: t, settled: n, onRetry: r, toast: i }) {
 	let a = uCe(e), o = e.status === "failed" && !!e.retryable_asset_ids?.length, s = sCe(e.notes || {}), c = eF();
 	return /* @__PURE__ */ K("div", {
@@ -101751,8 +101932,8 @@ function UH({ picture: e, title: t, preview: n = !1 }) {
 		})
 	});
 }
-function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, download: i = (e) => window.location.assign(e) }) {
-	let [a, o] = (0, w.useState)(""), [s, c] = (0, w.useState)(""), [l, u] = (0, w.useState)(0), [d, f] = (0, w.useState)(cje), [p, m] = (0, w.useState)([]), [h, g] = (0, w.useState)(() => {
+function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, onUpdatedAt: i, download: a = (e) => window.location.assign(e) }) {
+	let [o, s] = (0, w.useState)(""), [c, l] = (0, w.useState)(""), [u, d] = (0, w.useState)(0), [f, p] = (0, w.useState)(cje), [m, h] = (0, w.useState)([]), [g, _] = (0, w.useState)(() => {
 		try {
 			let e = Number(localStorage.getItem("peach.rss-page-size"));
 			return [
@@ -101764,83 +101945,86 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 		} catch {
 			return 20;
 		}
-	}), [_, v] = (0, w.useState)([]), y = (0, w.useRef)(/* @__PURE__ */ new Set()), b = CA(), x = d === null ? "" : `&sources=${encodeURIComponent(d.join(",") || "none")}`, S = yt({
+	}), [v, y] = (0, w.useState)([]), b = (0, w.useRef)(/* @__PURE__ */ new Set()), x = CA(), S = f === null ? "" : `&sources=${encodeURIComponent(f.join(",") || "none")}`, C = yt({
 		queryKey: [
 			...VH,
-			l,
-			h,
-			d
+			u,
+			g,
+			f
 		],
-		queryFn: ({ signal: e }) => B(`/api/rss?offset=${l}&limit=${h}${x}`, e),
+		queryFn: ({ signal: e }) => B(`/api/rss?offset=${u}&limit=${g}${S}`, e),
 		refetchInterval: 3e3
-	}), C = S.data;
+	}), E = C.data;
 	(0, w.useEffect)(() => {
-		r?.(C?.items.length || 0);
-	}, [r, C?.items.length]), (0, w.useEffect)(() => {
-		n && C && H.invalidateQueries({ queryKey: ["follow-feed"] });
-	}, [n, C?.total]);
-	let E = () => {
+		r?.(E?.items.length || 0);
+	}, [r, E?.items.length]), (0, w.useEffect)(() => {
+		let e = (E?.sources || []).map((e) => e.last_fetched_at || "").filter((e) => Number.isFinite(Date.parse(e)));
+		i?.(e.sort((e, t) => Date.parse(t) - Date.parse(e))[0] || "");
+	}, [i, E?.sources]), (0, w.useEffect)(() => {
+		n && E && H.invalidateQueries({ queryKey: ["follow-feed"] });
+	}, [n, E?.total]);
+	let D = () => {
 		H.invalidateQueries({ queryKey: VH });
-	}, D = (e, n, r) => {
-		b.run(e, (t) => V(`/api/rss/${e}`, n, "POST", t), () => {
-			r && t(r), E();
+	}, O = (e, n, r) => {
+		x.run(e, (t) => V(`/api/rss/${e}`, n, "POST", t), () => {
+			r && t(r), D();
 		});
-	}, O = async (e, n = 0) => {
-		let r = C?.providers.find((t) => t.id === e.provider), a = e.files?.[n];
-		a?.url && r && (r.download_folder ? (XF((await V("/api/rss/download", {
+	}, k = async (e, n = 0) => {
+		let r = E?.providers.find((t) => t.id === e.provider), i = e.files?.[n];
+		i?.url && r && (r.download_folder ? (XF((await V("/api/rss/download", {
 			id: e.id,
 			file_index: n
-		}, "POST")).id), t("Download queued."), E()) : i(a.url));
+		}, "POST")).id), t("Download queued."), D()) : a(i.url));
 	};
 	(0, w.useEffect)(() => {
-		if (C) for (let e of _) {
-			let n = C.jobs.find((t) => t.id === e);
+		if (E) for (let e of v) {
+			let n = E.jobs.find((t) => t.id === e);
 			n && [
 				"ready",
 				"failed",
 				"cancelled"
-			].includes(n.status) && !y.current.has(e) && (y.current.add(e), n.status === "ready" && n.files?.length === 1 ? O(n).catch(() => t("The download could not be started. Check the folder settings.")) : n.status === "ready" && t("Choose a file below to download."), v((t) => t.filter((t) => t !== e)));
+			].includes(n.status) && !b.current.has(e) && (b.current.add(e), n.status === "ready" && n.files?.length === 1 ? k(n).catch(() => t("The download could not be started. Check the folder settings.")) : n.status === "ready" && t("Choose a file below to download."), y((t) => t.filter((t) => t !== e)));
 		}
-	}, [C, _]);
-	let k = (e, t, n) => {
-		b.run("resolve", (r) => V("/api/rss/resolve", {
+	}, [E, v]);
+	let A = (e, t, n) => {
+		x.run("resolve", (r) => V("/api/rss/resolve", {
 			entry_id: e.id,
 			link_index: t,
 			provider: n.id,
 			auto_download: !!n.download_folder
 		}, "POST", r), (e) => {
-			XF(e.id), y.current.delete(e.id), n.download_folder || v((t) => [.../* @__PURE__ */ new Set([...t, e.id])]), E();
+			XF(e.id), b.current.delete(e.id), n.download_folder || y((t) => [.../* @__PURE__ */ new Set([...t, e.id])]), D();
 		});
 	};
-	if (S.isPending) return /* @__PURE__ */ G("p", {
+	if (C.isPending) return /* @__PURE__ */ G("p", {
 		role: "status",
 		children: "Loading RSS feeds…"
 	});
-	if (S.isError || !C) return /* @__PURE__ */ G(J, {
+	if (C.isError || !E) return /* @__PURE__ */ G(J, {
 		tone: "error",
 		children: "Could not load RSS feeds."
 	});
-	if (e ||= !!C.read_only, n && !C.sources.length) return null;
-	let A = (e) => {
-		f(e), lje(e), u(0);
-	}, j = new Set(C.sources.filter((e) => e.hide_unsupported).map((e) => e.id));
+	if (e ||= !!E.read_only, n && !E.sources.length) return null;
+	let j = (e) => {
+		p(e), lje(e), d(0);
+	}, M = new Set(E.sources.filter((e) => e.hide_unsupported).map((e) => e.id));
 	return /* @__PURE__ */ K(jA, { children: [
 		/* @__PURE__ */ G("h2", {
 			className: "text-title-2-medium",
 			children: n ? "RSS updates" : "RSS downloads"
 		}),
-		C.sources.length > 1 || d !== null ? /* @__PURE__ */ G(zH, {
+		E.sources.length > 1 || f !== null ? /* @__PURE__ */ G(zH, {
 			label: "RSS feeds",
 			symbol: "rss",
 			verbatim: !0,
-			options: C.sources.map((e) => ({
+			options: E.sources.map((e) => ({
 				id: String(e.id),
 				label: e.name
 			})),
-			selected: d ?? C.sources.map((e) => String(e.id)),
-			onChange: (e) => A([...e]),
+			selected: f ?? E.sources.map((e) => String(e.id)),
+			onChange: (e) => j([...e]),
 			allLabel: "All RSS feeds",
-			onAll: () => A(null)
+			onAll: () => j(null)
 		}) : null,
 		n ? /* @__PURE__ */ G("a", {
 			href: "/subscriptions?tab=rss",
@@ -101850,24 +102034,24 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 			/* @__PURE__ */ K("form", {
 				className: "flex flex-col gap-3",
 				onSubmit: (e) => {
-					e.preventDefault(), b.run("add", (e) => V("/api/rss/source", {
+					e.preventDefault(), x.run("add", (e) => V("/api/rss/source", {
 						action: "add",
-						name: a,
-						url: s
+						name: o,
+						url: c
 					}, "POST", e), () => {
-						o(""), c(""), t("RSS feed added."), E();
+						s(""), l(""), t("RSS feed added."), D();
 					});
 				},
 				children: [
 					/* @__PURE__ */ G(wP, {
 						label: "Feed name",
-						value: a,
-						onChange: o
+						value: o,
+						onChange: s
 					}),
 					/* @__PURE__ */ G(wP, {
 						label: "RSS or Atom feed URL",
-						value: s,
-						onChange: c,
+						value: c,
+						onChange: l,
 						type: "url"
 					}),
 					/* @__PURE__ */ K("div", {
@@ -101875,23 +102059,23 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 						children: [
 							/* @__PURE__ */ G(q, {
 								type: "submit",
-								disabled: e || !s.trim(),
-								...Y(b.busy === "add"),
+								disabled: e || !c.trim(),
+								...Y(x.busy === "add"),
 								children: "Add RSS feed"
 							}),
 							/* @__PURE__ */ G(q, {
 								type: "button",
 								variant: "secondary",
-								disabled: e || !C.sources.length,
-								...Y(b.busy === "check"),
-								onClick: () => D("check", {}, "RSS update started."),
+								disabled: e || !E.sources.length,
+								...Y(x.busy === "check"),
+								onClick: () => O("check", {}, "RSS update started."),
 								children: "Check feeds now"
 							}),
 							/* @__PURE__ */ G(q, {
 								type: "button",
 								variant: "secondary",
-								disabled: !C.jobs.length,
-								onClick: () => C.jobs.slice(-10).forEach((e) => XF(e.id)),
+								disabled: !E.jobs.length,
+								onClick: () => E.jobs.slice(-10).forEach((e) => XF(e.id)),
 								children: "Show download progress"
 							})
 						]
@@ -101904,11 +102088,11 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 				className: "underline",
 				children: "Configure download providers"
 			}),
-			b.error ? /* @__PURE__ */ G(J, {
+			x.error ? /* @__PURE__ */ G(J, {
 				tone: "error",
-				children: b.error
+				children: x.error
 			}) : null,
-			C.sources.map((t) => /* @__PURE__ */ K("div", {
+			E.sources.map((t) => /* @__PURE__ */ K("div", {
 				className: "flex flex-wrap items-center gap-3 border-b border-border-button-default py-3",
 				children: [
 					/* @__PURE__ */ G("span", {
@@ -101920,7 +102104,7 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 						"aria-label": bs("Enable {0}", t.name),
 						isDisabled: e,
 						isSelected: t.enabled,
-						onChange: (e) => D("source", {
+						onChange: (e) => O("source", {
 							action: "schedule",
 							id: t.id,
 							enabled: e,
@@ -101931,8 +102115,8 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 					/* @__PURE__ */ G(uje, {
 						source: t,
 						readOnly: e,
-						busy: b.busy === "source",
-						save: (e) => D("source", {
+						busy: x.busy === "source",
+						save: (e) => O("source", {
 							action: "schedule",
 							id: t.id,
 							enabled: t.enabled,
@@ -101942,8 +102126,8 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 					/* @__PURE__ */ G(dje, {
 						source: t,
 						readOnly: e,
-						busy: b.busy === "source",
-						save: (e, n) => D("source", {
+						busy: x.busy === "source",
+						save: (e, n) => O("source", {
 							action: "retention",
 							id: t.id,
 							count: e,
@@ -101954,14 +102138,14 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 						"aria-label": bs("Hide unsupported links for {0}", t.name),
 						isDisabled: e,
 						isSelected: !!t.hide_unsupported,
-						onChange: (e) => D("source", {
+						onChange: (e) => O("source", {
 							action: "filter",
 							id: t.id,
 							hide_unsupported: e
 						}),
 						children: "Hide unsupported links"
 					}),
-					t.hide_unsupported && !C.providers.some((e) => e.configured && e.hosts?.length) ? /* @__PURE__ */ G("div", {
+					t.hide_unsupported && !E.providers.some((e) => e.configured && e.hosts?.length) ? /* @__PURE__ */ G("div", {
 						className: "w-full",
 						children: /* @__PURE__ */ G(NA, { children: "Test a configured debrid provider to load its supported hosts." })
 					}) : null,
@@ -101969,7 +102153,7 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 						size: "small",
 						variant: "secondary",
 						disabled: e,
-						onClick: () => D("source", {
+						onClick: () => O("source", {
 							action: "remove",
 							id: t.id
 						}, "RSS feed removed."),
@@ -101987,8 +102171,8 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 				children: "New videos"
 			})
 		] }),
-		C.items.length ? null : /* @__PURE__ */ G(NA, { children: d === null ? "No RSS items yet. Add a feed and check for updates." : "No posts from the selected RSS feeds." }),
-		C.items.map((n) => /* @__PURE__ */ K("article", {
+		E.items.length ? null : /* @__PURE__ */ G(NA, { children: f === null ? "No RSS items yet. Add a feed and check for updates." : "No posts from the selected RSS feeds." }),
+		E.items.map((n) => /* @__PURE__ */ K("article", {
 			className: "flex min-w-0 flex-col gap-3 border-b border-border-button-default py-4",
 			children: [
 				/* @__PURE__ */ G("h4", {
@@ -102032,7 +102216,7 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 					className: "underline",
 					children: "View page"
 				}) : null,
-				n.links.map((r, i) => r.kind !== "nzb" && j.has(n.source_id) && !C.providers.some((e) => HH(e, r, !0)) ? null : /* @__PURE__ */ K("div", {
+				n.links.map((r, i) => r.kind !== "nzb" && M.has(n.source_id) && !E.providers.some((e) => HH(e, r, !0)) ? null : /* @__PURE__ */ K("div", {
 					className: "flex min-w-0 flex-wrap items-center gap-2",
 					children: [
 						/* @__PURE__ */ G("a", {
@@ -102046,20 +102230,20 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 								children: r.url
 							})
 						}),
-						r.kind === "nzb" ? ["sabnzbd", "nzbget"].filter((e) => C[e]?.configured).map((r) => /* @__PURE__ */ G(q, {
+						r.kind === "nzb" ? ["sabnzbd", "nzbget"].filter((e) => E[e]?.configured).map((r) => /* @__PURE__ */ G(q, {
 							size: "small",
 							variant: "secondary",
-							disabled: e || p.includes(`${r}:${n.id}:${i}`),
-							...Y(b.busy === r),
-							onClick: () => void b.run(r, (e) => V(`/api/rss/${r}`, {
+							disabled: e || m.includes(`${r}:${n.id}:${i}`),
+							...Y(x.busy === r),
+							onClick: () => void x.run(r, (e) => V(`/api/rss/${r}`, {
 								entry_id: n.id,
 								link_index: i
 							}, "POST", e), () => {
-								m((e) => [...e, `${r}:${n.id}:${i}`]), t(bs("NZB sent to {0}.", r === "sabnzbd" ? "SABnzbd" : "NZBGet"));
+								h((e) => [...e, `${r}:${n.id}:${i}`]), t(bs("NZB sent to {0}.", r === "sabnzbd" ? "SABnzbd" : "NZBGet"));
 							}),
-							children: bs(p.includes(`${r}:${n.id}:${i}`) ? "Sent to {0}" : "Send to {0}", r === "sabnzbd" ? "SABnzbd" : "NZBGet")
+							children: bs(m.includes(`${r}:${n.id}:${i}`) ? "Sent to {0}" : "Send to {0}", r === "sabnzbd" ? "SABnzbd" : "NZBGet")
 						}, r)) : null,
-						C.providers.filter((e) => HH(e, r)).map((t) => /* @__PURE__ */ G(q, {
+						E.providers.filter((e) => HH(e, r)).map((t) => /* @__PURE__ */ G(q, {
 							size: "small",
 							variant: "secondary",
 							iconOnly: !0,
@@ -102067,16 +102251,16 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 							title: bs("Download with {0}", t.label),
 							"aria-label": bs("Download with {0}", t.label),
 							disabled: e,
-							...Y(b.busy === "resolve"),
-							onClick: () => k(n, i, t)
+							...Y(x.busy === "resolve"),
+							onClick: () => A(n, i, t)
 						}, t.id))
 					]
 				}, r.url)),
-				C.jobs.filter((e) => e.entry_id === n.id).map((n) => /* @__PURE__ */ K("div", {
+				E.jobs.filter((e) => e.entry_id === n.id).map((n) => /* @__PURE__ */ K("div", {
 					className: "flex flex-col gap-2",
 					children: [/* @__PURE__ */ G(ZF, {
 						job: n,
-						cancel: (e) => D("cancel", { id: e }),
+						cancel: (e) => O("cancel", { id: e }),
 						readOnly: e
 					}), n.files?.map((r, i) => r.url ? /* @__PURE__ */ K("div", {
 						className: "flex flex-wrap items-center gap-2",
@@ -102087,13 +102271,13 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 							className: "break-all underline",
 							"data-i18n-ignore": "",
 							children: r.filename || r.url
-						}), KF(GF(C.jobs, n, i)) ? /* @__PURE__ */ G(q, {
+						}), KF(GF(E.jobs, n, i)) ? /* @__PURE__ */ G(q, {
 							size: "small",
 							variant: "secondary",
 							disabled: e,
-							onClick: () => void O(n, i).catch(() => t("The download could not be started. Check the folder settings.")),
+							onClick: () => void k(n, i).catch(() => t("The download could not be started. Check the folder settings.")),
 							children: "Download file"
-						}) : GF(C.jobs, n, i)?.status === "complete" ? /* @__PURE__ */ G("span", { children: "Download complete" }) : null]
+						}) : GF(E.jobs, n, i)?.status === "complete" ? /* @__PURE__ */ G("span", { children: "Download complete" }) : null]
 					}, i) : null)]
 				}, n.id))
 			]
@@ -102103,9 +102287,9 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 			children: [
 				/* @__PURE__ */ G(yI, {
 					"aria-label": "RSS posts per page",
-					selectedKey: String(h),
+					selectedKey: String(g),
 					onSelectionChange: (e) => {
-						g(Number(e)), u(0);
+						_(Number(e)), d(0);
 						try {
 							localStorage.setItem("peach.rss-page-size", String(e));
 						} catch {}
@@ -102122,14 +102306,14 @@ function WH({ readOnly: e, toast: t, feedOnly: n = !1, onVisibleCount: r, downlo
 				}),
 				/* @__PURE__ */ G(q, {
 					variant: "secondary",
-					disabled: !l,
-					onClick: () => u(Math.max(0, l - h)),
+					disabled: !u,
+					onClick: () => d(Math.max(0, u - g)),
 					children: "Previous"
 				}),
 				/* @__PURE__ */ G(q, {
 					variant: "secondary",
-					disabled: l + h >= C.total,
-					onClick: () => u(l + h),
+					disabled: u + g >= E.total,
+					onClick: () => d(u + g),
 					children: "Next"
 				})
 			]
@@ -102293,113 +102477,121 @@ function hje(e, t, n) {
 	]);
 }
 function gje(e) {
-	let [t, n] = (0, w.useState)(0), { view: r, seed: i, revision: a, actions: o } = e, s = gi(r, a), c = xt(s), l = yt({
+	let [t, n] = (0, w.useState)(0), [r, i] = (0, w.useState)(""), { view: a, seed: o, revision: s, actions: c } = e, l = gi(a, s), u = xt(l), d = yt({
 		queryKey: _i,
 		queryFn: ({ signal: e }) => vi(e)
-	}), u = (0, w.useMemo)(() => bi(c.data), [c.data]), d = (0, w.useMemo)(() => new Set((l.data?.providers || []).filter((e) => e.present).map((e) => e.provider)), [l.data]), f = (0, w.useMemo)(() => ({
-		sources: u?.sources || [],
-		aliases: u?.author_aliases || [],
-		credentials: d
-	}), [u, d]), p = hje(u, r, i), m = c.isPending || c.isPlaceholderData, h = !m && !!u, g = (0, w.useMemo)(() => ({
-		tags: Dl(p.visible.flatMap(Si).map((e) => ({ tags: e.tags || [] }))),
-		providers: [...p.providers].map(([e, t]) => [
+	}), f = (0, w.useMemo)(() => bi(u.data), [u.data]), p = (0, w.useMemo)(() => new Set((d.data?.providers || []).filter((e) => e.present).map((e) => e.provider)), [d.data]), m = (0, w.useMemo)(() => ({
+		sources: f?.sources || [],
+		aliases: f?.author_aliases || [],
+		credentials: p
+	}), [f, p]), h = hje(f, a, o), g = u.isPending || u.isPlaceholderData, _ = !g && !!f, v = (0, w.useMemo)(() => ({
+		tags: Dl(h.visible.flatMap(Si).map((e) => ({ tags: e.tags || [] }))),
+		providers: [...h.providers].map(([e, t]) => [
 			e,
 			t,
 			si(e)
 		]),
-		duration: !!u?.facets?.duration
+		duration: !!f?.facets?.duration
 	}), [
-		p.visible,
-		p.providers,
-		u
+		h.visible,
+		h.providers,
+		f
 	]);
 	(0, w.useEffect)(() => {
-		if (!h) return;
+		if (!_) return;
 		let e = !0;
 		return queueMicrotask(() => {
-			e && o.loaded(g);
+			e && c.loaded(v);
 		}), () => {
 			e = !1;
 		};
 	}, [
-		h,
-		g,
-		o
+		_,
+		v,
+		c
 	]);
-	let _ = vje(e, !!u);
-	if (!u) return c.isError ? /* @__PURE__ */ K("div", {
+	let y = vje(e, !!f);
+	if (!f) return u.isError ? /* @__PURE__ */ K("div", {
 		"data-follow-feed": "",
-		children: [/* @__PURE__ */ G(qH, { onManage: o.openManage }), /* @__PURE__ */ G(iL, {
-			message: Bt(c.error),
-			onRetry: () => void c.refetch()
+		children: [/* @__PURE__ */ G(qH, { onManage: c.openManage }), /* @__PURE__ */ G(iL, {
+			message: Bt(u.error),
+			onRetry: () => void u.refetch()
 		})]
 	}) : null;
-	let v = (e) => o.route({
-		...r,
+	let b = (e) => c.route({
+		...a,
 		...e
-	}), y = Ri({
-		...r,
-		author: p.author,
-		provider: p.provider
+	}), x = Ri({
+		...a,
+		author: h.author,
+		provider: h.provider
 	}, {
-		authors: new Map([...p.authorSources].map(([e, t]) => [e, II(t, f)])),
-		providers: p.providers,
-		works: p.workNames
-	}), b = !r.status && r.media === "videos" && !r.author && !r.provider && !r.work && !r.tags.length && !r.durMin && !r.durMax, x = (r.status ? p.counts[r.status] || 0 : p.allCount) + (b ? Number(u.rss_count || 0) : 0), S = p.sources.some((e) => e.can_backfill);
+		authors: new Map([...h.authorSources].map(([e, t]) => [e, II(t, m)])),
+		providers: h.providers,
+		works: h.workNames
+	}), S = !a.status && a.media === "videos" && !a.author && !a.provider && !a.work && !a.tags.length && !a.durMin && !a.durMax, C = (a.status ? h.counts[a.status] || 0 : h.allCount) + (S ? Number(f.rss_count || 0) : 0), E = h.sources.some((e) => e.can_backfill);
 	return /* @__PURE__ */ K(T.Fragment, { children: [
 		/* @__PURE__ */ G("div", {
-			ref: _.host,
+			ref: y.host,
 			"data-follow-progress": ""
-		}, _.generation),
-		!_.busy && _.report ? /* @__PURE__ */ G(J, {
+		}, y.generation),
+		!y.busy && y.report ? /* @__PURE__ */ G(J, {
 			tone: "neutral",
 			title: "检查结果",
-			children: _.report
+			children: y.report
 		}) : null,
 		/* @__PURE__ */ K("div", {
 			"data-follow-feed": "",
 			"data-select-mode": e.selectMode ? "" : void 0,
 			children: [
-				/* @__PURE__ */ G(qH, {
-					onManage: o.openManage,
-					children: p.sources.length ? /* @__PURE__ */ G(q, {
+				/* @__PURE__ */ K(qH, {
+					onManage: c.openManage,
+					children: [/* @__PURE__ */ G(q, {
 						variant: "primary",
 						"data-follow-recheck": "",
-						"aria-label": "检查每个来源的更新",
-						"aria-busy": _.busy || void 0,
-						onClick: () => void _.start(!1),
-						children: _.starting === "check" ? /* @__PURE__ */ G("span", {
+						"aria-label": "Refresh all",
+						disabled: y.busy,
+						"aria-busy": y.busy || void 0,
+						onClick: () => void y.start(!1),
+						children: y.starting === "check" ? /* @__PURE__ */ G("span", {
 							className: "contents",
 							dangerouslySetInnerHTML: { __html: Vo("检查中") }
-						}) : "检查更新"
-					}) : null
+						}) : "Refresh all"
+					}), /* @__PURE__ */ G("span", {
+						className: "text-caption-1-regular text-text-secondary",
+						"data-follow-updated": "",
+						children: (() => {
+							let e = [r, ...h.sources.map((e) => String(e.last_checked_at || ""))].filter((e) => Number.isFinite(Date.parse(e))).sort((e, t) => Date.parse(t) - Date.parse(e));
+							return e[0] ? bs("Last updated: {0}", new Date(e[0]).toLocaleString()) : "Never updated";
+						})()
+					})]
 				}),
 				/* @__PURE__ */ G(yje, {
-					facets: p,
-					pressed: p.author,
-					context: f,
+					facets: h,
+					pressed: h.author,
+					context: m,
 					props: e,
-					onPick: (e) => v({ author: p.author === e ? "" : e })
+					onPick: (e) => b({ author: h.author === e ? "" : e })
 				}),
 				/* @__PURE__ */ G(bje, {
-					rows: p.workRows,
-					pressed: r.work,
+					rows: h.workRows,
+					pressed: a.work,
 					props: e,
-					onPick: (e) => v({ work: r.work === e ? "" : e })
+					onPick: (e) => b({ work: a.work === e ? "" : e })
 				}),
 				/* @__PURE__ */ G(xje, {
-					facets: p,
-					view: r,
-					total: x,
-					rssVisible: b ? t : 0,
-					busy: m,
+					facets: h,
+					view: a,
+					total: C,
+					rssVisible: S ? t : 0,
+					busy: g,
 					props: e,
-					route: v
+					route: b
 				}),
 				/* @__PURE__ */ G(Sje, {
-					conditions: y,
-					onDrop: (e) => o.route(zi(r, e)),
-					onClear: () => v({
+					conditions: x,
+					onDrop: (e) => c.route(zi(a, e)),
+					onClear: () => b({
 						author: "",
 						provider: "",
 						work: "",
@@ -102408,60 +102600,61 @@ function gje(e) {
 						durMax: 0
 					})
 				}),
-				p.broken.length ? /* @__PURE__ */ G(Cje, {
-					count: p.broken.length,
-					onManage: o.openManage
+				h.broken.length ? /* @__PURE__ */ G(Cje, {
+					count: h.broken.length,
+					onManage: c.openManage
 				}) : null,
-				b && u.rss_count !== void 0 ? /* @__PURE__ */ G("section", {
+				S && f.rss_count !== void 0 ? /* @__PURE__ */ G("section", {
 					"data-follow-rss": "",
 					children: /* @__PURE__ */ G(WH, {
 						feedOnly: !0,
 						onVisibleCount: n,
+						onUpdatedAt: i,
 						readOnly: !1,
-						toast: o.toast
+						toast: c.toast
 					})
 				}) : null,
-				b && Number(u.rss_count || 0) > 0 && !p.visible.length && !m ? null : /* @__PURE__ */ G(wje, {
-					retryKey: c.dataUpdatedAt,
-					pending: m,
-					facets: p,
-					data: u,
-					context: f,
+				S && Number(f.rss_count || 0) > 0 && !h.visible.length && !g ? null : /* @__PURE__ */ G(wje, {
+					retryKey: u.dataUpdatedAt,
+					pending: g,
+					facets: h,
+					data: f,
+					context: m,
 					props: e
-				}, s.queryKey.join("\0")),
-				u.has_more || S ? /* @__PURE__ */ K("div", {
+				}, l.queryKey.join("\0")),
+				f.has_more || E ? /* @__PURE__ */ K("div", {
 					"data-follow-pagination": "",
-					children: [u.has_more ? /* @__PURE__ */ G("span", {
+					children: [f.has_more ? /* @__PURE__ */ G("span", {
 						"data-follow-page-action": "",
-						children: u.groups.length < 500 ? /* @__PURE__ */ K(Bz, {
+						children: f.groups.length < 500 ? /* @__PURE__ */ K(Bz, {
 							entity: !0,
-							enabled: () => !_.busyRef.current,
+							enabled: () => !y.busyRef.current,
 							load: async () => {
-								await c.fetchNextPage({ throwOnError: !0 });
+								await u.fetchNextPage({ throwOnError: !0 });
 							},
 							children: [/* @__PURE__ */ G(KH, { className: "size-3.5" }), "加载更多"]
-						}, c.data?.pages.length) : /* @__PURE__ */ G(_je, {
-							busy: c.isFetchingNextPage,
-							error: c.isFetchNextPageError ? Bt(c.error) : "",
+						}, u.data?.pages.length) : /* @__PURE__ */ G(_je, {
+							busy: u.isFetchingNextPage,
+							error: u.isFetchNextPageError ? Bt(u.error) : "",
 							load: () => {
-								!_.busyRef.current && !c.isFetchingNextPage && c.fetchNextPage();
+								!y.busyRef.current && !u.isFetchingNextPage && u.fetchNextPage();
 							}
 						})
-					}) : null, S ? /* @__PURE__ */ K("span", {
+					}) : null, E ? /* @__PURE__ */ K("span", {
 						"data-follow-page-action": "",
 						children: [/* @__PURE__ */ G(q, {
 							variant: "secondary",
-							leadingIcon: _.olderBusy ? void 0 : pje,
+							leadingIcon: y.olderBusy ? void 0 : pje,
 							"data-follow-older": "",
-							"aria-busy": _.busy || void 0,
-							onClick: () => void _.start(!0),
-							children: _.olderBusy ? /* @__PURE__ */ K(T.Fragment, { children: [/* @__PURE__ */ G("span", {
+							"aria-busy": y.busy || void 0,
+							onClick: () => void y.start(!0),
+							children: y.olderBusy ? /* @__PURE__ */ K(T.Fragment, { children: [/* @__PURE__ */ G("span", {
 								className: "contents",
 								dangerouslySetInnerHTML: { __html: Vo("抓取中") }
 							}), /* @__PURE__ */ G("span", { children: "抓取中…" })] }) : "抓更早的一页"
 						}), /* @__PURE__ */ G("span", {
 							"data-follow-backfill": "",
-							children: Pi(p.sources)
+							children: Pi(h.sources)
 						})]
 					}) : null]
 				}) : null
@@ -102528,7 +102721,7 @@ function vje(e, t) {
 				g.current.actions.checkReport(n), d(ri({
 					...n,
 					status: e.status || "done"
-				})), m.current = !1, s(!1), p(!1), H.invalidateQueries({ queryKey: ["follow-feed"] }), a((e) => e + 1);
+				})), m.current = !1, s(!1), p(!1), H.invalidateQueries({ queryKey: ["follow-feed"] }), H.invalidateQueries({ queryKey: ["rss-downloads"] }), a((e) => e + 1);
 			}
 		}), () => {
 			t = !1;
@@ -102543,11 +102736,11 @@ function vje(e, t) {
 			m.current = !0, l(e ? "older" : "check"), d("");
 			let t = !1;
 			try {
-				let n = await V(Kn, e ? {
+				let [n] = await Promise.all([V(Kn, e ? {
 					older: !0,
 					background: !0
-				} : { background: !0 });
-				sessionStorage.setItem("peach-follow-job", n.job_id), t = !0, s(!0), e && p(!0), a((e) => e + 1);
+				} : { background: !0 }), ...e ? [] : [V("/api/rss/check", {})]]);
+				e || H.invalidateQueries({ queryKey: ["rss-downloads"] }), sessionStorage.setItem("peach-follow-job", n.job_id), t = !0, s(!0), e && p(!0), a((e) => e + 1);
 			} catch (t) {
 				g.current.actions.checkReport({ results: [{
 					ok: !1,
@@ -116590,28 +116783,77 @@ function pLe({ initial: e, receipt: t }) {
 	});
 	return /* @__PURE__ */ K(kA, {
 		title: "文件名自动匹配",
-		children: [/* @__PURE__ */ K(AA, { children: [/* @__PURE__ */ G(EA, {
-			label: "自动匹配演员",
-			description: "扫描时匹配已知演员；从日期后的姓名或 actors 字段创建演员。",
-			children: /* @__PURE__ */ G(RH, {
-				"aria-label": "自动匹配演员",
-				isSelected: n.actors,
-				isDisabled: !!i.busy,
-				onChange: (e) => a("actors", e)
+		children: [
+			/* @__PURE__ */ K(AA, { children: [/* @__PURE__ */ G(EA, {
+				label: "自动匹配演员",
+				description: "扫描时匹配已知演员；从日期后的姓名或 actors 字段创建演员。",
+				children: /* @__PURE__ */ G(RH, {
+					"aria-label": "自动匹配演员",
+					isSelected: n.actors,
+					isDisabled: !!i.busy,
+					onChange: (e) => a("actors", e)
+				})
+			}), /* @__PURE__ */ G(EA, {
+				label: "自动匹配厂牌",
+				description: "Match or create studios from the filename prefix before the date.",
+				children: /* @__PURE__ */ G(RH, {
+					"aria-label": "自动匹配厂牌",
+					isSelected: n.studios,
+					isDisabled: !!i.busy,
+					onChange: (e) => a("studios", e)
+				})
+			})] }),
+			/* @__PURE__ */ K(jA, {
+				divided: !0,
+				children: [
+					/* @__PURE__ */ K("label", {
+						className: "flex flex-col gap-2 text-body-2-medium",
+						children: [/* @__PURE__ */ G("span", { children: "Ignore filename text when matching" }), /* @__PURE__ */ G("textarea", {
+							rows: 3,
+							maxLength: 2e3,
+							value: n.ignore_terms || "",
+							disabled: !!i.busy,
+							className: "w-full rounded-xl bg-background-tertiary-default p-3 text-body-regular text-text-primary",
+							onChange: (e) => r((t) => ({
+								...t,
+								ignore_terms: e.target.value
+							}))
+						})]
+					}),
+					/* @__PURE__ */ G(NA, { children: "One literal character, word or phrase per line. Matching ignores case. Your filenames stay unchanged." }),
+					/* @__PURE__ */ K("div", {
+						className: "flex flex-wrap gap-2",
+						children: [/* @__PURE__ */ G(q, {
+							type: "button",
+							variant: "secondary",
+							...Y(i.busy === "save"),
+							onClick: () => void i.run("save", (e) => V("/api/configuration/filename-matching", n, "POST", e), (e) => {
+								r(e), t("已保存文件名匹配设置");
+							}),
+							children: "Save filename matching settings"
+						}), /* @__PURE__ */ G(q, {
+							type: "button",
+							variant: "secondary",
+							disabled: !n.ignore_terms?.trim() || !(n.actors || n.studios),
+							...Y(i.busy === "rematch"),
+							onClick: () => void i.run("rematch", async (e) => {
+								let t = await V("/api/configuration/filename-matching", n, "POST", e);
+								r(t);
+								let i = await V(dF, { stage: "filename_ignored" }, "POST", e);
+								if (i.requested_stage !== "filename_ignored") throw Error("A scan is already running. Stop it or wait for it to finish, then start resync.");
+								return i;
+							}, () => t("Filename rematching started. Follow its progress in Data management.")),
+							children: "Rematch affected filenames"
+						})]
+					}),
+					/* @__PURE__ */ G(NA, { children: "Saves these settings and rematches only filenames containing at least one ignored term. Manual assignments remain." })
+				]
+			}),
+			/* @__PURE__ */ K(jA, {
+				divided: !0,
+				children: [/* @__PURE__ */ G(NA, { children: "设置用于后续扫描和推送入库。关闭后保留已有归属；重新扫描可处理现有文件。" }), i.error ? /* @__PURE__ */ G(PA, { children: i.error }) : null]
 			})
-		}), /* @__PURE__ */ G(EA, {
-			label: "自动匹配厂牌",
-			description: "Match or create studios from the filename prefix before the date.",
-			children: /* @__PURE__ */ G(RH, {
-				"aria-label": "自动匹配厂牌",
-				isSelected: n.studios,
-				isDisabled: !!i.busy,
-				onChange: (e) => a("studios", e)
-			})
-		})] }), /* @__PURE__ */ K(jA, {
-			divided: !0,
-			children: [/* @__PURE__ */ G(NA, { children: "设置用于后续扫描和推送入库。关闭后保留已有归属；重新扫描可处理现有文件。" }), i.error ? /* @__PURE__ */ G(PA, { children: i.error }) : null]
-		})]
+		]
 	});
 }
 //#endregion
@@ -117349,18 +117591,16 @@ var wK = [
 	["only_new_media", "Only match newly added media"]
 ];
 function LLe({ initial: e, receipt: t, readOnly: n = !1 }) {
-	let [r, i] = (0, w.useState)(e), [a, o] = (0, w.useState)(""), [s, c] = (0, w.useState)(null), l = CA();
+	let [r, i] = (0, w.useState)(e), [a, o] = (0, w.useState)(""), [s, c] = (0, w.useState)(null), l = CA(), u = () => ({
+		...Object.fromEntries(wK.map(([e]) => [e, !!r[e]])),
+		ignore_terms: r.ignore_terms || "",
+		minimum_confidence: r.minimum_confidence ?? 85,
+		...a ? { api_key: a.trim() } : {}
+	});
 	return /* @__PURE__ */ K(kA, {
 		title: "StashDB",
 		onSubmit: (e) => {
-			e.preventDefault();
-			let n = {
-				...Object.fromEntries(wK.map(([e]) => [e, !!r[e]])),
-				ignore_terms: r.ignore_terms || "",
-				minimum_confidence: r.minimum_confidence ?? 85,
-				...a ? { api_key: a.trim() } : {}
-			};
-			l.run("save", (e) => V("/api/configuration/stashdb/settings", n, "POST", e), (e) => {
+			e.preventDefault(), l.run("save", (e) => V("/api/configuration/stashdb/settings", u(), "POST", e), (e) => {
 				i(e), o(""), t("StashDB settings saved");
 			});
 		},
@@ -117414,6 +117654,21 @@ function LLe({ initial: e, receipt: t, readOnly: n = !1 }) {
 					})]
 				}),
 				/* @__PURE__ */ G(NA, { children: "One literal character, word or phrase per line. Matching ignores case. Your filenames stay unchanged." }),
+				/* @__PURE__ */ G("div", { children: /* @__PURE__ */ G(q, {
+					type: "button",
+					variant: "secondary",
+					disabled: n || !r.api_key_set || !r.ignore_terms?.trim(),
+					...Y(l.busy === "rematch"),
+					onClick: () => void l.run("rematch", async (e) => {
+						let t = await V("/api/configuration/stashdb/settings", u(), "POST", e);
+						i(t), o("");
+						let n = await V(dF, { stage: "stashdb_ignored" }, "POST", e);
+						if (n.requested_stage !== "stashdb_ignored") throw Error("A scan is already running. Stop it or wait for it to finish, then start resync.");
+						return n;
+					}, () => t("StashDB rematching started. Follow its progress in Data management.")),
+					children: "Rematch affected files with StashDB"
+				}) }),
+				/* @__PURE__ */ G(NA, { children: "Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply." }),
 				/* @__PURE__ */ G(wP, {
 					label: "Minimum automatic match confidence (%)",
 					type: "number",

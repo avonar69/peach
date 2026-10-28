@@ -471,6 +471,7 @@ describe('页面', () => {
     await settle();
     const start = fetcher.mock.calls.find(([url, init]) => url === '/api/follow/check' && init?.method === 'POST');
     expect(JSON.parse(String(start?.[1]?.body))).toEqual({ background: true });
+    expect(fetcher.mock.calls.some(([url, init]) => url === '/api/rss/check' && init?.method === 'POST')).toBe(true);
     expect(sessionStorage.getItem('peach-follow-job')).toBe('job-9');
     const options = progress.mock.calls.at(-1)![0];
     await act(async () => options.busy(true));
@@ -511,7 +512,7 @@ describe('页面', () => {
     expect(fetcher.mock.calls.filter(([url, init]) => url === '/api/follow/check' && init?.method === 'POST')).toHaveLength(1);
   });
 
-  it('管理关注是次级键、检查更新是主键；没有来源时只剩管理关注', async () => {
+  it('管理关注是次级键，刷新全部覆盖 RSS 并显示最后更新时间', async () => {
     serve(feed([group(item(1))]));
     const host = await open(props());
     expect(host.querySelector('[data-follow-manage]')?.className).not.toContain('bg-button-primary');
@@ -520,7 +521,14 @@ describe('页面', () => {
     serve(feed([], { sources: [], facets: {} }));
     const empty = await open(props({ revision: 2 }));
     expect(empty.querySelector('[data-follow-manage]')).not.toBeNull();
-    expect(empty.querySelector('[data-follow-recheck]')).toBeNull();
+    expect(empty.querySelector('[data-follow-recheck]')).not.toBeNull();
+  });
+
+  it('last updated comes from a persisted source check timestamp', async () => {
+    const stamp = '2026-10-27T10:00:00Z';
+    serve(feed([], { sources: [source(1, 'kou', { last_checked_at: stamp })] }));
+    const host = await open(props());
+    expect(host.querySelector('[data-follow-updated]')?.textContent).toContain(new Date(stamp).toLocaleString());
   });
 
   it('再点按下的那位创作者撤掉这一条，按下的那枚有 aria-pressed', async () => {

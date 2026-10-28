@@ -59,8 +59,8 @@ ISSUE_PREVIEW_LIMIT = 20
 SCAN_STAGE, COLLECT_STAGE, ALL_STAGES = 'scan', 'collect', 'all'
 FIND_NEW_STAGE = 'find_new'
 METADATA_STAGE, PREVIEWS_STAGE = 'metadata', 'previews'
-ENTITY_STAGES = {'stashdb_actors': 'performer', 'stashdb_studios': 'studio'}
-STAGES = (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, *ENTITY_STAGES)
+from .matching_jobs import LABELS as SPECIAL_LABELS
+STAGES = (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE, COLLECT_STAGE, METADATA_STAGE, PREVIEWS_STAGE, *SPECIAL_LABELS)
 
 #: 没有动作截止时间的阶段（本地读取）超过这么久没有心跳就在页面上预警。
 STALL_AFTER_SECONDS = 120.0
@@ -2117,8 +2117,8 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
 
 def _processing_steps(stage, asset_ids, *, metadata_only_enabled):
     """按本趟真实处理范围构造有序阶段清单。"""
-    if stage in ENTITY_STAGES:
-        return [dict(id='collect', label='Resync Actors' if stage == 'stashdb_actors' else 'Resync Studios', status='current')]
+    if stage in SPECIAL_LABELS:
+        return [dict(id='collect', label=SPECIAL_LABELS[stage], status='current')]
     scanning = asset_ids is None and stage in (FIND_NEW_STAGE, ALL_STAGES, SCAN_STAGE)
     steps = [('sources', '扫描文件' if scanning else '检查媒体目录')]
     if stage not in (SCAN_STAGE, PREVIEWS_STAGE):
@@ -2336,12 +2336,12 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
         try:
             guard = DiskGuard(config.data_root, 1)
             guard.check(force=True)
-            if stage in ENTITY_STAGES:
-                from .stashdb_entities import resync
-                count = resync(config, database, ENTITY_STAGES[stage], progress=update, issue=issue,
-                    active=active, completed=(resume_state or {}).get('resynced_entities', []))
+            if stage in SPECIAL_LABELS:
+                from .matching_jobs import run
+                result = run(config, database, stage, selected=scope_ids, progress=update, issue=issue,
+                    active=active, previous=resume_state or {})
                 finish_step('collect')
-                update(**_completion_values(state), stashdb_applied=count, current_asset_name='')
+                update(**_completion_values(state), **result, current_asset_name='')
                 return state
             from .media_scan_schedule import processing_locations
             locations = processing_locations(config, location, stage, targeted, scan_roots)

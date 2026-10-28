@@ -57,6 +57,7 @@ const receiptText = (state: LibraryProcessingData) =>
   + `整理 ${state.candidates || 0} 组资料结果，自动保存 ${state.auto_applied || 0} 条。`
   + (state.previews ? `已生成 ${state.previews} 部视频预览。` : ''))
   + profileText(state)
+  + (state.filename_matched !== undefined ? ' ' + translate('Filename assignments updated: {0}.').replace('{0}', String(state.filename_matched)) : '')
   + (state.stashdb_applied !== undefined ? ' ' + translate('StashDB: {0} applied, {1} awaiting review, {2} already up to date.')
     .replace('{0}', String(state.stashdb_applied || 0)).replace('{1}', String(state.stashdb_review || 0))
     .replace('{2}', String(state.stashdb_skipped || 0)) : '');

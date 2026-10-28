@@ -15,6 +15,7 @@
 .peach-react [data-follow-feed] { padding: 4px 0 42px; font: var(--board-body); }
 .peach-react [data-follow-head] {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
@@ -25,7 +26,10 @@
 @media (max-width: 760px) {
   .peach-react [data-follow-title] { font: var(--board-figure); }
 }
-.peach-react [data-follow-head-actions] { display: inline-flex; flex: none; align-items: center; gap: 8px; }
+.peach-react [data-follow-head-actions] { display: inline-flex; flex: 0 1 auto; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
+@media (max-width: 640px) {
+  .peach-react [data-follow-updated] { flex-basis: 100%; text-align: right; }
+}
 /* 「管理关注」「抓更早的一页」同遗留层 `.fbtn`：左边留 12px，图标 14px，与文字隔 4px（文字自带的内边距）。 */
 .peach-react button:is([data-follow-manage], [data-follow-older]):has(> svg) { gap: 0; padding-left: 12px; }
 .peach-react button:is([data-follow-manage], [data-follow-older]) > svg { width: 14px; height: 14px; }

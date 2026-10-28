@@ -25,7 +25,7 @@ def _entities(database, selected):
     return entities
 
 
-def _cached(config, entity, policy):
+def _cached(config, entity, policy, *, force=False):
     path = config.directory('state') / 'stashdb-entities' / f"{entity['id']}.json"
     token = hashlib.sha256(json.dumps([entity['kind'], entity['name'], entity['aliases'],
         policy['actor_images']], sort_keys=True).encode()).hexdigest()
@@ -36,8 +36,8 @@ def _cached(config, entity, policy):
     fresh = time.time() - cached.get('searched_at', 0) < 86400
     reusable = cached.get('token') == token and (
         cached.get('ok') and (installed or target.exists() or not cached.get('had_image'))
-        or policy['skip_failed']
-        or fresh and not cached.get('ok') and not cached.get('failed'))
+        or not force and (policy['skip_failed']
+            or fresh and not cached.get('ok') and not cached.get('failed')))
     return path, token, (entity['remote'] and installed) or reusable
 
 
@@ -106,9 +106,9 @@ def _studio_profile(config, database, client, entity, found):
                 'provider': 'stashdb', 'external_id': found['id'], 'source_url': url}))
 
 
-def scan(config, database, rows, *, client, progress, issue, active):
+def scan(config, database, rows, *, client, progress, issue, active, force=False):
     policy = stashdb_client.settings(config)
-    selected = {row['id']: row for row in rows if not policy['only_new_media']
+    selected = {row['id']: row for row in rows if force or not policy['only_new_media']
         or row['id'] > policy['new_media_after_id']
         or (row.get('first_seen') or '') > policy['new_media_enabled_at']}
     entities = _entities(database, selected)
@@ -117,7 +117,7 @@ def scan(config, database, rows, *, client, progress, issue, active):
         if not active():
             raise InterruptedError('处理任务已停止')
         checkpoint()
-        path, token, reusable = _cached(config, entity, policy)
+        path, token, reusable = _cached(config, entity, policy, force=force)
         progress(stage='StashDB actor and studio matching', checked=position, total=len(entities),
                  current_asset_id=entity['asset_id'])
         if reusable:

@@ -102,6 +102,47 @@ class StashDBTests(unittest.TestCase):
         scan.assert_not_called()
         collect.assert_not_called()
 
+    def test_ignored_filename_stages_bypass_discovery_and_other_metadata_providers(self):
+        from peach import filename_matching, library_processing
+        filename_matching.save(self.config.directory('state'), {'actors': True, 'studios': True, 'ignore_terms': '!'})
+        stashdb_client.save_settings(self.config, {'enabled': True, 'ignore_terms': '!'})
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET path='R:\\scene!.mp4',name='Evil!Angel.26.10.22.Jane.Doe.mp4' WHERE id=1")
+        for stage in ('filename_ignored', 'stashdb_ignored'):
+            with self.subTest(stage=stage), \
+                    mock.patch.object(library_processing, '_scan_sources') as scan, \
+                    mock.patch.object(library_processing, '_collection_rows') as collect, \
+                    mock.patch('peach.stashdb.scan_assets', return_value={'applied': 1, 'review': 0}) as remote:
+                result = library_processing.process_library(self.config, self.database.db_path,
+                    self.root / 'candidates', self.root / 'covers', database=self.database, stage=stage)
+                self.assertEqual(result['status'], 'complete')
+                scan.assert_not_called()
+                collect.assert_not_called()
+                if stage == 'stashdb_ignored':
+                    self.assertEqual([row['id'] for row in remote.call_args.args[2]], [1])
+                    self.assertTrue(remote.call_args.kwargs['force'])
+                else:
+                    remote.assert_not_called()
+
+    def test_rematch_start_snapshots_matching_ids_and_rejects_an_active_task(self):
+        from dataclasses import replace
+        from peach import filename_matching, web_library_processing
+        config = replace(self.config, present=True, data_root_found=True, locations={'local': (r'R:\media',)})
+        filename_matching.save(config.directory('state'), {'actors': True, 'studios': True, 'ignore_terms': '!'})
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET path='R:\\media\\scene!.mp4' WHERE id=1")
+            connection.execute("INSERT INTO asset(id,location,path,name,medium) VALUES(2,'local','R:\\media\\ordinary.mp4','ordinary.mp4','video')")
+        job = mock.Mock()
+        job.snapshot.return_value = {}
+        job.start.return_value = {'requested_stage': 'filename_ignored'}
+        contract = SimpleNamespace(database=self.database, db_path=self.database.db_path, library_processing_job=job)
+        with mock.patch('peach.settings_file.active', return_value=config):
+            web_library_processing.w_library_processing(contract, {'stage': 'filename_ignored'})
+            self.assertEqual(job.start.call_args.kwargs['recovery']['asset_ids'], [1])
+            job.snapshot.return_value = {'status': 'running', 'requested_stage': 'filename_ignored'}
+            with self.assertRaisesRegex(ValueError, 'A scan is already running'):
+                web_library_processing.w_library_processing(contract, {'stage': 'filename_ignored'})
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -574,6 +615,32 @@ class StashDBTests(unittest.TestCase):
             stashdb_client.save_settings(self.config, {'skip_failed': False})
             self.assertEqual(scan()['skipped'], 0)
             self.assertEqual(preview.call_count, 3)
+
+    def test_explicit_rematch_retries_old_failed_searches_and_resumes_completed_ids(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'skip_failed': True, 'scene_images': True, 'only_new_media': True}, database=self.database)
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()), \
+                mock.patch('peach.stashdb.preview', wraps=stashdb.preview) as preview:
+            progress = []
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}], force=True,
+                progress=lambda **values: progress.append(values), issue=lambda *_, **__: None)
+            self.assertEqual(preview.call_count, 1)
+            self.assertEqual(progress[-1]['rematched_asset_ids'], [1])
+            stashdb.scan_assets(self.config, self.database, [{'id': 1}], force=True, completed=[1],
+                progress=lambda **_: None, issue=lambda *_, **__: None)
+            self.assertEqual(preview.call_count, 1)
+            self.assertGreaterEqual(result.get('applied', 0) + result.get('review', 0), 1)
+
+    def test_entity_only_explicit_rematch_works_with_automatic_and_old_media_filters_off(self):
+        stashdb_client.save_settings(self.config, {'enabled': False, 'scene_images': False, 'actor_images': False,
+            'only_new_media': True, 'skip_failed': True}, database=self.database)
+        with self.database.write_transaction() as connection:
+            upsert_asset_entity(connection, kind='performer', name='Jane Doe', asset_id=1, role='performer', source='user:test')
+        client = mock.Mock(wraps=self.client())
+        with mock.patch('peach.stashdb_client.Client', return_value=client):
+            stashdb.scan_assets(self.config, self.database, [{'id': 1}], force=True,
+                progress=lambda **_: None, issue=lambda *_, **__: None)
+        client.performers.assert_called()
+        client.scenes.assert_not_called()
 
     def test_new_media_only_uses_saved_watermark_and_manual_preview_remains_available(self):
         policy = stashdb_client.save_settings(self.config, {'enabled': True, 'only_new_media': True}, database=self.database)

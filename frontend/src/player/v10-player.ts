@@ -78,6 +78,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
     }, 2500);
   };
   root.addEventListener('pointermove', active, { signal });
+  root.addEventListener('pointerdown', active, { signal });
   root.addEventListener('focusin', active, { signal });
   video.addEventListener('click', () => { if (video.paused) void video.play().catch(() => {}); else video.pause() }, { signal });
   video.addEventListener('dblclick', () => root.querySelector<HTMLElement>('media-fullscreen-button')?.click(), { signal });

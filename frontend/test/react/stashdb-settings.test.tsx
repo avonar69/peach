@@ -11,6 +11,16 @@ beforeEach(() => localStorage.setItem('peach.language', 'en'));
 afterEach(() => { send.mockReset(); localStorage.clear(); });
 
 describe('StashDB entity resync', () => {
+  it('saves ignored text and requests a scoped StashDB rematch', async () => {
+    const initial = { ...policy, ignore_terms: '!' };
+    send.mockImplementation((path, body) => Promise.resolve(path.endsWith('/settings') ? initial : { requested_stage: body.stage }));
+    const host = await mount(<StashDBSettings initial={initial} receipt={vi.fn()} />);
+    await click([...host.querySelectorAll('button')].find(node => node.textContent === 'Rematch affected files with StashDB'));
+    await settle();
+    expect(send.mock.calls.map(call => call[0])).toEqual(['/api/configuration/stashdb/settings', '/api/library-processing']);
+    expect(send.mock.calls[0]![1].ignore_terms).toBe('!');
+    expect(send.mock.calls[1]![1]).toEqual({ stage: 'stashdb_ignored' });
+  });
   it('starts actor and studio tasks with separate scopes even when automatic scanning is off', async () => {
     send.mockImplementation((_path, body) => Promise.resolve({ requested_stage: body.stage }));
     const receipt = vi.fn();

@@ -786,3 +786,5 @@ NZB 下载交接采用 [SABnzbd 5.1 官方 API](https://sabnzbd.org/wiki/configu
 [SABconnect++](https://github.com/gboudreau/sabconnectplusplus) 为 GPL-3.0 的浏览器扩展，项目声明暂无维护者。仅沿用其普通链接右键发送能力，不复制或打包其代码，不建立未经支持的网页通信桥；实际扩展操作验收未取得。RSS 的 XML、HTML 和日期继续复用 feedparser 与标准库；Peach 仅补 NZB 类型、DrunkenSlug 发布 ID 展示规则和下载目的地选择。
 
 NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 Basic Auth、`version` 与 `append`，使用自 v13 稳定的九参数 URL 入队形态，保留分类与默认去重模式。核对维护中的 [nzbgetcom/nzbget 服务端实现](https://github.com/nzbgetcom/nzbget/blob/develop/daemon/remote/XmlRpc.cpp) 确认后续可选参数和正数 NZBID；未复制 GPL-2.0-or-later 服务端代码。SABnzbd 与 NZBGet 共用有界 HTTPX 传输、本机凭据存储和前端表单，没有新增依赖；临时凭据与假 HTTP 服务覆盖密码保留／撤销、认证、签名 URL、RPC 错误和失败身份。真实 NZBGet 服务验收未取得。
+
+忽略词匹配复用标准库 `re.escape`／大小写不敏感替换与 `PureWindowsPath`，本地文件名和 StashDB 提示共用字面清洗规则。定向重匹配复用既有 Aho–Corasick 演员索引、按来源归属写入、StashDB 查询及统一处理任务的停止／恢复；不增加扫描器、抽帧或网络依赖。Following 刷新复用两个既有检查端点和来源时间戳，手机控件复用播放器活动状态、全屏控件与紧凑布局。没有新增依赖。

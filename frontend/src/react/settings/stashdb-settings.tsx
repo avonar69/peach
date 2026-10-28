@@ -28,12 +28,12 @@ export function StashDBSettings({ initial, receipt, readOnly = false }: {
   const [apiKey, setApiKey] = useState('');
   const [account, setAccount] = useState<string | null>(null);
   const action = useAction();
+  const savedBody = () => ({ ...Object.fromEntries(OPTIONS.map(([key]) => [key, Boolean(policy[key])])),
+    ignore_terms: policy.ignore_terms || '', minimum_confidence: policy.minimum_confidence ?? 85,
+    ...(apiKey ? { api_key: apiKey.trim() } : {}) });
   const save = (event: FormEvent) => {
     event.preventDefault();
-    const body = { ...Object.fromEntries(OPTIONS.map(([key]) => [key, Boolean(policy[key])])),
-      ignore_terms: policy.ignore_terms || '', minimum_confidence: policy.minimum_confidence ?? 85,
-      ...(apiKey ? { api_key: apiKey.trim() } : {}) };
-    void action.run('save', signal => apiSend<StashDBPolicy>('/api/configuration/stashdb/settings', body, 'POST', signal), saved => {
+    void action.run('save', signal => apiSend<StashDBPolicy>('/api/configuration/stashdb/settings', savedBody(), 'POST', signal), saved => {
       setPolicy(saved); setApiKey(''); receipt('StashDB settings saved');
     });
   };
@@ -57,6 +57,15 @@ export function StashDBSettings({ initial, receipt, readOnly = false }: {
           className="w-full rounded-xl bg-background-tertiary-default p-3 text-body-regular text-text-primary"
           onChange={event => setPolicy(previous => ({ ...previous, ignore_terms: event.target.value }))} /></label>
       <Help>One literal character, word or phrase per line. Matching ignores case. Your filenames stay unchanged.</Help>
+      <div><Button type="button" variant="secondary" disabled={readOnly || !policy.api_key_set || !policy.ignore_terms?.trim()}
+        {...busyProps(action.busy === 'rematch')} onClick={() => void action.run('rematch', async signal => {
+          const saved = await apiSend<StashDBPolicy>('/api/configuration/stashdb/settings', savedBody(), 'POST', signal);
+          setPolicy(saved); setApiKey('');
+          const job = await apiSend<{ requested_stage?: string }>(LIBRARY_PROCESSING_URL, { stage: 'stashdb_ignored' }, 'POST', signal);
+          if (job.requested_stage !== 'stashdb_ignored') throw new Error('A scan is already running. Stop it or wait for it to finish, then start resync.');
+          return job;
+        }, () => receipt('StashDB rematching started. Follow its progress in Data management.'))}>Rematch affected files with StashDB</Button></div>
+      <Help>Saves these settings and searches again only for filenames containing an ignored term, including previously matched or failed items. Picture and cast options still apply.</Help>
       <Input label="Minimum automatic match confidence (%)" type="number"
         value={String(policy.minimum_confidence ?? 85)} isDisabled={readOnly}
         onChange={value => setPolicy(previous => ({ ...previous, minimum_confidence: Number(value) }))} />

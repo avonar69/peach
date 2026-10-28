@@ -48,6 +48,7 @@ export interface LibraryProcessingData {
   stashdb_applied?: number;
   stashdb_review?: number;
   stashdb_skipped?: number;
+  filename_matched?: number;
   covers?: number;
   previews?: number;
   /* 落库之后补齐女优资料那一步的四个读数：别名、头像、交回人工的冲突、没取到的头像。 */

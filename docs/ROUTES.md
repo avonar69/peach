@@ -169,3 +169,11 @@ RSS 条目中的 `images.main` 是主缩略图，`images.previews` 是带独立 
 `GET /api/rss` 的 `sabnzbd.configured` 控制发送按钮。`POST /api/rss/sabnzbd` 接受 `entry_id`、`link_index`，从已存 RSS 条目取得 NZB 地址，拒绝非 NZB，成功返回 SABnzbd 队列身份。只读副本禁止入队；debrid 解析不接受 NZB。条目的 `link` 用于详情页，`links` 中的 `kind=nzb` 保留原始下载地址，主图与预览沿用 `images` 契约。
 
 NZBGet 使用相同访问边界：`GET /api/configuration/nzbget` 返回地址、用户名、分类与凭据存在性，不返回密码；`POST /api/configuration/nzbget/settings` 接受 `url`、`username`、`password`、`category`，空密码保留已存值，`remove_key=true` 撤销密码；`POST /api/configuration/nzbget/check` 通过 Basic Auth 执行 JSON-RPC `version`。`POST /api/rss/nzbget` 接受已存条目与链接索引，通过 `append` 入队，返回正数 NZBID；失败和零身份不显示成功。RSS 快照的 `nzbget.configured` 控制发送按钮。
+
+## 忽略词定向匹配
+
+`POST /api/configuration/filename-matching` 在 `actors`、`studios` 外接受可选的 `ignore_terms`，每行一个字面字符、词或短语，最多 64 项／2000 字符。省略时保留已保存值；配置读接口的 `filename_matching` 返回有效值，扫描与推送入库使用同一清洗规则。
+
+`POST /api/library-processing` 支持 `stage=filename_ignored|stashdb_ignored`。服务端从已保存忽略词中选出文件名命中的未回收视频，并将影片 ID 固定到任务与恢复记录；不会按目录名称扩大范围。空忽略词、没有命中、缺少凭据、未启用文件名匹配或已有活动任务均返回错误，不能退化成全库扫描。两阶段分别只执行文件名归属与 StashDB 匹配，保留普通任务的停止／恢复及数据管理入口。StashDB 显式重匹配不要求开启自动采集，仍跳过已成功同步的演员与厂牌。
+
+Following 的「刷新全部」同时调用既有 `/api/follow/check` 与 `/api/rss/check`。上次更新时间使用关注来源的 `last_checked_at` 与 RSS 的 `last_fetched_at`，不把点击时间写成抓取结果。

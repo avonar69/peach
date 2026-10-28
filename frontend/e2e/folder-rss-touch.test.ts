@@ -8,6 +8,42 @@ describe('目录扫描策略、RSS 多选与触屏快进', () => {
   before(async () => { browser = await launch() });
   after(async () => { await browser.close() });
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name}: 忽略词重匹配保存设置并提交独立范围`, { timeout: 60_000 }, async () => {
+      for (const mode of ['filename', 'stashdb'] as const) {
+        const calls: { path: string; body: Record<string, unknown> }[] = [];
+        const stage = mode === 'filename' ? 'filename_ignored' : 'stashdb_ignored';
+        const settings = mode === 'filename' ? '/api/configuration/filename-matching' : '/api/configuration/stashdb/settings';
+        const section = mode === 'filename' ? '这台电脑' : '来源与订阅';
+        const opened = await visit(browser, '/settings/library?section=' + encodeURIComponent(section), viewport, async page => {
+          await page.context().addInitScript(() => localStorage.setItem('peach.language', 'en'));
+          await page.route(url => url.pathname === '/api/configuration', async route => {
+            const original = await (await route.fetch()).json();
+            await route.fulfill({ json: { ...original, editable: true,
+              filename_matching: { actors: true, studios: true, ignore_terms: '!' },
+              stashdb: { ...original.stashdb, enabled: true, api_key_set: true, ignore_terms: '!' },
+            } });
+          });
+          await page.route(url => url.pathname === settings || url.pathname === '/api/library-processing' && url.search === '', async route => {
+            if (route.request().method() !== 'POST') { await route.fallback(); return }
+            const path = new URL(route.request().url()).pathname, body = route.request().postDataJSON();
+            calls.push({ path, body });
+            await route.fulfill({ json: path === settings ? { ...body, api_key_set: true }
+              : { job_id: 'test-rematch', requested_stage: stage, status: 'running' } });
+          });
+        });
+        try {
+          const page = opened.page;
+          const button = page.getByRole('button', { name: mode === 'filename' ? 'Rematch affected filenames' : 'Rematch affected files with StashDB', exact: true });
+          await button.click();
+          await page.waitForFunction(() => !document.querySelector('[data-action-busy="true"]'));
+          assert.deepEqual(calls.map(call => call.path), [settings, '/api/library-processing']);
+          assert.equal(calls[0]?.body.ignore_terms, '!');
+          assert.equal(calls[1]?.body.stage, stage);
+          assert.ok((await layout(page)).scrollWidth <= viewport.width + 1);
+          assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
+        } finally { await opened.close() }
+      }
+    });
     it(`${viewport.name}: NZB 详情、图片与下载目的地`, { timeout: 45_000 }, async () => {
       const posts: string[] = [];
       const opened = await visit(browser, '/follow', viewport, async page => {
@@ -120,11 +156,14 @@ describe('目录扫描策略、RSS 多选与触屏快进', () => {
         await page.context().addInitScript(() => localStorage.setItem('peach.language', 'en'));
         await page.route(url => url.pathname === '/api/rss', async route => {
           const selected = new URL(route.request().url()).searchParams.get('sources');
-          const sources = [{ id: 1, name: 'Feed A' }, { id: 2, name: 'Feed B' }];
+          const sources = [{ id: 1, name: 'Feed A', last_fetched_at: '2026-10-27T10:00:00Z' }, { id: 2, name: 'Feed B' }];
           const items = sources.filter(source => !selected || selected.split(',').includes(String(source.id)))
             .map(source => ({ id: source.id, source_id: source.id, title: `Post ${source.name}`, feed_name: source.name, published_at: null, links: [] }));
           await route.fulfill({ json: { sources, items, total: items.length, offset: 0, jobs: [], providers: [] } });
         });
+        await page.route('**/api/follow/check', route => route.fulfill({ json: route.request().method() === 'POST'
+          ? { job_id: 'test-refresh', status: 'running' } : { status: 'idle' } }));
+        await page.route('**/api/rss/check', route => route.fulfill({ json: { ok: true, job_id: 'test-rss-refresh' } }));
       });
       const page = opened.page;
       try {
@@ -139,6 +178,11 @@ describe('目录扫描策略、RSS 多选与触屏快进', () => {
         assert.equal(await page.getByRole('menuitemcheckbox', { name: 'Feed B', exact: true }).getAttribute('aria-checked'), 'false');
         await page.getByRole('menuitem', { name: 'All RSS feeds', exact: true }).click();
         await page.getByRole('heading', { name: 'Post Feed B', exact: true }).waitFor();
+        assert.ok((await page.locator('[data-follow-updated]').textContent())?.includes('Last updated:'));
+        const creatorRefresh = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).pathname === '/api/follow/check');
+        const rssRefresh = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).pathname === '/api/rss/check');
+        await page.getByRole('button', { name: 'Refresh all', exact: true }).click();
+        await Promise.all([creatorRefresh, rssRefresh]);
         assert.ok((await layout(page)).scrollWidth <= viewport.width + 1);
       } finally { await opened.close() }
     });
@@ -152,6 +196,14 @@ describe('目录扫描策略、RSS 多选与触屏快进', () => {
     const page = opened.page, video = page.locator('#stage video.vjs-tech');
     try {
       await video.waitFor({ state: 'attached' });
+      const fullscreen = page.locator('#stage .vjs-fullscreen-control');
+      await fullscreen.waitFor({ state: 'visible' });
+      const controlBox = await fullscreen.boundingBox(), stageBox = await page.locator('#stage').boundingBox();
+      assert.ok(controlBox && stageBox && controlBox.x + controlBox.width <= stageBox.x + stageBox.width + 1);
+      await fullscreen.click();
+      await page.waitForFunction(() => !!document.fullscreenElement);
+      await fullscreen.click();
+      await page.waitForFunction(() => !document.fullscreenElement);
       await page.waitForFunction(() => (document.querySelector<HTMLVideoElement>('#stage video.vjs-tech')?.duration || 0) > 1.5);
       await video.evaluate(node => {
         const media = node as HTMLVideoElement; media.pause();

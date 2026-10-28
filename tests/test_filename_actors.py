@@ -7,9 +7,40 @@ from pathlib import Path
 from peach import filename_actors, filename_matching, scan
 from peach.entities import upsert_asset_entity
 from peach.migrations import upgrade
+from peach.repository import LedgerDatabase
+from peach.settings_file import PeachConfig
+from peach import filename_text, matching_jobs
 
 
 class FilenameActorsTests(unittest.TestCase):
+    def test_ignored_text_selection_matches_only_filenames_and_keeps_manual_assignments(self):
+        self.seed('Manual Actor')
+        filename = 'Evil!Angel.26.10.22.Jane.!Doe.And.John.Smith.mp4'
+        self.connection.execute('UPDATE asset SET name=?,path=? WHERE id=1', (filename, 'R:\\' + filename))
+        self.connection.execute("INSERT INTO asset(id,location,path,name,medium) VALUES(2,'local','R:\\!folder\\ordinary.mp4','ordinary.mp4','video')")
+        self.connection.commit()
+        database = LedgerDatabase(self.db)
+        config = PeachConfig(self.root, self.root / 'config.toml')
+        policy = filename_matching.save(config.directory('state'), {'actors': True, 'studios': True, 'ignore_terms': '!\n!\n  release group  '})
+        self.assertEqual(policy['ignore_terms'], '!\nrelease group')
+        self.assertEqual([row['id'] for row in filename_text.matching_assets(database, policy['ignore_terms'])], [1])
+        progress = []
+        result = matching_jobs.run(config, database, 'filename_ignored', selected=[1],
+            progress=lambda **values: progress.append(values), issue=lambda *args: None, active=lambda: True, previous={})
+        self.assertEqual(result['filename_matched'], 3)
+        actors = [row[0] for row in self.connection.execute("SELECT e.canonical_name FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id WHERE ae.asset_id=1 AND e.kind='performer'")]
+        self.assertCountEqual(actors, ['Manual Actor', 'Jane Doe', 'John Smith'])
+        self.assertEqual(self.connection.execute('SELECT name FROM asset WHERE id=1').fetchone()[0], filename)
+        self.assertEqual(self.connection.execute('SELECT count(*) FROM asset_entity WHERE asset_id=2').fetchone()[0], 0)
+        self.assertEqual(progress[-1]['rematched_asset_ids'], [1])
+        resumed = matching_jobs.run(config, database, 'filename_ignored', selected=[1], progress=lambda **_: None,
+            issue=lambda *args: None, active=lambda: True, previous={'rematched_asset_ids': [1], 'filename_matched': 3})
+        self.assertEqual(resumed['filename_matched'], 3)
+        with self.assertRaises(ValueError):
+            filename_text.matching_assets(database, '')
+        with self.assertRaises(ValueError):
+            filename_text.matching_assets(database, 'no-match')
+
     def test_dated_studio_releases_create_multiple_actors_without_a_seed_catalog(self):
         index = filename_actors.actor_index(self.connection)
         self.assertEqual(filename_actors.names_from_filename(
@@ -101,7 +132,7 @@ class FilenameActorsTests(unittest.TestCase):
 
     def test_matching_is_opt_in_and_switches_are_independent(self):
         self.connection.execute("UPDATE asset SET name='EvilAngel.26.10.22.Jane.Doe.mp4' WHERE id=1")
-        self.assertEqual(filename_matching.read(self.root / 'state'), {'actors': False, 'studios': False})
+        self.assertEqual(filename_matching.read(self.root / 'state'), {'actors': False, 'studios': False, 'ignore_terms': ''})
         self.assertEqual(filename_matching.apply(self.connection, [1], self.db), 0)
         filename_matching.save(self.root / 'state', {'actors': False, 'studios': True})
         self.assertEqual(filename_matching.apply(self.connection, [1], self.db), 1)

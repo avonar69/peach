@@ -104,6 +104,7 @@ const SUMMARY_LABELS: Record<string, string> = {
   followups_depth_exceeded: '超深度未派', outcome: '结果', name: '档案名称',
   matched: '图库命中', size: '尺寸', source: '来源', cover_network: '封面连不上图片主机',
   stashdb_applied: 'StashDB applied', stashdb_review: 'StashDB awaiting review', stashdb_skipped: 'StashDB already up to date',
+  filename_matched: 'Filename assignments',
   auto_applied: 'Saved automatically', auto_rejected: 'Skipped automatically',
   performer_aliases: 'Actor aliases', performer_avatars: 'Actor photos',
   performer_profile_conflicts: 'Actor identity conflicts', performer_profile_failed: 'Actor photos unavailable',

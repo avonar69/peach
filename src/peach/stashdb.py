@@ -352,20 +352,25 @@ def apply_performer(config, database, performer_id, remote_id, *, client=None):
             client.close()
 
 
-def scan_assets(config, database, rows, *, progress, issue, active=lambda: True):
+def scan_assets(config, database, rows, *, progress, issue, active=lambda: True, force=False, completed=()):
     policy = stashdb_client.settings(config)
-    if not policy['enabled'] or not policy['api_key_set']:
+    if (not policy['enabled'] and not force) or not policy['api_key_set']:
         return {'applied': 0, 'review': 0}
     recover_images(config)
     applied = review = skipped = 0
+    done = set(completed)
     client = stashdb_client.Client(config)
     try:
         if not policy['scene_images']:
             from .stashdb_entities import scan
-            return scan(config, database, rows, client=client, progress=progress, issue=issue, active=active)
+            return scan(config, database, rows, client=client, progress=progress, issue=issue, active=active, force=force)
         for position, row in enumerate(rows):
             if not active():
                 break
+            if force and row['id'] in done:
+                skipped += 1
+                progress(checked=position + 1, total=len(rows))
+                continue
             token = None
             try:
                 with database.read_connection() as connection:
@@ -373,7 +378,7 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True)
                     current = asset_evidence(connection, row['id'])[2]
                 path = config.directory('state') / 'stashdb-review' / f"{row['id']}.json"
                 cached = read_record(path)
-                reason, reusable = skip_search(config, row['id'], token, policy, cached, first_seen=row.get('first_seen'))
+                reason, reusable = ('', False) if force else skip_search(config, row['id'], token, policy, cached, first_seen=row.get('first_seen'))
                 if reason:
                     skipped += 1
                     if reusable:
@@ -394,6 +399,10 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True)
                     applied += 1
                 elif result['candidates']:
                     review += 1
+                if force:
+                    done.add(row['id'])
+                    progress(checked=position + 1, total=len(rows), rematched_asset_ids=sorted(done),
+                        stashdb_applied=applied, stashdb_review=review)
             except InterruptedError:
                 raise
             except stashdb_client.RateLimited as exc:
