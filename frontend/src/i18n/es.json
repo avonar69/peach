@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "Mismo nombre y apellido",
   "Similar actor name": "Nombre similar",
   "Conflicting source identities; review separately.": "Identidades de origen en conflicto; revisar por separado.",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "¿Fusionar {0} en {1}? No se puede deshacer en la interfaz. Se guardará una copia de seguridad."
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "¿Fusionar {0} en {1}? No se puede deshacer en la interfaz. Se guardará una copia de seguridad.",
+  "Automatically Merge All": "Fusionar todo automáticamente",
+  "Undo actor merge": "Deshacer fusión de intérpretes",
+  "Hide suggestions with only conflicting source identities": "Ocultar sugerencias con solo identidades de origen en conflicto",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Incluye alias y nombres completos coincidentes. Las identidades en conflicto y las coincidencias aproximadas requieren revisión manual.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "¿Fusionar {0} intérpretes duplicados de {1} grupos de toda la biblioteca? Se guardarán datos e imágenes y podrá deshacerse aquí.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "¿Restaurar {0} intérpretes de esta fusión? Los cambios posteriores pueden impedir deshacerla.",
+  "No high-confidence actor matches to merge.": "No hay coincidencias de alta confianza para fusionar.",
+  "High-confidence actors merged.": "Intérpretes de alta confianza fusionados.",
+  "Actor merge undone.": "Fusión de intérpretes deshecha.",
+  "{0} actors merged · {1}": "{0} intérpretes fusionados · {1}",
+  "请确认演员批量操作": "Confirme la operación por lotes de intérpretes.",
+  "没有可自动合并的演员": "No hay intérpretes aptos para la fusión automática.",
+  "演员撤销记录无效": "El registro para deshacer la fusión no es válido.",
+  "合并后的演员资料已修改，无法安全撤销": "Los datos afectados han cambiado. No se puede deshacer de forma segura."
 }

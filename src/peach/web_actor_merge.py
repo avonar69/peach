@@ -25,6 +25,11 @@ def _public(contract, actor):
 
 
 def q_actor_merge(contract, args):
+    from . import web_actor_merge_batch
+    if args.get('mode') == 'automatic':
+        return web_actor_merge_batch.preview(contract)
+    if args.get('mode') == 'history':
+        return web_actor_merge_batch.history(contract)
     data = snapshot(contract)
     query = str(args.get('query') or '').strip().casefold()
     selected = int(args.get('actor_id') or 0)
@@ -40,6 +45,8 @@ def q_actor_merge(contract, args):
                 'token': actor_merge.token(connection, match['id'])} for match in group['matches']]
         return {'actor': target, 'matches': matches}
     groups = [group for group in data['groups'] if not query or any(query in name.casefold() for identifier in [group['id'], *(match['id'] for match in group['matches'])] for name in [data['actors'][identifier]['canonical_name'], *data['actors'][identifier]['aliases']])]
+    if str(args.get('hide_conflicts') or '') == '1':
+        groups = [group for group in groups if any(not actor_merge.conflicts([data['actors'][group['id']], data['actors'][match['id']]]) for match in group['matches'])]
     groups.sort(key=lambda group: (-len(group['matches']), data['actors'][group['id']]['canonical_name']))
     offset = max(0, int(args.get('offset') or 0))
     return {'total': len(groups), 'offset': offset, 'groups': [{**_public(contract, data['actors'][group['id']]), 'matches': len(group['matches'])} for group in groups[offset:offset + 20]]}
@@ -88,6 +95,9 @@ def _pictures(contract, chosen, preferred, kept_id, backup):
 
 
 def w_actor_merge(contract, body):
+    from . import web_actor_merge_batch
+    if body.get('action') in ('automatic', 'undo'):
+        return web_actor_merge_batch.write(contract, body)
     target, identifiers, expected = _selection(body)
     backup = Path(contract.database.db_path).with_name(f'ledger.pre-actor-merge-{uuid.uuid4().hex}.db')
     with ExitStack() as stack, contract.write_transaction() as connection:

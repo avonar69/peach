@@ -520,5 +520,19 @@
   "Names share the same first and last name": "名字的姓和名相同",
   "Similar actor name": "演员名字相似",
   "Conflicting source identities; review separately.": "来源身份冲突，请分别复核。",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "将 {0} 合并到 {1}？界面中无法撤销，系统会保存备份。"
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "将 {0} 合并到 {1}？界面中无法撤销，系统会保存备份。",
+  "Automatically Merge All": "自动合并全部",
+  "Undo actor merge": "撤销演员合并",
+  "Hide suggestions with only conflicting source identities": "隐藏仅含来源身份冲突的建议",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "包含已登记别名和完整姓名匹配。身份冲突和模糊拼写候选保留供人工复核。",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "合并整库 {1} 组中的 {0} 个重复演员？演员资料和图片将备份，可在此撤销。",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "恢复本批合并的 {0} 个演员？相关资料的后续编辑可能导致无法撤销。",
+  "No high-confidence actor matches to merge.": "没有可合并的高置信度演员匹配。",
+  "High-confidence actors merged.": "已合并高置信度演员。",
+  "Actor merge undone.": "已撤销演员合并。",
+  "{0} actors merged · {1}": "已合并 {0} 个演员 · {1}",
+  "请确认演员批量操作": "请确认演员批量操作",
+  "没有可自动合并的演员": "没有可自动合并的演员",
+  "演员撤销记录无效": "演员撤销记录无效",
+  "合并后的演员资料已修改，无法安全撤销": "合并后的演员资料已修改，无法安全撤销"
 }

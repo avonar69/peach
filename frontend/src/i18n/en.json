@@ -836,5 +836,19 @@
   "来源身份冲突，请刷新后重新选择": "Source identities conflict. Refresh and select again.",
   "演员合并校验失败，资料保持原样": "Actor merge validation failed. Records were left unchanged.",
   "请输入有效的演员规范名": "Enter a valid canonical actor name.",
-  "该名字属于其他演员，请将其加入合并范围": "This name belongs to another actor. Include that actor in the merge."
+  "该名字属于其他演员，请将其加入合并范围": "This name belongs to another actor. Include that actor in the merge.",
+  "Automatically Merge All": "Automatically Merge All",
+  "Undo actor merge": "Undo actor merge",
+  "Hide suggestions with only conflicting source identities": "Hide suggestions with only conflicting source identities",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Restore {0} actors from this merge? Later edits to affected records may prevent undo.",
+  "No high-confidence actor matches to merge.": "No high-confidence actor matches to merge.",
+  "High-confidence actors merged.": "High-confidence actors merged.",
+  "Actor merge undone.": "Actor merge undone.",
+  "{0} actors merged · {1}": "{0} actors merged · {1}",
+  "请确认演员批量操作": "Confirm the actor batch operation.",
+  "没有可自动合并的演员": "No actors are eligible for automatic merging.",
+  "演员撤销记录无效": "The actor merge undo record is invalid.",
+  "合并后的演员资料已修改，无法安全撤销": "Affected actor data has changed since merging. Undo cannot safely proceed."
 }

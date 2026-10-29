@@ -94,6 +94,21 @@ def conflicts(actors_to_merge):
     return [f'{provider}:{kind}' for (provider, kind), identities in sources.items() if len(identities) > 1]
 
 
+def automatic_groups(rows):
+    """批量授权仅覆盖明确的别名和完整姓名称包含，排除模糊拼写与整组来源歧义。"""
+    result, used = [], set()
+    for group in sorted(suggestions(rows), key=lambda row: _order(rows[row['id']])):
+        anchor = rows[group['id']]
+        candidates = [rows[match['id']] for match in group['matches']
+                      if match['reason'] != 'Similar actor name' and not conflicts([anchor, rows[match['id']]])]
+        safe = [row for row in candidates if not any(conflicts([row, other]) for other in candidates if other['id'] != row['id'])]
+        identifiers = [anchor['id'], *(row['id'] for row in safe if row['id'] not in used)]
+        if anchor['id'] not in used and len(identifiers) > 1:
+            result.append(identifiers)
+            used.update(identifiers)
+    return result
+
+
 def token(connection, identifier):
     queries = [('entity', 'id'), ('entity_alias', 'entity_id'), ('entity_external_ref', 'entity_id'), ('asset_entity', 'entity_id'), ('performer_profile', 'entity_id')]
     values = [sorted((list(row) for row in connection.execute(f'SELECT * FROM {table} WHERE {column}=?', (identifier,))), key=repr) for table, column in queries]

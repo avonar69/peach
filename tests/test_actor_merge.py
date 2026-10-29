@@ -142,3 +142,91 @@ class ActorMergeTests(unittest.TestCase):
         result = _get_review(self.contract, {'counts': '1'})
         self.assertEqual(result['counts']['actor_merge'], 1)
         self.assertNotIn('sections', result)
+
+    def automatic(self):
+        plan = web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})
+        return web_actor_merge.w_actor_merge(self.contract, {'action': 'automatic', 'expected': plan['token'], 'confirmed': True})
+
+    def test_automatic_merge_and_persistent_undo_preserve_unrelated_playback(self):
+        from peach import actor_merge_undo
+        with self.database.read_connection() as connection:
+            before = actor_merge_undo.capture(connection)
+        result = self.automatic()
+        history = web_actor_merge.q_actor_merge(self.contract, {'mode': 'history'})
+        self.assertEqual(history['batches'][0]['id'], result['id'])
+        self.assertEqual(result['actors'], 2)
+        self.assertTrue((self.database.db_path.parent / 'actor-merge-history' / f"{result['id']}.db").is_file())
+        with self.database.write_transaction() as connection:
+            connection.execute('UPDATE asset SET play_seconds=123 WHERE id=1')
+        web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': result['id'], 'confirmed': True})
+        with self.database.read_connection() as connection:
+            self.assertEqual(actor_merge_undo.capture(connection), before)
+            self.assertEqual(connection.execute('SELECT play_seconds FROM asset WHERE id=1').fetchone()[0], 123)
+            self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {'mode': 'history'})['batches'], [])
+
+    def test_automatic_excludes_conflicts_and_filter_hides_conflict_only_groups(self):
+        with self.database.write_transaction() as connection:
+            for identifier, remote in ((self.clean, 'one'), (self.extra, 'two'), (self.other, 'three')):
+                connection.execute("INSERT INTO entity_external_ref(entity_id,provider,external_kind,external_id) VALUES(?,'stashdb','performer',?)", (identifier, remote))
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})['actors'], 0)
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {})['total'], 1)
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {'hide_conflicts': '1'})['total'], 0)
+
+    def test_undo_refuses_later_changes_and_invalid_identifiers(self):
+        result = self.automatic()
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE entity SET metadata_json='{}' WHERE id=?", (self.extra,))
+        with self.assertRaises(ValueError):
+            web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': result['id'], 'confirmed': True})
+        with self.assertRaises(ValueError):
+            web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': '../ledger', 'confirmed': True})
+
+    def test_automatic_rejects_stale_plan_and_rolls_back_failed_batch(self):
+        plan = web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE entity SET metadata_json='{}' WHERE id=?", (self.clean,))
+        with self.assertRaises(ValueError):
+            web_actor_merge.w_actor_merge(self.contract, {'action': 'automatic', 'expected': plan['token'], 'confirmed': True})
+        with patch('peach.web_actor_merge._pictures', side_effect=OSError('picture unavailable')):
+            with self.assertRaises(OSError):
+                self.automatic()
+        with self.database.read_connection() as connection:
+            self.assertEqual(connection.execute("SELECT count(*) FROM entity WHERE kind='performer'").fetchone()[0], 3)
+
+    def test_automatic_does_not_merge_mutually_conflicting_candidates(self):
+        with self.database.write_transaction() as connection:
+            for identifier, remote in ((self.extra, 'two'), (self.other, 'three')):
+                connection.execute("INSERT INTO entity_external_ref(entity_id,provider,external_kind,external_id) VALUES(?,'stashdb','performer',?)", (identifier, remote))
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})['actors'], 0)
+
+    def test_automatic_undo_restores_portrait_and_rejects_changed_picture(self):
+        self.contract.avatar_root.mkdir()
+        for identifier, payload in ((self.clean, b'clean'), (self.extra, b'original')):
+            (self.contract.avatar_root / f'performer-{identifier}.img').write_bytes(payload)
+        result = self.automatic()
+        picture = self.contract.avatar_root / f'performer-{self.extra}.img'
+        self.assertEqual(picture.read_bytes(), b'clean')
+        picture.write_bytes(b'new-edit')
+        with self.assertRaises(ValueError):
+            web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': result['id'], 'confirmed': True})
+        picture.write_bytes(b'clean')
+        web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': result['id'], 'confirmed': True})
+        self.assertEqual(picture.read_bytes(), b'original')
+
+    def test_automatic_skips_fuzzy_spelling_and_recovers_committed_journal(self):
+        from peach import actor_merge_undo
+        with self.database.write_transaction() as connection:
+            upsert_asset_entity(connection, kind='performer', name='John Smith', asset_id=1, role='performer', source='user:manual')
+            upsert_asset_entity(connection, kind='performer', name='John Smithe', asset_id=2, role='performer', source='scan:filename-actors')
+        plan = web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})
+        self.assertEqual(plan['actors'], 2)
+        result = self.automatic()
+        path = self.database.db_path.parent / 'actor-merge-history' / f"{result['id']}.json"
+        record = actor_merge_undo.load(path)
+        record['status'] = 'prepared'
+        actor_merge_undo.save(path, record)
+        self.assertEqual(len(web_actor_merge.q_actor_merge(self.contract, {'mode': 'history'})['batches']), 1)
+        web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': result['id'], 'confirmed': True})
+        with self.database.read_connection() as connection:
+            self.assertEqual(connection.execute("SELECT count(*) FROM entity WHERE kind='performer'").fetchone()[0], 5)

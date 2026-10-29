@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "Même prénom et même nom",
   "Similar actor name": "Nom similaire",
   "Conflicting source identities; review separately.": "Identités sources contradictoires ; vérifier séparément.",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Fusionner {0} dans {1} ? Cette action ne peut pas être annulée dans l’interface. Une sauvegarde sera enregistrée."
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Fusionner {0} dans {1} ? Cette action ne peut pas être annulée dans l’interface. Une sauvegarde sera enregistrée.",
+  "Automatically Merge All": "Tout fusionner automatiquement",
+  "Undo actor merge": "Annuler la fusion des interprètes",
+  "Hide suggestions with only conflicting source identities": "Masquer les suggestions contenant uniquement des identités sources en conflit",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Inclut les alias et noms complets correspondants. Les identités en conflit et les noms approximatifs restent à vérifier manuellement.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Fusionner {0} interprètes en double dans {1} groupes de toute la bibliothèque ? Les données et images seront sauvegardées et la fusion pourra être annulée ici.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Restaurer {0} interprètes de cette fusion ? Des modifications ultérieures peuvent empêcher son annulation.",
+  "No high-confidence actor matches to merge.": "Aucune correspondance suffisamment fiable à fusionner.",
+  "High-confidence actors merged.": "Interprètes avec correspondances fiables fusionnés.",
+  "Actor merge undone.": "Fusion des interprètes annulée.",
+  "{0} actors merged · {1}": "{0} interprètes fusionnés · {1}",
+  "请确认演员批量操作": "Confirmez l’opération groupée sur les interprètes.",
+  "没有可自动合并的演员": "Aucun interprète admissible à la fusion automatique.",
+  "演员撤销记录无效": "Le journal d’annulation est invalide.",
+  "合并后的演员资料已修改，无法安全撤销": "Les données concernées ont changé. Une annulation sûre est impossible."
 }

@@ -19,13 +19,23 @@ describe('Actor merge review', () => {
     ];
     const posts: unknown[] = [];
     let merged = false;
+    let batch = false;
     await page.route('**/api/review*', route => route.fulfill({ json: { counts: { actor_merge: 1 }, sections: {}, sources: [], genre_tags: [] } }));
     await page.route('**/api/actor-merge*', async route => {
       if (route.request().method() === 'POST') {
-        posts.push(route.request().postDataJSON()); merged = true;
+        const body = route.request().postDataJSON();
+        posts.push(body); merged = true;
+        if (body.action) batch = body.action === 'automatic';
         await route.fulfill({ json: { ok: true, id: 1, name: actor.name, merged_ids: [2] } });
       } else {
-        await route.fulfill({ json: new URL(route.request().url()).searchParams.has('actor_id')
+        const params = new URL(route.request().url()).searchParams;
+        if (params.get('mode') === 'automatic') {
+          await route.fulfill({ json: { groups: 3, actors: 5, token: 'frozen-plan' } }); return;
+        }
+        if (params.get('mode') === 'history') {
+          await route.fulfill({ json: { batches: batch ? [{ id: 'batch', groups: 3, actors: 5, created_at: '2026-10-28T20:00:00Z' }] : [] } }); return;
+        }
+        await route.fulfill({ json: params.has('actor_id')
           ? { actor, matches } : { total: merged ? 0 : 1, offset: 0, groups: merged ? [] : [{ ...actor, matches: 3 }] } });
       }
     });
@@ -48,6 +58,20 @@ describe('Actor merge review', () => {
       await confirm.click();
       await page.getByText('No actor merge suggestions', { exact: true }).waitFor();
       assert.deepEqual(posts, [{ actor_id: 1, merge_ids: [2], name: 'Jane Doe', confirmed: true, expected: { 1: 'one', 2: 'two' } }]);
+      await section.getByText('Hide suggestions with only conflicting source identities', { exact: true }).click();
+      assert.equal(await page.evaluate(() => localStorage.getItem('peach.actor-merge.hide-conflicts')), '1');
+      await section.getByRole('button', { name: 'Automatically Merge All', exact: true }).click();
+      await confirm.waitFor();
+      assert.equal(posts.length, 1);
+      await confirm.click();
+      await section.getByRole('button', { name: 'Undo actor merge', exact: true }).waitFor();
+      assert.deepEqual(posts[1], { action: 'automatic', expected: 'frozen-plan', confirmed: true });
+      assert.ok((await layout(page)).scrollWidth <= viewport.width + 1);
+      await section.screenshot({ path: `../build/agent-verification/actor-batch-${viewport.name}.png` });
+      await section.getByRole('button', { name: 'Undo actor merge', exact: true }).click();
+      await confirm.waitFor(); await confirm.click();
+      await section.getByRole('button', { name: 'Undo actor merge', exact: true }).waitFor({ state: 'hidden' });
+      assert.deepEqual(posts[2], { action: 'undo', batch_id: 'batch', confirmed: true });
       assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
     } finally { await opened.close(); }
   });

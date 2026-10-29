@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "성과 이름이 같음",
   "Similar actor name": "유사한 배우 이름",
   "Conflicting source identities; review separately.": "출처 식별 정보가 충돌합니다. 별도로 검토하세요.",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0}을(를) {1}(으)로 병합할까요? 화면에서 취소할 수 없습니다. 백업이 저장됩니다."
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0}을(를) {1}(으)로 병합할까요? 화면에서 취소할 수 없습니다. 백업이 저장됩니다.",
+  "Automatically Merge All": "모두 자동 병합",
+  "Undo actor merge": "배우 병합 실행 취소",
+  "Hide suggestions with only conflicting source identities": "출처 신원 충돌만 있는 제안 숨기기",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "일치하는 별칭과 전체 이름을 포함합니다. 신원 충돌 및 유사한 철자는 수동 검토 대상으로 남습니다.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "전체 라이브러리의 {1}개 그룹에서 중복 배우 {0}명을 병합할까요? 자료와 사진이 백업되며 여기서 실행 취소할 수 있습니다.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "이 병합의 배우 {0}명을 복원할까요? 이후 수정으로 실행 취소가 불가능할 수 있습니다.",
+  "No high-confidence actor matches to merge.": "병합할 신뢰도 높은 배우 일치 항목이 없습니다.",
+  "High-confidence actors merged.": "신뢰도 높은 배우를 병합했습니다.",
+  "Actor merge undone.": "배우 병합을 실행 취소했습니다.",
+  "{0} actors merged · {1}": "배우 {0}명 병합 · {1}",
+  "请确认演员批量操作": "배우 일괄 작업을 확인하세요.",
+  "没有可自动合并的演员": "자동 병합할 수 있는 배우가 없습니다.",
+  "演员撤销记录无效": "배우 실행 취소 기록이 잘못되었습니다.",
+  "合并后的演员资料已修改，无法安全撤销": "병합 이후 관련 배우 자료가 변경되어 안전하게 실행 취소할 수 없습니다."
 }

@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "Mesmo nome e sobrenome",
   "Similar actor name": "Nome de artista semelhante",
   "Conflicting source identities; review separately.": "Identidades de origem conflitantes; revise separadamente.",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Mesclar {0} em {1}? Isso não pode ser desfeito na interface. Uma cópia de segurança será salva."
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Mesclar {0} em {1}? Isso não pode ser desfeito na interface. Uma cópia de segurança será salva.",
+  "Automatically Merge All": "Mesclar tudo automaticamente",
+  "Undo actor merge": "Desfazer mesclagem de artistas",
+  "Hide suggestions with only conflicting source identities": "Ocultar sugestões com apenas identidades de origem conflitantes",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Inclui nomes completos e apelidos correspondentes. Identidades conflitantes e grafias aproximadas ficam para revisão manual.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Mesclar {0} artistas duplicados em {1} grupos de toda a biblioteca? Os dados e imagens serão salvos e será possível desfazer aqui.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Restaurar {0} artistas desta mesclagem? Edições posteriores podem impedir a reversão.",
+  "No high-confidence actor matches to merge.": "Nenhuma correspondência de alta confiança para mesclar.",
+  "High-confidence actors merged.": "Artistas com correspondências confiáveis mesclados.",
+  "Actor merge undone.": "Mesclagem de artistas desfeita.",
+  "{0} actors merged · {1}": "{0} artistas mesclados · {1}",
+  "请确认演员批量操作": "Confirme a operação em lote dos artistas.",
+  "没有可自动合并的演员": "Nenhum artista apto para mesclagem automática.",
+  "演员撤销记录无效": "O registro de reversão é inválido.",
+  "合并后的演员资料已修改，无法安全撤销": "Os dados afetados foram alterados. Não é possível desfazer com segurança."
 }

@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "名字的姓和名相同",
   "Similar actor name": "演員名字相似",
   "Conflicting source identities; review separately.": "來源身分衝突，請分別複核。",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "將 {0} 合併至 {1}？介面中無法復原，系統會儲存備份。"
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "將 {0} 合併至 {1}？介面中無法復原，系統會儲存備份。",
+  "Automatically Merge All": "自動合併全部",
+  "Undo actor merge": "復原演員合併",
+  "Hide suggestions with only conflicting source identities": "隱藏僅含來源身分衝突的建議",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "包含已登記別名和完整姓名比對。身分衝突和模糊拼字候選保留供人工複核。",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "合併整庫 {1} 組中的 {0} 個重複演員？演員資料和圖片將備份，可在此復原。",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "復原本批合併的 {0} 個演員？相關資料的後續編輯可能導致無法復原。",
+  "No high-confidence actor matches to merge.": "沒有可合併的高信心演員比對。",
+  "High-confidence actors merged.": "已合併高信心演員。",
+  "Actor merge undone.": "已復原演員合併。",
+  "{0} actors merged · {1}": "已合併 {0} 個演員 · {1}",
+  "请确认演员批量操作": "請確認演員批次操作",
+  "没有可自动合并的演员": "沒有可自動合併的演員",
+  "演员撤销记录无效": "演員復原記錄無效",
+  "合并后的演员资料已修改，无法安全撤销": "合併後的演員資料已修改，無法安全復原"
 }

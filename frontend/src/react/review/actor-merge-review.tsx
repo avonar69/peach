@@ -19,6 +19,7 @@ interface Group extends Actor { matches: number }
 interface Match extends Actor { reason: string; conflicts: string[] }
 interface Listing { total: number; offset: number; groups: Group[] }
 interface Detail { actor: Actor; matches: Match[] }
+interface Batch { id: string; created_at: string; groups: number; actors: number }
 const KEY = ['actor-merge'];
 
 function ActorName({ actor }: { actor: Actor }) {
@@ -39,14 +40,46 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
   const [selected, setSelected] = useState<number[]>([]);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
+  const [hideConflicts, setHideConflicts] = useState(() => localStorage.getItem('peach.actor-merge.hide-conflicts') === '1');
   const [preferred, setPreferred] = useState<{ id: number; name: string } | null>(null);
-  const list = useQuery({ queryKey: [...KEY, search, offset], queryFn: ({ signal }) => apiGet<Listing>(`/api/actor-merge?query=${encodeURIComponent(search)}&offset=${offset}`, signal) });
+  const list = useQuery({ queryKey: [...KEY, search, offset, hideConflicts], queryFn: ({ signal }) => apiGet<Listing>(`/api/actor-merge?query=${encodeURIComponent(search)}&offset=${offset}&hide_conflicts=${hideConflicts ? 1 : 0}`, signal) });
+  const history = useQuery({ queryKey: [...KEY, 'history'], queryFn: ({ signal }) => apiGet<{ batches: Batch[] }>('/api/actor-merge?mode=history', signal) });
   const detail = useQuery({ queryKey: [...KEY, 'detail', actorId], enabled: actorId !== null,
     queryFn: ({ signal }) => apiGet<Detail>(`/api/actor-merge?actor_id=${actorId}`, signal) });
   const data = detail.data;
   const name = preferred?.id === data?.actor.id ? preferred?.name || '' : data?.actor.name || '';
   const eligible = data?.matches.filter(match => !match.conflicts.length) || [];
   const choose = (id: number) => { setActorId(id); setSelected([]); setProblem(''); };
+  const refresh = async () => {
+    setActorId(null); setSelected([]); setOffset(0);
+    await Promise.all([queryClient.invalidateQueries({ queryKey: KEY }), queryClient.invalidateQueries({ queryKey: REVIEW_KEY })]);
+  };
+  const automatic = async () => {
+    setBusy(true); setProblem('');
+    try {
+      const plan = await apiGet<{ groups: number; actors: number; token: string }>('/api/actor-merge?mode=automatic');
+      if (!plan.actors) { setProblem('No high-confidence actor matches to merge.'); return; }
+      await confirmModal({ title: 'Automatically Merge All', confirmLabel: 'Automatically Merge All',
+        body: formatTranslation('Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.', String(plan.actors), String(plan.groups)),
+        onConfirm: async () => {
+          await apiSend('/api/actor-merge', { action: 'automatic', expected: plan.token, confirmed: true });
+          await refresh(); receipt('High-confidence actors merged.');
+        } });
+    } catch (cause) { setProblem(errorMessage(cause)); }
+    finally { setBusy(false); }
+  };
+  const undo = (batch: Batch) => {
+    void confirmModal({ title: 'Undo actor merge', confirmLabel: 'Undo actor merge',
+      body: formatTranslation('Restore {0} actors from this merge? Later edits to affected records may prevent undo.', String(batch.actors)),
+      onConfirm: async () => {
+        setBusy(true); setProblem('');
+        try {
+          await apiSend('/api/actor-merge', { action: 'undo', batch_id: batch.id, confirmed: true });
+          await refresh(); receipt('Actor merge undone.');
+        } catch (cause) { setProblem(errorMessage(cause)); throw cause; }
+        finally { setBusy(false); }
+      } });
+  };
   const merge = () => {
     if (!data || !selected.length || busy) return;
     const chosen = data.matches.filter(match => selected.includes(match.id));
@@ -69,6 +102,16 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
     <Input type="search" leadingIcon={RiSearchLine} label="Search actor merge suggestions" value={search}
       onChange={value => { setSearch(value); setOffset(0); setActorId(null); setSelected([]); }} />
     <Button type="button" variant="secondary" size="small" onClick={() => { setSelected([]); void queryClient.invalidateQueries({ queryKey: KEY }); }}>Refresh suggestions</Button>
+    <Checkbox isSelected={hideConflicts} onChange={value => {
+      setHideConflicts(value); localStorage.setItem('peach.actor-merge.hide-conflicts', value ? '1' : '0'); setOffset(0); setSelected([]); setActorId(null);
+    }}>Hide suggestions with only conflicting source identities</Checkbox>
+    <Button type="button" variant="secondary" disabled={readOnly} {...busyProps(busy)} onClick={() => { void automatic(); }}>Automatically Merge All</Button>
+    <p className="text-caption-1-regular text-text-secondary">Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.</p>
+    {history.error ? <Note tone="error">{errorMessage(history.error)}</Note> : null}
+    {history.data?.batches?.map(batch => <div key={batch.id} className="flex flex-wrap items-center justify-between gap-2">
+      <span>{formatTranslation('{0} actors merged · {1}', String(batch.actors), new Date(batch.created_at).toLocaleString())}</span>
+      <Button type="button" variant="secondary" disabled={readOnly || busy} onClick={() => undo(batch)}>Undo actor merge</Button>
+    </div>)}
     {list.error ? <Note tone="error">{errorMessage(list.error)}</Note> : null}
     {list.isPending ? <div data-skeleton="" aria-label="Loading actor suggestions" className="h-20 rounded-lg bg-background-secondary-default" /> : null}
     {!list.isPending && !list.data?.groups.length && !list.error ? <EmptyState icon={RiUserSearchLine} title="No actor merge suggestions">Similar actor names will appear here for review.</EmptyState> : null}

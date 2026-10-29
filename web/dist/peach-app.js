@@ -13711,7 +13711,21 @@ var Ko = {
 	"来源身份冲突，请刷新后重新选择": "Source identities conflict. Refresh and select again.",
 	"演员合并校验失败，资料保持原样": "Actor merge validation failed. Records were left unchanged.",
 	请输入有效的演员规范名: "Enter a valid canonical actor name.",
-	"该名字属于其他演员，请将其加入合并范围": "This name belongs to another actor. Include that actor in the merge."
+	"该名字属于其他演员，请将其加入合并范围": "This name belongs to another actor. Include that actor in the merge.",
+	"Automatically Merge All": "Automatically Merge All",
+	"Undo actor merge": "Undo actor merge",
+	"Hide suggestions with only conflicting source identities": "Hide suggestions with only conflicting source identities",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Restore {0} actors from this merge? Later edits to affected records may prevent undo.",
+	"No high-confidence actor matches to merge.": "No high-confidence actor matches to merge.",
+	"High-confidence actors merged.": "High-confidence actors merged.",
+	"Actor merge undone.": "Actor merge undone.",
+	"{0} actors merged · {1}": "{0} actors merged · {1}",
+	请确认演员批量操作: "Confirm the actor batch operation.",
+	没有可自动合并的演员: "No actors are eligible for automatic merging.",
+	演员撤销记录无效: "The actor merge undo record is invalid.",
+	"合并后的演员资料已修改，无法安全撤销": "Affected actor data has changed since merging. Undo cannot safely proceed."
 }, qo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -21829,7 +21843,21 @@ var Ko = {
 	"Names share the same first and last name": "Mismo nombre y apellido",
 	"Similar actor name": "Nombre similar",
 	"Conflicting source identities; review separately.": "Identidades de origen en conflicto; revisar por separado.",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "¿Fusionar {0} en {1}? No se puede deshacer en la interfaz. Se guardará una copia de seguridad."
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "¿Fusionar {0} en {1}? No se puede deshacer en la interfaz. Se guardará una copia de seguridad.",
+	"Automatically Merge All": "Fusionar todo automáticamente",
+	"Undo actor merge": "Deshacer fusión de intérpretes",
+	"Hide suggestions with only conflicting source identities": "Ocultar sugerencias con solo identidades de origen en conflicto",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Incluye alias y nombres completos coincidentes. Las identidades en conflicto y las coincidencias aproximadas requieren revisión manual.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "¿Fusionar {0} intérpretes duplicados de {1} grupos de toda la biblioteca? Se guardarán datos e imágenes y podrá deshacerse aquí.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "¿Restaurar {0} intérpretes de esta fusión? Los cambios posteriores pueden impedir deshacerla.",
+	"No high-confidence actor matches to merge.": "No hay coincidencias de alta confianza para fusionar.",
+	"High-confidence actors merged.": "Intérpretes de alta confianza fusionados.",
+	"Actor merge undone.": "Fusión de intérpretes deshecha.",
+	"{0} actors merged · {1}": "{0} intérpretes fusionados · {1}",
+	请确认演员批量操作: "Confirme la operación por lotes de intérpretes.",
+	没有可自动合并的演员: "No hay intérpretes aptos para la fusión automática.",
+	演员撤销记录无效: "El registro para deshacer la fusión no es válido.",
+	"合并后的演员资料已修改，无法安全撤销": "Los datos afectados han cambiado. No se puede deshacer de forma segura."
 }, Yo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -26327,7 +26355,21 @@ var Ko = {
 	"Names share the same first and last name": "Même prénom et même nom",
 	"Similar actor name": "Nom similaire",
 	"Conflicting source identities; review separately.": "Identités sources contradictoires ; vérifier séparément.",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Fusionner {0} dans {1} ? Cette action ne peut pas être annulée dans l’interface. Une sauvegarde sera enregistrée."
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Fusionner {0} dans {1} ? Cette action ne peut pas être annulée dans l’interface. Une sauvegarde sera enregistrée.",
+	"Automatically Merge All": "Tout fusionner automatiquement",
+	"Undo actor merge": "Annuler la fusion des interprètes",
+	"Hide suggestions with only conflicting source identities": "Masquer les suggestions contenant uniquement des identités sources en conflit",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Inclut les alias et noms complets correspondants. Les identités en conflit et les noms approximatifs restent à vérifier manuellement.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Fusionner {0} interprètes en double dans {1} groupes de toute la bibliothèque ? Les données et images seront sauvegardées et la fusion pourra être annulée ici.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Restaurer {0} interprètes de cette fusion ? Des modifications ultérieures peuvent empêcher son annulation.",
+	"No high-confidence actor matches to merge.": "Aucune correspondance suffisamment fiable à fusionner.",
+	"High-confidence actors merged.": "Interprètes avec correspondances fiables fusionnés.",
+	"Actor merge undone.": "Fusion des interprètes annulée.",
+	"{0} actors merged · {1}": "{0} interprètes fusionnés · {1}",
+	请确认演员批量操作: "Confirmez l’opération groupée sur les interprètes.",
+	没有可自动合并的演员: "Aucun interprète admissible à la fusion automatique.",
+	演员撤销记录无效: "Le journal d’annulation est invalide.",
+	"合并后的演员资料已修改，无法安全撤销": "Les données concernées ont changé. Une annulation sûre est impossible."
 }, Xo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -30825,7 +30867,21 @@ var Ko = {
 	"Names share the same first and last name": "Gleicher Vor- und Nachname",
 	"Similar actor name": "Ähnlicher Darstellername",
 	"Conflicting source identities; review separately.": "Widersprüchliche Quellenidentitäten; getrennt prüfen.",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} mit {1} zusammenführen? Dies kann in der Oberfläche nicht rückgängig gemacht werden. Eine Sicherung wird gespeichert."
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} mit {1} zusammenführen? Dies kann in der Oberfläche nicht rückgängig gemacht werden. Eine Sicherung wird gespeichert.",
+	"Automatically Merge All": "Alle automatisch zusammenführen",
+	"Undo actor merge": "Darstellerzusammenführung rückgängig machen",
+	"Hide suggestions with only conflicting source identities": "Vorschläge mit ausschließlich widersprüchlichen Quellidentitäten ausblenden",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Umfasst passende Aliasse und vollständige Namen. Widersprüchliche Identitäten und ähnliche Schreibweisen bleiben zur manuellen Prüfung.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "{0} doppelte Darsteller aus {1} Gruppen der gesamten Bibliothek zusammenführen? Daten und Bilder werden gesichert und können hier wiederhergestellt werden.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "{0} Darsteller aus dieser Zusammenführung wiederherstellen? Spätere Änderungen können dies verhindern.",
+	"No high-confidence actor matches to merge.": "Keine zuverlässigen Darstellertreffer zum Zusammenführen.",
+	"High-confidence actors merged.": "Zuverlässige Darstellertreffer wurden zusammengeführt.",
+	"Actor merge undone.": "Darstellerzusammenführung rückgängig gemacht.",
+	"{0} actors merged · {1}": "{0} Darsteller zusammengeführt · {1}",
+	请确认演员批量操作: "Bestätigen Sie die Darstellerstapelaktion.",
+	没有可自动合并的演员: "Keine Darsteller für die automatische Zusammenführung geeignet.",
+	演员撤销记录无效: "Der Wiederherstellungseintrag ist ungültig.",
+	"合并后的演员资料已修改，无法安全撤销": "Betroffene Darstellerdaten wurden geändert. Eine sichere Wiederherstellung ist nicht möglich."
 }, Zo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -35323,7 +35379,21 @@ var Ko = {
 	"Names share the same first and last name": "Mesmo nome e sobrenome",
 	"Similar actor name": "Nome de artista semelhante",
 	"Conflicting source identities; review separately.": "Identidades de origem conflitantes; revise separadamente.",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Mesclar {0} em {1}? Isso não pode ser desfeito na interface. Uma cópia de segurança será salva."
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Mesclar {0} em {1}? Isso não pode ser desfeito na interface. Uma cópia de segurança será salva.",
+	"Automatically Merge All": "Mesclar tudo automaticamente",
+	"Undo actor merge": "Desfazer mesclagem de artistas",
+	"Hide suggestions with only conflicting source identities": "Ocultar sugestões com apenas identidades de origem conflitantes",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Inclui nomes completos e apelidos correspondentes. Identidades conflitantes e grafias aproximadas ficam para revisão manual.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Mesclar {0} artistas duplicados em {1} grupos de toda a biblioteca? Os dados e imagens serão salvos e será possível desfazer aqui.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Restaurar {0} artistas desta mesclagem? Edições posteriores podem impedir a reversão.",
+	"No high-confidence actor matches to merge.": "Nenhuma correspondência de alta confiança para mesclar.",
+	"High-confidence actors merged.": "Artistas com correspondências confiáveis mesclados.",
+	"Actor merge undone.": "Mesclagem de artistas desfeita.",
+	"{0} actors merged · {1}": "{0} artistas mesclados · {1}",
+	请确认演员批量操作: "Confirme a operação em lote dos artistas.",
+	没有可自动合并的演员: "Nenhum artista apto para mesclagem automática.",
+	演员撤销记录无效: "O registro de reversão é inválido.",
+	"合并后的演员资料已修改，无法安全撤销": "Os dados afetados foram alterados. Não é possível desfazer com segurança."
 }, Qo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -39821,7 +39891,21 @@ var Ko = {
 	"Names share the same first and last name": "姓と名が同じ",
 	"Similar actor name": "似た出演者名",
 	"Conflicting source identities; review separately.": "ソースの識別情報が競合しています。個別に確認してください。",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} を {1} に統合しますか？画面から元に戻すことはできません。バックアップが保存されます。"
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} を {1} に統合しますか？画面から元に戻すことはできません。バックアップが保存されます。",
+	"Automatically Merge All": "すべて自動統合",
+	"Undo actor merge": "出演者の統合を元に戻す",
+	"Hide suggestions with only conflicting source identities": "ソース識別情報の競合のみの候補を非表示",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "一致する別名とフルネームを対象にします。識別情報の競合や曖昧な綴りは手動確認に残します。",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "ライブラリ全体の {1} グループにある重複出演者 {0} 件を統合しますか？資料と画像をバックアップし、ここで元に戻せます。",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "この統合の出演者 {0} 件を復元しますか？その後の編集により復元できない場合があります。",
+	"No high-confidence actor matches to merge.": "統合できる信頼度の高い出演者候補がありません。",
+	"High-confidence actors merged.": "信頼度の高い出演者を統合しました。",
+	"Actor merge undone.": "出演者の統合を元に戻しました。",
+	"{0} actors merged · {1}": "出演者 {0} 件を統合 · {1}",
+	请确认演员批量操作: "出演者の一括操作を確認してください。",
+	没有可自动合并的演员: "自動統合できる出演者がありません。",
+	演员撤销记录无效: "出演者の復元記録が無効です。",
+	"合并后的演员资料已修改，无法安全撤销": "統合後に対象の出演者資料が変更されたため、安全に復元できません。"
 }, $o = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -44319,7 +44403,21 @@ var Ko = {
 	"Names share the same first and last name": "성과 이름이 같음",
 	"Similar actor name": "유사한 배우 이름",
 	"Conflicting source identities; review separately.": "출처 식별 정보가 충돌합니다. 별도로 검토하세요.",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0}을(를) {1}(으)로 병합할까요? 화면에서 취소할 수 없습니다. 백업이 저장됩니다."
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0}을(를) {1}(으)로 병합할까요? 화면에서 취소할 수 없습니다. 백업이 저장됩니다.",
+	"Automatically Merge All": "모두 자동 병합",
+	"Undo actor merge": "배우 병합 실행 취소",
+	"Hide suggestions with only conflicting source identities": "출처 신원 충돌만 있는 제안 숨기기",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "일치하는 별칭과 전체 이름을 포함합니다. 신원 충돌 및 유사한 철자는 수동 검토 대상으로 남습니다.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "전체 라이브러리의 {1}개 그룹에서 중복 배우 {0}명을 병합할까요? 자료와 사진이 백업되며 여기서 실행 취소할 수 있습니다.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "이 병합의 배우 {0}명을 복원할까요? 이후 수정으로 실행 취소가 불가능할 수 있습니다.",
+	"No high-confidence actor matches to merge.": "병합할 신뢰도 높은 배우 일치 항목이 없습니다.",
+	"High-confidence actors merged.": "신뢰도 높은 배우를 병합했습니다.",
+	"Actor merge undone.": "배우 병합을 실행 취소했습니다.",
+	"{0} actors merged · {1}": "배우 {0}명 병합 · {1}",
+	请确认演员批量操作: "배우 일괄 작업을 확인하세요.",
+	没有可自动合并的演员: "자동 병합할 수 있는 배우가 없습니다.",
+	演员撤销记录无效: "배우 실행 취소 기록이 잘못되었습니다.",
+	"合并后的演员资料已修改，无法安全撤销": "병합 이후 관련 배우 자료가 변경되어 안전하게 실행 취소할 수 없습니다."
 }, es = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -48817,7 +48915,21 @@ var Ko = {
 	"Names share the same first and last name": "Tên và họ giống nhau",
 	"Similar actor name": "Tên diễn viên tương tự",
 	"Conflicting source identities; review separately.": "Danh tính nguồn xung đột; hãy xem xét riêng.",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Hợp nhất {0} vào {1}? Không thể hoàn tác trong giao diện. Một bản sao lưu sẽ được lưu."
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Hợp nhất {0} vào {1}? Không thể hoàn tác trong giao diện. Một bản sao lưu sẽ được lưu.",
+	"Automatically Merge All": "Tự động hợp nhất tất cả",
+	"Undo actor merge": "Hoàn tác hợp nhất diễn viên",
+	"Hide suggestions with only conflicting source identities": "Ẩn gợi ý chỉ còn xung đột danh tính nguồn",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Bao gồm bí danh và họ tên trùng khớp. Danh tính xung đột và tên gần giống cần được duyệt thủ công.",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm trên toàn thư viện? Dữ liệu và ảnh sẽ được sao lưu, có thể hoàn tác tại đây.",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Khôi phục {0} diễn viên từ lần hợp nhất này? Chỉnh sửa sau đó có thể ngăn hoàn tác.",
+	"No high-confidence actor matches to merge.": "Không có kết quả diễn viên đủ tin cậy để hợp nhất.",
+	"High-confidence actors merged.": "Đã hợp nhất các diễn viên có độ tin cậy cao.",
+	"Actor merge undone.": "Đã hoàn tác hợp nhất diễn viên.",
+	"{0} actors merged · {1}": "Đã hợp nhất {0} diễn viên · {1}",
+	请确认演员批量操作: "Xác nhận thao tác hàng loạt với diễn viên.",
+	没有可自动合并的演员: "Không có diễn viên phù hợp để tự động hợp nhất.",
+	演员撤销记录无效: "Bản ghi hoàn tác diễn viên không hợp lệ.",
+	"合并后的演员资料已修改，无法安全撤销": "Dữ liệu diễn viên đã thay đổi sau khi hợp nhất. Không thể hoàn tác an toàn."
 }, ts = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -53315,7 +53427,21 @@ var Ko = {
 	"Names share the same first and last name": "名字的姓和名相同",
 	"Similar actor name": "演員名字相似",
 	"Conflicting source identities; review separately.": "來源身分衝突，請分別複核。",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "將 {0} 合併至 {1}？介面中無法復原，系統會儲存備份。"
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "將 {0} 合併至 {1}？介面中無法復原，系統會儲存備份。",
+	"Automatically Merge All": "自動合併全部",
+	"Undo actor merge": "復原演員合併",
+	"Hide suggestions with only conflicting source identities": "隱藏僅含來源身分衝突的建議",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "包含已登記別名和完整姓名比對。身分衝突和模糊拼字候選保留供人工複核。",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "合併整庫 {1} 組中的 {0} 個重複演員？演員資料和圖片將備份，可在此復原。",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "復原本批合併的 {0} 個演員？相關資料的後續編輯可能導致無法復原。",
+	"No high-confidence actor matches to merge.": "沒有可合併的高信心演員比對。",
+	"High-confidence actors merged.": "已合併高信心演員。",
+	"Actor merge undone.": "已復原演員合併。",
+	"{0} actors merged · {1}": "已合併 {0} 個演員 · {1}",
+	请确认演员批量操作: "請確認演員批次操作",
+	没有可自动合并的演员: "沒有可自動合併的演員",
+	演员撤销记录无效: "演員復原記錄無效",
+	"合并后的演员资料已修改，无法安全撤销": "合併後的演員資料已修改，無法安全復原"
 }, ns = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -53838,7 +53964,21 @@ var Ko = {
 	"Names share the same first and last name": "名字的姓和名相同",
 	"Similar actor name": "演员名字相似",
 	"Conflicting source identities; review separately.": "来源身份冲突，请分别复核。",
-	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "将 {0} 合并到 {1}？界面中无法撤销，系统会保存备份。"
+	"Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "将 {0} 合并到 {1}？界面中无法撤销，系统会保存备份。",
+	"Automatically Merge All": "自动合并全部",
+	"Undo actor merge": "撤销演员合并",
+	"Hide suggestions with only conflicting source identities": "隐藏仅含来源身份冲突的建议",
+	"Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "包含已登记别名和完整姓名匹配。身份冲突和模糊拼写候选保留供人工复核。",
+	"Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "合并整库 {1} 组中的 {0} 个重复演员？演员资料和图片将备份，可在此撤销。",
+	"Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "恢复本批合并的 {0} 个演员？相关资料的后续编辑可能导致无法撤销。",
+	"No high-confidence actor matches to merge.": "没有可合并的高置信度演员匹配。",
+	"High-confidence actors merged.": "已合并高置信度演员。",
+	"Actor merge undone.": "已撤销演员合并。",
+	"{0} actors merged · {1}": "已合并 {0} 个演员 · {1}",
+	请确认演员批量操作: "请确认演员批量操作",
+	没有可自动合并的演员: "没有可自动合并的演员",
+	演员撤销记录无效: "演员撤销记录无效",
+	"合并后的演员资料已修改，无法安全撤销": "合并后的演员资料已修改，无法安全撤销"
 }, rs = [
 	["en", "English"],
 	["zh-CN", "简体中文"],
@@ -113289,14 +113429,18 @@ function CG({ actor: e }) {
 	});
 }
 function LFe({ readOnly: e, receipt: t, openEntity: n }) {
-	let [r, i] = (0, w.useState)(""), [a, o] = (0, w.useState)(0), [s, c] = (0, w.useState)(null), [l, u] = (0, w.useState)([]), [d, f] = (0, w.useState)(!1), [p, m] = (0, w.useState)(""), [h, g] = (0, w.useState)(null), _ = yt({
+	let [r, i] = (0, w.useState)(""), [a, o] = (0, w.useState)(0), [s, c] = (0, w.useState)(null), [l, u] = (0, w.useState)([]), [d, f] = (0, w.useState)(!1), [p, m] = (0, w.useState)(""), [h, g] = (0, w.useState)(() => localStorage.getItem("peach.actor-merge.hide-conflicts") === "1"), [_, v] = (0, w.useState)(null), y = yt({
 		queryKey: [
 			...SG,
 			r,
-			a
+			a,
+			h
 		],
-		queryFn: ({ signal: e }) => B(`/api/actor-merge?query=${encodeURIComponent(r)}&offset=${a}`, e)
-	}), v = yt({
+		queryFn: ({ signal: e }) => B(`/api/actor-merge?query=${encodeURIComponent(r)}&offset=${a}&hide_conflicts=${+!!h}`, e)
+	}), b = yt({
+		queryKey: [...SG, "history"],
+		queryFn: ({ signal: e }) => B("/api/actor-merge?mode=history", e)
+	}), x = yt({
 		queryKey: [
 			...SG,
 			"detail",
@@ -113304,24 +113448,71 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 		],
 		enabled: s !== null,
 		queryFn: ({ signal: e }) => B(`/api/actor-merge?actor_id=${s}`, e)
-	}), y = v.data, b = h?.id === y?.actor.id ? h?.name || "" : y?.actor.name || "", x = y?.matches.filter((e) => !e.conflicts.length) || [], S = (e) => {
+	}), S = x.data, C = _?.id === S?.actor.id ? _?.name || "" : S?.actor.name || "", E = S?.matches.filter((e) => !e.conflicts.length) || [], D = (e) => {
 		c(e), u([]), m("");
-	}, C = () => {
-		if (!y || !l.length || d) return;
-		let e = y.matches.filter((e) => l.includes(e.id));
+	}, O = async () => {
+		c(null), u([]), o(0), await Promise.all([H.invalidateQueries({ queryKey: SG }), H.invalidateQueries({ queryKey: $z })]);
+	}, k = async () => {
+		f(!0), m("");
+		try {
+			let e = await B("/api/actor-merge?mode=automatic");
+			if (!e.actors) {
+				m("No high-confidence actor matches to merge.");
+				return;
+			}
+			await Cc({
+				title: "Automatically Merge All",
+				confirmLabel: "Automatically Merge All",
+				body: bs("Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.", String(e.actors), String(e.groups)),
+				onConfirm: async () => {
+					await V("/api/actor-merge", {
+						action: "automatic",
+						expected: e.token,
+						confirmed: !0
+					}), await O(), t("High-confidence actors merged.");
+				}
+			});
+		} catch (e) {
+			m(z(e));
+		} finally {
+			f(!1);
+		}
+	}, A = (e) => {
 		Cc({
-			title: "Merge selected actors",
-			confirmLabel: "Merge selected actors",
-			body: bs("Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.", e.map((e) => e.name).join(", "), b),
+			title: "Undo actor merge",
+			confirmLabel: "Undo actor merge",
+			body: bs("Restore {0} actors from this merge? Later edits to affected records may prevent undo.", String(e.actors)),
 			onConfirm: async () => {
 				f(!0), m("");
 				try {
 					await V("/api/actor-merge", {
-						actor_id: y.actor.id,
+						action: "undo",
+						batch_id: e.id,
+						confirmed: !0
+					}), await O(), t("Actor merge undone.");
+				} catch (e) {
+					throw m(z(e)), e;
+				} finally {
+					f(!1);
+				}
+			}
+		});
+	}, j = () => {
+		if (!S || !l.length || d) return;
+		let e = S.matches.filter((e) => l.includes(e.id));
+		Cc({
+			title: "Merge selected actors",
+			confirmLabel: "Merge selected actors",
+			body: bs("Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.", e.map((e) => e.name).join(", "), C),
+			onConfirm: async () => {
+				f(!0), m("");
+				try {
+					await V("/api/actor-merge", {
+						actor_id: S.actor.id,
 						merge_ids: l,
-						name: b,
+						name: C,
 						confirmed: !0,
-						expected: Object.fromEntries([y.actor, ...e].map((e) => [String(e.id), e.token]))
+						expected: Object.fromEntries([S.actor, ...e].map((e) => [String(e.id), e.token]))
 					}), c(null), u([]), o(0), await Promise.all([H.invalidateQueries({ queryKey: SG }), H.invalidateQueries({ queryKey: $z })]), t("Selected actors merged.");
 				} catch (e) {
 					throw m(z(e)), e;
@@ -113357,16 +113548,51 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 				},
 				children: "Refresh suggestions"
 			}),
-			_.error ? /* @__PURE__ */ G(J, {
+			/* @__PURE__ */ G(qP, {
+				isSelected: h,
+				onChange: (e) => {
+					g(e), localStorage.setItem("peach.actor-merge.hide-conflicts", e ? "1" : "0"), o(0), u([]), c(null);
+				},
+				children: "Hide suggestions with only conflicting source identities"
+			}),
+			/* @__PURE__ */ G(q, {
+				type: "button",
+				variant: "secondary",
+				disabled: e,
+				...Y(d),
+				onClick: () => {
+					k();
+				},
+				children: "Automatically Merge All"
+			}),
+			/* @__PURE__ */ G("p", {
+				className: "text-caption-1-regular text-text-secondary",
+				children: "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review."
+			}),
+			b.error ? /* @__PURE__ */ G(J, {
 				tone: "error",
-				children: z(_.error)
+				children: z(b.error)
 			}) : null,
-			_.isPending ? /* @__PURE__ */ G("div", {
+			b.data?.batches?.map((t) => /* @__PURE__ */ K("div", {
+				className: "flex flex-wrap items-center justify-between gap-2",
+				children: [/* @__PURE__ */ G("span", { children: bs("{0} actors merged · {1}", String(t.actors), new Date(t.created_at).toLocaleString()) }), /* @__PURE__ */ G(q, {
+					type: "button",
+					variant: "secondary",
+					disabled: e || d,
+					onClick: () => A(t),
+					children: "Undo actor merge"
+				})]
+			}, t.id)),
+			y.error ? /* @__PURE__ */ G(J, {
+				tone: "error",
+				children: z(y.error)
+			}) : null,
+			y.isPending ? /* @__PURE__ */ G("div", {
 				"data-skeleton": "",
 				"aria-label": "Loading actor suggestions",
 				className: "h-20 rounded-lg bg-background-secondary-default"
 			}) : null,
-			!_.isPending && !_.data?.groups.length && !_.error ? /* @__PURE__ */ G(fA, {
+			!y.isPending && !y.data?.groups.length && !y.error ? /* @__PURE__ */ G(fA, {
 				icon: Eve,
 				title: "No actor merge suggestions",
 				children: "Similar actor names will appear here for review."
@@ -113375,12 +113601,12 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 				className: "flex min-w-0 flex-col gap-4 lg:flex-row",
 				children: [/* @__PURE__ */ G("div", {
 					className: "flex min-w-0 flex-1 flex-col gap-2",
-					children: _.data?.groups.map((e) => /* @__PURE__ */ G("button", {
+					children: y.data?.groups.map((e) => /* @__PURE__ */ G("button", {
 						type: "button",
 						"aria-pressed": s === e.id,
 						"data-actor-merge-group": "",
 						className: `flex min-w-0 flex-col items-start gap-2 rounded-lg border border-separator-border p-3 text-left ${s === e.id ? "bg-background-secondary-default" : "hover:bg-background-primary-hover"}`,
-						onClick: () => S(e.id),
+						onClick: () => D(e.id),
 						children: /* @__PURE__ */ K("span", {
 							className: "flex min-w-0 flex-col items-start gap-1 whitespace-normal",
 							children: [/* @__PURE__ */ G(CG, { actor: e }), /* @__PURE__ */ G("span", { children: bs("{0} possible duplicates", String(e.matches)) })]
@@ -113389,25 +113615,25 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 				}), /* @__PURE__ */ K("div", {
 					className: "flex min-w-0 flex-1 flex-col gap-4",
 					children: [
-						v.isFetching && s !== null ? /* @__PURE__ */ G("div", {
+						x.isFetching && s !== null ? /* @__PURE__ */ G("div", {
 							"data-skeleton": "",
 							"aria-label": "Loading possible matches",
 							className: "h-20 rounded-lg bg-background-secondary-default"
 						}) : null,
-						v.error ? /* @__PURE__ */ G(J, {
+						x.error ? /* @__PURE__ */ G(J, {
 							tone: "error",
-							children: z(v.error)
+							children: z(x.error)
 						}) : null,
-						y && s === y.actor.id ? /* @__PURE__ */ K(T.Fragment, { children: [
+						S && s === S.actor.id ? /* @__PURE__ */ K(T.Fragment, { children: [
 							/* @__PURE__ */ G("h3", {
 								className: "text-body-medium wrap-anywhere",
-								children: bs("Merge into {0}", y.actor.name)
+								children: bs("Merge into {0}", S.actor.name)
 							}),
 							/* @__PURE__ */ G(vP, {
 								label: "Canonical actor name",
-								value: b,
-								onChange: (e) => g({
-									id: y.actor.id,
+								value: C,
+								onChange: (e) => v({
+									id: S.actor.id,
 									name: e
 								})
 							}),
@@ -113419,7 +113645,7 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 										variant: "secondary",
 										size: "small",
 										disabled: e || d,
-										onClick: () => u(x.map((e) => e.id)),
+										onClick: () => u(E.map((e) => e.id)),
 										children: "全选"
 									}),
 									/* @__PURE__ */ G(q, {
@@ -113434,12 +113660,12 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 										type: "button",
 										variant: "secondary",
 										size: "small",
-										onClick: () => n("performer", y.actor.name),
+										onClick: () => n("performer", S.actor.name),
 										children: "View actor"
 									})
 								]
 							}),
-							y.matches.map((t) => /* @__PURE__ */ K("div", {
+							S.matches.map((t) => /* @__PURE__ */ K("div", {
 								className: "flex min-w-0 flex-col gap-2 rounded-lg border border-separator-border p-3",
 								children: [
 									/* @__PURE__ */ G(qP, {
@@ -113465,9 +113691,9 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 							}, t.id)),
 							/* @__PURE__ */ G(q, {
 								type: "button",
-								disabled: e || !b.trim() || !l.length || l.length > 2e3,
+								disabled: e || !C.trim() || !l.length || l.length > 2e3,
 								...Y(d),
-								onClick: C,
+								onClick: j,
 								children: "Merge selected actors"
 							})
 						] }) : null,
@@ -113478,7 +113704,7 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 					]
 				})]
 			}),
-			(_.data?.total || 0) > 20 ? /* @__PURE__ */ K("div", {
+			(y.data?.total || 0) > 20 ? /* @__PURE__ */ K("div", {
 				className: "flex flex-wrap justify-between gap-2",
 				children: [/* @__PURE__ */ G(q, {
 					type: "button",
@@ -113489,7 +113715,7 @@ function LFe({ readOnly: e, receipt: t, openEntity: n }) {
 				}), /* @__PURE__ */ G(q, {
 					type: "button",
 					variant: "secondary",
-					disabled: a + 20 >= (_.data?.total || 0),
+					disabled: a + 20 >= (y.data?.total || 0),
 					onClick: () => o((e) => e + 20),
 					children: "下一页"
 				})]

@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "姓と名が同じ",
   "Similar actor name": "似た出演者名",
   "Conflicting source identities; review separately.": "ソースの識別情報が競合しています。個別に確認してください。",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} を {1} に統合しますか？画面から元に戻すことはできません。バックアップが保存されます。"
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} を {1} に統合しますか？画面から元に戻すことはできません。バックアップが保存されます。",
+  "Automatically Merge All": "すべて自動統合",
+  "Undo actor merge": "出演者の統合を元に戻す",
+  "Hide suggestions with only conflicting source identities": "ソース識別情報の競合のみの候補を非表示",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "一致する別名とフルネームを対象にします。識別情報の競合や曖昧な綴りは手動確認に残します。",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "ライブラリ全体の {1} グループにある重複出演者 {0} 件を統合しますか？資料と画像をバックアップし、ここで元に戻せます。",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "この統合の出演者 {0} 件を復元しますか？その後の編集により復元できない場合があります。",
+  "No high-confidence actor matches to merge.": "統合できる信頼度の高い出演者候補がありません。",
+  "High-confidence actors merged.": "信頼度の高い出演者を統合しました。",
+  "Actor merge undone.": "出演者の統合を元に戻しました。",
+  "{0} actors merged · {1}": "出演者 {0} 件を統合 · {1}",
+  "请确认演员批量操作": "出演者の一括操作を確認してください。",
+  "没有可自动合并的演员": "自動統合できる出演者がありません。",
+  "演员撤销记录无效": "出演者の復元記録が無効です。",
+  "合并后的演员资料已修改，无法安全撤销": "統合後に対象の出演者資料が変更されたため、安全に復元できません。"
 }

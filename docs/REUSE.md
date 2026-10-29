@@ -792,3 +792,7 @@ NZB 下载交接采用 [SABnzbd 5.1 官方 API](https://sabnzbd.org/wiki/configu
 NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 Basic Auth、`version` 与 `append`，使用自 v13 稳定的九参数 URL 入队形态，保留分类与默认去重模式。核对维护中的 [nzbgetcom/nzbget 服务端实现](https://github.com/nzbgetcom/nzbget/blob/develop/daemon/remote/XmlRpc.cpp) 确认后续可选参数和正数 NZBID；未复制 GPL-2.0-or-later 服务端代码。SABnzbd 与 NZBGet 共用有界 HTTPX 传输、本机凭据存储和前端表单，没有新增依赖；临时凭据与假 HTTP 服务覆盖密码保留／撤销、认证、签名 URL、RPC 错误和失败身份。真实 NZBGet 服务验收未取得。
 
 忽略词匹配复用标准库 `re.escape`／大小写不敏感替换与 `PureWindowsPath`，本地文件名和 StashDB 提示共用字面清洗规则。定向重匹配复用既有 Aho–Corasick 演员索引、按来源归属写入、StashDB 查询及统一处理任务的停止／恢复；不增加扫描器、抽帧或网络依赖。Following 刷新复用两个既有检查端点和来源时间戳，手机控件复用播放器活动状态、全屏控件与紧凑布局。没有新增依赖。
+
+## 演员批量合并与撤销
+
+批量合并复用 `actor_merge` 的姓名与别名候选、`entities.merge_entity` 的完整关系迁移、`migrations.sqlite_backup` 的在线 SQLite 备份及既有确认弹层。撤销使用主键或 SQLite rowid 定位本批行差异，只回写发生变化的列，先验证终态并保留无关播放历史；全部演员头像随完整备份保存，换装失败与数据库事务一同恢复。此处是 Peach 身份与授权策略，不引入通用迁移依赖；使用 Python 标准库 `sqlite3`、`json`、`base64`、`shutil`，无新增依赖。单组人工合并仍沿用明确选择与备份路径。

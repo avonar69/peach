@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "Tên và họ giống nhau",
   "Similar actor name": "Tên diễn viên tương tự",
   "Conflicting source identities; review separately.": "Danh tính nguồn xung đột; hãy xem xét riêng.",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Hợp nhất {0} vào {1}? Không thể hoàn tác trong giao diện. Một bản sao lưu sẽ được lưu."
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "Hợp nhất {0} vào {1}? Không thể hoàn tác trong giao diện. Một bản sao lưu sẽ được lưu.",
+  "Automatically Merge All": "Tự động hợp nhất tất cả",
+  "Undo actor merge": "Hoàn tác hợp nhất diễn viên",
+  "Hide suggestions with only conflicting source identities": "Ẩn gợi ý chỉ còn xung đột danh tính nguồn",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Bao gồm bí danh và họ tên trùng khớp. Danh tính xung đột và tên gần giống cần được duyệt thủ công.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm trên toàn thư viện? Dữ liệu và ảnh sẽ được sao lưu, có thể hoàn tác tại đây.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "Khôi phục {0} diễn viên từ lần hợp nhất này? Chỉnh sửa sau đó có thể ngăn hoàn tác.",
+  "No high-confidence actor matches to merge.": "Không có kết quả diễn viên đủ tin cậy để hợp nhất.",
+  "High-confidence actors merged.": "Đã hợp nhất các diễn viên có độ tin cậy cao.",
+  "Actor merge undone.": "Đã hoàn tác hợp nhất diễn viên.",
+  "{0} actors merged · {1}": "Đã hợp nhất {0} diễn viên · {1}",
+  "请确认演员批量操作": "Xác nhận thao tác hàng loạt với diễn viên.",
+  "没有可自动合并的演员": "Không có diễn viên phù hợp để tự động hợp nhất.",
+  "演员撤销记录无效": "Bản ghi hoàn tác diễn viên không hợp lệ.",
+  "合并后的演员资料已修改，无法安全撤销": "Dữ liệu diễn viên đã thay đổi sau khi hợp nhất. Không thể hoàn tác an toàn."
 }

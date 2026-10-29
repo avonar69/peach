@@ -4495,5 +4495,19 @@
   "Names share the same first and last name": "Gleicher Vor- und Nachname",
   "Similar actor name": "Ähnlicher Darstellername",
   "Conflicting source identities; review separately.": "Widersprüchliche Quellenidentitäten; getrennt prüfen.",
-  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} mit {1} zusammenführen? Dies kann in der Oberfläche nicht rückgängig gemacht werden. Eine Sicherung wird gespeichert."
+  "Merge {0} into {1}? This cannot be undone in the interface. A backup will be saved.": "{0} mit {1} zusammenführen? Dies kann in der Oberfläche nicht rückgängig gemacht werden. Eine Sicherung wird gespeichert.",
+  "Automatically Merge All": "Alle automatisch zusammenführen",
+  "Undo actor merge": "Darstellerzusammenführung rückgängig machen",
+  "Hide suggestions with only conflicting source identities": "Vorschläge mit ausschließlich widersprüchlichen Quellidentitäten ausblenden",
+  "Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.": "Umfasst passende Aliasse und vollständige Namen. Widersprüchliche Identitäten und ähnliche Schreibweisen bleiben zur manuellen Prüfung.",
+  "Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.": "{0} doppelte Darsteller aus {1} Gruppen der gesamten Bibliothek zusammenführen? Daten und Bilder werden gesichert und können hier wiederhergestellt werden.",
+  "Restore {0} actors from this merge? Later edits to affected records may prevent undo.": "{0} Darsteller aus dieser Zusammenführung wiederherstellen? Spätere Änderungen können dies verhindern.",
+  "No high-confidence actor matches to merge.": "Keine zuverlässigen Darstellertreffer zum Zusammenführen.",
+  "High-confidence actors merged.": "Zuverlässige Darstellertreffer wurden zusammengeführt.",
+  "Actor merge undone.": "Darstellerzusammenführung rückgängig gemacht.",
+  "{0} actors merged · {1}": "{0} Darsteller zusammengeführt · {1}",
+  "请确认演员批量操作": "Bestätigen Sie die Darstellerstapelaktion.",
+  "没有可自动合并的演员": "Keine Darsteller für die automatische Zusammenführung geeignet.",
+  "演员撤销记录无效": "Der Wiederherstellungseintrag ist ungültig.",
+  "合并后的演员资料已修改，无法安全撤销": "Betroffene Darstellerdaten wurden geändert. Eine sichere Wiederherstellung ist nicht möglich."
 }
