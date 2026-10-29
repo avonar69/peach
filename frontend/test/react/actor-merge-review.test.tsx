@@ -20,6 +20,8 @@ function serve() {
   const posts: Record<string, unknown>[] = [];
   vi.stubGlobal('fetch', vi.fn(async (url: string, options?: RequestInit) => {
     if (options?.method === 'POST') { posts.push(JSON.parse(String(options.body))); return new Response(JSON.stringify({ ok: true })); }
+    if (String(url).includes('mode=automatic')) return new Response(JSON.stringify({ groups: 1, actors: 2, token: 'selected-plan' }));
+    if (String(url).includes('mode=history')) return new Response(JSON.stringify({ batches: [] }));
     return new Response(JSON.stringify(String(url).includes('actor_id=') ? { actor, matches } : { total: 1, offset: 0, groups: [{ ...actor, matches: 3 }] }));
   }));
   return posts;
@@ -36,12 +38,26 @@ it('全选排除来源冲突，清空后可单独确认一条候选', async () =
   await click(host.querySelector('button[aria-pressed]'));
   await settle();
   await click(buttonNamed('Select all', host));
-  expect([...host.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')].slice(1).map(input => input.checked)).toEqual([true, true, false]);
+  expect([...host.querySelectorAll<HTMLInputElement>('[data-actor-merge-match] input[type="checkbox"]')].map(input => input.checked)).toEqual([true, true, false]);
   await click(buttonNamed('Deselect all', host));
   expect([...host.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')].some(input => input.checked)).toBe(false);
-  await click(host.querySelectorAll('label:has(input[type="checkbox"])')[1]);
+  await click(host.querySelector('[data-actor-merge-match] label'));
   await click(buttonNamed('Merge selected actors', host));
   expect(posts).toEqual([{ actor_id: 1, merge_ids: [2], name: 'Jane Doe', confirmed: true, expected: { 1: 'one', 2: 'two' } }]);
+});
+
+it('逐项忽略候选，选中组的批量请求只包含所选组', async () => {
+  const posts = serve();
+  vi.spyOn(legacyUi, 'confirmModal').mockImplementation((async (options: Parameters<typeof legacyUi.confirmModal>[0]) => {
+    await options.onConfirm?.(); return { confirmed: true };
+  }) as typeof legacyUi.confirmModal);
+  const host = await mount(<QueryClientProvider client={queryClient}><ActorMergeReview readOnly={false} receipt={vi.fn()} openEntity={vi.fn()} /></QueryClientProvider>);
+  await settle(); await click(host.querySelector('button[aria-pressed]')); await settle();
+  await click(buttonNamed('Ignore suggestion', host)); await settle();
+  expect(posts[0]).toEqual({ action: 'ignore', actor_id: 1, merge_ids: [2], expected: { 1: 'one', 2: 'two' } });
+  await click([...host.querySelectorAll('label')].find(label => label.textContent?.includes('Select group: Jane Doe')));
+  await click(buttonNamed('Automatically merge selected groups', host)); await settle();
+  expect(posts[1]).toEqual({ action: 'automatic', expected: 'selected-plan', confirmed: true, group_ids: [1] });
 });
 
 it('只读资料库不能选择或合并演员', async () => {

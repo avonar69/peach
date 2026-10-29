@@ -3,6 +3,7 @@ from . import filename_actors, filename_matching, filename_text, stashdb_client
 from .processing_control import checkpoint
 
 LABELS = {'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios',
+          'stashdb_scenes': 'Resync Scenes',
           'stashdb_ignored': 'Rematch ignored filenames with StashDB',
           'filename_ignored': 'Rematch actors and studios from filenames'}
 REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored')
@@ -18,6 +19,9 @@ def selection(config, database, stage, selected=None):
 
 
 def run(config, database, stage, *, selected, progress, issue, active, previous):
+    if stage == 'stashdb_scenes':
+        from .stashdb_scene_sync import run as resync_scenes
+        return resync_scenes(config, database, progress=progress, issue=issue, active=active, completed=previous.get('resynced_scenes', []))
     if stage in ('stashdb_actors', 'stashdb_studios'):
         from .stashdb_entities import resync
         count = resync(config, database, 'performer' if stage == 'stashdb_actors' else 'studio',

@@ -230,3 +230,27 @@ class ActorMergeTests(unittest.TestCase):
         web_actor_merge.w_actor_merge(self.contract, {'action': 'undo', 'batch_id': result['id'], 'confirmed': True})
         with self.database.read_connection() as connection:
             self.assertEqual(connection.execute("SELECT count(*) FROM entity WHERE kind='performer'").fetchone()[0], 5)
+
+    def test_ignored_pair_is_hidden_from_automatic_plan_and_can_be_restored(self):
+        request = self.request()
+        web_actor_merge.w_actor_merge(self.contract, {**request, 'action': 'ignore'})
+        self.assertNotIn(self.extra, {row['id'] for row in self.preview()['matches']})
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})['actors'], 1)
+        detail = web_actor_merge.q_actor_merge(self.contract, {'actor_id': str(self.clean), 'include_ignored': '1'})
+        self.assertTrue(next(row for row in detail['matches'] if row['id'] == self.extra)['ignored'])
+        web_actor_merge.w_actor_merge(self.contract, {**request, 'action': 'unignore'})
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic'})['actors'], 2)
+
+    def test_selected_groups_merge_independently_and_leave_unselected_group(self):
+        with self.database.write_transaction() as connection:
+            john = upsert_asset_entity(connection, kind='performer', name='John Smith', asset_id=1, role='performer', source='user:manual')
+            upsert_asset_entity(connection, kind='performer', name='John Smith Scene', asset_id=2, role='performer', source='scan:filename-actors')
+            upsert_asset_entity(connection, kind='performer', name='Alice Brown', asset_id=3, role='performer', source='user:manual')
+            upsert_asset_entity(connection, kind='performer', name='Alice Brown Scene', asset_id=4, role='performer', source='scan:filename-actors')
+        selected = [self.clean, john]
+        plan = web_actor_merge.q_actor_merge(self.contract, {'mode': 'automatic', 'actor_ids': ','.join(map(str, selected))})
+        result = web_actor_merge.w_actor_merge(self.contract, {'action': 'automatic', 'group_ids': selected, 'expected': plan['token'], 'confirmed': True})
+        self.assertEqual(result['groups'], 2)
+        with self.database.read_connection() as connection:
+            names = {row[0] for row in connection.execute("SELECT canonical_name FROM entity WHERE kind='performer'")}
+            self.assertEqual(names, {'Jane Doe', 'John Smith', 'Alice Brown', 'Alice Brown Scene'})

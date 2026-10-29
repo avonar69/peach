@@ -795,4 +795,8 @@ NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 
 
 ## 演员批量合并与撤销
 
+忽略候选复用 `review_decision`，批量选组复用同一备份、冻结计划和撤销差异；各组仍是独立身份。关注刷新把 RSS 的既有 `feed_job` 纳入 `follow_job` 完成边界，复用来源抓取和限流。时间轴覆盖范围沿用既有元数据间隔与完整产物检查，删除先停止生成线程并限制于时间轴数字目录。
+
+播放器检查 Video.js 10.1.0 的 `ui/fullscreen-button.js`：不可用时会设置 `hidden`。Peach 的显式按钮复用浏览器 Fullscreen API、iOS 视频全屏及现有窗口填充样式，避免依赖可用性探测来决定入口是否显示。StashDB 标签字段按[官方场景模型](https://github.com/stashapp/stash-box/blob/master/graphql/schema/types/scene.graphql)的 `tags{id name}` 查询；已绑定作品补空沿用 `write_owned_fields(require_empty=True)` 和既有图片写入策略，无新增依赖。
+
 批量合并复用 `actor_merge` 的姓名与别名候选、`entities.merge_entity` 的完整关系迁移、`migrations.sqlite_backup` 的在线 SQLite 备份及既有确认弹层。撤销使用主键或 SQLite rowid 定位本批行差异，只回写发生变化的列，先验证终态并保留无关播放历史；全部演员头像随完整备份保存，换装失败与数据库事务一同恢复。此处是 Peach 身份与授权策略，不引入通用迁移依赖；使用 Python 标准库 `sqlite3`、`json`、`base64`、`shutil`，无新增依赖。单组人工合并仍沿用明确选择与备份路径。

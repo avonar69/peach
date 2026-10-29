@@ -2030,6 +2030,8 @@ def w_follow_check(contract, body) -> dict:
     def work(job_id):
         try:
             result = _execute_follow_check(contract, body, job_id)
+            if body.get('include_rss') and not body.get('older'):
+                result = _refresh_rss(contract, job_id, result)
             outcome["result"] = result
             contract.follow_job.update(job_id, **result, status="complete",
                                      current=None, completed_at=time.time())
@@ -2042,7 +2044,7 @@ def w_follow_check(contract, body) -> dict:
     # 轮询撞上在跑的那一轮记成跳过，手动撞上外部占用则由 API 回 409。
     started = contract.follow_job.start(work, restart=True,
         trigger="scheduled" if body.get("automatic") else "manual",
-        recovery={**{key: body[key] for key in ('source', 'sources', 'older', 'backfill_all', 'rewind', 'automatic') if key in body},
+        recovery={**{key: body[key] for key in ('source', 'sources', 'older', 'backfill_all', 'rewind', 'automatic', 'include_rss') if key in body},
                   'background': True},
         initial={"ok": True, "checked": 0, "total": 0, "results": [],
                  "request_id": request_id, "older": bool(body.get("older")), "current": None})
@@ -2063,6 +2065,22 @@ def w_follow_check(contract, body) -> dict:
             return contract.follow_job.snapshot() or started
         raise outcome["error"]
     return outcome["result"]
+
+
+def _refresh_rss(contract, job_id, result):
+    from . import web_feeds
+    with contract.database.read_connection() as connection:
+        ids = [row[0] for row in connection.execute("SELECT id FROM feed_source WHERE kind='rss' AND enabled=1")]
+    if not ids:
+        return result
+    contract.follow_job.update(job_id, stage='Checking RSS feeds', current=None,
+                               checked=int(result.get('checked') or 0), total=int(result.get('checked') or 0) + len(ids))
+    rss = web_feeds.w_feed_check(contract, {'sources': ids, 'rss_only': True})
+    if rss.get('busy') or rss.get('status') not in ('complete', 'done'):
+        raise ValueError('RSS refresh has not completed. Try again after the current feed check finishes.')
+    return {**result, 'checked': int(result.get('checked') or 0) + int(rss.get('checked') or 0),
+            'added': int(result.get('added') or 0) + int(rss.get('added') or 0),
+            'results': [*(result.get('results') or []), *(rss.get('results') or [])]}
 
 
 def _execute_follow_check(contract, body, job_id):

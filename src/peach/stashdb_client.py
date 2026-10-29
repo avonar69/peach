@@ -26,7 +26,7 @@ _LAST = 0.0
 PERFORMER_FIELDS = '''id name disambiguation aliases deleted gender images{id url width height}
 birth_date career_start_year career_end_year height band_size cup_size waist_size hip_size
 breast_type country ethnicity eye_color hair_color'''
-SCENE_FIELDS = f'''id title release_date duration deleted studio{{id name parent{{id name}}}}
+SCENE_FIELDS = f'''id title release_date duration deleted tags{{id name}} studio{{id name parent{{id name}}}}
 images{{id url width height}} performers{{as performer{{{PERFORMER_FIELDS}}}}}'''
 
 

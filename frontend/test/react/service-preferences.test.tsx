@@ -48,10 +48,10 @@ it('缩略图选择提交原档位，保存后的控件显示采集间隔', asyn
   const { posts } = server();
   const host = await mount(<QueryClientProvider client={queryClient}><VideoThumbnailRow /></QueryClientProvider>);
   await settle();
-  await choose(host.querySelector('[aria-haspopup="listbox"]'), '每 30 秒一张');
+  await choose(host.querySelector('#videoThumbnailSetting [aria-haspopup="listbox"]'), '每 30 秒一张');
   await settle();
-  expect(posts).toEqual([{ url: '/api/thumbnail-jobs', body: { mode: 'coarse' } }]);
-  expect(host.querySelector('[aria-haspopup="listbox"]')?.textContent).toContain('每 30 秒一张');
+  expect(posts).toEqual([{ url: '/api/thumbnail-jobs', body: { mode: 'coarse', regeneration: 'upgrade' } }]);
+  expect(host.querySelector('#videoThumbnailSetting [aria-haspopup="listbox"]')?.textContent).toContain('每 30 秒一张');
 });
 
 it('自定义采样间隔与 GPU 偏好分别保存', async () => {
@@ -62,7 +62,7 @@ it('自定义采样间隔与 GPU 偏好分别保存', async () => {
     await choose(host.querySelector('#videoThumbnailSetting [aria-haspopup="listbox"]'), 'Custom interval');
     await type(host.querySelector('input[aria-label="Interval (seconds)"]'), '17');
     await click(buttonNamed('Apply interval', host));
-    expect(posts).toContainEqual({ url: '/api/thumbnail-jobs', body: { mode: 'custom', interval_seconds: 17 } });
+    expect(posts).toContainEqual({ url: '/api/thumbnail-jobs', body: { mode: 'custom', interval_seconds: 17, regeneration: 'upgrade' } });
     await choose(host.querySelector('[aria-label="Thumbnail acceleration"]'), 'CUDA (NVIDIA)');
     expect(posts).toContainEqual({ url: '/api/thumbnail-jobs', body: { action: 'set_acceleration', acceleration: 'cuda' } });
   } finally { localStorage.removeItem('peach.language') }

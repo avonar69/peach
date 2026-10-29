@@ -311,10 +311,7 @@ function useFollowJob(props: FollowFeedProps, ready: boolean) {
     setReport('');
     let started = false;
     try {
-      const [job] = await Promise.all([
-        apiSend<{ job_id: string }>(FOLLOW_CHECK_URL, older ? { older: true, background: true } : { background: true }),
-        ...(!older ? [apiSend('/api/rss/check', {})] : []),
-      ]);
+      const job = await apiSend<{ job_id: string }>(FOLLOW_CHECK_URL, older ? { older: true, background: true } : { background: true, include_rss: true });
       if (!older) void queryClient.invalidateQueries({ queryKey: ['rss-downloads'] });
       sessionStorage.setItem('peach-follow-job', job.job_id);
       started = true;

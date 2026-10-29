@@ -16,7 +16,7 @@ import { REVIEW_KEY } from './review';
 
 interface Actor { id: number; name: string; scenes: number; aliases: string[]; has_image: boolean; token: string }
 interface Group extends Actor { matches: number }
-interface Match extends Actor { reason: string; conflicts: string[] }
+interface Match extends Actor { reason: string; conflicts: string[]; ignored?: boolean }
 interface Listing { total: number; offset: number; groups: Group[] }
 interface Detail { actor: Actor; matches: Match[] }
 interface Batch { id: string; created_at: string; groups: number; actors: number }
@@ -41,30 +41,41 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
   const [hideConflicts, setHideConflicts] = useState(() => localStorage.getItem('peach.actor-merge.hide-conflicts') === '1');
+  const [showIgnored, setShowIgnored] = useState(false);
+  const [groupIds, setGroupIds] = useState<number[]>([]);
   const [preferred, setPreferred] = useState<{ id: number; name: string } | null>(null);
-  const list = useQuery({ queryKey: [...KEY, search, offset, hideConflicts], queryFn: ({ signal }) => apiGet<Listing>(`/api/actor-merge?query=${encodeURIComponent(search)}&offset=${offset}&hide_conflicts=${hideConflicts ? 1 : 0}`, signal) });
+  const list = useQuery({ queryKey: [...KEY, search, offset, hideConflicts, showIgnored], queryFn: ({ signal }) => apiGet<Listing>(`/api/actor-merge?query=${encodeURIComponent(search)}&offset=${offset}&hide_conflicts=${hideConflicts ? 1 : 0}&include_ignored=${showIgnored ? 1 : 0}`, signal) });
   const history = useQuery({ queryKey: [...KEY, 'history'], queryFn: ({ signal }) => apiGet<{ batches: Batch[] }>('/api/actor-merge?mode=history', signal) });
-  const detail = useQuery({ queryKey: [...KEY, 'detail', actorId], enabled: actorId !== null,
-    queryFn: ({ signal }) => apiGet<Detail>(`/api/actor-merge?actor_id=${actorId}`, signal) });
+  const detail = useQuery({ queryKey: [...KEY, 'detail', actorId, showIgnored], enabled: actorId !== null,
+    queryFn: ({ signal }) => apiGet<Detail>(`/api/actor-merge?actor_id=${actorId}&include_ignored=${showIgnored ? 1 : 0}`, signal) });
   const data = detail.data;
   const name = preferred?.id === data?.actor.id ? preferred?.name || '' : data?.actor.name || '';
-  const eligible = data?.matches.filter(match => !match.conflicts.length) || [];
+  const eligible = data?.matches.filter(match => !match.conflicts.length && !match.ignored) || [];
   const choose = (id: number) => { setActorId(id); setSelected([]); setProblem(''); };
   const refresh = async () => {
-    setActorId(null); setSelected([]); setOffset(0);
+    setActorId(null); setSelected([]); setGroupIds([]); setOffset(0);
     await Promise.all([queryClient.invalidateQueries({ queryKey: KEY }), queryClient.invalidateQueries({ queryKey: REVIEW_KEY })]);
   };
-  const automatic = async () => {
+  const automatic = async (groups?: number[]) => {
     setBusy(true); setProblem('');
     try {
-      const plan = await apiGet<{ groups: number; actors: number; token: string }>('/api/actor-merge?mode=automatic');
+      const plan = await apiGet<{ groups: number; actors: number; token: string }>(`/api/actor-merge?mode=automatic${groups ? `&actor_ids=${groups.join(',')}` : ''}`);
       if (!plan.actors) { setProblem('No high-confidence actor matches to merge.'); return; }
       await confirmModal({ title: 'Automatically Merge All', confirmLabel: 'Automatically Merge All',
-        body: formatTranslation('Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.', String(plan.actors), String(plan.groups)),
+        body: formatTranslation(groups ? 'Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.' : 'Merge {0} duplicate actors across {1} groups in the entire library? Actor data and pictures will be backed up, with undo available here.', String(plan.actors), String(plan.groups)),
         onConfirm: async () => {
-          await apiSend('/api/actor-merge', { action: 'automatic', expected: plan.token, confirmed: true });
+          await apiSend('/api/actor-merge', { action: 'automatic', expected: plan.token, confirmed: true, ...(groups ? { group_ids: groups } : {}) });
           await refresh(); receipt('High-confidence actors merged.');
         } });
+    } catch (cause) { setProblem(errorMessage(cause)); }
+    finally { setBusy(false); }
+  };
+  const ignore = async (match: Match) => {
+    if (!data) return;
+    setBusy(true); setProblem('');
+    try {
+      await apiSend('/api/actor-merge', { action: match.ignored ? 'unignore' : 'ignore', actor_id: data.actor.id, merge_ids: [match.id], expected: { [data.actor.id]: data.actor.token, [match.id]: match.token } });
+      await refresh(); receipt(match.ignored ? 'Actor suggestion restored.' : 'Actor suggestion ignored.');
     } catch (cause) { setProblem(errorMessage(cause)); }
     finally { setBusy(false); }
   };
@@ -100,12 +111,14 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
   return <section className="flex min-w-0 flex-col gap-4" aria-label="Actor merge">
     <h2 className="text-title-2-medium">Actor merge</h2>
     <Input type="search" leadingIcon={RiSearchLine} label="Search actor merge suggestions" value={search}
-      onChange={value => { setSearch(value); setOffset(0); setActorId(null); setSelected([]); }} />
+      onChange={value => { setSearch(value); setOffset(0); setActorId(null); setSelected([]); setGroupIds([]); }} />
     <Button type="button" variant="secondary" size="small" onClick={() => { setSelected([]); void queryClient.invalidateQueries({ queryKey: KEY }); }}>Refresh suggestions</Button>
     <Checkbox isSelected={hideConflicts} onChange={value => {
       setHideConflicts(value); localStorage.setItem('peach.actor-merge.hide-conflicts', value ? '1' : '0'); setOffset(0); setSelected([]); setActorId(null);
     }}>Hide suggestions with only conflicting source identities</Checkbox>
     <Button type="button" variant="secondary" disabled={readOnly} {...busyProps(busy)} onClick={() => { void automatic(); }}>Automatically Merge All</Button>
+    <Checkbox isSelected={showIgnored} onChange={value => { setShowIgnored(value); setActorId(null); setOffset(0); setSelected([]); setGroupIds([]); }}>Show ignored actor suggestions</Checkbox>
+    <Button type="button" variant="secondary" disabled={readOnly || !groupIds.length} {...busyProps(busy)} onClick={() => { void automatic(groupIds); }}>Automatically merge selected groups</Button>
     <p className="text-caption-1-regular text-text-secondary">Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.</p>
     {history.error ? <Note tone="error">{errorMessage(history.error)}</Note> : null}
     {history.data?.batches?.map(batch => <div key={batch.id} className="flex flex-wrap items-center justify-between gap-2">
@@ -117,11 +130,12 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
     {!list.isPending && !list.data?.groups.length && !list.error ? <EmptyState icon={RiUserSearchLine} title="No actor merge suggestions">Similar actor names will appear here for review.</EmptyState> : null}
     <div className="flex min-w-0 flex-col gap-4 lg:flex-row">
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        {list.data?.groups.map(actor => <button key={actor.id} type="button" aria-pressed={actorId === actor.id} data-actor-merge-group=""
+        {list.data?.groups.map(actor => <div key={actor.id} className="flex min-w-0 items-start gap-2"><Checkbox isSelected={groupIds.includes(actor.id)} isDisabled={readOnly || busy}
+          onChange={checked => setGroupIds(previous => checked ? [...previous, actor.id] : previous.filter(id => id !== actor.id))}>{formatTranslation('Select group: {0}', actor.name)}</Checkbox><button type="button" aria-pressed={actorId === actor.id} data-actor-merge-group=""
           className={`flex min-w-0 flex-col items-start gap-2 rounded-lg border border-separator-border p-3 text-left ${actorId === actor.id ? 'bg-background-secondary-default' : 'hover:bg-background-primary-hover'}`}
           onClick={() => choose(actor.id)}><span className="flex min-w-0 flex-col items-start gap-1 whitespace-normal">
             <ActorName actor={actor} /><span>{formatTranslation('{0} possible duplicates', String(actor.matches))}</span>
-          </span></button>)}
+          </span></button></div>)}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         {detail.isFetching && actorId !== null ? <div data-skeleton="" aria-label="Loading possible matches" className="h-20 rounded-lg bg-background-secondary-default" /> : null}
@@ -134,13 +148,14 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
             <Button type="button" variant="secondary" size="small" disabled={readOnly || busy} onClick={() => setSelected([])}>取消全选</Button>
             <Button type="button" variant="secondary" size="small" onClick={() => openEntity('performer', data.actor.name)}>View actor</Button>
           </div>
-          {data.matches.map(match => <div key={match.id} className="flex min-w-0 flex-col gap-2 rounded-lg border border-separator-border p-3">
-            <Checkbox isSelected={selected.includes(match.id)} isDisabled={readOnly || busy || Boolean(match.conflicts.length)}
+          {data.matches.map(match => <div key={match.id} data-actor-merge-match="" className="flex min-w-0 flex-col gap-2 rounded-lg border border-separator-border p-3">
+            <Checkbox isSelected={selected.includes(match.id)} isDisabled={readOnly || busy || Boolean(match.conflicts.length) || match.ignored}
               onChange={checked => setSelected(previous => checked ? [...previous, match.id] : previous.filter(id => id !== match.id))}
               ><ActorName actor={match} /></Checkbox>
             <p className="text-caption-1-regular text-text-secondary">{match.reason}</p>
             {match.aliases.length ? <p className="break-words text-caption-1-regular" data-i18n-ignore="">{match.aliases.join(', ')}</p> : null}
             {match.conflicts.length ? <Note tone="warning">Conflicting source identities; review separately.</Note> : null}
+            <Button type="button" variant="secondary" size="small" disabled={readOnly || busy} onClick={() => { void ignore(match); }}>{match.ignored ? 'Restore suggestion' : 'Ignore suggestion'}</Button>
           </div>)}
           <Button type="button" disabled={readOnly || !name.trim() || !selected.length || selected.length > 2000} {...busyProps(busy)} onClick={merge}>Merge selected actors</Button>
         </> : null}

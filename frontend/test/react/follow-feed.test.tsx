@@ -470,8 +470,8 @@ describe('页面', () => {
     await click(host.querySelector('[data-follow-recheck]'));
     await settle();
     const start = fetcher.mock.calls.find(([url, init]) => url === '/api/follow/check' && init?.method === 'POST');
-    expect(JSON.parse(String(start?.[1]?.body))).toEqual({ background: true });
-    expect(fetcher.mock.calls.some(([url, init]) => url === '/api/rss/check' && init?.method === 'POST')).toBe(true);
+    expect(JSON.parse(String(start?.[1]?.body))).toEqual({ background: true, include_rss: true });
+    expect(fetcher.mock.calls.some(([url, init]) => url === '/api/rss/check' && init?.method === 'POST')).toBe(false);
     expect(sessionStorage.getItem('peach-follow-job')).toBe('job-9');
     const options = progress.mock.calls.at(-1)![0];
     await act(async () => options.busy(true));

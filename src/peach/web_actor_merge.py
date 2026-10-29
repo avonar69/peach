@@ -11,12 +11,13 @@ from .migrations import sqlite_backup
 from .entities import canonicalize_entity_name, normalize_entity_name
 
 
-def snapshot(contract):
+def snapshot(contract, include_ignored=False):
     def read():
         with contract.read_connection() as connection:
             actors = actor_merge.actors(connection)
-        return {'actors': actors, 'groups': actor_merge.suggestions(actors)}
-    return contract.cached_until_changed('actor-merge-suggestions', read)
+            ignored = actor_merge.ignored_pairs(connection)
+        return {'actors': actors, 'groups': actor_merge.suggestions(actors, () if include_ignored else ignored), 'ignored': ignored}
+    return contract.cached_until_changed('actor-merge-suggestions-' + str(include_ignored), read)
 
 
 def _public(contract, actor):
@@ -27,10 +28,10 @@ def _public(contract, actor):
 def q_actor_merge(contract, args):
     from . import web_actor_merge_batch
     if args.get('mode') == 'automatic':
-        return web_actor_merge_batch.preview(contract)
+        return web_actor_merge_batch.preview(contract, args.get('actor_ids'))
     if args.get('mode') == 'history':
         return web_actor_merge_batch.history(contract)
-    data = snapshot(contract)
+    data = snapshot(contract, str(args.get('include_ignored') or '') == '1')
     query = str(args.get('query') or '').strip().casefold()
     selected = int(args.get('actor_id') or 0)
     if selected:
@@ -41,6 +42,7 @@ def q_actor_merge(contract, args):
         with contract.read_connection() as connection:
             target = {**_public(contract, anchor), 'token': actor_merge.token(connection, selected)}
             matches = [{**_public(contract, data['actors'][match['id']]), 'reason': match['reason'],
+                'ignored': tuple(sorted((selected, match['id']))) in data['ignored'],
                 'conflicts': actor_merge.conflicts([anchor, data['actors'][match['id']]]),
                 'token': actor_merge.token(connection, match['id'])} for match in group['matches']]
         return {'actor': target, 'matches': matches}
@@ -98,6 +100,8 @@ def w_actor_merge(contract, body):
     from . import web_actor_merge_batch
     if body.get('action') in ('automatic', 'undo'):
         return web_actor_merge_batch.write(contract, body)
+    if body.get('action') in ('ignore', 'unignore'):
+        return _ignore(contract, body)
     target, identifiers, expected = _selection(body)
     backup = Path(contract.database.db_path).with_name(f'ledger.pre-actor-merge-{uuid.uuid4().hex}.db')
     with ExitStack() as stack, contract.write_transaction() as connection:
@@ -105,7 +109,7 @@ def w_actor_merge(contract, body):
         actors = actor_merge.actors(connection)
         if any(value not in actors or actor_merge.token(connection, value) != expected[str(value)] for value in identifiers):
             raise ValueError('演员资料已变化，请刷新后重试')
-        group = next((row for row in actor_merge.suggestions(actors) if row['id'] == target), None)
+        group = next((row for row in actor_merge.suggestions(actors, actor_merge.ignored_pairs(connection)) if row['id'] == target), None)
         if not group or not set(identifiers[1:]).issubset({row['id'] for row in group['matches']}):
             raise ValueError('请选择当前建议中的演员')
         chosen = [actors[value] for value in identifiers]
@@ -124,6 +128,26 @@ def w_actor_merge(contract, body):
     atomic_write_text(backup.with_suffix('.merge.json'), json.dumps(receipt, ensure_ascii=False))
     contract.cache_bust()
     return {'ok': True, **result, 'backup': backup.name}
+
+
+def _ignore(contract, body):
+    target, identifiers, expected = _selection({**body, 'confirmed': True})
+    with contract.write_transaction() as connection:
+        connection.execute('BEGIN IMMEDIATE')
+        if any(actor_merge.token(connection, value) != expected[str(value)] for value in identifiers):
+            raise ValueError('演员资料已变化，请刷新后重试')
+        group = next((row for row in actor_merge.suggestions(actor_merge.actors(connection)) if row['id'] == target), None)
+        if not group or not set(identifiers[1:]).issubset({row['id'] for row in group['matches']}):
+            raise ValueError('请选择当前建议中的演员')
+        for value in identifiers[1:]:
+            key = ':'.join(map(str, sorted((target, value))))
+            if body['action'] == 'ignore':
+                note = json.dumps([list(row) for row in connection.execute('SELECT id,normalized_name FROM entity WHERE id IN (?,?) ORDER BY id', (target, value))])
+                connection.execute("INSERT OR REPLACE INTO review_decision(category,item_key,status,note,updated_at) VALUES('actor_merge',?,'skipped',?,datetime('now'))", (key, note))
+            else:
+                connection.execute("DELETE FROM review_decision WHERE category='actor_merge' AND item_key=?", (key,))
+    contract.cache_bust()
+    return {'ok': True}
 
 
 def _preferred(connection, actor, chosen, name):

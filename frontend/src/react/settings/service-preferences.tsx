@@ -8,6 +8,7 @@ import { Select, SelectItem } from '@/components/base/select/select';
 import { Switch } from '@/components/base/switch/switch';
 import { Input } from '@/components/base/input/input';
 import { Button } from '@/components/base/buttons/button';
+import { confirmModal } from '@peach/legacy/ui';
 
 import { FOLLOW_INITIAL_RANGE_OPTIONS } from '../../application/initial-follow-ranges';
 import { apiSend, errorMessage } from '../../api';
@@ -32,6 +33,7 @@ export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?
   const acceleration = useAction();
   const [custom, setCustom] = useState(false);
   const [interval, setInterval] = useState('10');
+  const [regeneration, setRegeneration] = useState('upgrade');
   useEffect(() => { if (status.data?.interval_seconds) setInterval(String(status.data.interval_seconds)) }, [status.data?.interval_seconds]);
   const reset = save.reset;
   useEffect(() => { reset() }, [epoch, reset]);
@@ -40,11 +42,19 @@ export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?
   return (
     <>
       <Rows>
+        <SettingsRow label="Timeline regeneration scope">
+          <div className="min-w-0 flex-1">
+          <Select aria-label="Timeline regeneration scope" selectedKey={regeneration} onSelectionChange={key => { if (key !== null) setRegeneration(String(key)) }}>
+            <SelectItem id="upgrade">Only missing or more widely spaced thumbnails</SelectItem>
+            <SelectItem id="all">Regenerate all timeline thumbnails</SelectItem>
+          </Select>
+          </div>
+        </SettingsRow>
         <SettingsRow label="时间轴预览" description="Off stops generation and keeps existing previews. Smaller intervals create more images.">
           <div id="videoThumbnailSetting">
             <Select aria-label="缩略图采集间隔" selectedKey={custom ? 'custom' : data?.mode || 'off'}
               isDisabled={disabled || !data || status.isFetching || save.isPending}
-              onSelectionChange={(key) => { if (key === 'custom') setCustom(true); else if (key !== null) { setCustom(false); save.mutate(String(key)) } }}>
+              onSelectionChange={(key) => { if (key === 'custom') setCustom(true); else if (key !== null) { setCustom(false); save.mutate({ mode: String(key), regeneration }) } }}>
               {THUMBNAIL_OPTIONS.map(([key, label]) => <SelectItem key={key} id={key}>{label}</SelectItem>)}
             </Select>
           </div>
@@ -53,7 +63,7 @@ export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?
           <div className="flex flex-wrap items-center gap-2">
             <Input aria-label="Interval (seconds)" type="number" value={interval} onChange={setInterval} isDisabled={disabled || save.isPending} />
             <Button size="small" variant="secondary" disabled={disabled || save.isPending || !Number.isInteger(Number(interval)) || Number(interval) < 1 || Number(interval) > 3600}
-              onClick={() => save.mutate({ mode: 'custom', interval_seconds: Number(interval) })}>Apply interval</Button>
+              onClick={() => save.mutate({ mode: 'custom', interval_seconds: Number(interval), regeneration })}>Apply interval</Button>
           </div>
         </SettingsRow>}
         <SettingsRow label="Thumbnail acceleration" description="GPU decoding may fall back to CPU. Seeking and disk speed can limit the benefit.">
@@ -65,6 +75,13 @@ export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?
           </div>
         </SettingsRow>
       </Rows>
+      <Stack divided><div className="flex flex-wrap gap-2">
+        <Button type="button" variant="secondary" disabled={disabled || !data || data.mode === 'off' || save.isPending}
+          onClick={() => save.mutate({ mode: data?.mode || 'off', interval_seconds: data?.interval_seconds, regeneration })}>Generate timeline thumbnails</Button>
+        <Button type="button" variant="secondary" disabled={disabled || !!acceleration.busy} onClick={() => { void confirmModal({ title: 'Delete generated timeline thumbnails', confirmLabel: 'Delete generated timeline thumbnails',
+          body: 'Delete all generated timeline thumbnails? Generation will stop. Media files and scene covers will remain.',
+          onConfirm: async () => { const saved = await apiSend('/api/thumbnail-jobs', { action: 'delete_all', confirmed: true }); queryClient.setQueryData(THUMBNAIL_JOBS_KEY, saved); } }); }}>Delete generated timeline thumbnails</Button>
+      </div></Stack>
       {save.isPending || data?.status === 'running'
         ? <Stack divided><Help role="status">{save.isPending ? '正在保存…' : '正在采集，进度在活动页查看。'}</Help></Stack>
         : null}

@@ -260,7 +260,7 @@ def initial_estimate(config, db_path, stage, asset_ids=None, mode=None):
         return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
             estimate_file_count=0, estimate_bytes=0, eta_scope='本趟处理',
             eta_seconds_min=None, eta_seconds_max=None, eta_kind='estimating')
-    if stage in ('stashdb_actors', 'stashdb_studios', 'stashdb_ignored', 'filename_ignored'):
+    if stage in ('stashdb_actors', 'stashdb_studios', 'stashdb_scenes', 'stashdb_ignored', 'filename_ignored'):
         return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
             estimate_file_count=len(asset_ids or []), estimate_bytes=0, eta_scope='本趟处理')
     mode = mode or control_for(config).mode

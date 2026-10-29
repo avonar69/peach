@@ -78,10 +78,23 @@ def _fuzzy_pairs(rows, buckets):
     return pairs
 
 
-def suggestions(rows):
+def ignored_pairs(connection):
+    ignored = set()
+    for key, note in connection.execute("SELECT item_key,note FROM review_decision WHERE category='actor_merge' AND status='skipped'"):
+        if not re.fullmatch(r'\d+:\d+', key):
+            continue
+        identifiers = tuple(map(int, key.split(':')))
+        current = [list(row) for row in connection.execute('SELECT id,normalized_name FROM entity WHERE id IN (?,?) ORDER BY id', identifiers)]
+        if json.dumps(current) == note:
+            ignored.add(identifiers)
+    return ignored
+
+
+def suggestions(rows, ignored=()):
     groups = defaultdict(list)
     for (anchor, other), reason in _pairs(rows).items():
-        groups[anchor].append({'id': other, 'reason': reason})
+        if tuple(sorted((anchor, other))) not in ignored:
+            groups[anchor].append({'id': other, 'reason': reason})
     children = {item['id'] for matches in groups.values() for item in matches}
     return [{'id': key, 'matches': matches} for key, matches in groups.items() if key not in children]
 
@@ -94,10 +107,10 @@ def conflicts(actors_to_merge):
     return [f'{provider}:{kind}' for (provider, kind), identities in sources.items() if len(identities) > 1]
 
 
-def automatic_groups(rows):
+def automatic_groups(rows, ignored=()):
     """批量授权仅覆盖明确的别名和完整姓名称包含，排除模糊拼写与整组来源歧义。"""
     result, used = [], set()
-    for group in sorted(suggestions(rows), key=lambda row: _order(rows[row['id']])):
+    for group in sorted(suggestions(rows, ignored), key=lambda row: _order(rows[row['id']])):
         anchor = rows[group['id']]
         candidates = [rows[match['id']] for match in group['matches']
                       if match['reason'] != 'Similar actor name' and not conflicts([anchor, rows[match['id']]])]

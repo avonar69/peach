@@ -214,6 +214,31 @@ class GenerateLibraryTests(unittest.TestCase):
             state = self._run()
         self.assertEqual((state["skipped"], state["made"]), (3, 0))
 
+    def test_regeneration_scope_keeps_denser_sheets_and_rebuilds_wider_ones(self):
+        for identifier, interval in ((1, 5), (2, 30)):
+            directory = timeline_sheets.sheet_dir(self.sheets, identifier)
+            directory.mkdir(parents=True)
+            (directory / 'meta.json').write_text(json.dumps({'interval': interval, 'frames': 10, 'sheets': 1}), encoding='utf-8')
+            (directory / '000.jpg').write_bytes(b'sheet')
+        with patch.object(timeline_sheets, 'build', return_value=True) as build:
+            result = self._run(regeneration='upgrade')
+            self.assertEqual((result['made'], result['skipped']), (1, 1))
+            self.assertEqual(build.call_args.args[4], 2)
+        with patch.object(timeline_sheets, 'build', return_value=True) as build:
+            self._run(regeneration='all')
+            self.assertEqual({call.args[4] for call in build.call_args_list}, {1, 2})
+
+    def test_clear_removes_only_numeric_timeline_directories(self):
+        directory = timeline_sheets.sheet_dir(self.sheets, 1)
+        directory.mkdir(parents=True)
+        (directory / '000.jpg').write_bytes(b'sheet')
+        cover = self.sheets / 'covers'
+        cover.mkdir()
+        (cover / '1.jpg').write_bytes(b'cover')
+        self.assertEqual(timeline_sheets.clear_library(self.sheets), 1)
+        self.assertFalse(directory.exists())
+        self.assertTrue((cover / '1.jpg').exists())
+
     def test_a_full_disk_stops_the_run_and_says_so(self):
         """磁盘触线说明整台机器写不下了，立刻停手并把原因带出去，不能跑成「完成」。"""
         guard = MagicMock()

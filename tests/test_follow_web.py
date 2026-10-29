@@ -35,6 +35,19 @@ MOMENT = datetime(2026, 8, 25, 9, 0, tzinfo=timezone.utc)
 
 
 class FollowContractTests(unittest.TestCase):
+    def test_refresh_all_includes_completed_rss_results_before_reporting(self):
+        from peach import feeds
+        with self.contract.database.write_transaction() as connection:
+            feeds.add_source(connection, url='https://example.org/rss', name='RSS', kind='rss')
+        complete = {'status': 'complete', 'checked': 2, 'added': 3, 'results': [{'ok': True, 'source': 'rss'}]}
+        with mock.patch('peach.web_feeds.w_feed_check', return_value=complete) as check:
+            result = web_follow._refresh_rss(self.contract, 'test', {'checked': 0, 'results': []})
+        self.assertEqual((result['checked'], result['added']), (2, 3))
+        self.assertEqual(result['results'], complete['results'])
+        self.assertNotIn('background', check.call_args.args[1])
+        with mock.patch('peach.web_feeds.w_feed_check', return_value={'busy': True, 'checked': 0}):
+            with self.assertRaises(ValueError):
+                web_follow._refresh_rss(self.contract, 'test', {})
     def test_following_counts_saved_rss_posts_without_creating_native_follow_items(self):
         from peach import feeds, rss_feeds
         self.assertEqual(self._get()['rss_count'], 0)

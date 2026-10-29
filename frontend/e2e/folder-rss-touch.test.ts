@@ -39,7 +39,7 @@ describe('目录扫描策略、RSS 多选与触屏快进', () => {
           assert.deepEqual(calls.map(call => call.path), [settings, '/api/library-processing']);
           assert.equal(calls[0]?.body.ignore_terms, '!');
           assert.equal(calls[1]?.body.stage, stage);
-          assert.ok((await layout(page)).scrollWidth <= viewport.width + 1);
+          assert.ok((await layout(page)).scrollWidth <= viewport.width + 1, JSON.stringify(await layout(page)));
           assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
         } finally { await opened.close() }
       }
@@ -180,13 +180,36 @@ describe('目录扫描策略、RSS 多选与触屏快进', () => {
         await page.getByRole('heading', { name: 'Post Feed B', exact: true }).waitFor();
         assert.ok((await page.locator('[data-follow-updated]').textContent())?.includes('Last updated:'));
         const creatorRefresh = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).pathname === '/api/follow/check');
-        const rssRefresh = page.waitForRequest(request => request.method() === 'POST' && new URL(request.url()).pathname === '/api/rss/check');
         await page.getByRole('button', { name: 'Refresh all', exact: true }).click();
-        await Promise.all([creatorRefresh, rssRefresh]);
+        const refreshed = await creatorRefresh;
+        assert.equal(refreshed.postDataJSON().include_rss, true);
         assert.ok((await layout(page)).scrollWidth <= viewport.width + 1);
       } finally { await opened.close() }
     });
   }
+  it('mobile: 原生全屏不可用时所有视图保留全屏入口', { timeout: 45_000 }, async () => {
+    const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, VIEWPORTS[1]!, async page => {
+      await page.context().addInitScript(() => {
+        localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false }));
+        Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: false });
+      });
+    });
+    const page = opened.page;
+    try {
+      const fullscreen = page.locator('#stage .vjs-fullscreen-control');
+      await fullscreen.waitFor({ state: 'visible' });
+      await page.locator('#stage [data-player-expand]').click();
+      assert.equal(await fullscreen.isVisible(), true);
+      await page.locator('#stage [data-player-theater]').click();
+      assert.equal(await fullscreen.isVisible(), true);
+      await fullscreen.click();
+      await page.locator('#stage [data-peach-full-window]').waitFor();
+      assert.ok((await layout(page)).scrollWidth <= VIEWPORTS[1]!.width + 1);
+      await page.screenshot({ path: '../build/agent-verification/mobile-fullscreen-fallback.png' });
+      await fullscreen.click();
+      await page.locator('#stage [data-peach-full-window]').waitFor({ state: 'hidden' });
+    } finally { await opened.close() }
+  });
   it('mobile: 左右双击使用小步长并保持暂停', { timeout: 45_000 }, async () => {
     const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, VIEWPORTS[1]!, async page => {
       await page.context().addInitScript(() => localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false, playerSeek: {

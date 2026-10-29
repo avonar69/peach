@@ -32,6 +32,27 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_scene_resync_fills_missing_fields_and_adds_tags_without_searching(self):
+        from peach import stashdb_scene_sync
+        from peach.fsutil import atomic_write_text
+        stashdb_client.save_settings(self.config, {'scene_images': False, 'actor_images': False, 'correct_cast': True})
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET catalog_title='Existing title',studio='Existing studio' WHERE id=1")
+            upsert_asset_entity(connection, kind='performer', name='Existing Actor', asset_id=1, role='performer', source='scan:filename-actors')
+            connection.execute("INSERT INTO asset_tag(asset_id,tag,source,confidence) VALUES(1,'Existing tag','user:manual',1)")
+        atomic_write_text(self.config.directory('state') / 'stashdb-matches/1.json', json.dumps({'scene_id': SCENE, 'reviewed': True}))
+        self.scenes[0]['tags'] = [{'id': 'tag-one', 'name': 'New tag'}, {'id': 'tag-two', 'name': 'Existing tag'}]
+        client = self.client()
+        with mock.patch('peach.stashdb_client.Client', return_value=client):
+            result = stashdb_scene_sync.run(self.config, self.database, progress=lambda **kw: None, issue=mock.Mock(), active=lambda: True)
+        self.assertEqual(result['stashdb_applied'], 1)
+        self.assertTrue(all('findScene' in json.loads(call.body)['query'] for call in self.calls))
+        with self.database.read_connection() as connection:
+            row = connection.execute('SELECT catalog_title,studio,release_date FROM asset WHERE id=1').fetchone()
+            self.assertEqual(tuple(row), ('Existing title', 'Existing studio', '2026-10-22'))
+            self.assertEqual({row[0] for row in connection.execute('SELECT tag FROM asset_tag WHERE asset_id=1')}, {'New tag', 'Existing tag'})
+            self.assertEqual(connection.execute("SELECT source FROM asset_tag WHERE tag='Existing tag'").fetchone()[0], 'user:manual')
+            self.assertEqual(connection.execute("SELECT canonical_name FROM entity WHERE kind='performer'").fetchone()[0], 'Existing Actor')
     def scene_contract(self):
         return SimpleNamespace(database=self.database, read_connection=self.database.read_connection,
             write_transaction=self.database.write_transaction, cover_root=self.root / 'covers', cache_bust=mock.Mock())

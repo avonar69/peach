@@ -243,17 +243,27 @@ def _write_studio(connection, asset_id, studio, source):
             source=source, external_provider='stashdb', external_id=identity(studio['id']), update_entity_metadata=False)
 
 
-def _write_scene(connection, asset_id, scene, row, policy, source, manual):
+def _write_scene(connection, asset_id, scene, row, policy, source, manual, fill_only=False):
     fields = {key: value for key, value in {'catalog_title': scene.get('title'),
         'release_date': scene.get('release_date'), 'studio': (scene.get('studio') or {}).get('name')}.items() if value}
     if manual:
         fields = {key: value for key, value in fields.items()
             if not owner_of(row['field_owners'], key).startswith(('user:', 'review:')) or owner_of(row['field_owners'], key) == REVIEW_SOURCE}
     if fields:
-        write_owned_fields(connection, [asset_id], fields, source)
-    cast_updated = _write_cast(connection, asset_id, scene, policy['correct_cast'], source, manual)
-    _write_studio(connection, asset_id, scene.get('studio') or {}, source)
+        write_owned_fields(connection, [asset_id], fields, source, require_empty=fill_only)
+    has_cast = connection.execute("SELECT 1 FROM asset_entity WHERE asset_id=? AND role='performer' UNION SELECT 1 FROM asset_tag WHERE asset_id=? AND tag LIKE '演员:%' LIMIT 1", (asset_id, asset_id)).fetchone()
+    cast_updated = _write_cast(connection, asset_id, scene, policy['correct_cast'] and (not fill_only or not has_cast), source, manual)
+    if not fill_only or not row['studio']:
+        _write_studio(connection, asset_id, scene.get('studio') or {}, source)
+    _write_tags(connection, asset_id, scene)
     return cast_updated
+
+
+def _write_tags(connection, asset_id, scene):
+    for tag in scene.get('tags') or []:
+        name = ' '.join(str(tag.get('name') or '').split())
+        if name and len(name) <= 200:
+            connection.execute('INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) VALUES(?,?,1,?)', (asset_id, name, 'auto:stashdb-tags'))
 
 
 def _photo_links(connection, asset_id, performers):
@@ -269,7 +279,7 @@ def _photo_links(connection, asset_id, performers):
     return links
 
 
-def apply_scene(config, database, asset_id, scene_id, token, *, client=None, manual=True):
+def apply_scene(config, database, asset_id, scene_id, token, *, client=None, manual=True, fill_only=False):
     owned = client is None
     client = client or stashdb_client.Client(config)
     try:
@@ -285,7 +295,7 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
         if not token or token != current:
             raise ValueError('The local scene changed. Preview the match again.')
         ranked = stashdb_matching.rank_scene(scene, evidence)
-        if not manual and (not ranked or not ranked['strong'] or ranked['score'] < policy['minimum_confidence'] / 100):
+        if not manual and not fill_only and (not ranked or not ranked['strong'] or ranked['score'] < policy['minimum_confidence'] / 100):
             raise ValueError('This scene needs review before applying metadata.')
         recover_images(config)
         target = config.directory('generated') / 'covers' / (artwork_key(asset_id, row['code']) + '.jpg')
@@ -293,14 +303,14 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
         with database.write_transaction() as connection:
             if asset_evidence(connection, asset_id)[2] != token:
                 raise ValueError('The local scene changed. Preview the match again.')
-            cast_updated = _write_scene(connection, asset_id, scene, row, policy, source, manual)
+            cast_updated = _write_scene(connection, asset_id, scene, row, policy, source, manual, fill_only)
             performers, safe = _scene_cast(scene)
             actor_links = _photo_links(connection, asset_id, safe)
             if picture:
                 body, size, url = picture
                 cover_artwork.install_cover(target, row['code'] or '', body, size, evidence={
                     'provider': 'stashdb', 'source': source, 'source_url': url, 'scene_id': scene_id,
-                    'scene_url': ranked['url'], 'performers': [item['name'] for item in performers], 'cast_size': len(performers), 'match': ranked})
+                    'scene_url': f'https://stashdb.org/scenes/{scene_id}', 'performers': [item['name'] for item in performers], 'cast_size': len(performers), 'match': ranked})
         photos = sum(_photo(config, client, performer, entity_id, manual=manual) for performer, entity_id in actor_links) if policy['actor_images'] else 0
         with database.read_connection() as connection:
             completed_token = asset_evidence(connection, asset_id, revision=False)[2]
@@ -309,6 +319,9 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
                   'files': [str(path.relative_to(config.directory('generated'))) for path in
                     [target, *(config.directory('generated') / 'avatars' / f'performer-{entity_id}.img' for _, entity_id in actor_links)]
                     if path.is_file()]}
+        if fill_only:
+            previous = read_record(config.directory('state') / 'stashdb-matches' / f'{asset_id}.json')
+            record.update(reviewed=bool(previous.get('reviewed')), match=previous.get('match') or ranked)
         atomic_write_text(config.directory('state') / 'stashdb-matches' / f'{asset_id}.json', json.dumps(record, ensure_ascii=False))
         (config.directory('state') / 'stashdb-review' / f'{asset_id}.json').unlink(missing_ok=True)
         return {'ok': True, 'scene_id': scene_id, 'actor_photos': photos, 'scene_picture': bool(picture), 'cast_updated': cast_updated}

@@ -82,7 +82,7 @@ export function useSaveFollowSchedule() {
 
 export function useSaveThumbnailMode() {
   return useMutation({
-    mutationFn: (choice: string | { mode: string; interval_seconds: number }) =>
+    mutationFn: (choice: string | { mode: string; interval_seconds?: number; regeneration?: string }) =>
       apiSend<ThumbnailJobStatus>(THUMBNAIL_JOBS_URL, typeof choice === 'string' ? { mode: choice } : choice),
     onSuccess: (status) => queryClient.setQueryData(THUMBNAIL_JOBS_KEY, status),
   });

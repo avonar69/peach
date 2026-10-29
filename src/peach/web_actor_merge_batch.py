@@ -16,18 +16,32 @@ def _root(contract):
     return Path(contract.database.db_path).parent / 'actor-merge-history'
 
 
-def _plan(connection):
+def _plan(connection, group_ids=None):
     actors = actor_merge.actors(connection)
-    groups = actor_merge.automatic_groups(actors)
+    groups = actor_merge.automatic_groups(actors, actor_merge.ignored_pairs(connection))
+    if group_ids is not None:
+        groups = [group for group in groups if group[0] in group_ids]
     tokens = {str(identifier): actor_merge.token(connection, identifier) for group in groups for identifier in group}
     token = hashlib.sha256(json.dumps([groups, tokens], sort_keys=True).encode()).hexdigest()
     return actors, groups, token
 
 
-def preview(contract):
+def preview(contract, actor_ids=None):
+    group_ids = _group_ids(actor_ids.split(',') if actor_ids else None, strings=True)
     with contract.read_connection() as connection:
-        _, groups, token = _plan(connection)
+        _, groups, token = _plan(connection, group_ids)
     return {'groups': len(groups), 'actors': sum(len(group) - 1 for group in groups), 'token': token}
+
+
+def _group_ids(values, strings=False):
+    if values is None:
+        return None
+    if not isinstance(values, list) or not 1 <= len(values) <= 2000 or any(not str(value).isdecimal() if strings else type(value) is not int for value in values):
+        raise ValueError('请选择当前建议中的演员')
+    result = list(dict.fromkeys(map(int, values)))
+    if any(value <= 0 for value in result):
+        raise ValueError('请选择当前建议中的演员')
+    return result
 
 
 def history(contract):
@@ -63,7 +77,7 @@ def _automatic(contract, body):
     backup, journal = root / f'{identifier}.db', root / f'{identifier}.json'
     with ExitStack() as stack, contract.write_transaction() as connection:
         connection.execute('BEGIN IMMEDIATE')
-        actors, groups, token = _plan(connection)
+        actors, groups, token = _plan(connection, _group_ids(body.get('group_ids')))
         if token != body.get('expected'):
             raise ValueError('演员资料已变化，请刷新后重试')
         if not groups:

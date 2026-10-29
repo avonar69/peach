@@ -1,5 +1,11 @@
 # 页面路由
 
+演员建议接受 `include_ignored=1` 显示已忽略关系；`POST /api/actor-merge` 的 `action=ignore|unignore` 使用 `actor_id`、`merge_ids` 和所涉演员 `expected` 证据令牌，决定存于 `review_decision`，绑定演员标识及规范名。自动计划接受逗号分隔的 `actor_ids`，提交时以 `group_ids` 冻结同一组选取，各组独立合并并共用批次备份和撤销。
+
+`POST /api/follow/check` 的 `include_rss=true` 使后台任务在普通来源后同步等待启用的 RSS 来源检查，终态合计两类结果。`POST /api/thumbnail-jobs` 的 `regeneration=all|upgrade` 分别覆盖全部时间轴图或仅缺失、损坏及间隔更长的图；默认 `upgrade`。`action=delete_all` 要求 `confirmed=true`，关闭生成并等待工作者退出，只清理时间轴目录内数字分桶下的数字作品目录。
+
+`POST /api/library-processing` 的 `stage=stashdb_scenes` 只按已有匹配记录中的场景 ID 补空资料与标签，复用限流及 `resynced_scenes` 停点，不做文件发现或场景搜索。普通匹配也追加 `auto:stashdb-tags` 归属的场景标签，已有同名标签归属保留。
+
 `GET /api/actor-merge` 返回演员合并建议组，支持 `query` 与 `offset`，每页 20 组。`actor_id` 返回该组完整候选、作品数、别名、头像标记、相似原因、来源冲突与各演员证据令牌。姓名包含、共同姓和名、已登记别名及有界的相似名比较只生成建议，不确认身份。`GET /api/review?counts=1` 的 `actor_merge` 计入同一队列。
 
 `POST /api/actor-merge` 接受 `actor_id`、明确的 `merge_ids`、可选规范名 `name`、各所选演员的 `expected` 令牌及 `confirmed=true`。空选择、混入当前建议以外的身份、资料变化、规范名冲突和来源身份冲突均拒绝。操作复用实体合并事务，先备份 SQLite 并保存复核记录，再迁移所选身份；仅保留作品数最多的实体标识，采用用户选定名称。图片换装与事务失败同步恢复，既有外键问题之外不得新增悬空引用。写入沿用标准鉴权与只读端限制。

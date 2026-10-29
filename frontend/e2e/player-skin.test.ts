@@ -72,18 +72,18 @@ describe('播放器皮肤', () => {
         assert.ok(Math.abs(dot.width - dot.height) < .1, '进度圆点保持正圆');
         assert.equal(dot.color, dot.fill, '进度圆点与已播段使用同一颜色');
         if (viewport.mobile) await page.locator('#stage [data-player-expand]').click();
-        await page.locator('#stage media-fullscreen-button').click();
+        await page.locator('#stage .vjs-fullscreen-control').click();
         await page.waitForFunction(() => !!document.fullscreenElement);
         const fullscreen = await page.locator('#stage media-container').evaluate(container => {
           const frame = container.getBoundingClientRect();
           const play = container.querySelector('media-play-button')!.getBoundingClientRect();
-          const full = container.querySelector('media-fullscreen-button')!.getBoundingClientRect();
+          const full = container.querySelector('.vjs-fullscreen-control')!.getBoundingClientRect();
           return { frame: [frame.width, frame.height], viewport: [innerWidth, innerHeight],
             controlsInside: play.y >= 0 && full.right <= innerWidth && play.bottom <= innerHeight };
         });
         assert.deepEqual(fullscreen.frame, fullscreen.viewport);
         assert.equal(fullscreen.controlsInside, true);
-        await page.locator('#stage media-fullscreen-button').click();
+        await page.locator('#stage .vjs-fullscreen-control').click();
         await page.waitForFunction(() => !document.fullscreenElement);
         assert.deepEqual(problems, []);
       } finally { await opened.close() }

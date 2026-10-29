@@ -31,6 +31,23 @@ class ModeFileTests(unittest.TestCase):
 
 
 class ThumbnailJobEndpointTests(unittest.TestCase):
+    def test_delete_requires_confirmation_and_waits_for_worker_exit(self):
+        self.contract.thumbnail_job.thread = None
+        with self.assertRaises(ValueError):
+            web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'action': 'delete_all'})
+        made = timeline_sheets.sheet_path(self.contract.timeline_root, 3, 0)
+        made.parent.mkdir(parents=True)
+        made.write_bytes(b'sheet')
+        worker = MagicMock()
+        worker.is_alive.return_value = True
+        self.contract.thumbnail_job.thread = worker
+        with self.assertRaises(ValueError):
+            web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'action': 'delete_all', 'confirmed': True})
+        self.assertTrue(made.is_file())
+        worker.is_alive.return_value = False
+        result = web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'action': 'delete_all', 'confirmed': True})
+        self.assertEqual(result['removed'], 1)
+        self.assertEqual(result['mode'], 'off')
     def test_custom_interval_roundtrip_and_invalid_input(self):
         resolver = MagicMock()
         resolver.return_value.ffmpeg.return_value.path = 'ffmpeg'

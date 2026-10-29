@@ -130,9 +130,23 @@ def _with_progress(fields: dict) -> dict:
     return {**fields, 'checked': fields['done']} if 'done' in fields else fields
 
 
+def _delete_thumbnails(contract, body):
+    if body.get('confirmed') is not True:
+        raise ValueError('Confirm deletion of generated timeline thumbnails.')
+    write_mode('off')
+    worker = getattr(contract.thumbnail_job, 'thread', None)
+    contract.thumbnail_job.stop(resume=False)
+    if worker is not None and worker.is_alive():
+        raise ValueError('Thumbnail generation is stopping. Try deleting again shortly.')
+    removed = timeline_sheets.clear_library(contract.timeline_root)
+    return {**q_thumbnail_jobs(contract, {}), 'removed': removed}
+
+
 def w_thumbnail_jobs(contract, body):
     """选档位。选 `off` 只是停手，已经生成的图留在盘上——几 GB 的产物删不删是另一件
     事，走数据管理页那条清理链，不在切换开关时顺手做掉。"""
+    if (body or {}).get('action') == 'delete_all':
+        return _delete_thumbnails(contract, body)
     if (body or {}).get('action') == 'set_speed':
         _speed_control().request('set_speed', mode=body.get('speed_mode'))
         return q_thumbnail_jobs(contract, {})
@@ -144,6 +158,9 @@ def w_thumbnail_jobs(contract, body):
         atomic_write_text(MODE_PATH.with_name('thumbnail-acceleration.json'), json.dumps(value))
         return q_thumbnail_jobs(contract, {})
     mode = str((body or {}).get('mode') or timeline_sheets.OFF)
+    regeneration = (body or {}).get('regeneration', 'upgrade')
+    if regeneration not in ('all', 'upgrade'):
+        raise ValueError('Choose a valid timeline regeneration scope.')
     if mode not in timeline_sheets.MODES:
         raise ValueError('采集密度无效')
     if mode != timeline_sheets.OFF and metadata_only(contract.follow_state_root):
@@ -171,6 +188,7 @@ def w_thumbnail_jobs(contract, body):
             result = timeline_sheets.generate_library(
                 contract.db_path, root, interval, ffmpeg=str(choice.path),
                 acceleration=read_acceleration,
+                regeneration=regeneration,
                 active=lambda: _active(contract, job_id),
                 report=lambda **fields: contract.thumbnail_job.update(job_id, **_with_progress(fields)),
                 guard=guard, resume_state=contract.thumbnail_job.snapshot(),
@@ -184,7 +202,7 @@ def w_thumbnail_jobs(contract, body):
             status='failed' if failed else 'complete',
             error=stopped if failed else '')
 
-    contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode, 'interval_seconds': interval},
+    contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode, 'interval_seconds': interval, 'regeneration': regeneration},
                                  initial={'mode': mode, 'interval': interval,
                                           'stage': '采集缩略图', 'checked': 0,
                                           'total': 0, 'done': 0, 'made': 0,

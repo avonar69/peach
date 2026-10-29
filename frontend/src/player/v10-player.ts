@@ -6,6 +6,7 @@ import { configuredSeekKeys, rememberVolume, wheelVolume } from './playback-pref
 import { performancePreferences } from '../performance-preferences';
 import { playerHost } from './host';
 import { touchSeek } from './touch-seek';
+import { fullscreenControl } from './fullscreen';
 
 interface HlsEngine {
   bandwidthEstimate: number;
@@ -61,7 +62,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
         </media-time-slider></div>
         <div class="vjs-subtitles-control vjs-control"><button type="button" class="vjs-button" aria-label="开启字幕" aria-pressed="false">CC</button></div>
         <media-pip-button class="vjs-picture-in-picture-control vjs-control vjs-button" label="画中画"></media-pip-button>
-        <media-fullscreen-button class="vjs-fullscreen-control vjs-control vjs-button" label="全屏"></media-fullscreen-button>
+        <button type="button" class="vjs-fullscreen-control vjs-control vjs-button" aria-label="全屏"></button>
       </div>`);
   }
   const events = new EventTarget();
@@ -81,13 +82,14 @@ export const createV10Player: VideojsFactory = (video, options) => {
   root.addEventListener('pointerdown', active, { signal });
   root.addEventListener('focusin', active, { signal });
   video.addEventListener('click', () => { if (video.paused) void video.play().catch(() => {}); else video.pause() }, { signal });
-  video.addEventListener('dblclick', () => root.querySelector<HTMLElement>('media-fullscreen-button')?.click(), { signal });
+  video.addEventListener('dblclick', () => root.querySelector<HTMLElement>('.vjs-fullscreen-control')?.click(), { signal });
   const update = () => {
     root.classList.toggle('vjs-paused', video.paused); root.classList.toggle('vjs-playing', !video.paused);
     root.classList.toggle('vjs-ended', video.ended); root.classList.toggle('vjs-has-started', video.currentTime > 0 || !video.paused);
     active();
   };
   const emit = (name: string) => events.dispatchEvent(new Event(name));
+  const disposeFullscreen = fullscreenControl(root, video, () => emit('fullscreenchange'));
   for (const name of ['play', 'pause', 'ended', 'loadedmetadata', 'durationchange', 'timeupdate', 'progress', 'loadstart', 'waiting', 'stalled', 'canplay', 'playing', 'seeking', 'seeked', 'ratechange', 'volumechange', 'resize', 'enterpictureinpicture', 'leavepictureinpicture']) {
     video.addEventListener(name, () => {
       if (['play', 'pause', 'ended', 'loadedmetadata'].includes(name)) update();
@@ -153,7 +155,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
     isDisposed: () => disposed,
     dispose: () => {
       if (disposed) return;
-      emit('dispose'); disposed = true; disposeSizing(); disposeWheel(); disposeKeys(); disposeVolume(); disposeTouch(); cleanup.abort(); if (idle) clearTimeout(idle);
+      emit('dispose'); disposed = true; disposeSizing(); disposeWheel(); disposeKeys(); disposeVolume(); disposeTouch(); disposeFullscreen(); cleanup.abort(); if (idle) clearTimeout(idle);
       media.adapter.destroy(); video.pause(); video.removeAttribute('src'); video.load(); root.remove();
     },
     trigger: emit,
@@ -172,7 +174,7 @@ export const createV10Player: VideojsFactory = (video, options) => {
     playbackRate: (value?: number) => value === undefined ? video.playbackRate : (video.playbackRate = value),
     loop: (value?: boolean) => value === undefined ? video.loop : (video.loop = value),
     muted: () => video.muted, volume: () => video.volume,
-    isFullscreen: () => !!document.fullscreenElement && root.contains(document.fullscreenElement),
+    isFullscreen: () => root.hasAttribute('data-peach-full-window') || Boolean((video as HTMLVideoElement & { webkitDisplayingFullscreen?: boolean }).webkitDisplayingFullscreen) || !!document.fullscreenElement && root.contains(document.fullscreenElement),
     poster: (url: string) => { video.poster = url },
     src: (next: PlayerSource) => {
       source = next; failure = null; root.classList.remove('vjs-error');

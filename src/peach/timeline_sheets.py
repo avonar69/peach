@@ -221,7 +221,7 @@ def pending(db_path: Path | str, interval: int, *, limit: int = 0) -> list[tuple
 def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: str,
                      report=lambda **fields: None, active=lambda: True,
                      guard=None, limit: int = 0, resume_state=None, checkpoint=lambda **fields: None,
-                     acceleration=lambda: 'cpu') -> dict:
+                     acceleration=lambda: 'cpu', regeneration='upgrade') -> dict:
     """按队列逐部生成，返回这一趟的计数。
 
     失败不中断：一部片子解不出来（源坏了、时长记错、编码器不认）是它自己的事，
@@ -257,7 +257,7 @@ def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: 
                 state["stopped"] = str(exc)
                 break
         state["done"] += 1
-        if is_current(root, asset_id, interval):
+        if should_keep(root, asset_id, interval, regeneration):
             state["skipped"] += 1
             save(asset_id)
             report(**state)
@@ -281,6 +281,34 @@ def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: 
             state["failed"] += 1
         report(**state)
     return state
+
+
+def should_keep(root, asset_id, interval, regeneration):
+    if regeneration == 'all':
+        return False
+    if is_current(root, asset_id, interval):
+        return True
+    meta = read_meta(root, asset_id)
+    existing = int((meta or {}).get('interval') or 0)
+    return bool(existing and existing < interval and is_current(root, asset_id, existing))
+
+
+def clear_library(root):
+    root = Path(root).resolve()
+    removed = 0
+    if not root.is_dir():
+        return removed
+    for bucket in root.iterdir():
+        if bucket.is_symlink() or not bucket.is_dir() or not bucket.name.isdecimal():
+            continue
+        for directory in bucket.iterdir():
+            if directory.is_symlink() or not directory.is_dir() or not directory.name.isdecimal():
+                continue
+            if not directory.resolve().is_relative_to(root):
+                raise ValueError('Invalid timeline thumbnail directory')
+            shutil.rmtree(directory)
+            removed += 1
+    return removed
 
 
 def discard(root: Path, asset_id: int) -> None:
