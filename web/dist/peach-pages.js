@@ -9965,7 +9965,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.",
+	"Ignore selected groups": "Ignore selected groups",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.",
+	"Actor suggestions ignored.": "Actor suggestions ignored."
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -18119,7 +18122,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "¿Fusionar {0} intérpretes duplicados en {1} grupos seleccionados? Cada grupo se fusiona por separado, con copia de seguridad y opción de deshacer."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "¿Fusionar {0} intérpretes duplicados en {1} grupos seleccionados? Cada grupo se fusiona por separado, con copia de seguridad y opción de deshacer.",
+	"Ignore selected groups": "Ignorar grupos seleccionados",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "¿Ignorar todas las sugerencias de {0} grupos seleccionados? Puede restaurarlas desde la lista de ignoradas.",
+	"Actor suggestions ignored.": "Sugerencias de intérpretes ignoradas."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22653,7 +22659,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Fusionner {0} interprètes en double dans {1} groupes sélectionnés ? Chaque groupe est fusionné séparément, avec sauvegarde et annulation."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Fusionner {0} interprètes en double dans {1} groupes sélectionnés ? Chaque groupe est fusionné séparément, avec sauvegarde et annulation.",
+	"Ignore selected groups": "Ignorer les groupes sélectionnés",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignorer toutes les suggestions de {0} groupes sélectionnés ? Elles peuvent être restaurées depuis la liste des suggestions ignorées.",
+	"Actor suggestions ignored.": "Suggestions d’interprètes ignorées."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -27187,7 +27196,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "{0} doppelte Darsteller in {1} ausgewählten Gruppen zusammenführen? Jede Gruppe wird getrennt zusammengeführt, mit Sicherung und Wiederherstellung."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "{0} doppelte Darsteller in {1} ausgewählten Gruppen zusammenführen? Jede Gruppe wird getrennt zusammengeführt, mit Sicherung und Wiederherstellung.",
+	"Ignore selected groups": "Ausgewählte Gruppen ignorieren",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Alle Vorschläge in {0} ausgewählten Gruppen ignorieren? Sie können über die Liste ignorierter Vorschläge wiederhergestellt werden.",
+	"Actor suggestions ignored.": "Darstellervorschläge ignoriert."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -31721,7 +31733,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Mesclar {0} artistas duplicados em {1} grupos selecionados? Cada grupo será mesclado separadamente, com backup e reversão."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Mesclar {0} artistas duplicados em {1} grupos selecionados? Cada grupo será mesclado separadamente, com backup e reversão.",
+	"Ignore selected groups": "Ignorar grupos selecionados",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignorar todas as sugestões de {0} grupos selecionados? É possível restaurá-las pela lista de ignoradas.",
+	"Actor suggestions ignored.": "Sugestões de artistas ignoradas."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36255,7 +36270,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "選択した {1} グループの重複出演者 {0} 件を統合しますか？グループごとに統合し、バックアップと復元を利用できます。"
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "選択した {1} グループの重複出演者 {0} 件を統合しますか？グループごとに統合し、バックアップと復元を利用できます。",
+	"Ignore selected groups": "選択したグループを無視",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "選択した {0} グループのすべての候補を無視しますか？無視リストから復元できます。",
+	"Actor suggestions ignored.": "出演者候補を無視しました。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -40789,7 +40807,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "선택한 {1}개 그룹의 중복 배우 {0}명을 병합할까요? 각 그룹을 별도로 병합하며 백업과 실행 취소를 제공합니다."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "선택한 {1}개 그룹의 중복 배우 {0}명을 병합할까요? 각 그룹을 별도로 병합하며 백업과 실행 취소를 제공합니다.",
+	"Ignore selected groups": "선택한 그룹 무시",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "선택한 {0}개 그룹의 모든 제안을 무시할까요? 무시 목록에서 복원할 수 있습니다.",
+	"Actor suggestions ignored.": "배우 제안을 무시했습니다."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -45323,7 +45344,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
 	"Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
 	"Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm đã chọn? Mỗi nhóm được hợp nhất riêng, có sao lưu và hoàn tác."
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm đã chọn? Mỗi nhóm được hợp nhất riêng, có sao lưu và hoàn tác.",
+	"Ignore selected groups": "Bỏ qua các nhóm đã chọn",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Bỏ qua tất cả gợi ý trong {0} nhóm đã chọn? Có thể khôi phục từ danh sách đã bỏ qua.",
+	"Actor suggestions ignored.": "Đã bỏ qua các gợi ý diễn viên."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -49857,7 +49881,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "缩略图生成正在停止，请稍后重试删除。",
 	"Choose a valid timeline regeneration scope.": "请选择有效的时间轴重新生成范围。",
 	"Invalid timeline thumbnail directory": "时间轴缩略图目录无效",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合併所選 {1} 組中的 {0} 個重複演員？各組分別合併，並提供備份與復原。"
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合併所選 {1} 組中的 {0} 個重複演員？各組分別合併，並提供備份與復原。",
+	"Ignore selected groups": "忽略選取的群組",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "忽略所選 {0} 組的全部建議？可從已忽略清單復原建議。",
+	"Actor suggestions ignored.": "已忽略演員建議。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -50416,7 +50443,10 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Thumbnail generation is stopping. Try deleting again shortly.": "缩略图生成正在停止，请稍后重试删除。",
 	"Choose a valid timeline regeneration scope.": "请选择有效的时间轴重新生成范围。",
 	"Invalid timeline thumbnail directory": "时间轴缩略图目录无效",
-	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合并所选 {1} 组中的 {0} 个重复演员？各组分别合并，并提供备份与撤销。"
+	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合并所选 {1} 组中的 {0} 个重复演员？各组分别合并，并提供备份与撤销。",
+	"Ignore selected groups": "忽略选中的组",
+	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "忽略所选 {0} 组的全部建议？可从已忽略列表恢复建议。",
+	"Actor suggestions ignored.": "已忽略演员建议。"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

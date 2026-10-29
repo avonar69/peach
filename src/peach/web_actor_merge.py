@@ -27,8 +27,8 @@ def _public(contract, actor):
 
 def q_actor_merge(contract, args):
     from . import web_actor_merge_batch
-    if args.get('mode') == 'automatic':
-        return web_actor_merge_batch.preview(contract, args.get('actor_ids'))
+    if args.get('mode') in ('automatic', 'ignore_groups'):
+        return web_actor_merge_batch.preview(contract, args.get('actor_ids'), ignore=args.get('mode') == 'ignore_groups')
     if args.get('mode') == 'history':
         return web_actor_merge_batch.history(contract)
     data = snapshot(contract, str(args.get('include_ignored') or '') == '1')
@@ -98,7 +98,7 @@ def _pictures(contract, chosen, preferred, kept_id, backup):
 
 def w_actor_merge(contract, body):
     from . import web_actor_merge_batch
-    if body.get('action') in ('automatic', 'undo'):
+    if body.get('action') in ('automatic', 'undo', 'ignore_groups'):
         return web_actor_merge_batch.write(contract, body)
     if body.get('action') in ('ignore', 'unignore'):
         return _ignore(contract, body)
@@ -140,14 +140,18 @@ def _ignore(contract, body):
         if not group or not set(identifiers[1:]).issubset({row['id'] for row in group['matches']}):
             raise ValueError('请选择当前建议中的演员')
         for value in identifiers[1:]:
-            key = ':'.join(map(str, sorted((target, value))))
-            if body['action'] == 'ignore':
-                note = json.dumps([list(row) for row in connection.execute('SELECT id,normalized_name FROM entity WHERE id IN (?,?) ORDER BY id', (target, value))])
-                connection.execute("INSERT OR REPLACE INTO review_decision(category,item_key,status,note,updated_at) VALUES('actor_merge',?,'skipped',?,datetime('now'))", (key, note))
-            else:
-                connection.execute("DELETE FROM review_decision WHERE category='actor_merge' AND item_key=?", (key,))
+            _ignore_pair(connection, target, value, ignore=body['action'] == 'ignore')
     contract.cache_bust()
     return {'ok': True}
+
+
+def _ignore_pair(connection, target, value, *, ignore=True):
+    key = ':'.join(map(str, sorted((target, value))))
+    if ignore:
+        note = json.dumps([list(row) for row in connection.execute('SELECT id,normalized_name FROM entity WHERE id IN (?,?) ORDER BY id', (target, value))])
+        connection.execute("INSERT OR REPLACE INTO review_decision(category,item_key,status,note,updated_at) VALUES('actor_merge',?,'skipped',?,datetime('now'))", (key, note))
+    else:
+        connection.execute("DELETE FROM review_decision WHERE category='actor_merge' AND item_key=?", (key,))
 
 
 def _preferred(connection, actor, chosen, name):

@@ -264,6 +264,10 @@ def _write_tags(connection, asset_id, scene):
         name = ' '.join(str(tag.get('name') or '').split())
         if name and len(name) <= 200:
             connection.execute('INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) VALUES(?,?,1,?)', (asset_id, name, 'auto:stashdb-tags'))
+            stored = connection.execute('SELECT source,confidence FROM asset_tag WHERE asset_id=? AND tag=?', (asset_id, name)).fetchone()
+            upsert_asset_entity(connection, kind='tag', name=name, asset_id=asset_id, role='tag',
+                source=stored[0] or 'auto:stashdb-tags', confidence=stored[1] if stored[1] is not None else 1,
+                update_entity_metadata=False)
 
 
 def _photo_links(connection, asset_id, performers):

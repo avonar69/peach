@@ -79,6 +79,20 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
     } catch (cause) { setProblem(errorMessage(cause)); }
     finally { setBusy(false); }
   };
+  const ignoreGroups = async () => {
+    if (!groupIds.length || busy) return;
+    setBusy(true); setProblem('');
+    try {
+      const plan = await apiGet<{ groups: number; token: string }>(`/api/actor-merge?mode=ignore_groups&actor_ids=${groupIds.join(',')}`);
+      await confirmModal({ title: 'Ignore selected groups', confirmLabel: 'Ignore selected groups',
+        body: formatTranslation('Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.', String(plan.groups)),
+        onConfirm: async () => {
+          await apiSend('/api/actor-merge', { action: 'ignore_groups', group_ids: groupIds, expected: plan.token, confirmed: true });
+          await refresh(); receipt('Actor suggestions ignored.');
+        } });
+    } catch (cause) { setProblem(errorMessage(cause)); }
+    finally { setBusy(false); }
+  };
   const undo = (batch: Batch) => {
     void confirmModal({ title: 'Undo actor merge', confirmLabel: 'Undo actor merge',
       body: formatTranslation('Restore {0} actors from this merge? Later edits to affected records may prevent undo.', String(batch.actors)),
@@ -119,6 +133,7 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
     <Button type="button" variant="secondary" disabled={readOnly} {...busyProps(busy)} onClick={() => { void automatic(); }}>Automatically Merge All</Button>
     <Checkbox isSelected={showIgnored} onChange={value => { setShowIgnored(value); setActorId(null); setOffset(0); setSelected([]); setGroupIds([]); }}>Show ignored actor suggestions</Checkbox>
     <Button type="button" variant="secondary" disabled={readOnly || !groupIds.length} {...busyProps(busy)} onClick={() => { void automatic(groupIds); }}>Automatically merge selected groups</Button>
+    <Button type="button" variant="secondary" disabled={readOnly || !groupIds.length} {...busyProps(busy)} onClick={() => { void ignoreGroups(); }}>Ignore selected groups</Button>
     <p className="text-caption-1-regular text-text-secondary">Includes matching aliases and full-name matches. Conflicting identities and fuzzy spelling matches stay for manual review.</p>
     {history.error ? <Note tone="error">{errorMessage(history.error)}</Note> : null}
     {history.data?.batches?.map(batch => <div key={batch.id} className="flex flex-wrap items-center justify-between gap-2">
@@ -130,9 +145,9 @@ export function ActorMergeReview({ readOnly, receipt, openEntity }: {
     {!list.isPending && !list.data?.groups.length && !list.error ? <EmptyState icon={RiUserSearchLine} title="No actor merge suggestions">Similar actor names will appear here for review.</EmptyState> : null}
     <div className="flex min-w-0 flex-col gap-4 lg:flex-row">
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        {list.data?.groups.map(actor => <div key={actor.id} className="flex min-w-0 items-start gap-2"><Checkbox isSelected={groupIds.includes(actor.id)} isDisabled={readOnly || busy}
-          onChange={checked => setGroupIds(previous => checked ? [...previous, actor.id] : previous.filter(id => id !== actor.id))}>{formatTranslation('Select group: {0}', actor.name)}</Checkbox><button type="button" aria-pressed={actorId === actor.id} data-actor-merge-group=""
-          className={`flex min-w-0 flex-col items-start gap-2 rounded-lg border border-separator-border p-3 text-left ${actorId === actor.id ? 'bg-background-secondary-default' : 'hover:bg-background-primary-hover'}`}
+        {list.data?.groups.map(actor => <div key={actor.id} className="flex min-w-0 items-center gap-2"><Checkbox isSelected={groupIds.includes(actor.id)} isDisabled={readOnly || busy} aria-label={formatTranslation('Select group: {0}', actor.name)}
+          onChange={checked => setGroupIds(previous => checked ? [...previous, actor.id] : previous.filter(id => id !== actor.id))} /><button type="button" aria-pressed={actorId === actor.id} data-actor-merge-group=""
+          className={`flex min-w-0 flex-1 flex-col items-start gap-2 rounded-lg border border-separator-border p-3 text-left ${actorId === actor.id ? 'bg-background-secondary-default' : 'hover:bg-background-primary-hover'}`}
           onClick={() => choose(actor.id)}><span className="flex min-w-0 flex-col items-start gap-1 whitespace-normal">
             <ActorName actor={actor} /><span>{formatTranslation('{0} possible duplicates', String(actor.matches))}</span>
           </span></button></div>)}

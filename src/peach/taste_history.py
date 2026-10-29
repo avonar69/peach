@@ -1027,7 +1027,7 @@ def _peach_dashboard_evidence(connection: sqlite3.Connection, since: str | None,
             batch = ids[offset:offset + 800]
             placeholders = ",".join("?" for _ in batch)
             entity_rows = connection.execute(
-                "SELECT ae.asset_id,e.id entity_id,e.kind,e.canonical_name,e.normalized_name "
+                "SELECT DISTINCT ae.asset_id,e.id entity_id,e.kind,e.canonical_name,e.normalized_name "
                 f"FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id WHERE ae.asset_id IN ({placeholders})",
                 batch,
             )
@@ -1132,10 +1132,6 @@ def _tag_inventory(connection: sqlite3.Connection) -> dict[str, int]:
         clauses.append("a.disposal IS NULL")
     if "location" in columns:
         clauses.append("a.location IN ('local','115')")
-    if "snapshot_path" in columns:
-        clauses.append("a.snapshot_path IS NOT NULL")
-    if "ctx_orient" in columns:
-        clauses.append("(a.ctx_orient IS NULL OR a.ctx_orient<>'竖屏')")
     query = (
         "SELECT e.canonical_name,count(DISTINCT ae.asset_id) "
         "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "

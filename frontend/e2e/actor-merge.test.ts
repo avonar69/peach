@@ -32,6 +32,9 @@ describe('Actor merge review', () => {
         if (params.get('mode') === 'automatic') {
           await route.fulfill({ json: { groups: 3, actors: 5, token: 'frozen-plan' } }); return;
         }
+        if (params.get('mode') === 'ignore_groups') {
+          await route.fulfill({ json: { groups: 1, actors: 3, token: 'ignored-plan' } }); return;
+        }
         if (params.get('mode') === 'history') {
           await route.fulfill({ json: { batches: batch ? [{ id: 'batch', groups: 3, actors: 5, created_at: '2026-10-28T20:00:00Z' }] : [] } }); return;
         }
@@ -72,6 +75,18 @@ describe('Actor merge review', () => {
       await confirm.waitFor(); await confirm.click();
       await section.getByRole('button', { name: 'Undo actor merge', exact: true }).waitFor({ state: 'hidden' });
       assert.deepEqual(posts[2], { action: 'undo', batch_id: 'batch', confirmed: true });
+      merged = false;
+      await section.getByRole('button', { name: 'Refresh suggestions', exact: true }).click();
+      const groupSelection = section.locator('label:has(input[aria-label="Select group: Jane Doe"])');
+      await groupSelection.waitFor();
+      assert.equal((await groupSelection.textContent())?.trim(), '');
+      await groupSelection.click();
+      await section.getByRole('button', { name: 'Ignore selected groups', exact: true }).click();
+      await confirm.waitFor();
+      assert.equal(posts.length, 3);
+      await confirm.click();
+      await section.getByText('No actor merge suggestions', { exact: true }).waitFor();
+      assert.deepEqual(posts[3], { action: 'ignore_groups', group_ids: [1], expected: 'ignored-plan', confirmed: true });
       assert.deepEqual(opened.problems.filter(problem => problem.startsWith('pageerror')), []);
     } finally { await opened.close(); }
   });

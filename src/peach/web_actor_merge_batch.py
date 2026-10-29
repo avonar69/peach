@@ -16,9 +16,10 @@ def _root(contract):
     return Path(contract.database.db_path).parent / 'actor-merge-history'
 
 
-def _plan(connection, group_ids=None):
+def _plan(connection, group_ids=None, *, ignore=False):
     actors = actor_merge.actors(connection)
-    groups = actor_merge.automatic_groups(actors, actor_merge.ignored_pairs(connection))
+    ignored = actor_merge.ignored_pairs(connection)
+    groups = [[row['id'], *(match['id'] for match in row['matches'])] for row in actor_merge.suggestions(actors, ignored)] if ignore else actor_merge.automatic_groups(actors, ignored)
     if group_ids is not None:
         groups = [group for group in groups if group[0] in group_ids]
     tokens = {str(identifier): actor_merge.token(connection, identifier) for group in groups for identifier in group}
@@ -26,10 +27,10 @@ def _plan(connection, group_ids=None):
     return actors, groups, token
 
 
-def preview(contract, actor_ids=None):
+def preview(contract, actor_ids=None, *, ignore=False):
     group_ids = _group_ids(actor_ids.split(',') if actor_ids else None, strings=True)
     with contract.read_connection() as connection:
-        _, groups, token = _plan(connection, group_ids)
+        _, groups, token = _plan(connection, group_ids, ignore=ignore)
     return {'groups': len(groups), 'actors': sum(len(group) - 1 for group in groups), 'token': token}
 
 
@@ -66,7 +67,26 @@ def write(contract, body):
         raise ValueError('请确认演员批量操作')
     if body['action'] == 'undo':
         return _undo(contract, body)
+    if body['action'] == 'ignore_groups':
+        return _ignore_groups(contract, body)
     return _automatic(contract, body)
+
+
+def _ignore_groups(contract, body):
+    from .web_actor_merge import _ignore_pair
+    identifiers = _group_ids(body.get('group_ids'))
+    if identifiers is None:
+        raise ValueError('请选择当前建议中的演员')
+    with contract.write_transaction() as connection:
+        connection.execute('BEGIN IMMEDIATE')
+        _, groups, token = _plan(connection, identifiers, ignore=True)
+        if token != body.get('expected') or {group[0] for group in groups} != set(identifiers):
+            raise ValueError('演员资料已变化，请刷新后重试')
+        for group in groups:
+            for value in group[1:]:
+                _ignore_pair(connection, group[0], value)
+    contract.cache_bust()
+    return {'ok': True, 'groups': len(groups), 'ignored': sum(len(group) - 1 for group in groups)}
 
 
 def _automatic(contract, body):

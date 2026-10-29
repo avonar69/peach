@@ -795,6 +795,8 @@ NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 
 
 ## 演员批量合并与撤销
 
+组级忽略沿用单条候选的 `review_decision`、规范名证据与冻结计划令牌，包含组内所有候选；写入同一事务，不合并身份。StashDB 标签沿用 `upsert_asset_entity` 的规范标签身份与 `asset_tag` 展示投影，索引及口味共用 `asset_entity`。迁移 `0051` 按既有 `0005` 的批量回填与搜索重建方式修复已同步标签，不新增网络查询或依赖。
+
 忽略候选复用 `review_decision`，批量选组复用同一备份、冻结计划和撤销差异；各组仍是独立身份。关注刷新把 RSS 的既有 `feed_job` 纳入 `follow_job` 完成边界，复用来源抓取和限流。时间轴覆盖范围沿用既有元数据间隔与完整产物检查，删除先停止生成线程并限制于时间轴数字目录。
 
 播放器检查 Video.js 10.1.0 的 `ui/fullscreen-button.js`：不可用时会设置 `hidden`。Peach 的显式按钮复用浏览器 Fullscreen API、iOS 视频全屏及现有窗口填充样式，避免依赖可用性探测来决定入口是否显示。StashDB 标签字段按[官方场景模型](https://github.com/stashapp/stash-box/blob/master/graphql/schema/types/scene.graphql)的 `tags{id name}` 查询；已绑定作品补空沿用 `write_owned_fields(require_empty=True)` 和既有图片写入策略，无新增依赖。

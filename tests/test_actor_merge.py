@@ -254,3 +254,20 @@ class ActorMergeTests(unittest.TestCase):
         with self.database.read_connection() as connection:
             names = {row[0] for row in connection.execute("SELECT canonical_name FROM entity WHERE kind='performer'")}
             self.assertEqual(names, {'Jane Doe', 'John Smith', 'Alice Brown', 'Alice Brown Scene'})
+
+    def test_ignoring_selected_groups_hides_all_candidates_without_merging(self):
+        with self.database.write_transaction() as connection:
+            for identifier, remote in ((self.clean, 'one'), (self.extra, 'two')):
+                connection.execute("INSERT INTO entity_external_ref(entity_id,provider,external_kind,external_id) VALUES(?,'stashdb','performer',?)", (identifier, remote))
+        plan = web_actor_merge.q_actor_merge(self.contract, {'mode': 'ignore_groups', 'actor_ids': str(self.clean)})
+        self.assertEqual(plan['actors'], 2)
+        body = {'action': 'ignore_groups', 'group_ids': [self.clean], 'expected': plan['token'], 'confirmed': True}
+        result = web_actor_merge.w_actor_merge(self.contract, body)
+        self.assertEqual(result['ignored'], 2)
+        self.assertEqual(web_actor_merge.q_actor_merge(self.contract, {})['total'], 0)
+        detail = web_actor_merge.q_actor_merge(self.contract, {'actor_id': str(self.clean), 'include_ignored': '1'})
+        self.assertTrue(all(row['ignored'] for row in detail['matches']))
+        with self.database.read_connection() as connection:
+            self.assertEqual(connection.execute("SELECT count(*) FROM entity WHERE kind='performer'").fetchone()[0], 3)
+        with self.assertRaises(ValueError):
+            web_actor_merge.w_actor_merge(self.contract, body)

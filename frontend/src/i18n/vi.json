@@ -4531,5 +4531,8 @@
   "Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
   "Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
   "Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-  "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm đã chọn? Mỗi nhóm được hợp nhất riêng, có sao lưu và hoàn tác."
+  "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm đã chọn? Mỗi nhóm được hợp nhất riêng, có sao lưu và hoàn tác.",
+  "Ignore selected groups": "Bỏ qua các nhóm đã chọn",
+  "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Bỏ qua tất cả gợi ý trong {0} nhóm đã chọn? Có thể khôi phục từ danh sách đã bỏ qua.",
+  "Actor suggestions ignored.": "Đã bỏ qua các gợi ý diễn viên."
 }

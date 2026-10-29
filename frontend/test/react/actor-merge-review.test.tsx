@@ -55,7 +55,7 @@ it('逐项忽略候选，选中组的批量请求只包含所选组', async () =
   await settle(); await click(host.querySelector('button[aria-pressed]')); await settle();
   await click(buttonNamed('Ignore suggestion', host)); await settle();
   expect(posts[0]).toEqual({ action: 'ignore', actor_id: 1, merge_ids: [2], expected: { 1: 'one', 2: 'two' } });
-  await click([...host.querySelectorAll('label')].find(label => label.textContent?.includes('Select group: Jane Doe')));
+  await click(host.querySelector('input[aria-label="Select group: Jane Doe"]')?.closest('label'));
   await click(buttonNamed('Automatically merge selected groups', host)); await settle();
   expect(posts[1]).toEqual({ action: 'automatic', expected: 'selected-plan', confirmed: true, group_ids: [1] });
 });

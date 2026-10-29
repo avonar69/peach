@@ -32,6 +32,31 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_synced_tags_appear_in_global_index_and_peach_taste_without_jav_code(self):
+        from peach.web_state import WebContract
+        from peach.web_entity import q_index
+        from peach.taste_history import _peach_dashboard_evidence, _tag_inventory
+        from peach.taste_evidence import IdentityIndex, collection_evidence
+        from collections import defaultdict, Counter
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET code=NULL,snapshot_path=NULL,play_seconds=180,play_count=1 WHERE id=1")
+            stashdb._write_tags(connection, 1, {'tags': [{'id': 'tag-1', 'name': 'Scene theme'}]})
+            stashdb._write_tags(connection, 1, {'tags': [{'id': 'tag-1', 'name': 'Scene theme'}]})
+            self.assertEqual(connection.execute("SELECT count(*) FROM asset_entity WHERE role='tag'").fetchone()[0], 1)
+            upsert_asset_entity(connection, kind='tag', name='Scene theme', asset_id=1, role='tag', source='user:manual')
+        contract = WebContract(self.database.db_path, database=self.database, avatar_root=self.root / 'avatars',
+            candidate_root=self.root / 'candidates', cover_root=self.root / 'covers', follow_state_root=self.root / 'state')
+        self.assertIn('Scene theme', {row['k'] for row in q_index(contract, 'tags')['items']})
+        with self.database.read_connection() as connection:
+            evidence = _peach_dashboard_evidence(connection, None)
+            self.assertEqual(evidence['scores']['tag']['scene theme'], 3.75)
+            self.assertEqual(evidence['items']['tag']['scene theme'], {1})
+            self.assertEqual(_tag_inventory(connection)['Scene theme'], 1)
+            index = IdentityIndex(connection)
+            counters = {name: defaultdict(Counter) for name in ('馆藏积累', '观看与反馈')}
+            collection_evidence(connection, index, counters)
+            self.assertIn('Scene theme', index.names['tag'].values())
+            self.assertEqual(connection.execute("SELECT count(*) FROM asset_entity WHERE role='tag'").fetchone()[0], 2)
     def test_scene_resync_fills_missing_fields_and_adds_tags_without_searching(self):
         from peach import stashdb_scene_sync
         from peach.fsutil import atomic_write_text

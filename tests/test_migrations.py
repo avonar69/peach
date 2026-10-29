@@ -3,6 +3,7 @@ import sqlite3
 import shutil
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from peach.migrations import plan, upgrade
@@ -12,6 +13,25 @@ MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
 
 
 class MigrationTests(unittest.TestCase):
+    def test_stashdb_tag_backfill_preserves_sources_and_supports_index_and_taste(self):
+        prior = self.root.resolve() / 'prior'
+        prior.mkdir()
+        for path in MIGRATIONS.glob('*.sql'):
+            if path.name < '0051_':
+                shutil.copyfile(path, prior / path.name)
+        upgrade(self.db, prior)
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            connection.execute("INSERT INTO asset(id,location,path,medium,play_seconds) VALUES(1,'local','scene.mp4','video',100)")
+            connection.execute("INSERT INTO asset_tag(asset_id,tag,source,confidence) VALUES(1,'Scene theme','auto:stashdb-tags',1)")
+            connection.execute("INSERT INTO asset_tag(asset_id,tag,source,confidence) VALUES(1,'Private tag','user:manual',1)")
+        self.assertEqual([row.version for row in upgrade(self.db, MIGRATIONS)], ['0051'])
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            self.assertEqual(connection.execute("SELECT e.canonical_name,ae.source FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id WHERE e.kind='tag'").fetchall(), [('Scene theme', 'auto:stashdb-tags')])
+            self.assertEqual(connection.execute("SELECT source FROM asset_tag WHERE tag='Private tag'").fetchone()[0], 'user:manual')
+            self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+            self.assertEqual(connection.execute("SELECT count(*) FROM asset_search WHERE asset_search MATCH 'theme'").fetchone()[0], 1)
+        self.assertEqual(upgrade(self.db, MIGRATIONS), [])
+
     def test_disposal_reason_migration_preserves_assets_tags_and_unknown_reasons(self):
         prior = self.root.resolve() / 'prior'
         prior.mkdir()
@@ -24,7 +44,7 @@ class MigrationTests(unittest.TestCase):
             connection.execute("INSERT INTO asset(id,location,path,medium,disposal) VALUES(1,'local','sample.mp4','video','trash')")
             connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'示例','user')")
             connection.commit()
-            self.assertEqual([migration.version for migration in upgrade(self.db, MIGRATIONS)], ['0046', '0047', '0048', '0049', '0050'])
+            self.assertEqual([migration.version for migration in upgrade(self.db, MIGRATIONS)], ['0046', '0047', '0048', '0049', '0050', '0051'])
             self.assertEqual(connection.execute("SELECT disposal,disposal_reason FROM asset WHERE id=1").fetchone(), ('trash', None))
             self.assertEqual(connection.execute("SELECT tag,source FROM asset_tag WHERE asset_id=1").fetchall(), [('示例', 'user')])
             self.assertEqual(connection.execute("SELECT count(*) FROM asset").fetchone()[0], 1)
@@ -43,7 +63,7 @@ class MigrationTests(unittest.TestCase):
         sqlite3.connect(self.db).close()
         backup = self.root / "before.db"
         done = upgrade(self.db, MIGRATIONS, backup)
-        self.assertEqual([m.version for m in done], [f'{number:04d}' for number in range(51)])
+        self.assertEqual([m.version for m in done], [f'{number:04d}' for number in range(52)])
         self.assertTrue(backup.exists())
         con = sqlite3.connect(self.db)
         tables = {row[0] for row in con.execute(
@@ -61,7 +81,7 @@ class MigrationTests(unittest.TestCase):
                          "asset_tag_preference", "asset_search", "follow_playback",
                          "genre_decision", "asset_subtitle", "task_run", "performer_profile", "code_sample_image",
                          "entity_classification", "entity_identity_link", "seed_pack_history", "schema_migration"} <= tables)
-        self.assertEqual(versions, [f'{number:04d}' for number in range(51)])
+        self.assertEqual(versions, [f'{number:04d}' for number in range(52)])
         self.assertEqual(upgrade(self.db, MIGRATIONS), [])
         self.assertEqual(plan(self.db, MIGRATIONS)[1], [])
 

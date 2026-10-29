@@ -4531,5 +4531,8 @@
   "Thumbnail generation is stopping. Try deleting again shortly.": "Thumbnail generation is stopping. Try deleting again shortly.",
   "Choose a valid timeline regeneration scope.": "Choose a valid timeline regeneration scope.",
   "Invalid timeline thumbnail directory": "Invalid timeline thumbnail directory",
-  "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Mesclar {0} artistas duplicados em {1} grupos selecionados? Cada grupo será mesclado separadamente, com backup e reversão."
+  "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Mesclar {0} artistas duplicados em {1} grupos selecionados? Cada grupo será mesclado separadamente, com backup e reversão.",
+  "Ignore selected groups": "Ignorar grupos selecionados",
+  "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignorar todas as sugestões de {0} grupos selecionados? É possível restaurá-las pela lista de ignoradas.",
+  "Actor suggestions ignored.": "Sugestões de artistas ignoradas."
 }

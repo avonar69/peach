@@ -4531,5 +4531,8 @@
   "Thumbnail generation is stopping. Try deleting again shortly.": "缩略图生成正在停止，请稍后重试删除。",
   "Choose a valid timeline regeneration scope.": "请选择有效的时间轴重新生成范围。",
   "Invalid timeline thumbnail directory": "时间轴缩略图目录无效",
-  "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合併所選 {1} 組中的 {0} 個重複演員？各組分別合併，並提供備份與復原。"
+  "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合併所選 {1} 組中的 {0} 個重複演員？各組分別合併，並提供備份與復原。",
+  "Ignore selected groups": "忽略選取的群組",
+  "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "忽略所選 {0} 組的全部建議？可從已忽略清單復原建議。",
+  "Actor suggestions ignored.": "已忽略演員建議。"
 }

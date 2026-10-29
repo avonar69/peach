@@ -1,5 +1,9 @@
 # 页面路由
 
+StashDB 场景标签写入 `asset_tag` 并经 `upsert_asset_entity(kind='tag',role='tag')` 同步规范关系。`GET /api/index?kind=tags`、标签资料页及口味证据均读取这些关系；迁移 `0051` 回填已有 `auto:stashdb-tags` 投影，并刷新受影响作品的搜索索引。口味标签库存计数不要求预览图或横屏，观看分数保留原有行为门槛。
+
+`GET /api/actor-merge?mode=ignore_groups&actor_ids=…` 返回所选组全部候选的数量与冻结令牌，包括来源冲突和模糊匹配。`POST /api/actor-merge` 的 `action=ignore_groups` 要求明确的 `group_ids`、`expected` 令牌与 `confirmed=true`，在同一事务内忽略这些组的全部当前候选。资料或组成员变化时拒绝；不执行实体合并，逐项恢复沿用已忽略列表。
+
 演员建议接受 `include_ignored=1` 显示已忽略关系；`POST /api/actor-merge` 的 `action=ignore|unignore` 使用 `actor_id`、`merge_ids` 和所涉演员 `expected` 证据令牌，决定存于 `review_decision`，绑定演员标识及规范名。自动计划接受逗号分隔的 `actor_ids`，提交时以 `group_ids` 冻结同一组选取，各组独立合并并共用批次备份和撤销。
 
 `POST /api/follow/check` 的 `include_rss=true` 使后台任务在普通来源后同步等待启用的 RSS 来源检查，终态合计两类结果。`POST /api/thumbnail-jobs` 的 `regeneration=all|upgrade` 分别覆盖全部时间轴图或仅缺失、损坏及间隔更长的图；默认 `upgrade`。`action=delete_all` 要求 `confirmed=true`，关闭生成并等待工作者退出，只清理时间轴目录内数字分桶下的数字作品目录。
