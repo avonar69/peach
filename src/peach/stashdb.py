@@ -319,15 +319,21 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
                   'files': [str(path.relative_to(config.directory('generated'))) for path in
                     [target, *(config.directory('generated') / 'avatars' / f'performer-{entity_id}.img' for _, entity_id in actor_links)]
                     if path.is_file()]}
-        if fill_only:
-            previous = read_record(config.directory('state') / 'stashdb-matches' / f'{asset_id}.json')
-            record.update(reviewed=bool(previous.get('reviewed')), match=previous.get('match') or ranked)
-        atomic_write_text(config.directory('state') / 'stashdb-matches' / f'{asset_id}.json', json.dumps(record, ensure_ascii=False))
-        (config.directory('state') / 'stashdb-review' / f'{asset_id}.json').unlink(missing_ok=True)
+        _save_scene_record(config, asset_id, record, fill_only=fill_only)
         return {'ok': True, 'scene_id': scene_id, 'actor_photos': photos, 'scene_picture': bool(picture), 'cast_updated': cast_updated}
     finally:
         if owned:
             client.close()
+
+
+def _save_scene_record(config, asset_id, record, *, fill_only):
+    """保存场景绑定的终态，补空同步继承已有复核结论。"""
+    path = config.directory('state') / 'stashdb-matches' / f'{asset_id}.json'
+    if fill_only:
+        previous = read_record(path)
+        record.update(reviewed=bool(previous.get('reviewed')), match=previous.get('match') or record['match'])
+    atomic_write_text(path, json.dumps(record, ensure_ascii=False))
+    (config.directory('state') / 'stashdb-review' / f'{asset_id}.json').unlink(missing_ok=True)
 
 
 def apply_performer(config, database, performer_id, remote_id, *, client=None):
