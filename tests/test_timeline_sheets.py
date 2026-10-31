@@ -214,6 +214,36 @@ class GenerateLibraryTests(unittest.TestCase):
             state = self._run()
         self.assertEqual((state["skipped"], state["made"]), (3, 0))
 
+    def test_running_generation_collects_newly_imported_and_newly_probed_videos(self):
+        built = []
+        reports = []
+        def build(*args, **kwargs):
+            built.append(args[4])
+            if len(built) == 1:
+                path = self.media / '4.mp4'
+                path.write_bytes(b'movie')
+                connection = sqlite3.connect(self.db)
+                try:
+                    with connection:
+                        connection.execute("INSERT INTO asset(id,medium,location,path,duration) VALUES(4,'video','local',?,3600)", (str(path),))
+                        connection.execute('UPDATE asset SET duration=3600 WHERE id=5')
+                finally:
+                    connection.close()
+            return True
+        path = self.media / '5.mp4'
+        path.write_bytes(b'movie')
+        connection = sqlite3.connect(self.db)
+        try:
+            with connection:
+                connection.execute("INSERT INTO asset(id,medium,location,path) VALUES(5,'video','local',?)", (str(path),))
+        finally:
+            connection.close()
+        with patch.object(timeline_sheets, 'build', side_effect=build):
+            result = self._run(report=lambda **fields: reports.append(fields))
+        self.assertEqual(built, [1, 2, 4, 5])
+        self.assertEqual((result['total'], result['done'], result['made'], result['failed']), (5, 5, 4, 1))
+        self.assertEqual([row['total'] for row in reports if row['total'] == 5][0], 5)
+
     def test_regeneration_scope_keeps_denser_sheets_and_rebuilds_wider_ones(self):
         for identifier, interval in ((1, 5), (2, 30)):
             directory = timeline_sheets.sheet_dir(self.sheets, identifier)

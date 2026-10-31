@@ -218,6 +218,22 @@ def pending(db_path: Path | str, interval: int, *, limit: int = 0) -> list[tuple
         connection.close()
 
 
+def _growing_queue(db_path, interval, tasks, state, report, active, limit):
+    """每批耗尽后补入新近具备时长的资产，同一轮每个资产只领取一次。"""
+    seen = {row[0] for row in tasks}
+    while tasks:
+        yield from tasks
+        if not active() or (limit and len(seen) >= limit):
+            return
+        tasks = [row for row in pending(db_path, interval) if row[0] not in seen]
+        if limit:
+            tasks = tasks[:max(0, limit - len(seen))]
+        seen.update(row[0] for row in tasks)
+        if tasks:
+            state['total'] += len(tasks)
+            report(**state)
+
+
 def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: str,
                      report=lambda **fields: None, active=lambda: True,
                      guard=None, limit: int = 0, resume_state=None, checkpoint=lambda **fields: None,
@@ -238,7 +254,7 @@ def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: 
         completed.add(asset_id)
         checkpoint(completed_assets=sorted(completed), **state)
     report(**state)
-    for asset_id, path, duration in tasks:
+    for asset_id, path, duration in _growing_queue(db_path, interval, tasks, state, report, active, limit):
         if asset_id in completed and is_current(root, asset_id, interval):
             continue
         from .strm import skip_background_read

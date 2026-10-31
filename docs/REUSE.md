@@ -6,6 +6,8 @@
 
 ## 时间轴缩略图任务
 
+生成队列复用 `timeline_sheets.pending`，每批耗尽后重新读取可执行资产，接入运行期间导入或补齐时长的视频。当前任务以资产 ID 去重，失败项不在同轮循环重试；任务总数随补入更新，取消和磁盘闸门继续生效，不新增调度器或依赖。
+
 通用原片能力复用 FFprobe 的既有文件指纹缓存，编码描述遵循 [MDN 的 MIME codecs 参数](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/codecs_parameter)，浏览器使用 `canPlayType` 与可用时的 `MediaCapabilities`，不维护按浏览器名称区分的解码白名单。转换回退沿用现有 HLS 与 FFmpeg 服务，决定随片段 URL 传递。
 
 按需预览复用 HTMLVideoElement、Canvas 与现有流会话取消，最多一个浏览器解码器和二十帧内存缓存；无需新依赖、WebCodecs 解复用器或服务端帧队列。浏览器负责 CPU／GPU 调度，Peach 负责防抖、生命周期与本地非计费边界；PotPlayer 代码与性能复现未取得，不从该链接复制实现。取证与差异见[笔记](reference-snapshots/potplayer-seek-preview.md)。
