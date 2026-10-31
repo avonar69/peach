@@ -2369,7 +2369,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                                     stage=stage, guard=guard, update=update, issue=issue,
                                     scan_checkpoints=state['scan_checkpoints'],
                                     save_checkpoint=lambda: flush_state(force=True), initial_probed=state['probed'])
-            state.update(scanned=sources.scanned, scanned_bytes=sources.scanned_bytes, probed=sources.probed)
+            state.update(scanned=sources.scanned, scanned_bytes=sources.scanned_bytes, probed=sources.probed,
+                         discovered=len(set(sources.new_ids)))
             finish_step('sources')
             if stage == FIND_NEW_STAGE and scope_ids is None:
                 discovered_rows, _ = _collection_rows(db_path, locations=locations,

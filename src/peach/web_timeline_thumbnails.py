@@ -4,6 +4,7 @@
 时要看到的是「这台机器正在按 10 秒一帧采集」，不是那台设备自己的上一次选择。
 """
 import json
+import logging
 import time
 from pathlib import Path
 
@@ -140,6 +141,21 @@ def _delete_thumbnails(contract, body):
         raise ValueError('Thumbnail generation is stopping. Try deleting again shortly.')
     removed = timeline_sheets.clear_library(contract.timeline_root)
     return {**q_thumbnail_jobs(contract, {}), 'removed': removed}
+
+
+def after_scan(contract, result):
+    """扫描取得新增视频后，按持久密度补齐时间轴；活动任务自行补入队列。"""
+    if not result.get('discovered') or result.get('status') not in ('complete', 'failed'):
+        return
+    mode = read_mode()
+    if mode == timeline_sheets.OFF or metadata_only(contract.follow_state_root):
+        return
+    if (contract.thumbnail_job.snapshot() or {}).get('status') in ('running', 'paused', 'pausing', 'stopping'):
+        return
+    try:
+        return w_thumbnail_jobs(contract, {'mode': mode, 'interval_seconds': read_interval(), 'regeneration': 'upgrade'})
+    except (OSError, ValueError):
+        logging.getLogger(__name__).exception('Unable to start timeline thumbnails after scan')
 
 
 def w_thumbnail_jobs(contract, body):

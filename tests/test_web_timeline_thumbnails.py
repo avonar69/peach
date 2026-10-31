@@ -83,6 +83,26 @@ class ThumbnailJobEndpointTests(unittest.TestCase):
         self.contract.thumbnail_job.start.assert_not_called()
         self.assertEqual(web_timeline_thumbnails.read_mode(), "off")
 
+    def test_scan_with_new_videos_starts_idle_generation_with_saved_interval(self):
+        web_timeline_thumbnails.write_mode('custom', interval_seconds=17)
+        with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=False), \
+                patch.object(web_timeline_thumbnails, 'w_thumbnail_jobs') as start:
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+        start.assert_called_once_with(self.contract, {'mode': 'custom', 'interval_seconds': 17, 'regeneration': 'upgrade'})
+
+    def test_scan_preserves_disabled_or_active_generation_and_empty_scans(self):
+        with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=False), \
+                patch.object(web_timeline_thumbnails, 'w_thumbnail_jobs') as start:
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+            web_timeline_thumbnails.write_mode('precise')
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 0})
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'cancelled', 'discovered': 2})
+            with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=True):
+                web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+            self.contract.thumbnail_job.snapshot.return_value = {'status': 'running'}
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+            start.assert_not_called()
+
     def test_speed_is_persisted_independently_without_starting_or_stopping_a_job(self):
         web_timeline_thumbnails.write_mode('precise')
         self.assertEqual(web_timeline_thumbnails.q_thumbnail_jobs(self.contract, {})['speed_mode'], 'low')

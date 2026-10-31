@@ -235,6 +235,8 @@ def w_library_processing(contract, body, *, resume=False):
                 report=lambda state: contract.library_processing_job.update(job_id, **{
                     key: value for key, value in state.items() if key != 'job_id'}))
             contract.library_processing_job.update(job_id, **{key: value for key, value in result.items() if key != 'job_id'})
+            from .web_timeline_thumbnails import after_scan
+            after_scan(contract, result)
         except InterruptedError:
             if not control_for(config).cancelled:
                 raise
