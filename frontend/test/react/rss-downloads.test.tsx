@@ -40,6 +40,11 @@ it('NZBGet 与 SABnzbd 目的地分别保留发送状态', async () => {
   expect(served.posts[0]).toEqual({ path: '/api/rss/nzbget', body: { entry_id: 1, link_index: 0 } });
   expect(buttonNamed('Sent to NZBGet', host)?.disabled).toBe(true);
   expect(buttonNamed('Send to SABnzbd', host)?.disabled).toBe(false);
+  expect(buttonNamed('Sent to NZBGet', host)?.parentElement?.querySelector('.text-notification-success-foreground')).not.toBeNull();
+  const restored = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
+  expect(buttonNamed('Sent to NZBGet', restored)?.disabled).toBe(true);
+  expect(buttonNamed('Send to SABnzbd', restored)?.disabled).toBe(false);
+  expect(buttonNamed('Sent to NZBGet', restored)?.parentElement?.querySelector('.text-notification-success-foreground')).not.toBeNull();
 });
 
 it('多选来源保存到本浏览器并加入分页请求', async () => {

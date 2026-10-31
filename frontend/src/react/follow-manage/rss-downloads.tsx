@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { RiDownloadCloud2Line } from '@remixicon/react';
+import { RiCheckLine, RiDownloadCloud2Line } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { Switch } from '@/components/base/switch/switch';
@@ -26,6 +26,14 @@ interface Source { id: number; name: string; enabled: boolean; interval_minutes?
 interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[]; jobs: Job[]; total: number; offset: number; read_only?: boolean;
   sabnzbd?: { configured: boolean }; nzbget?: { configured: boolean } }
 const KEY = ['rss-downloads'];
+const SENT_NZBS = 'peach.rss-sent-nzbs';
+
+function savedNZBs(): string[] {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(SENT_NZBS) || '[]');
+    return Array.isArray(value) ? value.filter((key): key is string => typeof key === 'string').slice(-10000) : [];
+  } catch { return []; }
+}
 
 export function supports(provider: DebridProvider, link: Link, confirmed = false): boolean {
   if (!provider.configured || link.kind === 'nzb') return false;
@@ -54,7 +62,7 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
 }) {
   const [name, setName] = useState(''), [url, setUrl] = useState(''), [offset, setOffset] = useState(0);
   const [selected, setSelected] = useState(rssSelection);
-  const [sentNZBs, setSentNZBs] = useState<string[]>([]);
+  const [sentNZBs, setSentNZBs] = useState(savedNZBs);
   const [pageSize, setPageSize] = useState(() => {
     try { const saved = Number(localStorage.getItem('peach.rss-page-size')); return [10, 20, 50, 100].includes(saved) ? saved : 20; }
     catch { return 20; }
@@ -194,12 +202,17 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
         <a href={link.url} className="min-w-0 break-all underline" rel="noreferrer" target="_blank"
           type={link.kind === 'nzb' ? 'application/x-nzb' : undefined}>
           {link.kind === 'nzb' ? 'Download NZB' : <span data-i18n-ignore="">{link.url}</span>}</a>
-        {link.kind === 'nzb' ? (['sabnzbd', 'nzbget'] as const).filter(provider => data[provider]?.configured).map(provider => <Button key={provider} size="small" variant="secondary" disabled={readOnly || sentNZBs.includes(`${provider}:${entry.id}:${index}`)}
+        {link.kind === 'nzb' ? (['sabnzbd', 'nzbget'] as const).filter(provider => data[provider]?.configured).map(provider => <span key={provider} className="inline-flex items-center gap-2"><Button size="small" variant="secondary" disabled={readOnly || sentNZBs.includes(`${provider}:${entry.id}:${index}`)}
           {...busyProps(action.busy === provider)} onClick={() => void action.run(provider, signal => apiSend(`/api/rss/${provider}`, {
             entry_id: entry.id, link_index: index,
           }, 'POST', signal), () => {
-            setSentNZBs(previous => [...previous, `${provider}:${entry.id}:${index}`]); toast(formatTranslation('NZB sent to {0}.', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet'));
-          })}>{formatTranslation(sentNZBs.includes(`${provider}:${entry.id}:${index}`) ? 'Sent to {0}' : 'Send to {0}', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet')}</Button>) : null}
+            setSentNZBs(previous => {
+              const saved = [...new Set([...savedNZBs(), ...previous, `${provider}:${entry.id}:${index}`])].slice(-10000);
+              try { localStorage.setItem(SENT_NZBS, JSON.stringify(saved)); } catch { /* 当前页面仍保留回执。 */ }
+              return saved;
+            }); toast(formatTranslation('NZB sent to {0}.', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet'));
+          })}>{formatTranslation(sentNZBs.includes(`${provider}:${entry.id}:${index}`) ? 'Sent to {0}' : 'Send to {0}', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet')}</Button>
+          {sentNZBs.includes(`${provider}:${entry.id}:${index}`) ? <RiCheckLine aria-hidden="true" className="size-5 shrink-0 text-notification-success-foreground" /> : null}</span>) : null}
         {data.providers.filter(provider => supports(provider, link)).map(provider => <Button key={provider.id} size="small" variant="secondary" iconOnly
           leadingIcon={RiDownloadCloud2Line} title={formatTranslation('Download with {0}', provider.label)} aria-label={formatTranslation('Download with {0}', provider.label)}
           disabled={readOnly} {...busyProps(action.busy === 'resolve')} onClick={() => clickDebrid(entry, index, provider)} />)}
