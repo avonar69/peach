@@ -255,12 +255,13 @@ def user_paused(db_path, job_id):
 
 def initial_estimate(config, db_path, stage, asset_ids=None, mode=None):
     """仅使用账本统计，不在启动 HTTP 请求里遍历媒体目录。"""
+    from .matching_jobs import LABELS as matching_stages
     stage = 'metadata' if stage == 'rematch' else stage
     if stage == 'find_new' and asset_ids is None:
         return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
             estimate_file_count=0, estimate_bytes=0, eta_scope='本趟处理',
             eta_seconds_min=None, eta_seconds_max=None, eta_kind='estimating')
-    if stage in ('stashdb_actors', 'stashdb_studios', 'stashdb_scenes', 'stashdb_ignored', 'filename_ignored'):
+    if stage in matching_stages:
         return dict(speed_mode=mode or control_for(config).mode, eta_initial=True,
             estimate_file_count=len(asset_ids or []), estimate_bytes=0, eta_scope='本趟处理')
     mode = mode or control_for(config).mode

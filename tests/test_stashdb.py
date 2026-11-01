@@ -314,6 +314,20 @@ class StashDBTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'A scan is already running'):
                 web_library_processing.w_library_processing(contract, {'stage': 'filename_ignored'})
 
+    def test_pending_review_request_starts_with_selected_scope_and_estimate(self):
+        from dataclasses import replace
+        from peach import web_library_processing
+        config = replace(self.config, present=True, data_root_found=True, locations={'local': (r'R:\media',)})
+        job = mock.Mock()
+        job.snapshot.return_value = {}
+        job.start.return_value = {'requested_stage': 'stashdb_review'}
+        contract = SimpleNamespace(database=self.database, db_path=self.database.db_path, library_processing_job=job)
+        with mock.patch('peach.settings_file.active', return_value=config):
+            result = web_library_processing.w_library_processing(contract, {'stage': 'stashdb_review', 'asset_ids': [1]})
+        self.assertEqual(result['requested_stage'], 'stashdb_review')
+        self.assertEqual(job.start.call_args.kwargs['initial']['estimate_file_count'], 1)
+        self.assertEqual(job.start.call_args.kwargs['recovery']['asset_ids'], [1])
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
