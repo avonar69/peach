@@ -4534,5 +4534,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm đã chọn? Mỗi nhóm được hợp nhất riêng, có sao lưu và hoàn tác.",
   "Ignore selected groups": "Bỏ qua các nhóm đã chọn",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Bỏ qua tất cả gợi ý trong {0} nhóm đã chọn? Có thể khôi phục từ danh sách đã bỏ qua.",
-  "Actor suggestions ignored.": "Đã bỏ qua các gợi ý diễn viên."
+  "Actor suggestions ignored.": "Đã bỏ qua các gợi ý diễn viên.",
+  "Match using file fingerprints (OSHASH)": "Khớp bằng dấu vân tay tệp (OSHASH)",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "Điểm cao nhất đạt ngưỡng có thể được áp dụng tự động. Các kết quả đồng điểm, dữ liệu xung đột và tìm kiếm chưa đầy đủ cần duyệt.",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH đọc 64 KiB đầu và cuối của tệp cục bộ. Bản mã hóa khác có thể không khớp. Không gửi nội dung hay dấu vân tay lên StashDB.",
+  "Rerun pending StashDB matches": "Chạy lại các mục StashDB đang chờ duyệt",
+  "File fingerprint matches": "Dấu vân tay tệp khớp",
+  "Below the automatic match threshold": "Dưới ngưỡng khớp tự động",
+  "Conflicting scene details require review": "Dữ liệu cảnh xung đột, cần duyệt",
+  "Tied scene matches require review": "Các cảnh đồng điểm, cần duyệt",
+  "Incomplete search results require review": "Kết quả tìm kiếm chưa đầy đủ, cần duyệt",
+  "Manual StashDB match": "Khớp StashDB thủ công"
 }

@@ -18,15 +18,15 @@ from .http import HttpRequest, HttpResponse, public_https_url, resolves_publicly
 from .user_agent import USER_AGENT
 
 ENDPOINT = 'https://stashdb.org/graphql'
-POLICY_KEYS = ('enabled', 'actor_images', 'scene_images', 'correct_cast', 'auto_apply', 'skip_failed', 'only_new_media')
+POLICY_KEYS = ('enabled', 'actor_images', 'scene_images', 'correct_cast', 'auto_apply', 'skip_failed', 'only_new_media', 'fingerprint_matching')
 DEFAULTS = dict(enabled=False, actor_images=True, scene_images=True, correct_cast=False, auto_apply=False,
-    skip_failed=False, only_new_media=False)
+    skip_failed=False, only_new_media=False, fingerprint_matching=False)
 _LOCK = threading.Lock()
 _LAST = 0.0
 PERFORMER_FIELDS = '''id name disambiguation aliases deleted gender images{id url width height}
 birth_date career_start_year career_end_year height band_size cup_size waist_size hip_size
 breast_type country ethnicity eye_color hair_color'''
-SCENE_FIELDS = f'''id title release_date duration deleted tags{{id name}} studio{{id name parent{{id name}}}}
+SCENE_FIELDS = f'''id title release_date duration deleted fingerprints{{algorithm hash duration reports submissions}} tags{{id name}} studio{{id name parent{{id name}}}}
 images{{id url width height}} performers{{as performer{{{PERFORMER_FIELDS}}}}}'''
 
 
@@ -208,6 +208,11 @@ class Client:
 
     def scene(self, identity):
         return self.query(f'query PeachScene($id:ID!){{findScene(id:$id){{{SCENE_FIELDS}}}}}', {'id': identity}).get('findScene')
+
+    def fingerprint_scenes(self, value):
+        query = f'query PeachFingerprints($fingerprints:[[FingerprintQueryInput!]!]!){{findScenesBySceneFingerprints(fingerprints:$fingerprints){{{SCENE_FIELDS}}}}}'
+        rows = self.query(query, {'fingerprints': [[{'algorithm': 'OSHASH', 'hash': value}]]})['findScenesBySceneFingerprints'][0]
+        return [row for row in rows if row]
 
     def performer(self, identity):
         return self.query(f'query PeachPerformer($id:ID!){{findPerformer(id:$id){{{PERFORMER_FIELDS}}}}}', {'id': identity}).get('findPerformer')

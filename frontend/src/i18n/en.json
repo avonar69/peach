@@ -875,5 +875,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.",
   "Ignore selected groups": "Ignore selected groups",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.",
-  "Actor suggestions ignored.": "Actor suggestions ignored."
+  "Actor suggestions ignored.": "Actor suggestions ignored.",
+  "Match using file fingerprints (OSHASH)": "Match using file fingerprints (OSHASH)",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.",
+  "Rerun pending StashDB matches": "Rerun pending StashDB matches",
+  "File fingerprint matches": "File fingerprint matches",
+  "Below the automatic match threshold": "Below the automatic match threshold",
+  "Conflicting scene details require review": "Conflicting scene details require review",
+  "Tied scene matches require review": "Tied scene matches require review",
+  "Incomplete search results require review": "Incomplete search results require review",
+  "Manual StashDB match": "Manual StashDB match"
 }

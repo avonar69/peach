@@ -4534,5 +4534,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "選択した {1} グループの重複出演者 {0} 件を統合しますか？グループごとに統合し、バックアップと復元を利用できます。",
   "Ignore selected groups": "選択したグループを無視",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "選択した {0} グループのすべての候補を無視しますか？無視リストから復元できます。",
-  "Actor suggestions ignored.": "出演者候補を無視しました。"
+  "Actor suggestions ignored.": "出演者候補を無視しました。",
+  "Match using file fingerprints (OSHASH)": "ファイル指紋で照合（OSHASH）",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "最高スコアがしきい値以上なら自動適用します。同点、情報の矛盾、検索不完全の場合は確認が必要です。",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH はローカルファイルの先頭と末尾各 64 KiB を読み取ります。別のエンコードでは一致しない場合があります。メディアや指紋を StashDB に投稿しません。",
+  "Rerun pending StashDB matches": "保留中の StashDB 照合を再実行",
+  "File fingerprint matches": "ファイル指紋が一致",
+  "Below the automatic match threshold": "自動照合のしきい値未満",
+  "Conflicting scene details require review": "作品情報に矛盾があるため要確認",
+  "Tied scene matches require review": "同点の作品があるため要確認",
+  "Incomplete search results require review": "検索結果が不完全なため要確認",
+  "Manual StashDB match": "StashDB を手動照合"
 }

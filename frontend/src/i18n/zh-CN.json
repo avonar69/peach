@@ -559,5 +559,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合并所选 {1} 组中的 {0} 个重复演员？各组分别合并，并提供备份与撤销。",
   "Ignore selected groups": "忽略选中的组",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "忽略所选 {0} 组的全部建议？可从已忽略列表恢复建议。",
-  "Actor suggestions ignored.": "已忽略演员建议。"
+  "Actor suggestions ignored.": "已忽略演员建议。",
+  "Match using file fingerprints (OSHASH)": "使用文件指纹匹配（OSHASH）",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "最高分达到阈值即可自动应用。同分、资料冲突和搜索不完整时需复核。",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH 读取本地文件首尾各 64 KiB。不同编码可能无法匹配。不向 StashDB 提交媒体或指纹。",
+  "Rerun pending StashDB matches": "重新匹配待复核的 StashDB 项目",
+  "File fingerprint matches": "文件指纹匹配",
+  "Below the automatic match threshold": "低于自动匹配阈值",
+  "Conflicting scene details require review": "作品资料冲突，需要复核",
+  "Tied scene matches require review": "作品得分相同，需要复核",
+  "Incomplete search results require review": "搜索结果不完整，需要复核",
+  "Manual StashDB match": "手动匹配 StashDB"
 }

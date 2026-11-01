@@ -1,5 +1,7 @@
 # 页面路由
 
+StashDB 设置接受布尔值 `fingerprint_matching`（默认关闭），为本地文件启用 OSHASH 查询。候选预览返回 `review_reasons`，解释阈值、同分、资料冲突及不完整结果。`POST /api/library-processing` 的 `stage=stashdb_review` 配合 `asset_ids` 冻结待复核列表，只重跑该列表并使用当前设置，沿用进度、取消与断点；显式重跑绕过失败缓存及仅新增限制。作品顶部手动匹配弹层复用 `POST /api/configuration/stashdb/preview` 和 `/apply`，应用后刷新当前作品。
+
 StashDB 场景标签写入 `asset_tag` 并经 `upsert_asset_entity(kind='tag',role='tag')` 同步规范关系。`GET /api/index?kind=tags`、标签资料页及口味证据均读取这些关系；迁移 `0051` 回填已有 `auto:stashdb-tags` 投影，并刷新受影响作品的搜索索引。口味标签库存计数不要求预览图或横屏，观看分数保留原有行为门槛。
 
 `GET /api/actor-merge?mode=ignore_groups&actor_ids=…` 返回所选组全部候选的数量与冻结令牌，包括来源冲突和模糊匹配。`POST /api/actor-merge` 的 `action=ignore_groups` 要求明确的 `group_ids`、`expected` 令牌与 `confirmed=true`，在同一事务内忽略这些组的全部当前候选。资料或组成员变化时拒绝；不执行实体合并，逐项恢复沿用已忽略列表。

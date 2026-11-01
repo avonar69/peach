@@ -4534,5 +4534,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "선택한 {1}개 그룹의 중복 배우 {0}명을 병합할까요? 각 그룹을 별도로 병합하며 백업과 실행 취소를 제공합니다.",
   "Ignore selected groups": "선택한 그룹 무시",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "선택한 {0}개 그룹의 모든 제안을 무시할까요? 무시 목록에서 복원할 수 있습니다.",
-  "Actor suggestions ignored.": "배우 제안을 무시했습니다."
+  "Actor suggestions ignored.": "배우 제안을 무시했습니다.",
+  "Match using file fingerprints (OSHASH)": "파일 지문으로 매칭 (OSHASH)",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "최고 점수가 기준 이상이면 자동 적용할 수 있습니다. 동점, 정보 충돌, 불완전한 검색은 검토가 필요합니다.",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH는 로컬 파일의 처음과 끝에서 각각 64 KiB를 읽습니다. 다른 인코딩은 일치하지 않을 수 있습니다. 미디어나 지문을 StashDB에 제출하지 않습니다.",
+  "Rerun pending StashDB matches": "대기 중인 StashDB 매칭 다시 실행",
+  "File fingerprint matches": "파일 지문 일치",
+  "Below the automatic match threshold": "자동 매칭 기준 미만",
+  "Conflicting scene details require review": "장면 정보 충돌: 검토 필요",
+  "Tied scene matches require review": "장면 점수 동점: 검토 필요",
+  "Incomplete search results require review": "검색 결과 불완전: 검토 필요",
+  "Manual StashDB match": "StashDB 수동 매칭"
 }

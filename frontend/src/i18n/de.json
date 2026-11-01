@@ -4534,5 +4534,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "{0} doppelte Darsteller in {1} ausgewählten Gruppen zusammenführen? Jede Gruppe wird getrennt zusammengeführt, mit Sicherung und Wiederherstellung.",
   "Ignore selected groups": "Ausgewählte Gruppen ignorieren",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Alle Vorschläge in {0} ausgewählten Gruppen ignorieren? Sie können über die Liste ignorierter Vorschläge wiederhergestellt werden.",
-  "Actor suggestions ignored.": "Darstellervorschläge ignoriert."
+  "Actor suggestions ignored.": "Darstellervorschläge ignoriert.",
+  "Match using file fingerprints (OSHASH)": "Mit Dateifingerabdrücken abgleichen (OSHASH)",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "Der höchste Wert ab dem Schwellenwert kann automatisch übernommen werden. Gleichstand, Widersprüche und unvollständige Suchen erfordern Prüfung.",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH liest die ersten und letzten 64 KiB lokaler Dateien. Andere Kodierungen passen möglicherweise nicht. Medien und Fingerabdrücke werden nicht an StashDB übermittelt.",
+  "Rerun pending StashDB matches": "Ausstehende StashDB-Abgleiche wiederholen",
+  "File fingerprint matches": "Dateifingerabdruck stimmt überein",
+  "Below the automatic match threshold": "Unter dem automatischen Schwellenwert",
+  "Conflicting scene details require review": "Widersprüchliche Szenendaten prüfen",
+  "Tied scene matches require review": "Gleichwertige Szenentreffer prüfen",
+  "Incomplete search results require review": "Unvollständige Suchergebnisse prüfen",
+  "Manual StashDB match": "Manueller StashDB-Abgleich"
 }

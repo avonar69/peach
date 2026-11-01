@@ -32,6 +32,53 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_threshold_accepts_65_percent_without_a_separate_strong_match_gate(self):
+        evidence = {'title': '', 'date': '2026-10-22', 'studio': 'Evil Angel', 'actors': [], 'duration': 1200}
+        client = mock.Mock(incomplete=False)
+        client.studios.return_value = [{'id': STUDIO, 'name': 'Evil Angel'}]
+        client.scenes.return_value = ([scene()], False)
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertEqual(result['candidates'][0]['score'], .65)
+        self.assertEqual(result['automatic_match'], SCENE)
+        evidence['actors'] = ['Jane Alias', 'Unknown Two', 'Unknown Three']
+        client.performers.return_value = []
+        client.scenes.return_value = ([scene(), scene('44444444-4444-4444-8444-444444444444', performers=[])], False)
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertEqual(result['candidates'][0]['score'], .75)
+        self.assertEqual(result['automatic_match'], SCENE)
+        evidence['actors'] = []
+        client.scenes.return_value = ([scene(), scene('44444444-4444-4444-8444-444444444444')], False)
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertIsNone(result['automatic_match'])
+        self.assertIn('Tied scene matches require review', result['review_reasons'])
+
+    def test_fingerprint_reads_bounded_local_file_and_uses_fingerprint_duration(self):
+        from peach.stashdb_files import fingerprint_evidence
+        media = self.root / 'fingerprint.mp4'
+        media.write_bytes(bytes(131072))
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET path=?,location='local' WHERE id=1", (str(media),))
+        evidence = {'title': '', 'date': '', 'studio': '', 'actors': [], 'duration': 1200}
+        fingerprint_evidence(self.database, 1, evidence, {'fingerprint_matching': False})
+        self.assertNotIn('oshash', evidence)
+        fingerprint_evidence(self.database, 1, evidence, {'fingerprint_matching': True})
+        self.assertEqual(evidence['oshash'], '0000000000020000')
+        candidate = scene(duration=900, fingerprints=[{'algorithm': 'OSHASH', 'hash': evidence['oshash'], 'duration': 1200}])
+        ranked = stashdb_matching.rank_scene(candidate, evidence)
+        self.assertEqual(ranked['score'], 1)
+        self.assertIn('File fingerprint matches', ranked['reasons'])
+        self.assertIn('Duration matches', ranked['reasons'])
+        client = mock.Mock(incomplete=False)
+        client.fingerprint_scenes.return_value = [candidate]
+        self.assertEqual(stashdb_matching.search_scenes(client, evidence)['automatic_match'], SCENE)
+
+    def test_review_rerun_targets_only_queued_scenes(self):
+        from peach.matching_jobs import selection
+        folder = self.config.directory('state') / 'stashdb-review'
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / '1.json').write_text(json.dumps({'candidates': [scene()]}), encoding='utf-8')
+        self.assertEqual([row['id'] for row in selection(self.config, self.database, 'stashdb_review')], [1])
+
     def test_synced_tags_appear_in_global_index_and_peach_taste_without_jav_code(self):
         from peach.web_state import WebContract
         from peach.web_entity import q_index

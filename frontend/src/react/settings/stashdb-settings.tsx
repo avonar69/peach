@@ -13,6 +13,7 @@ export interface StashDBPolicy {
   api_key_set: boolean; endpoint: string;
   ignore_terms?: string; minimum_confidence?: number;
   skip_failed?: boolean; only_new_media?: boolean;
+  fingerprint_matching?: boolean;
 }
 const OPTIONS = [
   ['enabled', 'Enable StashDB during metadata scans'], ['actor_images', 'Scrape actor photos'],
@@ -20,6 +21,7 @@ const OPTIONS = [
   ['auto_apply', 'Automatically apply strong, unique scene matches'],
   ['skip_failed', 'Skip previously failed or unmatched StashDB searches'],
   ['only_new_media', 'Only match newly added media'],
+  ['fingerprint_matching', 'Match using file fingerprints (OSHASH)'],
 ] as const;
 export function StashDBSettings({ initial, receipt, readOnly = false }: {
   initial: StashDBPolicy; receipt(message: string): void; readOnly?: boolean;
@@ -69,7 +71,8 @@ export function StashDBSettings({ initial, receipt, readOnly = false }: {
       <Input label="Minimum automatic match confidence (%)" type="number"
         value={String(policy.minimum_confidence ?? 85)} isDisabled={readOnly}
         onChange={value => setPolicy(previous => ({ ...previous, minimum_confidence: Number(value) }))} />
-      <Help>Choose 50–100%. Default: 85%. Unique matches and agreement between scene details are still required.</Help>
+      <Help>The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.</Help>
+      <Help>OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.</Help>
     </Stack>
     <Stack><Help>Cast corrections replace filename and previous StashDB assignments. Manual assignments remain.</Help>
       <Help>Automatic matching fills missing pictures. Review a match to replace pictures yourself.</Help>

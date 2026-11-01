@@ -4,9 +4,35 @@ from __future__ import annotations
 import json
 import re
 import time
+import struct
 from pathlib import Path
 
 from .fsutil import atomic_write_bytes
+
+
+def fingerprint_evidence(database, asset_id, evidence, policy):
+    """OSHASH 只读取本地非 STRM 文件首尾各 64 KiB，不上传文件或提交指纹。"""
+    if not policy.get('fingerprint_matching'):
+        return
+    with database.read_connection() as connection:
+        row = connection.execute('SELECT path,location FROM asset WHERE id=?', (asset_id,)).fetchone()
+    if not row or row['location'] != 'local' or str(row['path']).lower().endswith('.strm'):
+        return
+    from .media import resolve_case_insensitive
+    try:
+        with Path(resolve_case_insensitive(row['path'])).open('rb') as source:
+            size = source.seek(0, 2)
+            if size < 131072:
+                return
+            source.seek(0)
+            first = source.read(65536)
+            source.seek(-65536, 2)
+            last = source.read(65536)
+            if len(first) == len(last) == 65536 and source.seek(0, 2) == size:
+                total = size + sum(value[0] for value in struct.iter_unpack('<Q', first + last))
+                evidence['oshash'] = f'{total & 0xffffffffffffffff:016x}'
+    except OSError:
+        return
 
 
 def read_record(path):
@@ -54,7 +80,8 @@ def completed(config, asset_id, token, policy):
 
 
 def search_stamp(policy):
-    return {key: policy[key] for key in ('ignore_terms', 'minimum_confidence', 'auto_apply')}
+    return {**{key: policy[key] for key in ('ignore_terms', 'minimum_confidence', 'auto_apply')},
+            'fingerprint_matching': policy.get('fingerprint_matching', False), 'matching_version': 2}
 
 
 def skip_search(config, asset_id, token, policy, cached, *, first_seen=None):

@@ -1,5 +1,9 @@
 # 复用清单
 
+StashDB 指纹查询遵循官方 [FingerprintQueryInput](https://github.com/stashapp/stash-box/blob/master/graphql/schema/types/scene.graphql) 和 [FindScenesBySceneFingerprints](https://github.com/stashapp/stash/blob/develop/graphql/stash-box/query.graphql)，复用既有 HTTPX 客户端、主机限流及本地路径转换。OSHASH 以文件大小加首尾 64 KiB 的小端 64 位整数和计算，使用 Python 标准库 `struct`，不新增依赖或提交指纹。Stash 官方配置文档明确该读取范围；PHASH 需要视频解码与专用算法，本功能仅支持 OSHASH，不以图片 dHash 代替。指纹的已举报记录不作为正向证据，缺失本地文件回退线索搜索。
+
+匹配阈值与应用入口共用得分及冲突字段；复核重跑复用 `matching_jobs`、处理任务的取消与断点，不另建后台队列。作品内候选弹层复用 `StashDBReview`、`ModalFrame` 和原生播放弹层的 portal 容器。真实 StashDB 账户与真实媒体验收未取得，自动测试使用临时库及模拟 API。
+
 演员合并复用 `entities.merge_entity`、规范名与扁平投影、收藏迁移、演员资料快照、`migrations.sqlite_backup` 和 `install_entity_avatar`。建议按 Unicode 词元、已登记别名和 Python 标准库 `difflib.SequenceMatcher` 生成，姓名前缀索引用于标题后缀，有界同名邻域避免全库两两比较；属于 Peach 身份候选策略，不新增依赖。确认弹层、Checkbox、人工复核分类与 Query 失效复用现有界面；备份、冻结证据令牌及外键检查在服务端执行。
 
 单条作品编辑复用 `write_owned_fields`、`check_revision`、规范实体写入和 Pillow 图片校验；封面安装复用 `install_cover` 的整组原子替换，作品封面与缩略图使用独立缓存键。React 弹层复用 `ModalFrame`、`overlayHost` 与 React Aria 的容器提供器，使原生播放弹层内的编辑可交互。作品重匹配复用馆藏资料流水线及配置来源，演员／厂牌复用 StashDB 单实体身份和资料安装逻辑，不新增依赖。

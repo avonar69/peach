@@ -4,12 +4,18 @@ from .processing_control import checkpoint
 
 LABELS = {'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios',
           'stashdb_scenes': 'Resync Scenes',
+          'stashdb_review': 'Rerun pending StashDB matches',
           'stashdb_ignored': 'Rematch ignored filenames with StashDB',
           'filename_ignored': 'Rematch actors and studios from filenames'}
-REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored')
+REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored', 'stashdb_review')
 
 
 def selection(config, database, stage, selected=None):
+    if stage == 'stashdb_review':
+        from .stashdb import review_queue
+        ids = set(selected) if selected is not None else {row['id'] for row in review_queue(config, database, limit=100000)}
+        with database.read_connection() as connection:
+            return [dict(row) for row in connection.execute("SELECT id,name,path,first_seen FROM asset WHERE medium='video' AND disposal IS NULL ORDER BY id") if row['id'] in ids]
     policy = stashdb_client.settings(config) if stage == 'stashdb_ignored' else filename_matching.read(config.directory('state'))
     if stage == 'stashdb_ignored' and not policy['api_key_set']:
         raise ValueError('Save a StashDB API key before rematching.')
@@ -30,7 +36,7 @@ def run(config, database, stage, *, selected, progress, issue, active, previous)
     rows = selection(config, database, stage, selected)
     progress(stage=LABELS[stage], total=len(rows), checked=0)
     completed = previous.get('rematched_asset_ids', [])
-    if stage == 'stashdb_ignored':
+    if stage in ('stashdb_ignored', 'stashdb_review'):
         from .stashdb import scan_assets
         baseline = {key: previous.get('stashdb_' + key, 0) for key in ('applied', 'review')}
         def publish(**values):

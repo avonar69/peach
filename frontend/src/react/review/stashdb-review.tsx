@@ -13,11 +13,12 @@ import { busyProps, useAction } from '../settings/use-action';
 
 interface Candidate { id: string; title: string; date?: string; studio?: string; actors?: string[];
   score: number; reasons: string[]; disambiguation?: string; url: string }
-interface Preview { candidates: Candidate[]; token?: string; review_required: boolean; truncated?: boolean }
+interface Preview { candidates: Candidate[]; token?: string; review_required: boolean; truncated?: boolean; review_reasons?: string[] }
 interface Choice { id: number; label: string; preview?: Preview }
 
-export function StashDBReview({ readOnly, receipt, onCount }: {
+export function StashDBReview({ readOnly, receipt, onCount, sceneId, sceneName, onApplied }: {
   readOnly: boolean; receipt(message: string): void; onCount(count: number): void;
+  sceneId?: number; sceneName?: string; onApplied?(): void;
 }) {
   const client = useQueryClient();
   const queue = useQuery({ queryKey: ['stashdb-review'],
@@ -25,9 +26,12 @@ export function StashDBReview({ readOnly, receipt, onCount }: {
   const [kind, setKind] = useState<'scene' | 'actor'>('scene');
   const [query, setQuery] = useState('');
   const [found, setFound] = useState<Choice[] | null>(null);
-  const [selected, setSelected] = useState<Choice | null>(null);
+  const [selected, setSelected] = useState<Choice | null>(sceneId ? { id: sceneId, label: sceneName || String(sceneId) } : null);
   const [preview, setPreview] = useState<Preview | null>(null);
   const action = useAction();
+  const direct = useQuery({ queryKey: ['stashdb-scene-preview', sceneId], enabled: Boolean(sceneId), retry: false,
+    queryFn: ({ signal }) => apiSend<Preview>('/api/configuration/stashdb/preview', { asset_id: sceneId }, 'POST', signal), staleTime: 0 });
+  useEffect(() => { if (direct.data) setPreview(direct.data); }, [direct.data]);
   const choices = found ?? queue.data ?? [];
   useEffect(() => { onCount(queue.data?.length || 0); }, [queue.data, onCount]);
   const target = () => kind === 'actor' ? { performer_id: selected!.id } : { asset_id: selected!.id };
@@ -43,12 +47,14 @@ export function StashDBReview({ readOnly, receipt, onCount }: {
       const result = await apiSend<{ actor_photos: number; scene_picture?: boolean; skipped?: number }>(
         '/api/configuration/stashdb/apply', { ...target(), stashdb_id: candidate.id, token: preview?.token });
       refresh();
+      onApplied?.();
       receipt(result.skipped ? 'Already up to date.' : translate('StashDB match applied. Actor photos: {0}. Scene pictures: {1}.')
         .replace('{0}', String(result.actor_photos || 0)).replace('{1}', result.scene_picture ? '1' : '0'));
     },
   });
   return <Section title="StashDB matches">
     <Stack>
+      {!sceneId ? <>
       <Help>Review queued scene matches or find a scene or actor in your library. Picture and cast options come from Sources & subscriptions.</Help>
       <a href="/settings/subscriptions" className="underline">Configure StashDB</a>
       <Select aria-label="StashDB match type" selectedKey={kind} onSelectionChange={key => {
@@ -57,6 +63,11 @@ export function StashDBReview({ readOnly, receipt, onCount }: {
       }}><SelectItem id="scene" textValue="Scene">Scene</SelectItem><SelectItem id="actor" textValue="Actor">Actor</SelectItem></Select>
       <Input label="Find a scene or actor in your library" value={query} onChange={setQuery} />
       <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="secondary" disabled={readOnly || !queue.data?.length}
+          {...busyProps(action.busy === 'rerun')} onClick={() => void action.run('rerun', signal => apiSend(
+            '/api/library-processing', { stage: 'stashdb_review', asset_ids: queue.data!.map(row => row.id) }, 'POST', signal), () => {
+            refresh(); receipt('StashDB rematching started. Follow its progress in Data management.');
+          })}>Rerun pending StashDB matches</Button>
         <Button type="button" variant="secondary" {...busyProps(action.busy === 'library')}
           onClick={() => void action.run('library', signal => apiGet<Choice[]>(`/api/configuration/stashdb/library?kind=${kind}&query=${encodeURIComponent(query)}`, signal),
             rows => { setFound(rows); setSelected(null); setPreview(null); })}>Find library items</Button>
@@ -71,6 +82,10 @@ export function StashDBReview({ readOnly, receipt, onCount }: {
       {choices.length ? <div className="flex max-h-60 flex-col gap-2 overflow-y-auto">{choices.map(choice =>
         <Button key={choice.id} type="button" variant="secondary" aria-pressed={selected?.id === choice.id}
           onClick={() => { setSelected(choice); setPreview(choice.preview || null); }}><span data-i18n-ignore="">{choice.label}</span></Button>)}</div> : null}
+      </> : null}
+      {sceneId && direct.isPending ? <LoadingDots label="Loading StashDB reviews…" /> : null}
+      {sceneId && direct.error ? <ErrorText>{direct.error.message}</ErrorText> : null}
+      {sceneId && action.error ? <ErrorText>{action.error}</ErrorText> : null}
       <div className="flex flex-wrap gap-2">
         <Button type="button" disabled={!selected} {...busyProps(action.busy === 'preview')}
           onClick={() => void action.run('preview', signal => apiSend<Preview>('/api/configuration/stashdb/preview', target(), 'POST', signal), setPreview)}>Preview StashDB matches</Button>
@@ -81,6 +96,7 @@ export function StashDBReview({ readOnly, receipt, onCount }: {
           })}>Dismiss scene matches</Button> : null}
       </div>
       {preview?.truncated ? <Help>More results exist. Refine the local title, date, studio, or actors before applying a match.</Help> : null}
+      {preview?.review_reasons?.map(reason => <Help key={reason}>{reason}</Help>)}
       {preview && !preview.candidates.length ? <Help>No StashDB match found. Check the scene title, studio, date, and actors.</Help> : null}
       {preview?.candidates.map(candidate => <article key={candidate.id} className="flex flex-col gap-2 rounded-lg border border-separator-border p-3">
         <a href={candidate.url} target="_blank" rel="noreferrer" data-i18n-ignore="">{candidate.title}{candidate.disambiguation ? ` (${candidate.disambiguation})` : ''}</a>

@@ -14,7 +14,7 @@ from .entities import upsert_asset_entity
 from .field_owners import owner_of, write_owned_fields
 from .fsutil import atomic_write_text
 from .western_artwork import artwork_key
-from .stashdb_files import policy_stamp as _policy_stamp, recover_images, stash_photo as _stash_photo, read_record, search_stamp, skip_search
+from .stashdb_files import policy_stamp as _policy_stamp, recover_images, stash_photo as _stash_photo, read_record, search_stamp, skip_search, fingerprint_evidence
 
 SOURCE = 'auto:stashdb'
 REVIEW_SOURCE = 'review:stashdb'
@@ -86,6 +86,7 @@ def preview(config, database, body, *, client=None):
         with database.read_connection() as connection:
             _row, evidence, token = asset_evidence(connection, body.get('asset_id'), ignore_terms=policy['ignore_terms'])
             known_actors = _known_actors(connection, body.get('asset_id'))
+        fingerprint_evidence(database, body.get('asset_id'), evidence, policy)
         result = stashdb_matching.search_scenes(client, evidence, known_actors=known_actors,
             minimum_confidence=policy['minimum_confidence'])
         result['token'] = token
@@ -298,8 +299,9 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
             row, evidence, current = asset_evidence(connection, asset_id, ignore_terms=policy['ignore_terms'])
         if not token or token != current:
             raise ValueError('The local scene changed. Preview the match again.')
+        fingerprint_evidence(database, asset_id, evidence, policy)
         ranked = stashdb_matching.rank_scene(scene, evidence)
-        if not manual and not fill_only and (not ranked or not ranked['strong'] or ranked['score'] < policy['minimum_confidence'] / 100):
+        if not manual and not fill_only and (not ranked or ranked['conflict'] or ranked['score'] < policy['minimum_confidence'] / 100):
             raise ValueError('This scene needs review before applying metadata.')
         recover_images(config)
         target = config.directory('generated') / 'covers' / (artwork_key(asset_id, row['code']) + '.jpg')

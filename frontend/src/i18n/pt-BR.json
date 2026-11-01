@@ -4534,5 +4534,15 @@
   "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Mesclar {0} artistas duplicados em {1} grupos selecionados? Cada grupo será mesclado separadamente, com backup e reversão.",
   "Ignore selected groups": "Ignorar grupos selecionados",
   "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignorar todas as sugestões de {0} grupos selecionados? É possível restaurá-las pela lista de ignoradas.",
-  "Actor suggestions ignored.": "Sugestões de artistas ignoradas."
+  "Actor suggestions ignored.": "Sugestões de artistas ignoradas.",
+  "Match using file fingerprints (OSHASH)": "Comparar impressões de arquivos (OSHASH)",
+  "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "A maior pontuação que atingir o limite pode ser aplicada automaticamente. Empates, conflitos e buscas incompletas exigem revisão.",
+  "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH lê os primeiros e últimos 64 KiB dos arquivos locais. Outras codificações podem não coincidir. Nenhuma mídia ou impressão é enviada ao StashDB.",
+  "Rerun pending StashDB matches": "Repetir correspondências pendentes do StashDB",
+  "File fingerprint matches": "Impressão do arquivo corresponde",
+  "Below the automatic match threshold": "Abaixo do limite automático",
+  "Conflicting scene details require review": "Dados conflitantes: revisar",
+  "Tied scene matches require review": "Cenas empatadas: revisar",
+  "Incomplete search results require review": "Resultados incompletos: revisar",
+  "Manual StashDB match": "Correspondência manual do StashDB"
 }

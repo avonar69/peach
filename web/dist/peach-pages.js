@@ -9968,7 +9968,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.",
 	"Ignore selected groups": "Ignore selected groups",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.",
-	"Actor suggestions ignored.": "Actor suggestions ignored."
+	"Actor suggestions ignored.": "Actor suggestions ignored.",
+	"Match using file fingerprints (OSHASH)": "Match using file fingerprints (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.",
+	"Rerun pending StashDB matches": "Rerun pending StashDB matches",
+	"File fingerprint matches": "File fingerprint matches",
+	"Below the automatic match threshold": "Below the automatic match threshold",
+	"Conflicting scene details require review": "Conflicting scene details require review",
+	"Tied scene matches require review": "Tied scene matches require review",
+	"Incomplete search results require review": "Incomplete search results require review",
+	"Manual StashDB match": "Manual StashDB match"
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -18125,7 +18135,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "¿Fusionar {0} intérpretes duplicados en {1} grupos seleccionados? Cada grupo se fusiona por separado, con copia de seguridad y opción de deshacer.",
 	"Ignore selected groups": "Ignorar grupos seleccionados",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "¿Ignorar todas las sugerencias de {0} grupos seleccionados? Puede restaurarlas desde la lista de ignoradas.",
-	"Actor suggestions ignored.": "Sugerencias de intérpretes ignoradas."
+	"Actor suggestions ignored.": "Sugerencias de intérpretes ignoradas.",
+	"Match using file fingerprints (OSHASH)": "Usar huellas de archivo (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "La puntuación más alta que alcance el umbral puede aplicarse automáticamente. Los empates, conflictos y búsquedas incompletas requieren revisión.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH lee los primeros y últimos 64 KiB de archivos locales. Otras codificaciones pueden no coincidir. No se envían archivos ni huellas a StashDB.",
+	"Rerun pending StashDB matches": "Repetir coincidencias pendientes de StashDB",
+	"File fingerprint matches": "La huella del archivo coincide",
+	"Below the automatic match threshold": "Por debajo del umbral automático",
+	"Conflicting scene details require review": "Datos en conflicto: revisar",
+	"Tied scene matches require review": "Empate entre escenas: revisar",
+	"Incomplete search results require review": "Resultados incompletos: revisar",
+	"Manual StashDB match": "Coincidencia manual de StashDB"
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22662,7 +22682,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Fusionner {0} interprètes en double dans {1} groupes sélectionnés ? Chaque groupe est fusionné séparément, avec sauvegarde et annulation.",
 	"Ignore selected groups": "Ignorer les groupes sélectionnés",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignorer toutes les suggestions de {0} groupes sélectionnés ? Elles peuvent être restaurées depuis la liste des suggestions ignorées.",
-	"Actor suggestions ignored.": "Suggestions d’interprètes ignorées."
+	"Actor suggestions ignored.": "Suggestions d’interprètes ignorées.",
+	"Match using file fingerprints (OSHASH)": "Utiliser les empreintes de fichiers (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "Le meilleur score atteignant le seuil peut être appliqué automatiquement. Les égalités, conflits et recherches incomplètes exigent une vérification.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH lit les premiers et derniers 64 Kio des fichiers locaux. Les encodages différents peuvent ne pas correspondre. Aucun média ni empreinte ne sont envoyés à StashDB.",
+	"Rerun pending StashDB matches": "Relancer les correspondances StashDB en attente",
+	"File fingerprint matches": "Empreinte du fichier identique",
+	"Below the automatic match threshold": "Sous le seuil automatique",
+	"Conflicting scene details require review": "Données contradictoires : vérifier",
+	"Tied scene matches require review": "Scènes à égalité : vérifier",
+	"Incomplete search results require review": "Résultats incomplets : vérifier",
+	"Manual StashDB match": "Correspondance StashDB manuelle"
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -27199,7 +27229,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "{0} doppelte Darsteller in {1} ausgewählten Gruppen zusammenführen? Jede Gruppe wird getrennt zusammengeführt, mit Sicherung und Wiederherstellung.",
 	"Ignore selected groups": "Ausgewählte Gruppen ignorieren",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Alle Vorschläge in {0} ausgewählten Gruppen ignorieren? Sie können über die Liste ignorierter Vorschläge wiederhergestellt werden.",
-	"Actor suggestions ignored.": "Darstellervorschläge ignoriert."
+	"Actor suggestions ignored.": "Darstellervorschläge ignoriert.",
+	"Match using file fingerprints (OSHASH)": "Mit Dateifingerabdrücken abgleichen (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "Der höchste Wert ab dem Schwellenwert kann automatisch übernommen werden. Gleichstand, Widersprüche und unvollständige Suchen erfordern Prüfung.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH liest die ersten und letzten 64 KiB lokaler Dateien. Andere Kodierungen passen möglicherweise nicht. Medien und Fingerabdrücke werden nicht an StashDB übermittelt.",
+	"Rerun pending StashDB matches": "Ausstehende StashDB-Abgleiche wiederholen",
+	"File fingerprint matches": "Dateifingerabdruck stimmt überein",
+	"Below the automatic match threshold": "Unter dem automatischen Schwellenwert",
+	"Conflicting scene details require review": "Widersprüchliche Szenendaten prüfen",
+	"Tied scene matches require review": "Gleichwertige Szenentreffer prüfen",
+	"Incomplete search results require review": "Unvollständige Suchergebnisse prüfen",
+	"Manual StashDB match": "Manueller StashDB-Abgleich"
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -31736,7 +31776,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Mesclar {0} artistas duplicados em {1} grupos selecionados? Cada grupo será mesclado separadamente, com backup e reversão.",
 	"Ignore selected groups": "Ignorar grupos selecionados",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Ignorar todas as sugestões de {0} grupos selecionados? É possível restaurá-las pela lista de ignoradas.",
-	"Actor suggestions ignored.": "Sugestões de artistas ignoradas."
+	"Actor suggestions ignored.": "Sugestões de artistas ignoradas.",
+	"Match using file fingerprints (OSHASH)": "Comparar impressões de arquivos (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "A maior pontuação que atingir o limite pode ser aplicada automaticamente. Empates, conflitos e buscas incompletas exigem revisão.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH lê os primeiros e últimos 64 KiB dos arquivos locais. Outras codificações podem não coincidir. Nenhuma mídia ou impressão é enviada ao StashDB.",
+	"Rerun pending StashDB matches": "Repetir correspondências pendentes do StashDB",
+	"File fingerprint matches": "Impressão do arquivo corresponde",
+	"Below the automatic match threshold": "Abaixo do limite automático",
+	"Conflicting scene details require review": "Dados conflitantes: revisar",
+	"Tied scene matches require review": "Cenas empatadas: revisar",
+	"Incomplete search results require review": "Resultados incompletos: revisar",
+	"Manual StashDB match": "Correspondência manual do StashDB"
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36273,7 +36323,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "選択した {1} グループの重複出演者 {0} 件を統合しますか？グループごとに統合し、バックアップと復元を利用できます。",
 	"Ignore selected groups": "選択したグループを無視",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "選択した {0} グループのすべての候補を無視しますか？無視リストから復元できます。",
-	"Actor suggestions ignored.": "出演者候補を無視しました。"
+	"Actor suggestions ignored.": "出演者候補を無視しました。",
+	"Match using file fingerprints (OSHASH)": "ファイル指紋で照合（OSHASH）",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "最高スコアがしきい値以上なら自動適用します。同点、情報の矛盾、検索不完全の場合は確認が必要です。",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH はローカルファイルの先頭と末尾各 64 KiB を読み取ります。別のエンコードでは一致しない場合があります。メディアや指紋を StashDB に投稿しません。",
+	"Rerun pending StashDB matches": "保留中の StashDB 照合を再実行",
+	"File fingerprint matches": "ファイル指紋が一致",
+	"Below the automatic match threshold": "自動照合のしきい値未満",
+	"Conflicting scene details require review": "作品情報に矛盾があるため要確認",
+	"Tied scene matches require review": "同点の作品があるため要確認",
+	"Incomplete search results require review": "検索結果が不完全なため要確認",
+	"Manual StashDB match": "StashDB を手動照合"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -40810,7 +40870,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "선택한 {1}개 그룹의 중복 배우 {0}명을 병합할까요? 각 그룹을 별도로 병합하며 백업과 실행 취소를 제공합니다.",
 	"Ignore selected groups": "선택한 그룹 무시",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "선택한 {0}개 그룹의 모든 제안을 무시할까요? 무시 목록에서 복원할 수 있습니다.",
-	"Actor suggestions ignored.": "배우 제안을 무시했습니다."
+	"Actor suggestions ignored.": "배우 제안을 무시했습니다.",
+	"Match using file fingerprints (OSHASH)": "파일 지문으로 매칭 (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "최고 점수가 기준 이상이면 자동 적용할 수 있습니다. 동점, 정보 충돌, 불완전한 검색은 검토가 필요합니다.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH는 로컬 파일의 처음과 끝에서 각각 64 KiB를 읽습니다. 다른 인코딩은 일치하지 않을 수 있습니다. 미디어나 지문을 StashDB에 제출하지 않습니다.",
+	"Rerun pending StashDB matches": "대기 중인 StashDB 매칭 다시 실행",
+	"File fingerprint matches": "파일 지문 일치",
+	"Below the automatic match threshold": "자동 매칭 기준 미만",
+	"Conflicting scene details require review": "장면 정보 충돌: 검토 필요",
+	"Tied scene matches require review": "장면 점수 동점: 검토 필요",
+	"Incomplete search results require review": "검색 결과 불완전: 검토 필요",
+	"Manual StashDB match": "StashDB 수동 매칭"
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -45347,7 +45417,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "Hợp nhất {0} diễn viên trùng lặp trong {1} nhóm đã chọn? Mỗi nhóm được hợp nhất riêng, có sao lưu và hoàn tác.",
 	"Ignore selected groups": "Bỏ qua các nhóm đã chọn",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "Bỏ qua tất cả gợi ý trong {0} nhóm đã chọn? Có thể khôi phục từ danh sách đã bỏ qua.",
-	"Actor suggestions ignored.": "Đã bỏ qua các gợi ý diễn viên."
+	"Actor suggestions ignored.": "Đã bỏ qua các gợi ý diễn viên.",
+	"Match using file fingerprints (OSHASH)": "Khớp bằng dấu vân tay tệp (OSHASH)",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "Điểm cao nhất đạt ngưỡng có thể được áp dụng tự động. Các kết quả đồng điểm, dữ liệu xung đột và tìm kiếm chưa đầy đủ cần duyệt.",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH đọc 64 KiB đầu và cuối của tệp cục bộ. Bản mã hóa khác có thể không khớp. Không gửi nội dung hay dấu vân tay lên StashDB.",
+	"Rerun pending StashDB matches": "Chạy lại các mục StashDB đang chờ duyệt",
+	"File fingerprint matches": "Dấu vân tay tệp khớp",
+	"Below the automatic match threshold": "Dưới ngưỡng khớp tự động",
+	"Conflicting scene details require review": "Dữ liệu cảnh xung đột, cần duyệt",
+	"Tied scene matches require review": "Các cảnh đồng điểm, cần duyệt",
+	"Incomplete search results require review": "Kết quả tìm kiếm chưa đầy đủ, cần duyệt",
+	"Manual StashDB match": "Khớp StashDB thủ công"
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -49884,7 +49964,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合併所選 {1} 組中的 {0} 個重複演員？各組分別合併，並提供備份與復原。",
 	"Ignore selected groups": "忽略選取的群組",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "忽略所選 {0} 組的全部建議？可從已忽略清單復原建議。",
-	"Actor suggestions ignored.": "已忽略演員建議。"
+	"Actor suggestions ignored.": "已忽略演員建議。",
+	"Match using file fingerprints (OSHASH)": "使用檔案指紋比對（OSHASH）",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "最高分達到門檻即可自動套用。同分、資料衝突及搜尋不完整時需複核。",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH 讀取本機檔案首尾各 64 KiB。不同編碼可能無法比對。不向 StashDB 提交媒體或指紋。",
+	"Rerun pending StashDB matches": "重新比對待複核的 StashDB 項目",
+	"File fingerprint matches": "檔案指紋相符",
+	"Below the automatic match threshold": "低於自動比對門檻",
+	"Conflicting scene details require review": "作品資料衝突，需要複核",
+	"Tied scene matches require review": "作品得分相同，需要複核",
+	"Incomplete search results require review": "搜尋結果不完整，需要複核",
+	"Manual StashDB match": "手動比對 StashDB"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -50446,7 +50536,17 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Merge {0} duplicate actors across {1} selected groups? Each group is merged separately. A backup and undo will be available.": "合并所选 {1} 组中的 {0} 个重复演员？各组分别合并，并提供备份与撤销。",
 	"Ignore selected groups": "忽略选中的组",
 	"Ignore all suggestions in {0} selected groups? Suggestions can be restored from the ignored list.": "忽略所选 {0} 组的全部建议？可从已忽略列表恢复建议。",
-	"Actor suggestions ignored.": "已忽略演员建议。"
+	"Actor suggestions ignored.": "已忽略演员建议。",
+	"Match using file fingerprints (OSHASH)": "使用文件指纹匹配（OSHASH）",
+	"The highest score at or above this threshold can apply automatically. Ties, conflicting details, and incomplete searches require review.": "最高分达到阈值即可自动应用。同分、资料冲突和搜索不完整时需复核。",
+	"OSHASH reads the first and last 64 KiB of local files. Different encodes may not match. No media or fingerprints are submitted to StashDB.": "OSHASH 读取本地文件首尾各 64 KiB。不同编码可能无法匹配。不向 StashDB 提交媒体或指纹。",
+	"Rerun pending StashDB matches": "重新匹配待复核的 StashDB 项目",
+	"File fingerprint matches": "文件指纹匹配",
+	"Below the automatic match threshold": "低于自动匹配阈值",
+	"Conflicting scene details require review": "作品资料冲突，需要复核",
+	"Tied scene matches require review": "作品得分相同，需要复核",
+	"Incomplete search results require review": "搜索结果不完整，需要复核",
+	"Manual StashDB match": "手动匹配 StashDB"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

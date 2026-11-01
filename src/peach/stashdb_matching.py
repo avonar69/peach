@@ -63,6 +63,14 @@ def _strong_match(studio, released, cast, title, conflicts):
     return not conflicts and studio and ((released and (cast >= .5 or title >= .85)) or (title >= .95 and cast >= .75))
 
 
+def _file_matches(scene, evidence):
+    fingerprints = [item for item in scene.get('fingerprints') or [] if not item.get('reports')]
+    durations = [float(scene.get('duration') or 0), *(float(item.get('duration') or 0) for item in fingerprints)]
+    duration = any(value and evidence['duration'] and abs(value - evidence['duration']) <= max(30, value * .05) for value in durations)
+    fingerprint = bool(evidence.get('oshash') and any(item.get('algorithm') == 'OSHASH' and item.get('hash') == evidence['oshash'] for item in fingerprints))
+    return duration, fingerprint
+
+
 def rank_scene(scene, evidence):
     if scene.get('deleted'):
         return None
@@ -75,20 +83,22 @@ def rank_scene(scene, evidence):
     studio_conflict = bool(evidence['studio'] and studios and not studio_match)
     title_score = SequenceMatcher(None, key(evidence['title']), key(scene.get('title'))).ratio() if evidence['title'] else 0
     cast_score = _cast_overlap(scene, evidence['actors'])
-    duration = float(scene.get('duration') or 0)
-    duration_match = bool(duration and evidence['duration'] and abs(duration - evidence['duration']) <= max(30, duration * .05))
+    duration_match, fingerprint_match = _file_matches(scene, evidence)
     score = min(1, .3 * studio_match + .3 * date_match + .3 * cast_score + .3 * title_score + .05 * duration_match)
     if date_conflict:
         score -= .45
     if studio_conflict:
         score -= .45
+    if fingerprint_match:
+        score = 1
     strong = _strong_match(studio_match, date_match, cast_score, title_score, date_conflict or studio_conflict)
     reasons = [label for matched, label in [(studio_match, 'Studio matches'), (date_match, 'Release date matches'),
         (cast_score > 0, 'Actor names or aliases match'), (title_score >= .85, 'Scene title matches'),
-        (duration_match, 'Duration matches'), (date_conflict, 'Release date differs'), (studio_conflict, 'Studio differs')] if matched]
+        (duration_match, 'Duration matches'), (fingerprint_match, 'File fingerprint matches'),
+        (date_conflict, 'Release date differs'), (studio_conflict, 'Studio differs')] if matched]
     return {'id': scene['id'], 'title': scene.get('title') or '', 'date': released, 'studio': studio.get('name') or '',
             'actors': [(item.get('performer') or {}).get('name') for item in scene.get('performers') or []],
-            'score': round(max(0, score), 3), 'strong': strong, 'reasons': reasons,
+            'score': round(max(0, score), 3), 'strong': strong, 'conflict': bool(date_conflict or studio_conflict), 'reasons': reasons,
             'url': f"https://stashdb.org/scenes/{scene['id']}"}
 
 
@@ -118,6 +128,9 @@ def _performer_ids(client, actors, known=None):
 def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85):
     client.incomplete = False
     found, filters, truncated = {}, [], False
+    if evidence.get('oshash'):
+        for scene in client.fingerprint_scenes(evidence['oshash']):
+            found[scene['id']] = scene
     studio_ids = _studio_ids(client, evidence['studio'])
     performer_ids = _performer_ids(client, evidence['actors'], known_actors)
     date_filter = {'date': {'value': evidence['date'], 'modifier': 'EQUALS'}} if evidence['date'] else {}
@@ -140,7 +153,16 @@ def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85)
             found[scene['id']] = scene
     truncated |= bool(getattr(client, 'incomplete', False))
     ranked = sorted(filter(None, (rank_scene(scene, evidence) for scene in found.values())), key=lambda row: (-row['score'], row['id']))
-    unique = bool(ranked and ranked[0]['strong'] and ranked[0]['score'] >= minimum_confidence / 100
-                  and (len(ranked) == 1 or ranked[0]['score'] - ranked[1]['score'] >= .12) and not truncated)
+    blockers = []
+    if ranked:
+        if ranked[0]['score'] < minimum_confidence / 100:
+            blockers.append('Below the automatic match threshold')
+        if ranked[0]['conflict']:
+            blockers.append('Conflicting scene details require review')
+        if len(ranked) > 1 and ranked[0]['score'] == ranked[1]['score']:
+            blockers.append('Tied scene matches require review')
+    if truncated:
+        blockers.append('Incomplete search results require review')
+    unique = bool(ranked and not blockers)
     return {'hints': evidence, 'candidates': ranked[:20], 'automatic_match': ranked[0]['id'] if unique else None,
-            'truncated': truncated, 'review_required': not unique}
+            'truncated': truncated, 'review_required': not unique, 'review_reasons': blockers}

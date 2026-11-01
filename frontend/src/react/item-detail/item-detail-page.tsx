@@ -33,7 +33,7 @@ import { fetchJavDetail, javDetailKey } from '../jav-detail/jav-detail';
 import { busyProps } from '../settings/use-action';
 import { ExternalPlayback } from './external-playback';
 import { CoverCrop } from '../cover-crop/cover-crop-page';
-import { MetadataRematch } from '../components/metadata-rematch';
+import { MetadataRematch, SceneManualMatch } from '../components/metadata-rematch';
 import { SceneEditor } from './scene-editor';
 import { queryClient } from '../query';
 import { LibraryCompletionPrompt, missingPreviewIds } from '../library-processing/library-completion';
@@ -448,6 +448,8 @@ function DetailTitle({ item, queue, helpers, actions, onStatus }: {
             replaceCatalogItem(item.id, { ...updated, tags: updated.tags?.map(tag => tag.k) });
           }} />
           <MetadataRematch key={`rematch:${item.id}`} kind="scene" id={item.id} receipt={actions.toast}
+            onSaved={() => { void queryClient.invalidateQueries({ queryKey: itemKey(item.id), exact: true }); }} />
+          <SceneManualMatch key={`manual-match:${item.id}`} id={item.id} name={String(item.title || item.name || '')} receipt={actions.toast}
             onSaved={() => { void queryClient.invalidateQueries({ queryKey: itemKey(item.id), exact: true }); }} />
           <button type="button" data-title-fold="" hidden={!foldable} aria-expanded={expanded}
             aria-label={expanded ? '收起标题' : '展开标题'} title={expanded ? '收起标题' : '展开完整标题'} onClick={toggle}>
