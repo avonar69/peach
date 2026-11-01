@@ -328,6 +328,28 @@ class StashDBTests(unittest.TestCase):
         self.assertEqual(job.start.call_args.kwargs['initial']['estimate_file_count'], 1)
         self.assertEqual(job.start.call_args.kwargs['recovery']['asset_ids'], [1])
 
+    def test_pending_review_rerun_snapshots_the_entire_queue_beyond_display_limit(self):
+        from dataclasses import replace
+        from peach import web_library_processing
+        config = replace(self.config, present=True, data_root_found=True, locations={'local': (r'R:\media',)})
+        folder = config.directory('state') / 'stashdb-review'
+        folder.mkdir(parents=True, exist_ok=True)
+        with self.database.write_transaction() as connection:
+            for identity in range(2, 451):
+                connection.execute("INSERT INTO asset(id,location,path,name,medium) VALUES(?,'local',?,?,'video')",
+                    (identity, f'R:\\media\\{identity}.mp4', f'{identity}.mp4'))
+        for identity in range(1, 451):
+            (folder / f'{identity}.json').write_text(json.dumps({'candidates': [scene()] if identity <= 250 else []}), encoding='utf-8')
+        self.assertEqual(len(stashdb.review_queue(config, self.database)), 200)
+        self.assertEqual(len(stashdb.review_queue(config, self.database, limit=None)), 250)
+        job = mock.Mock()
+        job.snapshot.return_value = {}
+        contract = SimpleNamespace(database=self.database, db_path=self.database.db_path, library_processing_job=job)
+        with mock.patch('peach.settings_file.active', return_value=config):
+            web_library_processing.w_library_processing(contract, {'stage': 'stashdb_review'})
+        self.assertEqual(job.start.call_args.kwargs['initial']['estimate_file_count'], 250)
+        self.assertEqual(job.start.call_args.kwargs['recovery']['asset_ids'], list(range(1, 251)))
+
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

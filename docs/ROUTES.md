@@ -1,6 +1,6 @@
 # 页面路由
 
-StashDB 设置接受布尔值 `fingerprint_matching`（默认关闭），为本地文件启用 OSHASH 查询。候选预览返回 `review_reasons`，解释阈值、同分、资料冲突及不完整结果。`POST /api/library-processing` 的 `stage=stashdb_review` 配合 `asset_ids` 冻结待复核列表，只重跑该列表并使用当前设置，沿用进度、取消与断点；显式重跑绕过失败缓存及仅新增限制。作品顶部手动匹配弹层复用 `POST /api/configuration/stashdb/preview` 和 `/apply`，应用后刷新当前作品。
+StashDB 设置接受布尔值 `fingerprint_matching`（默认关闭），为本地文件启用 OSHASH 查询。候选预览返回 `review_reasons`，解释阈值、同分、资料冲突及不完整结果。`POST /api/library-processing` 的 `stage=stashdb_review` 未指定 `asset_ids` 时在服务端选定完整待复核队列；显式 `asset_ids` 可缩小范围。启动时冻结作品范围并使用当前设置，沿用进度、取消与断点，绕过失败缓存及仅新增限制。复核 API 的数量限制只截取有效候选，不把无结果记录计入显示上限。作品顶部手动匹配弹层复用 `POST /api/configuration/stashdb/preview` 和 `/apply`，应用后刷新当前作品。
 
 StashDB 场景标签写入 `asset_tag` 并经 `upsert_asset_entity(kind='tag',role='tag')` 同步规范关系。`GET /api/index?kind=tags`、标签资料页及口味证据均读取这些关系；迁移 `0051` 回填已有 `auto:stashdb-tags` 投影，并刷新受影响作品的搜索索引。口味标签库存计数不要求预览图或横屏，观看分数保留原有行为门槛。
 

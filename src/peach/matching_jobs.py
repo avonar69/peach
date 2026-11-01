@@ -13,7 +13,7 @@ REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored', 'stashdb_review')
 def selection(config, database, stage, selected=None):
     if stage == 'stashdb_review':
         from .stashdb import review_queue
-        ids = set(selected) if selected is not None else {row['id'] for row in review_queue(config, database, limit=100000)}
+        ids = set(selected) if selected is not None else {row['id'] for row in review_queue(config, database, limit=None)}
         with database.read_connection() as connection:
             return [dict(row) for row in connection.execute("SELECT id,name,path,first_seen FROM asset WHERE medium='video' AND disposal IS NULL ORDER BY id") if row['id'] in ids]
     policy = stashdb_client.settings(config) if stage == 'stashdb_ignored' else filename_matching.read(config.directory('state'))

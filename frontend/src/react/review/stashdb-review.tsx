@@ -65,7 +65,7 @@ export function StashDBReview({ readOnly, receipt, onCount, sceneId, sceneName, 
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" disabled={readOnly || !queue.data?.length}
           {...busyProps(action.busy === 'rerun')} onClick={() => void action.run('rerun', signal => apiSend(
-            '/api/library-processing', { stage: 'stashdb_review', asset_ids: queue.data!.map(row => row.id) }, 'POST', signal), () => {
+            '/api/library-processing', { stage: 'stashdb_review' }, 'POST', signal), () => {
             refresh(); receipt('StashDB rematching started. Follow its progress in Data management.');
           })}>Rerun pending StashDB matches</Button>
         <Button type="button" variant="secondary" {...busyProps(action.busy === 'library')}

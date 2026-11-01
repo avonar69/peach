@@ -105405,10 +105405,7 @@ function xU({ readOnly: e, receipt: t, onCount: n, sceneId: r, sceneName: i, onA
 							variant: "secondary",
 							disabled: e || !s.data?.length,
 							...Y(v.busy === "rerun"),
-							onClick: () => void v.run("rerun", (e) => V("/api/library-processing", {
-								stage: "stashdb_review",
-								asset_ids: s.data.map((e) => e.id)
-							}, "POST", e), () => {
+							onClick: () => void v.run("rerun", (e) => V("/api/library-processing", { stage: "stashdb_review" }, "POST", e), () => {
 								S(), t("StashDB rematching started. Follow its progress in Data management.");
 							}),
 							children: "Rerun pending StashDB matches"

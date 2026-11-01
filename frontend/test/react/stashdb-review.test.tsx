@@ -30,9 +30,9 @@ it('作品内复核直接查询当前作品候选', async () => {
   expect(buttonNamed('Find library items', host)).toBeNull();
 });
 
-it('队列重跑只提交待复核项目', async () => {
+it('队列重跑由服务端选择完整待复核范围', async () => {
   const posts = serve();
   const host = await mount(<QueryClientProvider client={queryClient}><StashDBReview readOnly={false} receipt={vi.fn()} onCount={vi.fn()} /></QueryClientProvider>);
   await click(buttonNamed('Rerun pending StashDB matches', host));
-  expect(posts).toContainEqual({ path: '/api/library-processing', body: { stage: 'stashdb_review', asset_ids: [9] } });
+  expect(posts).toContainEqual({ path: '/api/library-processing', body: { stage: 'stashdb_review' } });
 });

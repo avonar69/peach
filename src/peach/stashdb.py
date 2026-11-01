@@ -113,7 +113,7 @@ def review_queue(config, database, *, state_root=None, limit=200):
     paths = sorted(root.glob('*.json'), key=lambda path: int(path.stem) if path.stem.isdigit() else 0, reverse=True)
     result = []
     with database.read_connection() as connection:
-        for path in paths[:limit]:
+        for path in paths:
             if not path.stem.isdigit():
                 continue
             row = connection.execute("SELECT name,catalog_title FROM asset WHERE id=? AND COALESCE(disposal,'') NOT IN ('trash','vanished')", (int(path.stem),)).fetchone()
@@ -125,6 +125,8 @@ def review_queue(config, database, *, state_root=None, limit=200):
                 continue
             if isinstance(cached, dict) and cached.get('candidates'):
                 result.append({'id': int(path.stem), 'label': row[1] or row[0], 'preview': cached})
+                if limit is not None and len(result) >= limit:
+                    break
     return result
 
 
