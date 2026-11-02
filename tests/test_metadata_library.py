@@ -114,6 +114,7 @@ class LibraryNfoTests(unittest.TestCase):
             self.assertEqual(state['total'], 1)
             new_ids = state['asset_ids']
             self.assertEqual(len(new_ids), 1)
+            self.assertTrue(set(new_ids).issubset(state['discovered_asset_ids']))
             self.assertEqual(probe.call_args.args[4], new_ids)
             self.assertEqual([row['path'] for row in previews.call_args.args[1]], [str(added)])
             self.assertEqual([row['path'] for row in stash.call_args.args[2]], [str(added)])

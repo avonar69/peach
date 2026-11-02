@@ -195,7 +195,7 @@ LOCAL_LOCATIONS = ("local",)
 STOPPED_BY_USER = "已按停"
 
 
-def pending(db_path: Path | str, interval: int, *, limit: int = 0) -> list[tuple]:
+def pending(db_path: Path | str, interval: int, *, limit: int = 0, asset_ids=None) -> list[tuple]:
     """待办队列：本机磁盘上、时长够两帧的视频，最近看过的排前面。
 
     排序不是装饰。这条链随时可能被磁盘闸门或用户按停，跑到哪算哪，所以先做的必须是
@@ -205,9 +205,14 @@ def pending(db_path: Path | str, interval: int, *, limit: int = 0) -> list[tuple
     # 回收站里的不做：那一批等着被删，为它们各抽一百帧是白花的时间和磁盘。
     sql = ("SELECT id, path, duration FROM asset WHERE medium='video' "
            f"AND location IN ({placeholders}) AND duration >= ? "
-           "AND disposal IS NULL "
-           "ORDER BY (last_played IS NULL), last_played DESC, id")
+           "AND disposal IS NULL ")
     parameters: tuple = (*LOCAL_LOCATIONS, float(interval) * 2)
+    if asset_ids is not None:
+        if not asset_ids:
+            return []
+        sql += 'AND id IN (' + ','.join('?' for _ in asset_ids) + ') '
+        parameters += tuple(asset_ids)
+    sql += 'ORDER BY (last_played IS NULL), last_played DESC, id'
     if limit:
         sql += " LIMIT ?"
         parameters += (int(limit),)
@@ -218,14 +223,14 @@ def pending(db_path: Path | str, interval: int, *, limit: int = 0) -> list[tuple
         connection.close()
 
 
-def _growing_queue(db_path, interval, tasks, state, report, active, limit):
+def _growing_queue(db_path, interval, tasks, state, report, active, limit, scope):
     """每批耗尽后补入新近具备时长的资产，同一轮每个资产只领取一次。"""
     seen = {row[0] for row in tasks}
     while tasks:
         yield from tasks
         if not active() or (limit and len(seen) >= limit):
             return
-        tasks = [row for row in pending(db_path, interval) if row[0] not in seen]
+        tasks = [row for row in pending(db_path, interval, asset_ids=scope()) if row[0] not in seen]
         if limit:
             tasks = tasks[:max(0, limit - len(seen))]
         seen.update(row[0] for row in tasks)
@@ -237,14 +242,15 @@ def _growing_queue(db_path, interval, tasks, state, report, active, limit):
 def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: str,
                      report=lambda **fields: None, active=lambda: True,
                      guard=None, limit: int = 0, resume_state=None, checkpoint=lambda **fields: None,
-                     acceleration=lambda: 'cpu', regeneration='upgrade') -> dict:
+                     acceleration=lambda: 'cpu', regeneration='upgrade', asset_ids=None) -> dict:
     """按队列逐部生成，返回这一趟的计数。
 
     失败不中断：一部片子解不出来（源坏了、时长记错、编码器不认）是它自己的事，
     队列后面还有几千部。磁盘触线是另一回事——那说明整台机器写不下了，立刻停手并
     把原因带出去，不能继续跑成「完成」。
     """
-    tasks = pending(db_path, interval, limit=limit)
+    scope = asset_ids if callable(asset_ids) else lambda: asset_ids
+    tasks = pending(db_path, interval, limit=limit, asset_ids=scope())
     state = {"total": len(tasks), "done": 0, "made": 0, "skipped": 0,
              "failed": 0, "stopped": ""}
     completed = set((resume_state or {}).get('completed_assets') or [])
@@ -254,7 +260,7 @@ def generate_library(db_path: Path | str, root: Path, interval: int, *, ffmpeg: 
         completed.add(asset_id)
         checkpoint(completed_assets=sorted(completed), **state)
     report(**state)
-    for asset_id, path, duration in _growing_queue(db_path, interval, tasks, state, report, active, limit):
+    for asset_id, path, duration in _growing_queue(db_path, interval, tasks, state, report, active, limit, scope):
         if asset_id in completed and is_current(root, asset_id, interval):
             continue
         from .strm import skip_background_read

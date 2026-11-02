@@ -1,5 +1,7 @@
 # 页面路由
 
+扫描终态的 `discovered_asset_ids` 保存新增资产 ID。扫描后启动的 `/api/thumbnail-jobs` 请求携带 `asset_ids`，只查询该范围内本地、有效且时长足够的视频；活动定向任务追加新 ID 并写入恢复断点。显式生成未传 `asset_ids` 时保留全库语义。相同或更密的时间轴沿用既有跳过判据。
+
 StashDB 分类计数始终读取 `/api/review` 的完整计数，不使用已加载候选列表的长度覆盖。候选记录的可选 `apply_error`、`search_error` 保存自动应用或搜索阶段的错误，供复核页展示；`search_policy.minimum_confidence` 展示该次搜索使用的阈值。得分达到阈值与应用成功分别记录。日期和厂牌的完整查询已有候选时，直接在该范围内判定，不执行跨日期的宽泛回退；该查询或身份查询确实截断时仍保留复核。
 
 StashDB 设置接受布尔值 `fingerprint_matching`（默认关闭），为本地文件启用 OSHASH 查询。候选预览返回 `review_reasons`，解释阈值、同分、资料冲突及不完整结果。`POST /api/library-processing` 的 `stage=stashdb_review` 未指定 `asset_ids` 时在服务端选定完整待复核队列；显式 `asset_ids` 可缩小范围。启动时冻结作品范围并使用当前设置，沿用进度、取消与断点，绕过失败缓存及仅新增限制。复核 API 的数量限制只截取有效候选，不把无结果记录计入显示上限。作品顶部手动匹配弹层复用 `POST /api/configuration/stashdb/preview` 和 `/apply`，应用后刷新当前作品。

@@ -87,20 +87,37 @@ class ThumbnailJobEndpointTests(unittest.TestCase):
         web_timeline_thumbnails.write_mode('custom', interval_seconds=17)
         with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=False), \
                 patch.object(web_timeline_thumbnails, 'w_thumbnail_jobs') as start:
-            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
-        start.assert_called_once_with(self.contract, {'mode': 'custom', 'interval_seconds': 17, 'regeneration': 'upgrade'})
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2, 'discovered_asset_ids': [7, 8]})
+        start.assert_called_once_with(self.contract, {'mode': 'custom', 'interval_seconds': 17, 'regeneration': 'upgrade', 'asset_ids': [7, 8]})
+
+    def test_scan_adds_new_ids_to_a_running_scoped_job_without_restarting(self):
+        web_timeline_thumbnails.write_mode('precise')
+        self.contract.thumbnail_job.snapshot.return_value = {'status': 'running', 'job_id': 'one', 'asset_ids': [7]}
+        with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=False):
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered_asset_ids': [8, 7]})
+        self.contract.thumbnail_job.checkpoint.assert_called_once_with('one', asset_ids=[7, 8])
+        self.contract.thumbnail_job.start.assert_not_called()
+
+    def test_scoped_thumbnail_request_keeps_ids_in_recovery(self):
+        resolver = MagicMock()
+        resolver.return_value.ffmpeg.return_value.path = 'ffmpeg'
+        with patch.object(web_timeline_thumbnails, 'FFmpegResolver', resolver):
+            web_timeline_thumbnails.w_thumbnail_jobs(self.contract, {'mode': 'coarse', 'asset_ids': [8, 7, 8]})
+        started = self.contract.thumbnail_job.start.call_args
+        self.assertEqual(started.kwargs['initial']['asset_ids'], [7, 8])
+        self.assertEqual(started.kwargs['recovery']['asset_ids'], [7, 8])
 
     def test_scan_preserves_disabled_or_active_generation_and_empty_scans(self):
         with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=False), \
                 patch.object(web_timeline_thumbnails, 'w_thumbnail_jobs') as start:
-            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2, 'discovered_asset_ids': [7, 8]})
             web_timeline_thumbnails.write_mode('precise')
             web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 0})
-            web_timeline_thumbnails.after_scan(self.contract, {'status': 'cancelled', 'discovered': 2})
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'cancelled', 'discovered': 2, 'discovered_asset_ids': [7, 8]})
             with patch.object(web_timeline_thumbnails, 'metadata_only', return_value=True):
-                web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+                web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2, 'discovered_asset_ids': [7, 8]})
             self.contract.thumbnail_job.snapshot.return_value = {'status': 'running'}
-            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2})
+            web_timeline_thumbnails.after_scan(self.contract, {'status': 'complete', 'discovered': 2, 'discovered_asset_ids': [7, 8]})
             start.assert_not_called()
 
     def test_speed_is_persisted_independently_without_starting_or_stopping_a_job(self):

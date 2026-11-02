@@ -214,6 +214,26 @@ class GenerateLibraryTests(unittest.TestCase):
             state = self._run()
         self.assertEqual((state["skipped"], state["made"]), (3, 0))
 
+    def test_scoped_generation_never_checks_unselected_assets(self):
+        with patch.object(timeline_sheets, 'build', return_value=True) as build, \
+                patch.object(timeline_sheets, 'should_keep', return_value=False) as keep:
+            result = self._run(asset_ids=[2])
+        self.assertEqual((result['total'], result['done'], result['made']), (1, 1, 1))
+        self.assertEqual(build.call_args.args[4], 2)
+        self.assertEqual([call.args[1] for call in keep.call_args_list], [2])
+
+    def test_scoped_generation_takes_appended_ids_without_enumerating_other_assets(self):
+        scope = [1]
+        built = []
+        def build(*args, **kwargs):
+            built.append(args[4])
+            scope.append(2)
+            return True
+        with patch.object(timeline_sheets, 'build', side_effect=build):
+            result = self._run(asset_ids=lambda: scope)
+        self.assertEqual(built, [1, 2])
+        self.assertEqual((result['total'], result['done'], result['failed']), (2, 2, 0))
+
     def test_running_generation_collects_newly_imported_and_newly_probed_videos(self):
         built = []
         reports = []

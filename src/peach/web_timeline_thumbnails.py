@@ -145,17 +145,37 @@ def _delete_thumbnails(contract, body):
 
 def after_scan(contract, result):
     """扫描取得新增视频后，按持久密度补齐时间轴；活动任务自行补入队列。"""
-    if not result.get('discovered') or result.get('status') not in ('complete', 'failed'):
+    asset_ids = result.get('discovered_asset_ids') or []
+    if not asset_ids or result.get('status') not in ('complete', 'failed'):
         return
     mode = read_mode()
     if mode == timeline_sheets.OFF or metadata_only(contract.follow_state_root):
         return
-    if (contract.thumbnail_job.snapshot() or {}).get('status') in ('running', 'paused', 'pausing', 'stopping'):
+    current = contract.thumbnail_job.snapshot() or {}
+    if current.get('status') in ('running', 'paused', 'pausing', 'stopping'):
+        if isinstance(current.get('asset_ids'), list) and current.get('status') != 'stopping':
+            contract.thumbnail_job.checkpoint(current['job_id'], asset_ids=sorted(set(current['asset_ids']) | set(asset_ids)))
         return
     try:
-        return w_thumbnail_jobs(contract, {'mode': mode, 'interval_seconds': read_interval(), 'regeneration': 'upgrade'})
+        return w_thumbnail_jobs(contract, {'mode': mode, 'interval_seconds': read_interval(), 'regeneration': 'upgrade', 'asset_ids': asset_ids})
     except (OSError, ValueError):
         logging.getLogger(__name__).exception('Unable to start timeline thumbnails after scan')
+
+
+def _requested_assets(body):
+    values = (body or {}).get('asset_ids')
+    if values is None:
+        return None
+    if not isinstance(values, list) or not values or any(type(value) is not int or value <= 0 for value in values):
+        raise ValueError('Choose a video from your library.')
+    return sorted(set(values))
+
+
+def _live_scope(contract, asset_ids):
+    """定向任务从断点状态读取追加范围，全库任务保留显式全库语义。"""
+    if asset_ids is None:
+        return None
+    return lambda: (contract.thumbnail_job.snapshot() or {}).get('asset_ids', asset_ids)
 
 
 def w_thumbnail_jobs(contract, body):
@@ -174,6 +194,7 @@ def w_thumbnail_jobs(contract, body):
         atomic_write_text(MODE_PATH.with_name('thumbnail-acceleration.json'), json.dumps(value))
         return q_thumbnail_jobs(contract, {})
     mode = str((body or {}).get('mode') or timeline_sheets.OFF)
+    asset_ids = _requested_assets(body)
     regeneration = (body or {}).get('regeneration', 'upgrade')
     if regeneration not in ('all', 'upgrade'):
         raise ValueError('Choose a valid timeline regeneration scope.')
@@ -205,6 +226,7 @@ def w_thumbnail_jobs(contract, body):
                 contract.db_path, root, interval, ffmpeg=str(choice.path),
                 acceleration=read_acceleration,
                 regeneration=regeneration,
+                asset_ids=_live_scope(contract, asset_ids),
                 active=lambda: _active(contract, job_id),
                 report=lambda **fields: contract.thumbnail_job.update(job_id, **_with_progress(fields)),
                 guard=guard, resume_state=contract.thumbnail_job.snapshot(),
@@ -218,8 +240,9 @@ def w_thumbnail_jobs(contract, body):
             status='failed' if failed else 'complete',
             error=stopped if failed else '')
 
-    contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode, 'interval_seconds': interval, 'regeneration': regeneration},
+    contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode, 'interval_seconds': interval, 'regeneration': regeneration, 'asset_ids': asset_ids},
                                  initial={'mode': mode, 'interval': interval,
+                                          'asset_ids': asset_ids,
                                           'stage': '采集缩略图', 'checked': 0,
                                           'total': 0, 'done': 0, 'made': 0,
                                           'skipped': 0, 'failed': 0, 'stopped': ''})
