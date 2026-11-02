@@ -66,6 +66,7 @@ function serve(plan: Plan = {}) {
       return ok(decisions.length > 1 ? decisions.shift()! : decisions[0]!);
     }
     if (url.startsWith(REVIEW_URL)) return ok(plan.data ?? review());
+    if (url === '/api/configuration/stashdb/review') return ok(Array.from({ length: 200 }, (_, id) => ({ id: id + 1, label: `Scene ${id + 1}` })));
     throw new Error(`没有安排这个端点：${url}`);
   });
   vi.stubGlobal('fetch', fetcher);
@@ -99,6 +100,12 @@ async function open(plan: Plan = {}, over: Partial<Props> = {}) {
 }
 
 const cards = (root: ParentNode) => [...root.querySelectorAll('[data-review-key]')];
+
+it('StashDB 分类保留服务端全集计数', async () => {
+  const { host } = await open({ data: review({ counts: { stashdb: 4900 } }) }, { category: 'stashdb' });
+  await settle();
+  expect([...host.querySelectorAll('[role="tab"]')].some(tab => tab.textContent?.includes('4,900'))).toBe(true);
+});
 const keys = (root: ParentNode) => cards(root).map((card) => card.getAttribute('data-review-key'));
 const boxOf = (root: ParentNode, at: number) =>
   cards(root)[at]?.querySelector<HTMLInputElement>('input[type="checkbox"]');

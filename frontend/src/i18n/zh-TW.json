@@ -4544,5 +4544,6 @@
   "Conflicting scene details require review": "作品資料衝突，需要複核",
   "Tied scene matches require review": "作品得分相同，需要複核",
   "Incomplete search results require review": "搜尋結果不完整，需要複核",
-  "Manual StashDB match": "手動比對 StashDB"
+  "Manual StashDB match": "手動比對 StashDB",
+  "Threshold used for this search: {0}%": "本次搜尋使用的門檻：{0}%"
 }

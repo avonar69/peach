@@ -32,6 +32,29 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_complete_date_studio_scope_does_not_run_broad_overflowing_fallbacks(self):
+        evidence = {'title': 'unrelated', 'date': '2026-10-22', 'studio': 'Evil Angel', 'actors': ['Jane Doe'], 'duration': 1200}
+        client = mock.Mock(incomplete=False)
+        client.studios.return_value = [{'id': STUDIO, 'name': 'Evil Angel'}]
+        client.scenes.side_effect = [([scene()], False), ([scene()], True)]
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertEqual(result['automatic_match'], SCENE)
+        self.assertFalse(result['truncated'])
+        client.scenes.assert_called_once()
+        client.performers.assert_not_called()
+
+    def test_65_percent_scene_applies_at_64_percent_and_leaves_review_queue(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'auto_apply': True, 'minimum_confidence': 64, 'actor_images': False})
+        self.scenes = [scene(title='zzzzzz', performers=[])]
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET name='file.mp4',studio='Evil Angel',release_date='2026-10-22' WHERE id=1")
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()):
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}], progress=lambda **_: None, issue=lambda *_, **__: None, force=True)
+        self.assertEqual(result['applied'], 1)
+        self.assertEqual(stashdb.review_queue(self.config, self.database), [])
+        record = json.loads((self.config.directory('state') / 'stashdb-matches' / '1.json').read_text(encoding='utf-8'))
+        self.assertEqual(record['match']['score'], .65)
+
     def test_threshold_accepts_65_percent_without_a_separate_strong_match_gate(self):
         evidence = {'title': '', 'date': '2026-10-22', 'studio': 'Evil Angel', 'actors': [], 'duration': 1200}
         client = mock.Mock(incomplete=False)
@@ -499,7 +522,7 @@ class StashDBTests(unittest.TestCase):
         self.assertEqual(result['hints']['actors'], ['Jane Doe'])
         queries = [json.loads(call.body)['variables'].get('input', {}) for call in self.calls]
         self.assertTrue(any(query.get('date', {}).get('value') == '2026-10-22' and 'studios' in query for query in queries))
-        self.assertTrue(any('performers' in query for query in queries))
+        self.assertIn('Actor names or aliases match', result['candidates'][0]['reasons'])
         self.assertTrue(all(call.headers['ApiKey'] == 'test-secret-token' for call in self.calls))
         self.assertTrue(all(call.url == stashdb_client.ENDPOINT for call in self.calls))
 
@@ -806,6 +829,8 @@ class StashDBTests(unittest.TestCase):
             scan([{'id': 2}])
             scan([{'id': 2}])
             self.assertEqual(apply.call_count, 2)
+            pending = json.loads((self.config.directory('state') / 'stashdb-review' / '2.json').read_text(encoding='utf-8'))
+            self.assertEqual(pending['apply_error'], 'temporary image failure')
 
     def test_failed_search_skip_is_optional_and_changed_hints_allow_retry(self):
         stashdb_client.save_settings(self.config, {'enabled': True, 'skip_failed': True})

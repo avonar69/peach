@@ -4544,5 +4544,6 @@
   "Conflicting scene details require review": "作品情報に矛盾があるため要確認",
   "Tied scene matches require review": "同点の作品があるため要確認",
   "Incomplete search results require review": "検索結果が不完全なため要確認",
-  "Manual StashDB match": "StashDB を手動照合"
+  "Manual StashDB match": "StashDB を手動照合",
+  "Threshold used for this search: {0}%": "この検索で使用したしきい値：{0}%"
 }

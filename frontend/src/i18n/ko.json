@@ -4544,5 +4544,6 @@
   "Conflicting scene details require review": "장면 정보 충돌: 검토 필요",
   "Tied scene matches require review": "장면 점수 동점: 검토 필요",
   "Incomplete search results require review": "검색 결과 불완전: 검토 필요",
-  "Manual StashDB match": "StashDB 수동 매칭"
+  "Manual StashDB match": "StashDB 수동 매칭",
+  "Threshold used for this search: {0}%": "이 검색에 사용된 기준: {0}%"
 }

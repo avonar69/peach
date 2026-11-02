@@ -14,7 +14,7 @@ from .entities import upsert_asset_entity
 from .field_owners import owner_of, write_owned_fields
 from .fsutil import atomic_write_text
 from .western_artwork import artwork_key
-from .stashdb_files import policy_stamp as _policy_stamp, recover_images, stash_photo as _stash_photo, read_record, search_stamp, skip_search, fingerprint_evidence
+from .stashdb_files import policy_stamp as _policy_stamp, recover_images, stash_photo as _stash_photo, read_record, search_stamp, skip_search, fingerprint_evidence, record_failure
 
 SOURCE = 'auto:stashdb'
 REVIEW_SOURCE = 'review:stashdb'
@@ -90,6 +90,7 @@ def preview(config, database, body, *, client=None):
         result = stashdb_matching.search_scenes(client, evidence, known_actors=known_actors,
             minimum_confidence=policy['minimum_confidence'])
         result['token'] = token
+        result['search_policy'] = search_stamp(policy)
         return result
     finally:
         if owned:
@@ -401,7 +402,7 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True,
                 skipped += 1
                 progress(checked=position + 1, total=len(rows))
                 continue
-            token = None
+            token = current = None
             try:
                 with database.read_connection() as connection:
                     token = asset_evidence(connection, row['id'], revision=False)[2]
@@ -425,7 +426,14 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True,
                     result['evidence_token'] = token
                 atomic_write_text(path, json.dumps(result, ensure_ascii=False))
                 if policy['auto_apply'] and result['automatic_match']:
-                    apply_scene(config, database, row['id'], result['automatic_match'], result['token'], client=client, manual=False)
+                    try:
+                        apply_scene(config, database, row['id'], result['automatic_match'], result['token'], client=client, manual=False)
+                    except InterruptedError:
+                        raise
+                    except (ValueError, OSError) as exc:
+                        result['apply_error'] = str(exc)
+                        atomic_write_text(path, json.dumps(result, ensure_ascii=False))
+                        raise
                     applied += 1
                 elif result['candidates']:
                     review += 1
@@ -436,12 +444,13 @@ def scan_assets(config, database, rows, *, progress, issue, active=lambda: True,
             except InterruptedError:
                 raise
             except stashdb_client.RateLimited as exc:
+                if token:
+                    record_failure(config, row['id'], token, policy, exc)
                 issue(row, str(exc), paused=True, retryable=True)
                 break
             except (ValueError, OSError) as exc:
                 if token:
-                    atomic_write_text(config.directory('state') / 'stashdb-failures' / f"{row['id']}.json", json.dumps({
-                        'token': token, 'search_policy': search_stamp(policy), 'policy': _policy_stamp(policy)}))
+                    record_failure(config, row['id'], token, policy, exc)
                 issue(row, str(exc), retryable=True)
     finally:
         client.close()

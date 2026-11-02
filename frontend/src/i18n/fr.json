@@ -4544,5 +4544,6 @@
   "Conflicting scene details require review": "Données contradictoires : vérifier",
   "Tied scene matches require review": "Scènes à égalité : vérifier",
   "Incomplete search results require review": "Résultats incomplets : vérifier",
-  "Manual StashDB match": "Correspondance StashDB manuelle"
+  "Manual StashDB match": "Correspondance StashDB manuelle",
+  "Threshold used for this search: {0}%": "Seuil utilisé pour cette recherche : {0} %"
 }

@@ -132,9 +132,15 @@ def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85)
         for scene in client.fingerprint_scenes(evidence['oshash']):
             found[scene['id']] = scene
     studio_ids = _studio_ids(client, evidence['studio'])
-    performer_ids = _performer_ids(client, evidence['actors'], known_actors)
     date_filter = {'date': {'value': evidence['date'], 'modifier': 'EQUALS'}} if evidence['date'] else {}
     studio_filter = {'studios': {'value': list(dict.fromkeys(studio_ids)), 'modifier': 'INCLUDES'}} if studio_ids else {}
+    if date_filter and studio_filter:
+        scenes, overflow = client.scenes({**date_filter, **studio_filter})
+        found.update((scene['id'], scene) for scene in scenes)
+        if scenes and not overflow:
+            return _scene_result(found, evidence, minimum_confidence, bool(getattr(client, 'incomplete', False)))
+        truncated |= overflow
+    performer_ids = _performer_ids(client, evidence['actors'], known_actors)
     actor_filter = {'performers': {'value': list(dict.fromkeys(performer_ids)), 'modifier': 'INCLUDES'}} if performer_ids else {}
     if date_filter and studio_filter:
         filters.append({**date_filter, **studio_filter})
@@ -152,6 +158,10 @@ def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85)
         for scene in scenes:
             found[scene['id']] = scene
     truncated |= bool(getattr(client, 'incomplete', False))
+    return _scene_result(found, evidence, minimum_confidence, truncated)
+
+
+def _scene_result(found, evidence, minimum_confidence, truncated):
     ranked = sorted(filter(None, (rank_scene(scene, evidence) for scene in found.values())), key=lambda row: (-row['score'], row['id']))
     blockers = []
     if ranked:

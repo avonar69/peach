@@ -6,18 +6,19 @@ import { Input } from '@/components/base/input/input';
 import { Select, SelectItem } from '@/components/base/select/select';
 import { confirmModal } from '@peach/legacy/ui';
 import { apiGet, apiSend } from '../../api';
-import { translate } from '../../i18n';
+import { formatTranslation, translate } from '../../i18n';
 import { LoadingDots } from '../components/loading-dots';
 import { ErrorText, Help, Section, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 
 interface Candidate { id: string; title: string; date?: string; studio?: string; actors?: string[];
   score: number; reasons: string[]; disambiguation?: string; url: string }
-interface Preview { candidates: Candidate[]; token?: string; review_required: boolean; truncated?: boolean; review_reasons?: string[] }
+interface Preview { candidates: Candidate[]; token?: string; review_required: boolean; truncated?: boolean; review_reasons?: string[]; apply_error?: string; search_error?: string;
+  search_policy?: { minimum_confidence?: number } }
 interface Choice { id: number; label: string; preview?: Preview }
 
-export function StashDBReview({ readOnly, receipt, onCount, sceneId, sceneName, onApplied }: {
-  readOnly: boolean; receipt(message: string): void; onCount(count: number): void;
+export function StashDBReview({ readOnly, receipt, sceneId, sceneName, onApplied }: {
+  readOnly: boolean; receipt(message: string): void;
   sceneId?: number; sceneName?: string; onApplied?(): void;
 }) {
   const client = useQueryClient();
@@ -33,7 +34,6 @@ export function StashDBReview({ readOnly, receipt, onCount, sceneId, sceneName, 
     queryFn: ({ signal }) => apiSend<Preview>('/api/configuration/stashdb/preview', { asset_id: sceneId }, 'POST', signal), staleTime: 0 });
   useEffect(() => { if (direct.data) setPreview(direct.data); }, [direct.data]);
   const choices = found ?? queue.data ?? [];
-  useEffect(() => { onCount(queue.data?.length || 0); }, [queue.data, onCount]);
   const target = () => kind === 'actor' ? { performer_id: selected!.id } : { asset_id: selected!.id };
   const refresh = () => {
     setSelected(null); setPreview(null);
@@ -97,12 +97,14 @@ export function StashDBReview({ readOnly, receipt, onCount, sceneId, sceneName, 
       </div>
       {preview?.truncated ? <Help>More results exist. Refine the local title, date, studio, or actors before applying a match.</Help> : null}
       {preview?.review_reasons?.map(reason => <Help key={reason}>{reason}</Help>)}
+      {preview?.search_policy?.minimum_confidence !== undefined ? <Help>{formatTranslation('Threshold used for this search: {0}%', String(preview.search_policy.minimum_confidence))}</Help> : null}
+      {preview?.apply_error || preview?.search_error ? <ErrorText>{preview.apply_error || preview.search_error}</ErrorText> : null}
       {preview && !preview.candidates.length ? <Help>No StashDB match found. Check the scene title, studio, date, and actors.</Help> : null}
       {preview?.candidates.map(candidate => <article key={candidate.id} className="flex flex-col gap-2 rounded-lg border border-separator-border p-3">
         <a href={candidate.url} target="_blank" rel="noreferrer" data-i18n-ignore="">{candidate.title}{candidate.disambiguation ? ` (${candidate.disambiguation})` : ''}</a>
         <p data-i18n-ignore="">{[candidate.studio, candidate.date, candidate.actors?.join(', ')].filter(Boolean).join(' · ')}</p>
         <p>Match score: {Math.round(candidate.score * 100)}%</p>
-        <ul>{candidate.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>
+        <ul>{[...new Set(candidate.reasons)].map(reason => <li key={reason}>{reason}</li>)}</ul>
         <Button type="button" disabled={readOnly} onClick={() => apply(candidate)}>Apply selected match</Button>
       </article>)}
     </Stack>

@@ -65,7 +65,6 @@ function Pagination(
 }
 
 export function ReviewPage(props: ReviewProps) {
-  const [stashCount, setStashCount] = useState<number | null>(null);
   const [narrow, setNarrow] = useState(() => matchMedia('(max-width:900px)').matches);
   const categoryScroll = useHorizontalScroller<HTMLDivElement>(undefined, narrow);
   useEffect(() => {
@@ -254,7 +253,7 @@ export function ReviewPage(props: ReviewProps) {
           <TabList ref={categoryScroll} aria-labelledby="reviewcategories" data-section-items
             className="flex review-split:flex-col review-split:items-stretch">
             {REVIEW_CATEGORIES.map((key) => {
-              const count = key === 'stashdb' ? (stashCount ?? Number(data.counts[key] || 0)) : Number(data.counts[key] || 0);
+              const count = Number(data.counts[key] || 0);
               return (
                 <Tab key={key} id={key} className={TAB_CLASS}>
                   {REVIEW_LABELS[key]}
@@ -272,7 +271,7 @@ export function ReviewPage(props: ReviewProps) {
 
         <TabPanel id={category} className="flex min-w-0 flex-1 flex-col gap-5">
           {category === 'actor_merge' ? <ActorMergeReview readOnly={locked} receipt={toast} openEntity={openEntity} />
-          : category === 'stashdb' ? <StashDBReview readOnly={locked} receipt={toast} onCount={setStashCount} /> : <>
+          : category === 'stashdb' ? <StashDBReview readOnly={locked} receipt={toast} /> : <>
           {queue.length && !locked ? (
             <BulkToolbar groupOptions={groupOptions} groupBy={activeGroupBy}
               onGroupBy={(next) => { setGroupBy(next); setFilter(''); setPage(1) }}

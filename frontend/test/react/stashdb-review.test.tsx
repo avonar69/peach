@@ -8,14 +8,14 @@ notifyManager.setScheduler(callback => callback());
 beforeEach(() => localStorage.setItem('peach.language', 'en'));
 afterEach(() => { queryClient.clear(); localStorage.clear(); });
 
-function serve() {
+function serve(applyError?: string) {
   const posts: { path: string; body: unknown }[] = [];
   vi.stubGlobal('fetch', vi.fn(async (path: string, options?: RequestInit) => {
     if (options?.method === 'POST') {
       posts.push({ path, body: JSON.parse(String(options.body)) });
       return new Response(JSON.stringify({ candidates: [{ id: 'remote', title: 'Candidate scene', score: .65, reasons: ['Duration matches'], url: 'https://stashdb.org/scenes/remote' }], review_required: false }));
     }
-    return new Response(JSON.stringify([{ id: 9, label: 'Pending scene' }]));
+    return new Response(JSON.stringify([{ id: 9, label: 'Pending scene', preview: applyError ? { candidates: [], review_required: true, apply_error: applyError, search_policy: { minimum_confidence: 70 } } : undefined }]));
   }));
   return posts;
 }
@@ -23,7 +23,7 @@ function serve() {
 it('作品内复核直接查询当前作品候选', async () => {
   const posts = serve();
   const host = await mount(<QueryClientProvider client={queryClient}><StashDBReview sceneId={9} sceneName="Local scene"
-    readOnly={false} receipt={vi.fn()} onCount={vi.fn()} /></QueryClientProvider>);
+    readOnly={false} receipt={vi.fn()} /></QueryClientProvider>);
   expect(posts).toContainEqual({ path: '/api/configuration/stashdb/preview', body: { asset_id: 9 } });
   expect(host.textContent).toContain('Candidate scene');
   expect(buttonNamed('Apply selected match', host)).toBeTruthy();
@@ -32,7 +32,15 @@ it('作品内复核直接查询当前作品候选', async () => {
 
 it('队列重跑由服务端选择完整待复核范围', async () => {
   const posts = serve();
-  const host = await mount(<QueryClientProvider client={queryClient}><StashDBReview readOnly={false} receipt={vi.fn()} onCount={vi.fn()} /></QueryClientProvider>);
+  const host = await mount(<QueryClientProvider client={queryClient}><StashDBReview readOnly={false} receipt={vi.fn()} /></QueryClientProvider>);
   await click(buttonNamed('Rerun pending StashDB matches', host));
   expect(posts).toContainEqual({ path: '/api/library-processing', body: { stage: 'stashdb_review' } });
+});
+
+it('待复核作品显示自动应用失败原因', async () => {
+  serve('Image download failed');
+  const host = await mount(<QueryClientProvider client={queryClient}><StashDBReview readOnly={false} receipt={vi.fn()} /></QueryClientProvider>);
+  await click(buttonNamed('Pending scene', host));
+  expect(host.textContent).toContain('Image download failed');
+  expect(host.textContent).toContain('Threshold used for this search: 70%');
 });

@@ -20,7 +20,7 @@ export function SceneManualMatch({ id, name, receipt, onSaved }: { id: number; n
     <UNSAFE_PortalProvider getContainer={() => overlayHost(anchor.current)}>
       <ModalFrame isOpen={open} onOpenChange={setOpen} width="form" label="Manual StashDB match">
         <div className="flex min-w-0 flex-col gap-4 p-5">
-          {open ? <StashDBReview sceneId={id} sceneName={name} readOnly={false} receipt={receipt} onCount={() => {}}
+          {open ? <StashDBReview sceneId={id} sceneName={name} readOnly={false} receipt={receipt}
             onApplied={() => { onSaved(); setOpen(false); }} /> : null}
           <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Close</Button>
         </div>

@@ -7,7 +7,18 @@ import time
 import struct
 from pathlib import Path
 
-from .fsutil import atomic_write_bytes
+from .fsutil import atomic_write_bytes, atomic_write_text
+
+
+def record_failure(config, asset_id, token, policy, error):
+    atomic_write_text(config.directory('state') / 'stashdb-failures' / f'{asset_id}.json', json.dumps({
+        'token': token, 'search_policy': search_stamp(policy), 'policy': policy_stamp(policy),
+        'error': str(error), 'failed_at': time.time()}))
+    path = config.directory('state') / 'stashdb-review' / f'{asset_id}.json'
+    pending = read_record(path)
+    if pending.get('candidates'):
+        pending['search_error'] = str(error)
+        atomic_write_text(path, json.dumps(pending, ensure_ascii=False))
 
 
 def fingerprint_evidence(database, asset_id, evidence, policy):
@@ -81,7 +92,7 @@ def completed(config, asset_id, token, policy):
 
 def search_stamp(policy):
     return {**{key: policy[key] for key in ('ignore_terms', 'minimum_confidence', 'auto_apply')},
-            'fingerprint_matching': policy.get('fingerprint_matching', False), 'matching_version': 2}
+            'fingerprint_matching': policy.get('fingerprint_matching', False), 'matching_version': 3}
 
 
 def skip_search(config, asset_id, token, policy, cached, *, first_seen=None):

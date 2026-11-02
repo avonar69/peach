@@ -4544,5 +4544,6 @@
   "Conflicting scene details require review": "Datos en conflicto: revisar",
   "Tied scene matches require review": "Empate entre escenas: revisar",
   "Incomplete search results require review": "Resultados incompletos: revisar",
-  "Manual StashDB match": "Coincidencia manual de StashDB"
+  "Manual StashDB match": "Coincidencia manual de StashDB",
+  "Threshold used for this search: {0}%": "Umbral usado en esta búsqueda: {0}%"
 }

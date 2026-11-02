@@ -9978,7 +9978,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "Conflicting scene details require review",
 	"Tied scene matches require review": "Tied scene matches require review",
 	"Incomplete search results require review": "Incomplete search results require review",
-	"Manual StashDB match": "Manual StashDB match"
+	"Manual StashDB match": "Manual StashDB match",
+	"Threshold used for this search: {0}%": "Threshold used for this search: {0}%"
 }, w = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Add follow",
 	"# 浏览记录口味分析": "# Browse record taste analysis",
@@ -18145,7 +18146,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "Datos en conflicto: revisar",
 	"Tied scene matches require review": "Empate entre escenas: revisar",
 	"Incomplete search results require review": "Resultados incompletos: revisar",
-	"Manual StashDB match": "Coincidencia manual de StashDB"
+	"Manual StashDB match": "Coincidencia manual de StashDB",
+	"Threshold used for this search: {0}%": "Umbral usado en esta búsqueda: {0}%"
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22692,7 +22694,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "Données contradictoires : vérifier",
 	"Tied scene matches require review": "Scènes à égalité : vérifier",
 	"Incomplete search results require review": "Résultats incomplets : vérifier",
-	"Manual StashDB match": "Correspondance StashDB manuelle"
+	"Manual StashDB match": "Correspondance StashDB manuelle",
+	"Threshold used for this search: {0}%": "Seuil utilisé pour cette recherche : {0} %"
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -27239,7 +27242,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "Widersprüchliche Szenendaten prüfen",
 	"Tied scene matches require review": "Gleichwertige Szenentreffer prüfen",
 	"Incomplete search results require review": "Unvollständige Suchergebnisse prüfen",
-	"Manual StashDB match": "Manueller StashDB-Abgleich"
+	"Manual StashDB match": "Manueller StashDB-Abgleich",
+	"Threshold used for this search: {0}%": "Schwellenwert dieser Suche: {0}%"
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -31786,7 +31790,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "Dados conflitantes: revisar",
 	"Tied scene matches require review": "Cenas empatadas: revisar",
 	"Incomplete search results require review": "Resultados incompletos: revisar",
-	"Manual StashDB match": "Correspondência manual do StashDB"
+	"Manual StashDB match": "Correspondência manual do StashDB",
+	"Threshold used for this search: {0}%": "Limite usado nesta busca: {0}%"
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36333,7 +36338,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "作品情報に矛盾があるため要確認",
 	"Tied scene matches require review": "同点の作品があるため要確認",
 	"Incomplete search results require review": "検索結果が不完全なため要確認",
-	"Manual StashDB match": "StashDB を手動照合"
+	"Manual StashDB match": "StashDB を手動照合",
+	"Threshold used for this search: {0}%": "この検索で使用したしきい値：{0}%"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -40880,7 +40886,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "장면 정보 충돌: 검토 필요",
 	"Tied scene matches require review": "장면 점수 동점: 검토 필요",
 	"Incomplete search results require review": "검색 결과 불완전: 검토 필요",
-	"Manual StashDB match": "StashDB 수동 매칭"
+	"Manual StashDB match": "StashDB 수동 매칭",
+	"Threshold used for this search: {0}%": "이 검색에 사용된 기준: {0}%"
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -45427,7 +45434,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "Dữ liệu cảnh xung đột, cần duyệt",
 	"Tied scene matches require review": "Các cảnh đồng điểm, cần duyệt",
 	"Incomplete search results require review": "Kết quả tìm kiếm chưa đầy đủ, cần duyệt",
-	"Manual StashDB match": "Khớp StashDB thủ công"
+	"Manual StashDB match": "Khớp StashDB thủ công",
+	"Threshold used for this search: {0}%": "Ngưỡng đã dùng cho lần tìm kiếm này: {0}%"
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -49974,7 +49982,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "作品資料衝突，需要複核",
 	"Tied scene matches require review": "作品得分相同，需要複核",
 	"Incomplete search results require review": "搜尋結果不完整，需要複核",
-	"Manual StashDB match": "手動比對 StashDB"
+	"Manual StashDB match": "手動比對 StashDB",
+	"Threshold used for this search: {0}%": "本次搜尋使用的門檻：{0}%"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -50546,7 +50555,8 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Conflicting scene details require review": "作品资料冲突，需要复核",
 	"Tied scene matches require review": "作品得分相同，需要复核",
 	"Incomplete search results require review": "搜索结果不完整，需要复核",
-	"Manual StashDB match": "手动匹配 StashDB"
+	"Manual StashDB match": "手动匹配 StashDB",
+	"Threshold used for this search: {0}%": "本次搜索使用的阈值：{0}%"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

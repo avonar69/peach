@@ -885,5 +885,6 @@
   "Conflicting scene details require review": "Conflicting scene details require review",
   "Tied scene matches require review": "Tied scene matches require review",
   "Incomplete search results require review": "Incomplete search results require review",
-  "Manual StashDB match": "Manual StashDB match"
+  "Manual StashDB match": "Manual StashDB match",
+  "Threshold used for this search: {0}%": "Threshold used for this search: {0}%"
 }

@@ -4544,5 +4544,6 @@
   "Conflicting scene details require review": "Dữ liệu cảnh xung đột, cần duyệt",
   "Tied scene matches require review": "Các cảnh đồng điểm, cần duyệt",
   "Incomplete search results require review": "Kết quả tìm kiếm chưa đầy đủ, cần duyệt",
-  "Manual StashDB match": "Khớp StashDB thủ công"
+  "Manual StashDB match": "Khớp StashDB thủ công",
+  "Threshold used for this search: {0}%": "Ngưỡng đã dùng cho lần tìm kiếm này: {0}%"
 }
