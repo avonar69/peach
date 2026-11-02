@@ -84,6 +84,8 @@ def rank_scene(scene, evidence):
     studio_conflict = bool(evidence['studio'] and studios and not studio_match)
     title_score = SequenceMatcher(None, key(evidence['title']), key(scene.get('title'))).ratio() if evidence['title'] else 0
     cast_score = _cast_overlap(scene, evidence['actors'])
+    if evidence.get('folder_actor_verified'):
+        cast_score = max(cast_score, _cast_overlap(scene, [evidence['folder_actor']]))
     duration_match, fingerprint_match = _file_matches(scene, evidence)
     score = min(1, .3 * studio_match + .3 * date_match + .3 * cast_score + .3 * title_score + .05 * duration_match)
     if date_conflict:
@@ -176,7 +178,7 @@ def _folder_evidence(client, evidence):
                key(folder) in {key(row.get('name')), *(key(alias) for alias in row.get('aliases') or [])}]
     if not matches:
         return evidence
-    return {**evidence, 'actors': list(dict.fromkeys([*evidence['actors'], folder]))}
+    return {**evidence, 'actors': list(dict.fromkeys([*evidence['actors'], folder])), 'folder_actor_verified': True}
 
 
 def _scene_result(found, evidence, minimum_confidence, truncated):

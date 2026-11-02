@@ -70,6 +70,11 @@ class StashDBTests(unittest.TestCase):
         self.assertEqual(result['automatic_match'], SCENE)
         self.assertEqual(result['candidates'][0]['score'], .65)
         self.assertIn('Actor names or aliases match', result['candidates'][0]['reasons'])
+        evidence['actors'] = ['Jane Alias A summer scene']
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertEqual(result['automatic_match'], SCENE)
+        self.assertEqual(result['candidates'][0]['score'], .65)
+        evidence['actors'] = []
         evidence['folder_actor'] = 'Media'
         result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
         self.assertEqual(result['hints']['actors'], [])
