@@ -92,7 +92,7 @@ def completed(config, asset_id, token, policy):
 
 def search_stamp(policy):
     return {**{key: policy[key] for key in ('ignore_terms', 'minimum_confidence', 'auto_apply')},
-            'fingerprint_matching': policy.get('fingerprint_matching', False), 'matching_version': 3}
+            'fingerprint_matching': policy.get('fingerprint_matching', False), 'matching_version': 4}
 
 
 def skip_search(config, asset_id, token, policy, cached, *, first_seen=None):

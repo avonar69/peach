@@ -32,6 +32,73 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_identity_and_scene_queries_read_all_reported_pages(self):
+        client = self.client()
+        for method, field, collection, argument in (
+            (client.studios, 'queryStudios', 'studios', 'Studio'),
+            (client.performers, 'queryPerformers', 'performers', 'Actor'),
+            (client.scenes, 'queryScenes', 'scenes', {'title': 'Scene'}),
+        ):
+            with self.subTest(field=field), mock.patch.object(client, 'query', side_effect=[
+                {field: {'count': 2, collection: [{'id': 'one'}]}},
+                {field: {'count': 2, collection: [{'id': 'two'}]}},
+            ]) as query:
+                result = method(argument)
+                rows = result[0] if field == 'queryScenes' else result
+                self.assertEqual([row['id'] for row in rows], ['one', 'two'])
+                self.assertEqual(query.call_args.args[1]['input']['page'], 2)
+                self.assertFalse(client.incomplete)
+                if field == 'queryScenes':
+                    self.assertFalse(result[1])
+
+    def test_repeated_api_page_is_incomplete_and_terminates(self):
+        client = self.client()
+        with mock.patch.object(client, 'query', return_value={'queryStudios': {
+            'count': 30, 'studios': [{'id': STUDIO, 'name': 'Studio'}]}}) as query:
+            self.assertEqual(len(client.studios('Studio')), 1)
+        self.assertTrue(client.incomplete)
+        self.assertEqual(query.call_count, 2)
+
+    def test_parent_folder_exact_actor_alias_strengthens_scene_match(self):
+        evidence = stashdb_matching.hints({'name': 'A summer scene.mp4',
+            'path': r'R:\Media\Jane Alias\A summer scene.mp4', 'duration': 1200})
+        client = mock.Mock(incomplete=False)
+        client.performers.return_value = [scene()['performers'][0]['performer']]
+        client.scenes.return_value = ([scene()], False)
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertIn('Jane Alias', result['hints']['actors'])
+        self.assertEqual(result['automatic_match'], SCENE)
+        self.assertEqual(result['candidates'][0]['score'], .65)
+        self.assertIn('Actor names or aliases match', result['candidates'][0]['reasons'])
+        evidence['folder_actor'] = 'Media'
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertEqual(result['hints']['actors'], [])
+        self.assertIsNone(result['automatic_match'])
+
+    def test_complete_date_actor_scope_does_not_run_broad_title_query(self):
+        evidence = {'title': 'unrelated', 'date': '2026-10-22', 'studio': '', 'actors': ['Jane Doe'], 'duration': 1200}
+        client = mock.Mock(incomplete=False)
+        client.performers.return_value = [scene()['performers'][0]['performer']]
+        client.scenes.side_effect = [([scene()], False), ([scene()], True)]
+        result = stashdb_matching.search_scenes(client, evidence, minimum_confidence=64)
+        self.assertEqual(result['automatic_match'], SCENE)
+        self.assertFalse(result['truncated'])
+        client.scenes.assert_called_once()
+
+    def test_folder_actor_evidence_survives_automatic_apply_and_adds_cast(self):
+        stashdb_client.save_settings(self.config, {'enabled': True, 'auto_apply': True,
+            'minimum_confidence': 64, 'actor_images': False, 'scene_images': True, 'correct_cast': True})
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET name='A summer scene.mp4',path=?,catalog_title=NULL,original_title=NULL,"
+                "studio=NULL,release_date=NULL WHERE id=1", (r'R:\Media\Jane Alias\A summer scene.mp4',))
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()):
+            result = stashdb.scan_assets(self.config, self.database, [{'id': 1}],
+                progress=lambda **_: None, issue=lambda *_, **__: None, force=True)
+        self.assertEqual(result['applied'], 1)
+        with self.database.read_connection() as connection:
+            self.assertEqual(connection.execute("SELECT e.canonical_name FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
+                "WHERE ae.asset_id=1 AND e.kind='performer'").fetchone()[0], 'Jane Doe')
+
     def test_complete_date_studio_scope_does_not_run_broad_overflowing_fallbacks(self):
         evidence = {'title': 'unrelated', 'date': '2026-10-22', 'studio': 'Evil Angel', 'actors': ['Jane Doe'], 'duration': 1200}
         client = mock.Mock(incomplete=False)

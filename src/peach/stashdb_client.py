@@ -191,20 +191,33 @@ class Client:
 
     def performers(self, name):
         query = f'query PeachPerformers($input:PerformerQueryInput!){{queryPerformers(input:$input){{count performers{{{PERFORMER_FIELDS}}}}}}}'
-        result = self.query(query, {'input': {'names': name[:120], 'per_page': 25}})['queryPerformers']
-        self.incomplete |= result.get('count', len(result['performers'])) > 25
-        return result['performers']
+        rows, overflow = self._pages(query, 'queryPerformers', 'performers', {'names': name[:120]}, 25)
+        self.incomplete |= overflow
+        return rows
 
     def studios(self, name):
         query = 'query PeachStudios($input:StudioQueryInput!){queryStudios(input:$input){count studios{id name aliases images{id url width height} parent{id name}}}}'
-        result = self.query(query, {'input': {'names': name[:120], 'per_page': 25}})['queryStudios']
-        self.incomplete |= result.get('count', len(result['studios'])) > 25
-        return result['studios']
+        rows, overflow = self._pages(query, 'queryStudios', 'studios', {'names': name[:120]}, 25)
+        self.incomplete |= overflow
+        return rows
 
     def scenes(self, filters):
         query = f'query PeachScenes($input:SceneQueryInput!){{queryScenes(input:$input){{count scenes{{{SCENE_FIELDS}}}}}}}'
-        data = self.query(query, {'input': {**filters, 'per_page': 50}})['queryScenes']
-        return data['scenes'], data['count'] > 50
+        return self._pages(query, 'queryScenes', 'scenes', filters, 50)
+
+    def _pages(self, query, field, collection, filters, size):
+        """读取有界分页；只有实际未取完的结果才标记不完整。"""
+        rows, seen = [], set()
+        for page in range(1, 21):
+            data = self.query(query, {'input': {**filters, 'per_page': size, 'page': page}})[field]
+            batch = [row for row in data[collection] if row['id'] not in seen]
+            rows.extend(batch)
+            seen.update(row['id'] for row in batch)
+            if len(rows) >= data.get('count', len(rows)):
+                return rows, False
+            if not batch:
+                break
+        return rows, True
 
     def scene(self, identity):
         return self.query(f'query PeachScene($id:ID!){{findScene(id:$id){{{SCENE_FIELDS}}}}}', {'id': identity}).get('findScene')

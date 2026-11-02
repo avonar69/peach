@@ -28,7 +28,7 @@ def identity(value):
 
 
 def asset_evidence(connection, asset_id, *, revision=True, ignore_terms=''):
-    row = connection.execute("SELECT id,name,medium,code,catalog_title,original_title,studio,release_date,duration,mutation_revision,field_owners "
+    row = connection.execute("SELECT id,name,path,medium,code,catalog_title,original_title,studio,release_date,duration,mutation_revision,field_owners "
                              "FROM asset WHERE id=? AND COALESCE(disposal,'') NOT IN ('trash','vanished')", (asset_id,)).fetchone()
     if not row or row['medium'] != 'video':
         raise ValueError('Choose a video from your library.')
@@ -303,6 +303,7 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
         if not token or token != current:
             raise ValueError('The local scene changed. Preview the match again.')
         fingerprint_evidence(database, asset_id, evidence, policy)
+        evidence = stashdb_matching._folder_evidence(client, evidence)
         ranked = stashdb_matching.rank_scene(scene, evidence)
         if not manual and not fill_only and (not ranked or ranked['conflict'] or ranked['score'] < policy['minimum_confidence'] / 100):
             raise ValueError('This scene needs review before applying metadata.')

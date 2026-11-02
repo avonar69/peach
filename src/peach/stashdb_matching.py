@@ -45,7 +45,8 @@ def hints(row, actors=(), *, ignore_terms=''):
             title = re.sub(re.escape(actor), ' ', title, flags=re.I)
         title = re.sub(r'\b(?:and|xxx)\b', ' ', title, flags=re.I).strip(' -&')
     return {'title': title[:200], 'date': released[:10], 'studio': studio[:120], 'actors': cast[:12],
-            'duration': float(row.get('duration') or 0), 'filename': row['name']}
+            'duration': float(row.get('duration') or 0), 'filename': row['name'],
+            'folder_actor': words(clean(PureWindowsPath(row.get('path') or '').parent.name, ignore_terms))[:120]}
 
 
 def performer_names(appearance):
@@ -127,6 +128,7 @@ def _performer_ids(client, actors, known=None):
 
 def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85):
     client.incomplete = False
+    evidence = _folder_evidence(client, evidence)
     found, filters, truncated = {}, [], False
     if evidence.get('oshash'):
         for scene in client.fingerprint_scenes(evidence['oshash']):
@@ -145,7 +147,11 @@ def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85)
     if date_filter and studio_filter:
         filters.append({**date_filter, **studio_filter})
     if actor_filter and date_filter:
-        filters.append({**actor_filter, **date_filter})
+        scenes, overflow = client.scenes({**actor_filter, **date_filter})
+        found.update((scene['id'], scene) for scene in scenes)
+        if scenes and not overflow:
+            return _scene_result(found, evidence, minimum_confidence, bool(getattr(client, 'incomplete', False)))
+        truncated |= overflow
     if actor_filter and studio_filter:
         filters.append({**actor_filter, **studio_filter})
     if evidence['title']:
@@ -159,6 +165,18 @@ def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85)
             found[scene['id']] = scene
     truncated |= bool(getattr(client, 'incomplete', False))
     return _scene_result(found, evidence, minimum_confidence, truncated)
+
+
+def _folder_evidence(client, evidence):
+    """直接父目录只有精确命中来源演员姓名或别名才作为出演证据。"""
+    folder = evidence.get('folder_actor')
+    if not folder:
+        return evidence
+    matches = [row for row in client.performers(folder) if not row.get('deleted') and
+               key(folder) in {key(row.get('name')), *(key(alias) for alias in row.get('aliases') or [])}]
+    if not matches:
+        return evidence
+    return {**evidence, 'actors': list(dict.fromkeys([*evidence['actors'], folder]))}
 
 
 def _scene_result(found, evidence, minimum_confidence, truncated):
