@@ -2237,7 +2237,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                     report=lambda state: None, provider_factory=None, job_id=None,
                     retry_ids=None, active=lambda: True, stage=ALL_STAGES,
                     database=None, route_overrides=None, state_file=None, asset_ids=None,
-                    resume_state=None, speed_mode=None, scan_roots=None):
+                    resume_state=None, speed_mode=None, scan_roots=None, quick_threshold=None):
     """登记文件与确定的番号，外部资料保留为可复核候选。
 
     `retry_ids` 为 `None` 时处理整个馆藏；给定时只处理这些项目（上一任务记录的
@@ -2290,6 +2290,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                      followups=[],
                      started_at=time.time(), error='')
         state.update(initial_estimate(config, db_path, stage, scope_ids, speed_mode))
+        state['quick_threshold'] = quick_threshold
         state['steps'] = _processing_steps(stage, scope_ids,
             metadata_only_enabled=metadata_only(config.directory('state')))
         _restore_processing_counts(state, resume_state)
@@ -2359,7 +2360,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
             if stage in SPECIAL_LABELS:
                 from .matching_jobs import run
                 result = run(config, database, stage, selected=scope_ids, progress=update, issue=issue,
-                    active=active, previous=resume_state or {})
+                    active=active, previous=resume_state or {}, minimum=quick_threshold)
                 finish_step('collect')
                 update(**_completion_values(state), **result, current_asset_name='')
                 return state

@@ -32,6 +32,88 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_quick_matching_applies_saved_score_without_search_or_changing_default(self):
+        from peach import stashdb_quick
+        from peach.fsutil import atomic_write_text
+        stashdb_client.save_settings(self.config, {'minimum_confidence': 100, 'auto_apply': False,
+            'actor_images': False, 'scene_images': False, 'fingerprint_matching': True})
+        with self.database.read_connection() as connection:
+            token = stashdb.asset_evidence(connection, 1)[2]
+        match = {'id': SCENE, 'score': .65, 'conflict': False, 'reasons': ['Studio matches']}
+        atomic_write_text(self.config.directory('state') / 'stashdb-review/1.json',
+            json.dumps({'token': token, 'candidates': [match], 'truncated': False}))
+        self.calls.clear()
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()), \
+             mock.patch('peach.stashdb.fingerprint_evidence', side_effect=AssertionError('no file hashing')), \
+             mock.patch('peach.stashdb_matching._folder_evidence', side_effect=AssertionError('no actor search')):
+            result = stashdb_quick.run(self.config, self.database, [{'id': 1, 'name': 'scene'}], minimum=64,
+                progress=mock.Mock(), issue=mock.Mock(), active=lambda: True, previous={})
+        self.assertEqual(result['stashdb_applied'], 1)
+        queries = [json.loads(call.body)['query'] for call in self.calls]
+        self.assertEqual(len(queries), 1)
+        self.assertIn('findScene', queries[0])
+        self.assertEqual(stashdb_client.settings(self.config)['minimum_confidence'], 100)
+        record = json.loads((self.config.directory('state') / 'stashdb-matches/1.json').read_text(encoding='utf-8'))
+        self.assertEqual(record['match']['score'], .65)
+        self.assertFalse((self.config.directory('state') / 'stashdb-review/1.json').exists())
+
+    def test_quick_matching_leaves_ambiguous_incomplete_conflicting_and_low_scores(self):
+        from peach.stashdb_quick import candidate, threshold
+        match = {'id': SCENE, 'score': .65, 'conflict': False}
+        self.assertEqual(candidate({'candidates': [match]}, 64), match)
+        for preview in (
+            {'candidates': [match], 'truncated': True},
+            {'candidates': [match, {**match, 'id': ACTOR}]},
+            {'candidates': [{**match, 'conflict': True}]},
+            {'candidates': [{**match, 'reasons': ['Studio differs']}]},
+            {'candidates': [{**match, 'score': .63}]},
+        ):
+            with self.subTest(preview=preview):
+                self.assertIsNone(candidate(preview, 64))
+        for value in (-1, 101, True, '64', None, 64.5):
+            with self.assertRaises(ValueError):
+                threshold(value)
+
+    def test_quick_matching_skips_stale_receipts_without_network(self):
+        from peach import stashdb_quick
+        from peach.fsutil import atomic_write_text
+        atomic_write_text(self.config.directory('state') / 'stashdb-review/1.json', json.dumps({
+            'token': 'stale', 'candidates': [{'id': SCENE, 'score': 1}]}))
+        client = mock.Mock()
+        with mock.patch('peach.stashdb_client.Client', return_value=client):
+            result = stashdb_quick.run(self.config, self.database, [{'id': 1, 'name': 'scene'}], minimum=64,
+                progress=mock.Mock(), issue=mock.Mock(), active=lambda: True, previous={})
+        self.assertEqual(result, {'stashdb_applied': 0, 'stashdb_skipped': 1})
+        client.scene.assert_not_called()
+        client.scenes.assert_not_called()
+
+    def test_quick_job_snapshots_threshold_and_eligible_scope_without_discovery(self):
+        from dataclasses import replace
+        from peach import web_library_processing, library_processing
+        from peach.fsutil import atomic_write_text
+        config = replace(self.config, present=True, data_root_found=True, locations={'local': (r'R:\media',)})
+        with self.database.read_connection() as connection:
+            token = stashdb.asset_evidence(connection, 1)[2]
+        atomic_write_text(config.directory('state') / 'stashdb-review/1.json', json.dumps({
+            'token': token, 'candidates': [{'id': SCENE, 'score': .65, 'conflict': False}]}))
+        job = mock.Mock()
+        job.snapshot.return_value = {}
+        contract = SimpleNamespace(database=self.database, db_path=self.database.db_path, library_processing_job=job)
+        with mock.patch('peach.settings_file.active', return_value=config):
+            web_library_processing.w_library_processing(contract, {'stage': 'stashdb_quick', 'quick_threshold': 64})
+        request = job.start.call_args.kwargs
+        self.assertEqual(request['recovery']['quick_threshold'], 64)
+        self.assertEqual(request['recovery']['asset_ids'], [1])
+        self.assertEqual(request['initial']['estimate_file_count'], 1)
+        with mock.patch('peach.stashdb_client.Client', return_value=self.client()), \
+             mock.patch.object(library_processing, '_scan_sources', side_effect=AssertionError('no discovery')):
+            result = library_processing.process_library(config, self.database.db_path,
+                self.root / 'candidates', self.root / 'covers', database=self.database,
+                stage='stashdb_quick', asset_ids=[1], quick_threshold=64)
+        self.assertEqual(result['stashdb_applied'], 1)
+        self.assertEqual(result['quick_threshold'], 64)
+        self.assertEqual(result['status'], 'complete')
+
     def test_nearby_dates_have_decreasing_weight_and_only_distant_dates_conflict(self):
         from datetime import date, timedelta
         evidence = {'title': '', 'date': '2026-10-22', 'studio': 'Evil Angel', 'actors': ['Jane Doe'], 'duration': 1200}
@@ -491,7 +573,7 @@ class StashDBTests(unittest.TestCase):
                 connection.execute("INSERT INTO asset(id,location,path,name,medium) VALUES(?,'local',?,?,'video')",
                     (identity, f'R:\\media\\{identity}.mp4', f'{identity}.mp4'))
         for identity in range(1, 451):
-            (folder / f'{identity}.json').write_text(json.dumps({'candidates': [scene()] if identity <= 250 else []}), encoding='utf-8')
+            (folder / f'{identity}.json').write_text(json.dumps({'candidates': [scene(score=.9)] if identity <= 250 else []}), encoding='utf-8')
         self.assertEqual(len(stashdb.review_queue(config, self.database)), 200)
         self.assertEqual(len(stashdb.review_queue(config, self.database, limit=None)), 250)
         job = mock.Mock()
@@ -501,6 +583,11 @@ class StashDBTests(unittest.TestCase):
             web_library_processing.w_library_processing(contract, {'stage': 'stashdb_review'})
         self.assertEqual(job.start.call_args.kwargs['initial']['estimate_file_count'], 250)
         self.assertEqual(job.start.call_args.kwargs['recovery']['asset_ids'], list(range(1, 251)))
+        with mock.patch('peach.settings_file.active', return_value=config):
+            web_library_processing.w_library_processing(contract, {'stage': 'stashdb_quick', 'quick_threshold': 64})
+            self.assertEqual(job.start.call_args.kwargs['recovery']['asset_ids'], list(range(1, 251)))
+            with self.assertRaisesRegex(ValueError, 'No saved StashDB matches'):
+                web_library_processing.w_library_processing(contract, {'stage': 'stashdb_quick', 'quick_threshold': 100})
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()

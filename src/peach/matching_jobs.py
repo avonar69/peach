@@ -5,15 +5,23 @@ from .processing_control import checkpoint
 LABELS = {'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios',
           'stashdb_scenes': 'Resync Scenes',
           'stashdb_review': 'Rerun pending StashDB matches',
+          'stashdb_quick': 'Quick StashDB matching',
           'stashdb_ignored': 'Rematch ignored filenames with StashDB',
           'filename_ignored': 'Rematch actors and studios from filenames'}
-REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored', 'stashdb_review')
+REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored', 'stashdb_review', 'stashdb_quick')
 
 
-def selection(config, database, stage, selected=None):
-    if stage == 'stashdb_review':
+def selection(config, database, stage, selected=None, *, minimum=None):
+    if stage in ('stashdb_review', 'stashdb_quick'):
         from .stashdb import review_queue
-        ids = set(selected) if selected is not None else {row['id'] for row in review_queue(config, database, limit=None)}
+        queue = review_queue(config, database, limit=None)
+        if stage == 'stashdb_quick':
+            from .stashdb_quick import candidate, threshold
+            minimum = threshold(minimum)
+            if not stashdb_client.settings(config)['api_key_set']:
+                raise ValueError('Save a StashDB API key before rematching.')
+            queue = [row for row in queue if candidate(row['preview'], minimum)]
+        ids = set(selected) if selected is not None else {row['id'] for row in queue}
         with database.read_connection() as connection:
             return [dict(row) for row in connection.execute("SELECT id,name,path,first_seen FROM asset WHERE medium='video' AND disposal IS NULL ORDER BY id") if row['id'] in ids]
     policy = stashdb_client.settings(config) if stage == 'stashdb_ignored' else filename_matching.read(config.directory('state'))
@@ -24,7 +32,13 @@ def selection(config, database, stage, selected=None):
     return filename_text.matching_assets(database, policy.get('ignore_terms', ''), selected)
 
 
-def run(config, database, stage, *, selected, progress, issue, active, previous):
+def run(config, database, stage, *, selected, progress, issue, active, previous, minimum=None):
+    if stage == 'stashdb_quick':
+        from .stashdb_quick import run as quick_run
+        rows = selection(config, database, stage, selected, minimum=minimum)
+        progress(stage=LABELS[stage], total=len(rows), checked=0)
+        return quick_run(config, database, rows, minimum=minimum, progress=progress, issue=issue,
+                         active=active, previous=previous)
     if stage == 'stashdb_scenes':
         from .stashdb_scene_sync import run as resync_scenes
         return resync_scenes(config, database, progress=progress, issue=issue, active=active, completed=previous.get('resynced_scenes', []))

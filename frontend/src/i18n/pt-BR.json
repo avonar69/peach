@@ -4546,5 +4546,10 @@
   "Tied scene matches require review": "Cenas empatadas: revisar",
   "Incomplete search results require review": "Resultados incompletos: revisar",
   "Manual StashDB match": "Correspondência manual do StashDB",
-  "Threshold used for this search: {0}%": "Limite usado nesta busca: {0}%"
+  "Threshold used for this search: {0}%": "Limite usado nesta busca: {0}%",
+  "Quick StashDB matching": "Correspondência rápida do StashDB",
+  "Quick match threshold (%)": "Limite de correspondência rápida (%)",
+  "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa as pontuações salvas sem pesquisar novamente. Este limite vale apenas para a correspondência rápida; a correspondência normal mantém o limite configurado.",
+  "Choose a quick matching threshold from 0 to 100.": "Escolha um limite de correspondência rápida de 0 a 100.",
+  "No saved StashDB matches meet this threshold safely.": "Nenhuma correspondência salva do StashDB pode ser aplicada com segurança neste limite."
 }

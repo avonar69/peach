@@ -4546,5 +4546,10 @@
   "Tied scene matches require review": "同点の作品があるため要確認",
   "Incomplete search results require review": "検索結果が不完全なため要確認",
   "Manual StashDB match": "StashDB を手動照合",
-  "Threshold used for this search: {0}%": "この検索で使用したしきい値：{0}%"
+  "Threshold used for this search: {0}%": "この検索で使用したしきい値：{0}%",
+  "Quick StashDB matching": "StashDB 高速マッチング",
+  "Quick match threshold (%)": "高速マッチングのしきい値（%）",
+  "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "再検索せず保存済みのスコアを使用します。このしきい値は高速マッチングのみに適用され、通常のマッチングは設定済みのしきい値を使用します。",
+  "Choose a quick matching threshold from 0 to 100.": "高速マッチングのしきい値を0から100で選択してください。",
+  "No saved StashDB matches meet this threshold safely.": "このしきい値で安全に適用できる保存済みStashDB候補はありません。"
 }

@@ -4546,5 +4546,10 @@
   "Tied scene matches require review": "Empate entre escenas: revisar",
   "Incomplete search results require review": "Resultados incompletos: revisar",
   "Manual StashDB match": "Coincidencia manual de StashDB",
-  "Threshold used for this search: {0}%": "Umbral usado en esta búsqueda: {0}%"
+  "Threshold used for this search: {0}%": "Umbral usado en esta búsqueda: {0}%",
+  "Quick StashDB matching": "Coincidencia rápida de StashDB",
+  "Quick match threshold (%)": "Umbral de coincidencia rápida (%)",
+  "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa las puntuaciones guardadas sin volver a buscar. Este umbral solo se aplica a la coincidencia rápida; la coincidencia normal conserva el umbral configurado.",
+  "Choose a quick matching threshold from 0 to 100.": "Elige un umbral de coincidencia rápida de 0 a 100.",
+  "No saved StashDB matches meet this threshold safely.": "Ninguna coincidencia guardada de StashDB se puede aplicar de forma segura con este umbral."
 }

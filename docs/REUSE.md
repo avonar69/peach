@@ -803,6 +803,8 @@ NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 
 
 ## 演员批量合并与撤销
 
+StashDB 快速匹配复用 `review_queue(limit=None)`、统一馆藏任务、证据令牌、`apply_scene`、图片安装与字段归属保护。缓存候选的唯一性、完整性和单次阈值属于 Peach 的复核策略；来源客户端只按入选 ID 读取详情，不执行搜索。沿用 Python 标准库及既有 HTTP 依赖，无新增依赖或迁移。
+
 日期窗口沿用 [Stash-box DateCriterionInput](https://github.com/stashapp/stash-box/blob/master/graphql/schema/types/filter.graphql) 的 `GREATER_THAN` 和作品 `DATE ASC` 排序，分页读取到窗口上界即停止。该协议没有 `BETWEEN` 或 `value2`，上界由客户端截断，仍沿用 20 页与重复页保护；评分复用标准库 `datetime`，厂牌比较复用既有 Unicode 规范化、来源别名和父身份，无新增依赖。
 
 StashDB 分页复用当前只读 GraphQL 查询的 `page`、`per_page` 与 `count`，每查询最多 20 页，重复页提前停止并标记不完整；既有限流、退避与响应上限继续生效。目录演员线索复用 `PureWindowsPath`、忽略词清洗、来源姓名／别名精确比较和出演者写入保护，不把目录名称直接当身份。没有新增依赖；分页和目录证据在隔离响应中验证，真实来源验收未取得。

@@ -54,7 +54,8 @@ describe('StashDB review and playback preferences', () => {
     try {
       const page = opened.page;
       await page.getByLabel('StashDB API key', { exact: true }).waitFor();
-      await page.getByLabel('Ignore filename text when matching', { exact: true }).fill('!\n[extra]');
+      await page.getByRole('form', { name: 'StashDB', exact: true })
+        .getByLabel('Ignore filename text when matching', { exact: true }).fill('!\n[extra]');
       await page.getByLabel('Minimum automatic match confidence (%)', { exact: true }).fill('90');
       for (const label of ['Skip previously failed or unmatched StashDB searches', 'Only match newly added media']) {
         await page.getByRole('switch', { name: label, exact: true }).locator('xpath=ancestor::label[1]').click();
@@ -86,6 +87,16 @@ describe('StashDB review and playback preferences', () => {
       await page.getByRole('tab', { name: /StashDB matches/ }).waitFor();
       assert.match(page.url(), /review\?category=stashdb/);
       await page.getByRole('button', { name: 'Queued library scene', exact: true }).waitFor();
+      const searchesBeforeQuick = posts.filter(post => post.action === 'preview').length;
+      const savesBeforeQuick = posts.filter(post => post.action === 'settings').length;
+      await page.getByLabel('Quick match threshold (%)', { exact: true }).fill('64');
+      await page.getByRole('button', { name: 'Quick StashDB matching', exact: true }).click();
+      await page.getByRole('dialog', { name: 'Quick StashDB matching', exact: true })
+        .getByRole('button', { name: 'Quick StashDB matching', exact: true }).click();
+      await page.waitForFunction(() => !document.querySelector('[data-action-busy="true"]'));
+      assert.ok(posts.some(post => post.action === 'scan' && post.body.stage === 'stashdb_quick' && post.body.quick_threshold === 64));
+      assert.equal(posts.filter(post => post.action === 'preview').length, searchesBeforeQuick);
+      assert.equal(posts.filter(post => post.action === 'settings').length, savesBeforeQuick);
       await page.getByRole('button', { name: 'Find library items', exact: true }).click();
       await page.getByRole('button', { name: 'Example library scene', exact: true }).click();
       await page.getByRole('button', { name: 'Preview StashDB matches', exact: true }).click();

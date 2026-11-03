@@ -89,6 +89,7 @@ def _control_action(contract, config, body):
             return w_library_processing(contract, {
                 'stage': previous.get('requested_stage') or ALL_STAGES,
                 **({'asset_ids': previous['asset_ids']} if previous.get('asset_ids') else {}),
+                **({'quick_threshold': previous['quick_threshold']} if 'quick_threshold' in previous else {}),
                 'speed_mode': control.mode}, resume=True)
         finally:
             current_job_id.reset(identity)
@@ -194,7 +195,10 @@ def _processing_request(contract, config, previous, body):
         raise ValueError('请选择要重新匹配的作品')
     from .matching_jobs import REMATCH_STAGES, selection
     if stage in REMATCH_STAGES:
-        asset_ids = [row['id'] for row in selection(config, contract.database, stage, asset_ids or retry_ids)]
+        asset_ids = [row['id'] for row in selection(config, contract.database, stage, asset_ids or retry_ids,
+                                                   minimum=(body or {}).get('quick_threshold'))]
+        if stage == 'stashdb_quick' and not asset_ids:
+            raise ValueError('No saved StashDB matches meet this threshold safely.')
         retry_ids = None
     from .media_processing_policy import metadata_only
     if stage == PREVIEWS_STAGE and metadata_only(config.directory('state')):
@@ -203,29 +207,32 @@ def _processing_request(contract, config, previous, body):
 
 
 def w_library_processing(contract, body, *, resume=False):
+    body = body or {}
     config = settings_file.active()
-    if (body or {}).get('action'):
+    if body.get('action'):
         return _control_action(contract, config, body)
     previous = _current(contract)
     if previous.get('status') in ACTIVE and not resume:
         from .matching_jobs import REMATCH_STAGES
-        if (body or {}).get('stage') in (*REMATCH_STAGES, 'rematch'):
+        if body.get('stage') in (*REMATCH_STAGES, 'rematch'):
             raise ValueError('A scan is already running. Stop it or wait for it to finish, then start resync.')
         return previous
     retry_ids, asset_ids, stage = _processing_request(contract, config, previous, body)
-    scan_roots = (body or {}).get('scan_roots', previous.get('scan_roots') if resume else None)
+    quick_options = {'quick_threshold': body.get('quick_threshold')} if stage == 'stashdb_quick' else {}
+    scan_roots = body.get('scan_roots', previous.get('scan_roots') if resume else None)
     from .media_scan_schedule import selected_locations
     selected_locations(config, config.locations, scan_roots)
     if retry_ids is not None and not retry_ids:
         return previous
     mode = valid_mode(control_for(config).mode if resume else
-                      (body or {}).get('speed_mode') or control_for(config).mode)
+                      body.get('speed_mode') or control_for(config).mode)
     control_for(config).request('set_speed', mode=mode)
     def work(job_id):
         try:
             result = process_library(config, contract.db_path, contract.candidate_root, contract.cover_root,
                 job_id=job_id, retry_ids=retry_ids, stage=stage, asset_ids=asset_ids,
                 scan_roots=scan_roots,
+                **quick_options,
                 # 自动落库与页面写的是同一个 `LedgerDatabase`：进程内写锁在实例上，
                 # 另建一个就是在同一个进程里开第二条写入路径。
                 database=contract.database,
@@ -255,6 +262,7 @@ def w_library_processing(contract, body, *, resume=False):
     return contract.library_processing_job.start(
         work, restart=True, initial={'stage': labels[stage], 'requested_stage': stage,
                                     'scan_roots': scan_roots,
+                                    **quick_options,
                                     **initial_estimate(config, contract.db_path, stage, asset_ids or retry_ids, mode)},
-        recovery={'stage': stage, 'speed_mode': mode, 'scan_roots': scan_roots, **({'asset_ids': asset_ids or retry_ids}
+        recovery={'stage': stage, 'speed_mode': mode, 'scan_roots': scan_roots, **quick_options, **({'asset_ids': asset_ids or retry_ids}
                                     if asset_ids is not None or retry_ids is not None else {})})

@@ -287,7 +287,21 @@ def _photo_links(connection, asset_id, performers):
     return links
 
 
-def apply_scene(config, database, asset_id, scene_id, token, *, client=None, manual=True, fill_only=False):
+def _application_rank(config, database, asset_id, client, scene, evidence, policy, cached_match):
+    if cached_match is not None:
+        return cached_match
+    fingerprint_evidence(database, asset_id, evidence, policy)
+    evidence = stashdb_matching._folder_evidence(client, evidence)
+    return stashdb_matching.rank_scene(scene, evidence)
+
+
+def _automatic_match_allowed(ranked, policy, minimum_confidence):
+    minimum = policy['minimum_confidence'] if minimum_confidence is None else minimum_confidence
+    return bool(ranked and not ranked.get('conflict') and ranked['score'] >= minimum / 100)
+
+
+def apply_scene(config, database, asset_id, scene_id, token, *, client=None, manual=True, fill_only=False,
+                cached_match=None, minimum_confidence=None):
     owned = client is None
     client = client or stashdb_client.Client(config)
     try:
@@ -302,10 +316,8 @@ def apply_scene(config, database, asset_id, scene_id, token, *, client=None, man
             row, evidence, current = asset_evidence(connection, asset_id, ignore_terms=policy['ignore_terms'])
         if not token or token != current:
             raise ValueError('The local scene changed. Preview the match again.')
-        fingerprint_evidence(database, asset_id, evidence, policy)
-        evidence = stashdb_matching._folder_evidence(client, evidence)
-        ranked = stashdb_matching.rank_scene(scene, evidence)
-        if not manual and not fill_only and (not ranked or ranked['conflict'] or ranked['score'] < policy['minimum_confidence'] / 100):
+        ranked = _application_rank(config, database, asset_id, client, scene, evidence, policy, cached_match)
+        if not manual and not fill_only and not _automatic_match_allowed(ranked, policy, minimum_confidence):
             raise ValueError('This scene needs review before applying metadata.')
         recover_images(config)
         target = config.directory('generated') / 'covers' / (artwork_key(asset_id, row['code']) + '.jpg')

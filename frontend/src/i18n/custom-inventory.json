@@ -566,5 +566,10 @@
   "Tied scene matches require review",
   "Incomplete search results require review",
   "Manual StashDB match",
-  "Threshold used for this search: {0}%"
+  "Threshold used for this search: {0}%",
+  "Quick StashDB matching",
+  "Quick match threshold (%)",
+  "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.",
+  "Choose a quick matching threshold from 0 to 100.",
+  "No saved StashDB matches meet this threshold safely."
 ]

@@ -10,6 +10,7 @@ import { formatTranslation, translate } from '../../i18n';
 import { LoadingDots } from '../components/loading-dots';
 import { ErrorText, Help, Section, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
+import { StashDBQuick } from './stashdb-quick';
 
 interface Candidate { id: string; title: string; date?: string; studio?: string; actors?: string[];
   score: number; reasons: string[]; disambiguation?: string; url: string }
@@ -57,6 +58,9 @@ export function StashDBReview({ readOnly, receipt, sceneId, sceneName, onApplied
       {!sceneId ? <>
       <Help>Review queued scene matches or find a scene or actor in your library. Picture and cast options come from Sources & subscriptions.</Help>
       <a href="/settings/subscriptions" className="underline">Configure StashDB</a>
+      <StashDBQuick readOnly={readOnly} queued={Boolean(queue.data?.length)} started={() => {
+        refresh(); receipt('StashDB rematching started. Follow its progress in Data management.');
+      }} />
       <Select aria-label="StashDB match type" selectedKey={kind} onSelectionChange={key => {
         if (key !== 'scene' && key !== 'actor') return;
         setKind(key); setFound(key === 'scene' ? null : []); setSelected(null); setPreview(null);

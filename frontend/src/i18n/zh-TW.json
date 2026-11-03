@@ -4546,5 +4546,10 @@
   "Tied scene matches require review": "作品得分相同，需要複核",
   "Incomplete search results require review": "搜尋結果不完整，需要複核",
   "Manual StashDB match": "手動比對 StashDB",
-  "Threshold used for this search: {0}%": "本次搜尋使用的門檻：{0}%"
+  "Threshold used for this search: {0}%": "本次搜尋使用的門檻：{0}%",
+  "Quick StashDB matching": "快速 StashDB 匹配",
+  "Quick match threshold (%)": "快速匹配門檻（%）",
+  "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已儲存的分數，不重新搜尋。此門檻僅用於快速匹配；一般匹配仍使用設定中的門檻。",
+  "Choose a quick matching threshold from 0 to 100.": "請選擇 0 到 100 的快速匹配門檻。",
+  "No saved StashDB matches meet this threshold safely.": "沒有可按此門檻安全套用的已儲存 StashDB 匹配。"
 }

@@ -18148,7 +18148,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "Empate entre escenas: revisar",
 	"Incomplete search results require review": "Resultados incompletos: revisar",
 	"Manual StashDB match": "Coincidencia manual de StashDB",
-	"Threshold used for this search: {0}%": "Umbral usado en esta búsqueda: {0}%"
+	"Threshold used for this search: {0}%": "Umbral usado en esta búsqueda: {0}%",
+	"Quick StashDB matching": "Coincidencia rápida de StashDB",
+	"Quick match threshold (%)": "Umbral de coincidencia rápida (%)",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa las puntuaciones guardadas sin volver a buscar. Este umbral solo se aplica a la coincidencia rápida; la coincidencia normal conserva el umbral configurado.",
+	"Choose a quick matching threshold from 0 to 100.": "Elige un umbral de coincidencia rápida de 0 a 100.",
+	"No saved StashDB matches meet this threshold safely.": "Ninguna coincidencia guardada de StashDB se puede aplicar de forma segura con este umbral."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22697,7 +22702,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "Scènes à égalité : vérifier",
 	"Incomplete search results require review": "Résultats incomplets : vérifier",
 	"Manual StashDB match": "Correspondance StashDB manuelle",
-	"Threshold used for this search: {0}%": "Seuil utilisé pour cette recherche : {0} %"
+	"Threshold used for this search: {0}%": "Seuil utilisé pour cette recherche : {0} %",
+	"Quick StashDB matching": "Correspondance rapide StashDB",
+	"Quick match threshold (%)": "Seuil de correspondance rapide (%)",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Utilise les scores enregistrés sans nouvelle recherche. Ce seuil concerne uniquement la correspondance rapide ; la correspondance habituelle conserve le seuil configuré.",
+	"Choose a quick matching threshold from 0 to 100.": "Choisissez un seuil de correspondance rapide de 0 à 100.",
+	"No saved StashDB matches meet this threshold safely.": "Aucune correspondance StashDB enregistrée ne peut être appliquée en toute sécurité avec ce seuil."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -27246,7 +27256,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "Gleichwertige Szenentreffer prüfen",
 	"Incomplete search results require review": "Unvollständige Suchergebnisse prüfen",
 	"Manual StashDB match": "Manueller StashDB-Abgleich",
-	"Threshold used for this search: {0}%": "Schwellenwert dieser Suche: {0}%"
+	"Threshold used for this search: {0}%": "Schwellenwert dieser Suche: {0}%",
+	"Quick StashDB matching": "Schneller StashDB-Abgleich",
+	"Quick match threshold (%)": "Schwellenwert für Schnellabgleich (%)",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Verwendet gespeicherte Bewertungen ohne erneute Suche. Dieser Schwellenwert gilt nur für den Schnellabgleich; reguläre Abgleiche behalten den eingestellten Schwellenwert.",
+	"Choose a quick matching threshold from 0 to 100.": "Wähle einen Schwellenwert für den Schnellabgleich von 0 bis 100.",
+	"No saved StashDB matches meet this threshold safely.": "Keine gespeicherten StashDB-Treffer können bei diesem Schwellenwert sicher angewendet werden."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -31795,7 +31810,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "Cenas empatadas: revisar",
 	"Incomplete search results require review": "Resultados incompletos: revisar",
 	"Manual StashDB match": "Correspondência manual do StashDB",
-	"Threshold used for this search: {0}%": "Limite usado nesta busca: {0}%"
+	"Threshold used for this search: {0}%": "Limite usado nesta busca: {0}%",
+	"Quick StashDB matching": "Correspondência rápida do StashDB",
+	"Quick match threshold (%)": "Limite de correspondência rápida (%)",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa as pontuações salvas sem pesquisar novamente. Este limite vale apenas para a correspondência rápida; a correspondência normal mantém o limite configurado.",
+	"Choose a quick matching threshold from 0 to 100.": "Escolha um limite de correspondência rápida de 0 a 100.",
+	"No saved StashDB matches meet this threshold safely.": "Nenhuma correspondência salva do StashDB pode ser aplicada com segurança neste limite."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36344,7 +36364,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "同点の作品があるため要確認",
 	"Incomplete search results require review": "検索結果が不完全なため要確認",
 	"Manual StashDB match": "StashDB を手動照合",
-	"Threshold used for this search: {0}%": "この検索で使用したしきい値：{0}%"
+	"Threshold used for this search: {0}%": "この検索で使用したしきい値：{0}%",
+	"Quick StashDB matching": "StashDB 高速マッチング",
+	"Quick match threshold (%)": "高速マッチングのしきい値（%）",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "再検索せず保存済みのスコアを使用します。このしきい値は高速マッチングのみに適用され、通常のマッチングは設定済みのしきい値を使用します。",
+	"Choose a quick matching threshold from 0 to 100.": "高速マッチングのしきい値を0から100で選択してください。",
+	"No saved StashDB matches meet this threshold safely.": "このしきい値で安全に適用できる保存済みStashDB候補はありません。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -40893,7 +40918,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "장면 점수 동점: 검토 필요",
 	"Incomplete search results require review": "검색 결과 불완전: 검토 필요",
 	"Manual StashDB match": "StashDB 수동 매칭",
-	"Threshold used for this search: {0}%": "이 검색에 사용된 기준: {0}%"
+	"Threshold used for this search: {0}%": "이 검색에 사용된 기준: {0}%",
+	"Quick StashDB matching": "StashDB 빠른 매칭",
+	"Quick match threshold (%)": "빠른 매칭 기준값 (%)",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "다시 검색하지 않고 저장된 점수를 사용합니다. 이 기준값은 빠른 매칭에만 적용되며 일반 매칭은 설정된 기준값을 유지합니다.",
+	"Choose a quick matching threshold from 0 to 100.": "빠른 매칭 기준값을 0에서 100 사이로 선택하세요.",
+	"No saved StashDB matches meet this threshold safely.": "이 기준값에서 안전하게 적용할 수 있는 저장된 StashDB 매칭이 없습니다."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -45442,7 +45472,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "Các cảnh đồng điểm, cần duyệt",
 	"Incomplete search results require review": "Kết quả tìm kiếm chưa đầy đủ, cần duyệt",
 	"Manual StashDB match": "Khớp StashDB thủ công",
-	"Threshold used for this search: {0}%": "Ngưỡng đã dùng cho lần tìm kiếm này: {0}%"
+	"Threshold used for this search: {0}%": "Ngưỡng đã dùng cho lần tìm kiếm này: {0}%",
+	"Quick StashDB matching": "Ghép StashDB nhanh",
+	"Quick match threshold (%)": "Ngưỡng ghép nhanh (%)",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Dùng điểm đã lưu mà không tìm kiếm lại. Ngưỡng này chỉ dành cho ghép nhanh; ghép thông thường vẫn dùng ngưỡng trong cài đặt.",
+	"Choose a quick matching threshold from 0 to 100.": "Chọn ngưỡng ghép nhanh từ 0 đến 100.",
+	"No saved StashDB matches meet this threshold safely.": "Không có kết quả StashDB đã lưu nào có thể áp dụng an toàn ở ngưỡng này."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -49991,7 +50026,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "作品得分相同，需要複核",
 	"Incomplete search results require review": "搜尋結果不完整，需要複核",
 	"Manual StashDB match": "手動比對 StashDB",
-	"Threshold used for this search: {0}%": "本次搜尋使用的門檻：{0}%"
+	"Threshold used for this search: {0}%": "本次搜尋使用的門檻：{0}%",
+	"Quick StashDB matching": "快速 StashDB 匹配",
+	"Quick match threshold (%)": "快速匹配門檻（%）",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已儲存的分數，不重新搜尋。此門檻僅用於快速匹配；一般匹配仍使用設定中的門檻。",
+	"Choose a quick matching threshold from 0 to 100.": "請選擇 0 到 100 的快速匹配門檻。",
+	"No saved StashDB matches meet this threshold safely.": "沒有可按此門檻安全套用的已儲存 StashDB 匹配。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -50565,7 +50605,12 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Tied scene matches require review": "作品得分相同，需要复核",
 	"Incomplete search results require review": "搜索结果不完整，需要复核",
 	"Manual StashDB match": "手动匹配 StashDB",
-	"Threshold used for this search: {0}%": "本次搜索使用的阈值：{0}%"
+	"Threshold used for this search: {0}%": "本次搜索使用的阈值：{0}%",
+	"Quick StashDB matching": "快速 StashDB 匹配",
+	"Quick match threshold (%)": "快速匹配阈值（%）",
+	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已保存的分数，不重新搜索。此阈值仅用于快速匹配；常规匹配仍使用配置中的阈值。",
+	"Choose a quick matching threshold from 0 to 100.": "请选择 0 到 100 的快速匹配阈值。",
+	"No saved StashDB matches meet this threshold safely.": "没有可按此阈值安全应用的已保存 StashDB 匹配。"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],
