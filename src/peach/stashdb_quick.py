@@ -56,6 +56,8 @@ def run(config, database, rows, *, minimum, progress, issue, active, previous):
                                 manual=False, cached_match=match, minimum_confidence=minimum)
                     applied += 1
                 done.add(row['id'])
+            except InterruptedError:
+                raise
             except stashdb_client.RateLimited as exc:
                 issue(row, str(exc), paused=True, retryable=True)
                 break

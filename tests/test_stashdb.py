@@ -86,6 +86,16 @@ class StashDBTests(unittest.TestCase):
         self.assertEqual(result, {'stashdb_applied': 0, 'stashdb_skipped': 1})
         client.scene.assert_not_called()
         client.scenes.assert_not_called()
+        with self.database.read_connection() as connection:
+            token = stashdb.asset_evidence(connection, 1)[2]
+        atomic_write_text(self.config.directory('state') / 'stashdb-review/1.json', json.dumps({
+            'token': token, 'candidates': [{'id': SCENE, 'score': 1}]}))
+        client.scene.side_effect = InterruptedError('cancelled')
+        issue = mock.Mock()
+        with mock.patch('peach.stashdb_client.Client', return_value=client), self.assertRaises(InterruptedError):
+            stashdb_quick.run(self.config, self.database, [{'id': 1, 'name': 'scene'}], minimum=64,
+                progress=mock.Mock(), issue=issue, active=lambda: True, previous={})
+        issue.assert_not_called()
 
     def test_quick_job_snapshots_threshold_and_eligible_scope_without_discovery(self):
         from dataclasses import replace
