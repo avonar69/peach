@@ -32,6 +32,63 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_nearby_dates_have_decreasing_weight_and_only_distant_dates_conflict(self):
+        from datetime import date, timedelta
+        evidence = {'title': '', 'date': '2026-10-22', 'studio': 'Evil Angel', 'actors': ['Jane Doe'], 'duration': 1200}
+        scores = []
+        for days in (0, 1, 7, 14):
+            for direction in (-1, 1):
+                candidate = scene(release_date=(date(2026, 10, 22) + timedelta(days=days * direction)).isoformat())
+                ranked = stashdb_matching.rank_scene(candidate, evidence)
+                self.assertFalse(ranked['conflict'])
+                self.assertGreaterEqual(ranked['score'], .64)
+                self.assertIn('Release date matches' if days == 0 else 'Release date is within 14 days', ranked['reasons'])
+            scores.append(ranked['score'])
+        self.assertEqual(scores, sorted(scores, reverse=True))
+        self.assertEqual(len(set(scores)), 4)
+        for released in ('2026-10-07', '2026-11-06'):
+            self.assertTrue(stashdb_matching.rank_scene(scene(release_date=released), evidence)['conflict'])
+        self.assertFalse(stashdb_matching.rank_scene(scene(release_date=''), evidence)['conflict'])
+
+    def test_date_only_filename_and_studio_series_aliases_match(self):
+        evidence = stashdb_matching.hints({'name': 'FamilyStrokes.21.06.24.mp4', 'duration': 1200}, ['Jane Doe'])
+        self.assertEqual((evidence['studio'], evidence['date'], evidence['title']), ('FamilyStrokes', '2021-06-24', ''))
+        candidate = scene(release_date='2021-06-24', studio={'id': STUDIO, 'name': 'Family Strokes: The Series'})
+        result = stashdb_matching.rank_scene(candidate, evidence)
+        self.assertFalse(result['conflict'])
+        self.assertEqual(result['score'], .95)
+        candidate['studio'] = {'name': 'Different Brand', 'aliases': ['FamilyStrokes']}
+        self.assertFalse(stashdb_matching.rank_scene(candidate, evidence)['conflict'])
+        candidate['studio'] = {'name': 'Family Strokes Extra'}
+        self.assertTrue(stashdb_matching.rank_scene(candidate, evidence)['conflict'])
+
+    def test_date_window_query_stops_at_upper_bound_without_sending_internal_filter(self):
+        client = self.client()
+        filters = stashdb_matching._date_filter('2020-01-01')
+        self.assertEqual(filters['date'], {'value': '2019-12-17', 'modifier': 'GREATER_THAN'})
+        with mock.patch.object(client, 'query', side_effect=[
+            {'queryScenes': {'count': 10000, 'scenes': [scene(release_date='2019-12-18')]}},
+            {'queryScenes': {'count': 10000, 'scenes': [scene('next', release_date='2020-01-15'), scene('outside', release_date='2020-01-16')]}},
+        ]) as query:
+            rows, overflow = client.scenes(filters)
+        self.assertFalse(overflow)
+        self.assertEqual([row['id'] for row in rows], [SCENE, 'next'])
+        self.assertNotIn('_date_end', query.call_args.args[1]['input'])
+        self.assertEqual(query.call_args.args[1]['input']['direction'], 'ASC')
+
+    def test_studio_spacing_punctuation_and_aliases_share_identity_comparison(self):
+        candidate = scene(studio={'id': STUDIO, 'name': 'Example Studio', 'aliases': ['Another Brand']})
+        evidence = {'title': '', 'date': '2026-10-22', 'studio': '', 'actors': ['Jane Doe'], 'duration': 1200}
+        client = mock.Mock()
+        client.studios.return_value = [candidate['studio']]
+        for name in ('ExampleStudio', 'example.studio', 'Example Studio', 'EXAMPLE-STUDIO', 'AnotherBrand'):
+            with self.subTest(name=name):
+                evidence['studio'] = name
+                ranked = stashdb_matching.rank_scene(candidate, evidence)
+                self.assertFalse(ranked['conflict'])
+                self.assertIn('Studio matches', ranked['reasons'])
+                self.assertEqual(stashdb_matching._studio_ids(client, name), [STUDIO])
+
     def test_identity_and_scene_queries_read_all_reported_pages(self):
         client = self.client()
         for method, field, collection, argument in (
@@ -593,7 +650,7 @@ class StashDBTests(unittest.TestCase):
         self.assertEqual(result['hints']['title'], '')
         self.assertEqual(result['hints']['actors'], ['Jane Doe'])
         queries = [json.loads(call.body)['variables'].get('input', {}) for call in self.calls]
-        self.assertTrue(any(query.get('date', {}).get('value') == '2026-10-22' and 'studios' in query for query in queries))
+        self.assertTrue(any(query.get('date', {}).get('value') == '2026-10-07' and 'studios' in query for query in queries))
         self.assertIn('Actor names or aliases match', result['candidates'][0]['reasons'])
         self.assertTrue(all(call.headers['ApiKey'] == 'test-secret-token' for call in self.calls))
         self.assertTrue(all(call.url == stashdb_client.ENDPOINT for call in self.calls))
@@ -602,7 +659,7 @@ class StashDBTests(unittest.TestCase):
         self.scenes = [scene(), scene('44444444-4444-4444-8444-444444444444')]
         result = stashdb.preview(self.config, self.database, {'asset_id': 1}, client=self.client())
         self.assertIsNone(result['automatic_match'])
-        self.scenes = [scene(release_date='2026-10-21'), scene('55555555-5555-4555-8555-555555555555', deleted=True)]
+        self.scenes = [scene(release_date='2026-10-06'), scene('55555555-5555-4555-8555-555555555555', deleted=True)]
         result = stashdb.preview(self.config, self.database, {'asset_id': 1}, client=self.client())
         self.assertIsNone(result['automatic_match'])
         self.assertEqual(len(result['candidates']), 1)
@@ -861,7 +918,7 @@ class StashDBTests(unittest.TestCase):
         stashdb_client.save_settings(self.config, {'minimum_confidence': 85})
         self.assertEqual(stashdb.preview(self.config, self.database, {'asset_id': 1}, client=self.client())['automatic_match'], SCENE)
         stashdb_client.save_settings(self.config, {'minimum_confidence': 50})
-        self.scenes = [scene(release_date='2026-10-21')]
+        self.scenes = [scene(release_date='2026-10-07')]
         self.assertIsNone(stashdb.preview(self.config, self.database, {'asset_id': 1}, client=self.client())['automatic_match'])
         for body in ({'minimum_confidence': True}, {'minimum_confidence': 49}, {'minimum_confidence': 101}, {'ignore_terms': ['!']}):
             with self.assertRaises(ValueError):

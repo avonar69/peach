@@ -181,6 +181,7 @@
   "Ready": "就绪",
   "Release date differs": "发布日期不同",
   "Release date matches": "发布日期匹配",
+  "Release date is within 14 days": "发布日期相差不超过 14 天",
   "Remove API key": "删除 API 密钥",
   "Remove feed": "移除进给",
   "Reset seek shortcuts": "重置寻找快捷方式",

@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from datetime import date
+from datetime import date, timedelta
 from difflib import SequenceMatcher
 from pathlib import PureWindowsPath
 
 from .filename_actors import release_actors
 
-DATED = re.compile(r'^(.+?)[._ -](\d{4}|\d{2})[._ -](\d{2})[._ -](\d{2})[._ -](.+)$')
+DATED = re.compile(r'^(.+?)[._ -](\d{4}|\d{2})[._ -](\d{2})[._ -](\d{2})(?:[._ -](.+))?$')
 
 
 def key(value):
@@ -29,6 +29,7 @@ def hints(row, actors=(), *, ignore_terms=''):
     match = DATED.fullmatch(stem)
     if match:
         prefix, year, month, day, tail = match.groups()
+        tail = tail or ''
         try:
             parsed = date(int(year) + (2000 if len(year) == 2 else 0), int(month), int(day)).isoformat()
         except ValueError:
@@ -72,22 +73,46 @@ def _file_matches(scene, evidence):
     return duration, fingerprint
 
 
+def _date_distance(left, right):
+    try:
+        return abs((date.fromisoformat(left) - date.fromisoformat(right)).days)
+    except (ValueError, TypeError):
+        return None
+
+
+def _date_filter(value):
+    try:
+        center = date.fromisoformat(value)
+        return {'date': {'value': (center - timedelta(days=15)).isoformat(), 'modifier': 'GREATER_THAN'},
+                '_date_end': (center + timedelta(days=14)).isoformat(), 'sort': 'DATE', 'direction': 'ASC'}
+    except (ValueError, TypeError, OverflowError):
+        return {}
+
+
+def _studio_keys(studio):
+    parent = studio.get('parent') or {}
+    names = [studio.get('name'), *(studio.get('aliases') or []), parent.get('name'), *(parent.get('aliases') or [])]
+    return {key(re.sub(r':\s*(?:the\s+)?series\s*$', '', str(name or ''), flags=re.I)) for name in names} - {''}
+
+
 def rank_scene(scene, evidence):
     if scene.get('deleted'):
         return None
     studio = scene.get('studio') or {}
-    studios = {key(studio.get('name')), key((studio.get('parent') or {}).get('name'))} - {''}
-    studio_match = bool(evidence['studio'] and key(evidence['studio']) in studios)
+    studios = _studio_keys(studio)
+    studio_match = bool(evidence['studio'] and _studio_keys({'name': evidence['studio']}) & studios)
     released = scene.get('release_date') or scene.get('date') or ''
-    date_match = bool(evidence['date'] and evidence['date'] == released)
-    date_conflict = bool(evidence['date'] and released and not date_match)
+    distance = _date_distance(evidence['date'], released)
+    date_match = distance is not None and distance <= 14
+    date_conflict = distance is not None and distance > 14
+    date_score = .3 - distance / 70 if date_match else 0
     studio_conflict = bool(evidence['studio'] and studios and not studio_match)
     title_score = SequenceMatcher(None, key(evidence['title']), key(scene.get('title'))).ratio() if evidence['title'] else 0
     cast_score = _cast_overlap(scene, evidence['actors'])
     if evidence.get('folder_actor_verified'):
         cast_score = max(cast_score, _cast_overlap(scene, [evidence['folder_actor']]))
     duration_match, fingerprint_match = _file_matches(scene, evidence)
-    score = min(1, .3 * studio_match + .3 * date_match + .3 * cast_score + .3 * title_score + .05 * duration_match)
+    score = min(1, .3 * studio_match + date_score + .3 * cast_score + .3 * title_score + .05 * duration_match)
     if date_conflict:
         score -= .45
     if studio_conflict:
@@ -95,7 +120,8 @@ def rank_scene(scene, evidence):
     if fingerprint_match:
         score = 1
     strong = _strong_match(studio_match, date_match, cast_score, title_score, date_conflict or studio_conflict)
-    reasons = [label for matched, label in [(studio_match, 'Studio matches'), (date_match, 'Release date matches'),
+    reasons = [label for matched, label in [(studio_match, 'Studio matches'), (distance == 0, 'Release date matches'),
+        (date_match and distance != 0, 'Release date is within 14 days'),
         (cast_score > 0, 'Actor names or aliases match'), (title_score >= .85, 'Scene title matches'),
         (duration_match, 'Duration matches'), (fingerprint_match, 'File fingerprint matches'),
         (date_conflict, 'Release date differs'), (studio_conflict, 'Studio differs')] if matched]
@@ -111,7 +137,7 @@ def _studio_ids(client, name):
         variants = [name, re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', name)]
         for term in dict.fromkeys(variants):
             for studio in client.studios(term):
-                if key(name) in {key(studio.get('name')), key((studio.get('parent') or {}).get('name'))}:
+                if _studio_keys({'name': name}) & _studio_keys(studio):
                     studio_ids.append(studio['id'])
     return list(dict.fromkeys(studio_ids))
 
@@ -136,7 +162,7 @@ def search_scenes(client, evidence, *, known_actors=None, minimum_confidence=85)
         for scene in client.fingerprint_scenes(evidence['oshash']):
             found[scene['id']] = scene
     studio_ids = _studio_ids(client, evidence['studio'])
-    date_filter = {'date': {'value': evidence['date'], 'modifier': 'EQUALS'}} if evidence['date'] else {}
+    date_filter = _date_filter(evidence['date'])
     studio_filter = {'studios': {'value': list(dict.fromkeys(studio_ids)), 'modifier': 'INCLUDES'}} if studio_ids else {}
     if date_filter and studio_filter:
         scenes, overflow = client.scenes({**date_filter, **studio_filter})

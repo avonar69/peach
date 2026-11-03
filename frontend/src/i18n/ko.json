@@ -333,6 +333,7 @@
   "Ready": "준비",
   "Release date differs": "출시일이 다릅니다",
   "Release date matches": "출시일 일치",
+  "Release date is within 14 days": "출시일 차이가 14일 이내",
   "Remove API key": "API 키 제거",
   "Remove feed": "피드 제거",
   "Reset seek shortcuts": "탐색 단축키 재설정",

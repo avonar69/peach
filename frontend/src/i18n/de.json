@@ -333,6 +333,7 @@
   "Ready": "Bereit",
   "Release date differs": "Das Erscheinungsdatum ist unterschiedlich",
   "Release date matches": "Veröffentlichungsdatum stimmt überein",
+  "Release date is within 14 days": "Veröffentlichungsdaten liegen höchstens 14 Tage auseinander",
   "Remove API key": "API-Schlüssel entfernen",
   "Remove feed": "Feed entfernen",
   "Reset seek shortcuts": "Suchverknüpfungen zurücksetzen",

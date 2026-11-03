@@ -4,7 +4,7 @@
 
 StashDB 分类计数始终读取 `/api/review` 的完整计数，不使用已加载候选列表的长度覆盖。候选记录的可选 `apply_error`、`search_error` 保存自动应用或搜索阶段的错误，供复核页展示；`search_policy.minimum_confidence` 展示该次搜索使用的阈值。得分达到阈值与应用成功分别记录。日期和厂牌或日期和演员的完整查询已有候选时，直接在该范围内判定，不执行跨日期的宽泛回退；该查询或身份查询确实截断时仍保留复核。查询按来源计数分页，每查询最多 20 页。
 
-候选 `hints.folder_actor` 是清洗后的直接父目录名；`folder_actor_verified=true` 表示精确命中来源演员名或别名。该演员出现在候选作品中时提供完整演员线索分，不被文件名内无法验证的演员片段稀释。目录名不单独创建出演关系，匹配应用继续遵守演员纠正开关与手工字段保护。`matching_version=4` 标识此搜索策略。
+候选 `hints.folder_actor` 是清洗后的直接父目录名；`folder_actor_verified=true` 表示精确命中来源演员名或别名。该演员出现在候选作品中时提供完整演员线索分，不被文件名内无法验证的演员片段稀释。目录名不单独创建出演关系，匹配应用继续遵守演员纠正开关与手工字段保护。`matching_version=5` 标识此搜索策略。日期查询覆盖前后各 14 天，准确日期保留 30% 权重，窗口内线性递减到 10%；候选原因区分准确日期与 14 天内接近日期。
 
 StashDB 设置接受布尔值 `fingerprint_matching`（默认关闭），为本地文件启用 OSHASH 查询。候选预览返回 `review_reasons`，解释阈值、同分、资料冲突及不完整结果。`POST /api/library-processing` 的 `stage=stashdb_review` 未指定 `asset_ids` 时在服务端选定完整待复核队列；显式 `asset_ids` 可缩小范围。启动时冻结作品范围并使用当前设置，沿用进度、取消与断点，绕过失败缓存及仅新增限制。复核 API 的数量限制只截取有效候选，不把无结果记录计入显示上限。作品顶部手动匹配弹层复用 `POST /api/configuration/stashdb/preview` 和 `/apply`，应用后刷新当前作品。
 

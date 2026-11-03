@@ -333,6 +333,7 @@
   "Ready": "準備完了",
   "Release date differs": "発売日が異なります",
   "Release date matches": "発売日が一致",
+  "Release date is within 14 days": "発売日の差が14日以内",
   "Remove API key": "APIキーを削除する",
   "Remove feed": "フィードを削除",
   "Reset seek shortcuts": "シークショートカットをリセットする",

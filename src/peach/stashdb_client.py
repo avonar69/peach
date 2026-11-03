@@ -26,7 +26,7 @@ _LAST = 0.0
 PERFORMER_FIELDS = '''id name disambiguation aliases deleted gender images{id url width height}
 birth_date career_start_year career_end_year height band_size cup_size waist_size hip_size
 breast_type country ethnicity eye_color hair_color'''
-SCENE_FIELDS = f'''id title release_date duration deleted fingerprints{{algorithm hash duration reports submissions}} tags{{id name}} studio{{id name parent{{id name}}}}
+SCENE_FIELDS = f'''id title release_date duration deleted fingerprints{{algorithm hash duration reports submissions}} tags{{id name}} studio{{id name aliases parent{{id name aliases}}}}
 images{{id url width height}} performers{{as performer{{{PERFORMER_FIELDS}}}}}'''
 
 
@@ -196,21 +196,26 @@ class Client:
         return rows
 
     def studios(self, name):
-        query = 'query PeachStudios($input:StudioQueryInput!){queryStudios(input:$input){count studios{id name aliases images{id url width height} parent{id name}}}}'
+        query = 'query PeachStudios($input:StudioQueryInput!){queryStudios(input:$input){count studios{id name aliases images{id url width height} parent{id name aliases}}}}'
         rows, overflow = self._pages(query, 'queryStudios', 'studios', {'names': name[:120]}, 25)
         self.incomplete |= overflow
         return rows
 
     def scenes(self, filters):
         query = f'query PeachScenes($input:SceneQueryInput!){{queryScenes(input:$input){{count scenes{{{SCENE_FIELDS}}}}}}}'
-        return self._pages(query, 'queryScenes', 'scenes', filters, 50)
+        filters = dict(filters)
+        end_date = filters.pop('_date_end', None)
+        return self._pages(query, 'queryScenes', 'scenes', filters, 50, end_date=end_date)
 
-    def _pages(self, query, field, collection, filters, size):
+    def _pages(self, query, field, collection, filters, size, *, end_date=None):
         """读取有界分页；只有实际未取完的结果才标记不完整。"""
         rows, seen = [], set()
         for page in range(1, 21):
             data = self.query(query, {'input': {**filters, 'per_page': size, 'page': page}})[field]
             batch = [row for row in data[collection] if row['id'] not in seen]
+            if end_date and any((row.get('release_date') or '') > end_date for row in batch):
+                rows.extend(row for row in batch if (row.get('release_date') or '') <= end_date)
+                return rows, False
             rows.extend(batch)
             seen.update(row['id'] for row in batch)
             if len(rows) >= data.get('count', len(rows)):

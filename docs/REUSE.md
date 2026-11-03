@@ -803,6 +803,8 @@ NZBGet 采用[官方 JSON-RPC 协议](https://nzbget.com/documentation/api/)的 
 
 ## 演员批量合并与撤销
 
+日期窗口沿用 [Stash-box DateCriterionInput](https://github.com/stashapp/stash-box/blob/master/graphql/schema/types/filter.graphql) 的 `GREATER_THAN` 和作品 `DATE ASC` 排序，分页读取到窗口上界即停止。该协议没有 `BETWEEN` 或 `value2`，上界由客户端截断，仍沿用 20 页与重复页保护；评分复用标准库 `datetime`，厂牌比较复用既有 Unicode 规范化、来源别名和父身份，无新增依赖。
+
 StashDB 分页复用当前只读 GraphQL 查询的 `page`、`per_page` 与 `count`，每查询最多 20 页，重复页提前停止并标记不完整；既有限流、退避与响应上限继续生效。目录演员线索复用 `PureWindowsPath`、忽略词清洗、来源姓名／别名精确比较和出演者写入保护，不把目录名称直接当身份。没有新增依赖；分页和目录证据在隔离响应中验证，真实来源验收未取得。
 
 组级忽略沿用单条候选的 `review_decision`、规范名证据与冻结计划令牌，包含组内所有候选；写入同一事务，不合并身份。StashDB 标签沿用 `upsert_asset_entity` 的规范标签身份与 `asset_tag` 展示投影，索引及口味共用 `asset_entity`。迁移 `0051` 按既有 `0005` 的批量回填与搜索重建方式修复已同步标签，不新增网络查询或依赖。

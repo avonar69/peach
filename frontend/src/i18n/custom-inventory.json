@@ -301,6 +301,7 @@
   "Regenerate all timeline thumbnails",
   "Release date differs",
   "Release date matches",
+  "Release date is within 14 days",
   "Rematch actors and studios from filenames",
   "Rematch affected filenames",
   "Rematch affected files with StashDB",

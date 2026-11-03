@@ -333,6 +333,7 @@
   "Ready": "就緒",
   "Release date differs": "發布日期不同",
   "Release date matches": "發布日期匹配",
+  "Release date is within 14 days": "發布日期相差不超過 14 天",
   "Remove API key": "刪除 API 金鑰",
   "Remove feed": "移除進給",
   "Reset seek shortcuts": "重置尋找快捷方式",

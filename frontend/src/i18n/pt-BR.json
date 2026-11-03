@@ -333,6 +333,7 @@
   "Ready": "Pronto",
   "Release date differs": "A data de lançamento é diferente",
   "Release date matches": "A data de lançamento corresponde",
+  "Release date is within 14 days": "As datas de lançamento diferem em até 14 dias",
   "Remove API key": "Remover chave de API",
   "Remove feed": "Remover alimentação",
   "Reset seek shortcuts": "Redefinir atalhos de busca",
