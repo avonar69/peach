@@ -4559,5 +4559,9 @@
   "Enter a valid name.": "Gib einen gültigen Namen ein.",
   "Enter a valid number of days.": "Gib eine gültige Anzahl von Tagen ein.",
   "No videos match this date range.": "Keine Videos in diesem Zeitraum.",
-  "Half-star rating": "Bewertung in halben Sternen"
+  "Half-star rating": "Bewertung in halben Sternen",
+  "Average scene rating": "Durchschnittliche Szenenbewertung",
+  "Rated scenes": "Bewertete Szenen",
+  "Thumbs up": "Gefällt mir",
+  "Thumbs down": "Gefällt mir nicht"
 }

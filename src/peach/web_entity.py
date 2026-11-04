@@ -294,6 +294,8 @@ def q_entity(contract: WebContract, args):
             "WHERE " + scope + " AND " + COUNTED_VIDEO, (d["id"], d["id"]),
         ).fetchone()
         d["asset_count"] = count
+        from .entity_feedback import summaries
+        d['scene_feedback'] = summaries(c, kind, [d['id']]).get(d['id'])
         d["representative_asset_id"] = rep
         d["avatar_focus"] = contract.avatar_focus(kind, d["id"])
         d["tags"] = [dict(r) for r in c.execute(
@@ -748,6 +750,8 @@ def q_index(contract: WebContract, kind, q="", limit=600, offset=0, category="",
             rows = all_rows[offset:offset + limit]
             has_more = offset + limit < len(all_rows)
         _attach_index_favorites(c, rows)
+        from .entity_feedback import attach
+        attach(c, INDEX_ENTITY_KINDS.get(kind, ''), rows)
     if kind in INDEX_ENTITY_KINDS:
         entity_kind = INDEX_ENTITY_KINDS[kind]
         # 索引页一屏几十个圆头像，走的是和顶栏那排同一条两级链：规范实体图优先，

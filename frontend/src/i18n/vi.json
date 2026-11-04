@@ -4559,5 +4559,9 @@
   "Enter a valid name.": "Nhập tên hợp lệ.",
   "Enter a valid number of days.": "Nhập số ngày hợp lệ.",
   "No videos match this date range.": "Không có video trong khoảng ngày này.",
-  "Half-star rating": "Đánh giá nửa sao"
+  "Half-star rating": "Đánh giá nửa sao",
+  "Average scene rating": "Điểm cảnh trung bình",
+  "Rated scenes": "Cảnh đã đánh giá",
+  "Thumbs up": "Thích",
+  "Thumbs down": "Không thích"
 }

@@ -1,5 +1,7 @@
 # 页面路由
 
+`GET /api/entity` 与 `GET /api/index?kind=performers|studios` 的实体行包含 `scene_feedback`：`average_stars` 为有效已评分视频的平均星级（没有评分时为 null），`rated_count` 为评分视频数，`thumbs_up` 为本地喜欢数量，`thumbs_down` 为不喜欢数量。按视频 ID 去除重复关系，排除图片与非有效文件；厂牌范围包含子厂牌。详情评分、喜欢或不喜欢操作及其撤销会刷新资料页与名册查询。
+
 `POST /api/batch` 支持 `operation=studio|actor`，`name` 为非空且最多 200 字符的名称。厂牌更新与演员追加均使用手工归属；演员追加保留已有规范出演关系，事务失败整批回滚。`GET /api/items` 返回 `liked`，供卡片喜欢标记使用。
 
 `POST /api/library-processing` 的 `stage=stashdb_recent` 接受 `recent_days`（整数 1–36500，默认 7），按 `first_seen` 选定有效视频并固定 `asset_ids`，恢复时沿用该范围。下载任务状态增加 `bytes_per_second`，只对传输中的任务展示和合计。

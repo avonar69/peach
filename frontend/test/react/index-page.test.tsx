@@ -84,6 +84,15 @@ describe('地址栏上的类型', () => {
 });
 
 describe('名册', () => {
+  it.each(['performers', 'studios'] as const)('%s 卡片显示评分和偏好汇总', async (kind) => {
+    seed(indexKey(kind, ''), [person('Example', { scene_feedback: {
+      average_stars: 3.5, rated_count: 2, thumbs_up: 1, thumbs_down: 0,
+    } })]);
+    const host = await open(props({ kind }));
+    await settle();
+    expect(cells(host)[0].querySelector('[data-scene-feedback]')!.textContent).toBe('3.5 / 5(2)10');
+  });
+
   it('订阅标记随名册状态显示，标记区域仍打开人物资料', async () => {
     seed(indexKey('performers', ''), [person('甲', { following: true }), person('乙', { entity_id: 2, following: false })]);
     const given = props();

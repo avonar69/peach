@@ -585,5 +585,9 @@
   "Enter a valid number of days.": "请输入有效天数。",
   "No videos match this date range.": "此日期范围内没有视频。",
   "Rating": "评分",
-  "Half-star rating": "半星评分"
+  "Half-star rating": "半星评分",
+  "Average scene rating": "作品平均评分",
+  "Rated scenes": "已评分作品",
+  "Thumbs up": "喜欢",
+  "Thumbs down": "不喜欢"
 }

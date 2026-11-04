@@ -54,6 +54,23 @@ async function open(initial: EntityHeroProps) {
 }
 
 describe('排版用的纯函数', () => {
+  it.each(['performer', 'studio'])('%s 显示个人评分均值和偏好计数', async (kind) => {
+    const host = await open(props({ kind, entity: performer({ scene_feedback: {
+      average_stars: 3.75, rated_count: 2, thumbs_up: 4, thumbs_down: 1,
+    } }) }));
+    const summary = host.querySelector('[data-scene-feedback]')!;
+    expect(summary.textContent).toContain('3.75 / 5');
+    expect(summary.textContent).toContain('(2)');
+    expect(summary.querySelectorAll('[role="img"]')).toHaveLength(4);
+  });
+
+  it('没有已评分视频时均值留空，偏好计数仍显示', async () => {
+    const host = await open(props({ entity: performer({ scene_feedback: {
+      average_stars: null, rated_count: 0, thumbs_up: 3, thumbs_down: 2,
+    } }) }));
+    expect(host.querySelector('[data-scene-feedback]')!.textContent).toBe('—(0)32');
+  });
+
   it('厂牌与事务所显示独立的公司资料，不显示来源悬浮说明', async () => {
     const host = await open(props({ kind: 'studio', name: 'Brand', entity: {
       id: 1, canonical_name: 'Brand', asset_count: 3,

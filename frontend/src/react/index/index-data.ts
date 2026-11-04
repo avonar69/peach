@@ -59,6 +59,7 @@ export const isCompany = (kind: IndexKind) => kind === 'studios' || kind === 'ag
 
 /** 本地名册的一格。字段以 `q_index` 为准；公司另有标识，事务所另有成员数。 */
 export interface IndexPerson {
+  scene_feedback?: import('../components/scene-feedback-summary').SceneFeedback | null;
   entity_kind?: string;
   identity_labels?: string[];
   following?: boolean;

@@ -25,6 +25,7 @@ import { FeedSwitch, MorePop } from './hero-pop';
 import { NamePicker } from './name-picker';
 import { ActorDetailsEditor, actorFactRows } from './actor-details';
 import { MetadataRematch } from '../components/metadata-rematch';
+import { SceneFeedbackSummary } from '../components/scene-feedback-summary';
 import {
   COMPANY_ALIASES_SHOWN, agencyOf, companyFactRows, entityFeedTip, entryMarks, factRows, heroLinks, isCompany, isPeople, nameChoices, nameLine, shownTags,
   type EntityHeroActions, type EntityHeroData, type EntityHeroHelpers, type EntityHeroProps,
@@ -167,6 +168,7 @@ function AliasLine({ kind, entity, actions }: { kind: string; entity: EntityHero
     return (
       <div data-entity-alias="meta">
         <IdentityMeta entity={entity} />
+        <SceneFeedbackSummary value={entity.scene_feedback} />
         <span data-meta-item="" title="视频"><Glyph name="film" /><span>{count}</span></span>
         {entity.follow?.key ? <FollowMeta follow={entity.follow} actions={actions} /> : null}
         {agencyNode ? <span data-meta-item="" title="事务所"><Glyph name="briefcase" /><span>{agencyNode}</span></span> : null}
@@ -198,6 +200,7 @@ function AliasLine({ kind, entity, actions }: { kind: string; entity: EntityHero
   return (
     <div data-entity-alias="meta">
       {kind === 'creator' ? <IdentityMeta entity={entity} /> : null}
+      <SceneFeedbackSummary value={entity.scene_feedback} />
       <span data-meta-item="" title="视频"><Glyph name="film" /><span>{count}{members}</span></span>
       {agencyNode ? <span data-meta-item="" title="事务所"><Glyph name="briefcase" /><span>{agencyNode}</span></span> : null}
       {maker ? <span data-meta-item="" title="片商"><Glyph name="clapperboard" /><a href={entityPath('studio', maker.name, maker.id)} data-studio-link={maker.name}

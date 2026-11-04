@@ -795,6 +795,8 @@ function useDetailWrite(item: DetailItem, actions: ItemDetailActions, label: (ta
     queryClient.setQueryData(key, next);
     const card = { feedback: next.feedback, disposal: next.disposal, watch_later: next.watch_later, rating: next.rating, o_count: next.o_count };
     replaceCatalogItem(id, card);
+    void queryClient.invalidateQueries({ queryKey: ['entity'] });
+    void queryClient.invalidateQueries({ queryKey: ['index'] });
     return next;
   };
   const post = <T,>(url: string, body: Record<string, unknown>) => apiSend<T>(url, { id, ...body });

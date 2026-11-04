@@ -4559,5 +4559,9 @@
   "Enter a valid name.": "올바른 이름을 입력하세요.",
   "Enter a valid number of days.": "올바른 일수를 입력하세요.",
   "No videos match this date range.": "해당 기간에 동영상이 없습니다.",
-  "Half-star rating": "반 별 단위 평점"
+  "Half-star rating": "반 별 단위 평점",
+  "Average scene rating": "장면 평균 평점",
+  "Rated scenes": "평가한 장면",
+  "Thumbs up": "좋아요",
+  "Thumbs down": "싫어요"
 }

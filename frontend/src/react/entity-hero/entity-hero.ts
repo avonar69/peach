@@ -7,6 +7,7 @@ import { brandIcon, foldName, linkMarkUrl, officialLinkText } from '@peach/legac
 
 import type { FeedNew } from '../feed-new/feed-new';
 import type { ActorDetails } from './actor-details';
+import type { SceneFeedback } from '../components/scene-feedback-summary';
 
 /** 一条外链，形状同 `/api/entity` 的 `links[]`。 */
 export interface HeroLink {
@@ -89,6 +90,7 @@ export interface EntityHeroData {
   display_aliases?: string[];
   user_aliases?: string[];
   asset_count: number;
+  scene_feedback?: SceneFeedback | null;
   member_count?: number;
   labels?: unknown[];
   maker?: { name: string; id?: number } | null;

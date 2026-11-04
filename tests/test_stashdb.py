@@ -32,6 +32,42 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_entity_feedback_averages_only_rated_active_videos_and_deduplicates_links(self):
+        from peach.entity_feedback import summaries, attach
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET rating=40 WHERE id=1")
+            for identity, rating, medium, disposal in [(2,80,'video',None),(3,None,'video',None),
+                    (4,0,'video',None),(5,100,'image',None),(6,100,'video','trash'),(7,100,'video','vanished')]:
+                connection.execute("INSERT INTO asset(id,location,path,name,medium,rating,disposal,feedback) VALUES(?,'local',?,?,?, ?,?,'dislike')",
+                    (identity, f'R:\\{identity}.mp4', f'{identity}.mp4', medium, rating, disposal))
+            for identity in range(1,8):
+                actor = upsert_asset_entity(connection, kind='performer', name='Example Actor', asset_id=identity, role='performer', source='test')
+                studio = upsert_asset_entity(connection, kind='studio', name='Example Studio', asset_id=identity, role='studio', source='test')
+            upsert_asset_entity(connection, kind='performer', name='Example Actor', asset_id=1, role='performer', source='test:second')
+            label = upsert_asset_entity(connection, kind='studio', name='Example Label', asset_id=1, role='studio', source='test')
+            connection.execute("INSERT INTO label_maker(label_id,maker_id,source,checked_at) VALUES(?,?,'test','t')", (label,studio))
+            connection.execute("INSERT INTO asset_preference(profile_id,asset_id,liked,updated_at) VALUES('local-default',3,1,'t')")
+            expected = dict(average_stars=3.0, rated_count=2, thumbs_up=1, thumbs_down=3)
+            self.assertEqual(summaries(connection,'performer',[actor])[actor], expected)
+            self.assertEqual(summaries(connection,'studio',[studio])[studio], expected)
+            self.assertEqual(summaries(connection,'studio',[label])[label]['average_stars'], 2.0)
+            rows = [{'entity_id':actor}]
+            attach(connection,'performer',rows)
+            self.assertEqual(rows[0]['scene_feedback'], expected)
+            connection.execute('UPDATE asset SET rating=NULL')
+            self.assertEqual(summaries(connection,'performer',[actor])[actor],
+                dict(average_stars=None,rated_count=0,thumbs_up=1,thumbs_down=3))
+            self.assertEqual(summaries(connection,'performer',[-1])[-1],
+                dict(average_stars=None,rated_count=0,thumbs_up=0,thumbs_down=0))
+            self.assertEqual(summaries(connection,'creator',[actor]), {})
+        from peach.web_state import WebContract
+        from peach.web_entity import q_entity, q_index
+        contract = WebContract(self.database.db_path, database=self.database)
+        profile = q_entity(contract, {'kind':'performer','name':'Example Actor'})
+        indexed = q_index(contract, 'performers')['items']
+        self.assertEqual(profile['scene_feedback'], indexed[0]['scene_feedback'])
+        self.assertEqual(profile['scene_feedback']['thumbs_up'], 1)
+
     def test_recent_scan_uses_import_time_and_preserves_frozen_scope(self):
         from peach.matching_jobs import recent_assets
         with self.database.write_transaction() as connection:

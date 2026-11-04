@@ -4559,5 +4559,9 @@
   "Enter a valid name.": "請輸入有效名稱。",
   "Enter a valid number of days.": "請輸入有效天數。",
   "No videos match this date range.": "此日期範圍內沒有影片。",
-  "Half-star rating": "半星評分"
+  "Half-star rating": "半星評分",
+  "Average scene rating": "作品平均評分",
+  "Rated scenes": "已評分作品",
+  "Thumbs up": "喜歡",
+  "Thumbs down": "不喜歡"
 }

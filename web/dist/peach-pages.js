@@ -18161,7 +18161,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "Introduce un nombre válido.",
 	"Enter a valid number of days.": "Introduce un número válido de días.",
 	"No videos match this date range.": "No hay vídeos en este intervalo.",
-	"Half-star rating": "Valoración con medias estrellas"
+	"Half-star rating": "Valoración con medias estrellas",
+	"Average scene rating": "Valoración media de escenas",
+	"Rated scenes": "Escenas valoradas",
+	"Thumbs up": "Me gusta",
+	"Thumbs down": "No me gusta"
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -22723,7 +22727,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "Saisissez un nom valide.",
 	"Enter a valid number of days.": "Saisissez un nombre de jours valide.",
 	"No videos match this date range.": "Aucune vidéo dans cette période.",
-	"Half-star rating": "Note par demi-étoiles"
+	"Half-star rating": "Note par demi-étoiles",
+	"Average scene rating": "Note moyenne des scènes",
+	"Rated scenes": "Scènes notées",
+	"Thumbs up": "J’aime",
+	"Thumbs down": "Je n’aime pas"
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -27285,7 +27293,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "Gib einen gültigen Namen ein.",
 	"Enter a valid number of days.": "Gib eine gültige Anzahl von Tagen ein.",
 	"No videos match this date range.": "Keine Videos in diesem Zeitraum.",
-	"Half-star rating": "Bewertung in halben Sternen"
+	"Half-star rating": "Bewertung in halben Sternen",
+	"Average scene rating": "Durchschnittliche Szenenbewertung",
+	"Rated scenes": "Bewertete Szenen",
+	"Thumbs up": "Gefällt mir",
+	"Thumbs down": "Gefällt mir nicht"
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -31847,7 +31859,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "Digite um nome válido.",
 	"Enter a valid number of days.": "Digite um número válido de dias.",
 	"No videos match this date range.": "Não há vídeos neste período.",
-	"Half-star rating": "Avaliação com meias estrelas"
+	"Half-star rating": "Avaliação com meias estrelas",
+	"Average scene rating": "Avaliação média das cenas",
+	"Rated scenes": "Cenas avaliadas",
+	"Thumbs up": "Gostei",
+	"Thumbs down": "Não gostei"
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36409,7 +36425,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "有効な名前を入力してください。",
 	"Enter a valid number of days.": "有効な日数を入力してください。",
 	"No videos match this date range.": "この期間の動画はありません。",
-	"Half-star rating": "半星単位の評価"
+	"Half-star rating": "半星単位の評価",
+	"Average scene rating": "シーンの平均評価",
+	"Rated scenes": "評価済みシーン",
+	"Thumbs up": "高評価",
+	"Thumbs down": "低評価"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -40971,7 +40991,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "올바른 이름을 입력하세요.",
 	"Enter a valid number of days.": "올바른 일수를 입력하세요.",
 	"No videos match this date range.": "해당 기간에 동영상이 없습니다.",
-	"Half-star rating": "반 별 단위 평점"
+	"Half-star rating": "반 별 단위 평점",
+	"Average scene rating": "장면 평균 평점",
+	"Rated scenes": "평가한 장면",
+	"Thumbs up": "좋아요",
+	"Thumbs down": "싫어요"
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -45533,7 +45557,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "Nhập tên hợp lệ.",
 	"Enter a valid number of days.": "Nhập số ngày hợp lệ.",
 	"No videos match this date range.": "Không có video trong khoảng ngày này.",
-	"Half-star rating": "Đánh giá nửa sao"
+	"Half-star rating": "Đánh giá nửa sao",
+	"Average scene rating": "Điểm cảnh trung bình",
+	"Rated scenes": "Cảnh đã đánh giá",
+	"Thumbs up": "Thích",
+	"Thumbs down": "Không thích"
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -50095,7 +50123,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid name.": "請輸入有效名稱。",
 	"Enter a valid number of days.": "請輸入有效天數。",
 	"No videos match this date range.": "此日期範圍內沒有影片。",
-	"Half-star rating": "半星評分"
+	"Half-star rating": "半星評分",
+	"Average scene rating": "作品平均評分",
+	"Rated scenes": "已評分作品",
+	"Thumbs up": "喜歡",
+	"Thumbs down": "不喜歡"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -50683,7 +50715,11 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Enter a valid number of days.": "请输入有效天数。",
 	"No videos match this date range.": "此日期范围内没有视频。",
 	Rating: "评分",
-	"Half-star rating": "半星评分"
+	"Half-star rating": "半星评分",
+	"Average scene rating": "作品平均评分",
+	"Rated scenes": "已评分作品",
+	"Thumbs up": "喜欢",
+	"Thumbs down": "不喜欢"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

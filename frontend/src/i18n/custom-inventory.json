@@ -580,5 +580,9 @@
   "Enter a valid number of days.",
   "No videos match this date range.",
   "Rating",
-  "Half-star rating"
+  "Half-star rating",
+  "Average scene rating",
+  "Rated scenes",
+  "Thumbs up",
+  "Thumbs down"
 ]

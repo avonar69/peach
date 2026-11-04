@@ -4559,5 +4559,9 @@
   "Enter a valid name.": "有効な名前を入力してください。",
   "Enter a valid number of days.": "有効な日数を入力してください。",
   "No videos match this date range.": "この期間の動画はありません。",
-  "Half-star rating": "半星単位の評価"
+  "Half-star rating": "半星単位の評価",
+  "Average scene rating": "シーンの平均評価",
+  "Rated scenes": "評価済みシーン",
+  "Thumbs up": "高評価",
+  "Thumbs down": "低評価"
 }

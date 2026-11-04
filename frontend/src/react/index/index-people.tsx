@@ -10,6 +10,7 @@ import { Chip } from '@/components/base/badges/chip';
 
 import { cardClass } from '../components/card';
 import { spriteGlyph } from '../components/sprite-glyph';
+import { SceneFeedbackSummary } from '../components/scene-feedback-summary';
 import type { OnlineAuthor } from '../follow/online-vocab';
 import { ENTITY_KINDS, isCompany, personReadout, type IndexKind, type IndexPerson, type IndexProps, type PeopleLayout } from './index-data';
 
@@ -35,8 +36,8 @@ const CELL = 'relative flex cursor-pointer flex-col gap-2 p-3 text-inherit';
 const Rss = spriteGlyph('rss');
 
 function Cell(
-  { name, readout, big, children, following, onPress, ...data }:
-  { name: string; readout: string; big: boolean; children: ReactNode; following?: boolean; onPress(): void }
+  { name, readout, big, children, following, summary, onPress, ...data }:
+  { name: string; readout: string; big: boolean; children: ReactNode; summary?: ReactNode; following?: boolean; onPress(): void }
     & Record<`data-${string}`, string>,
 ) {
   return (
@@ -51,6 +52,7 @@ function Cell(
       </span> : null}
       <span data-index-name="" className="text-body-medium wrap-anywhere text-text-primary">{name}</span>
       <span data-index-readout="" className="text-caption-1-regular">{readout}</span>
+      {summary}
     </button>
   );
 }
@@ -73,7 +75,7 @@ export function PeopleGrid(
         const avatar = props.personAvatar(item, entityKind, big);
         return (
           <Cell key={`${entityKind}:${item.entity_id || item.k}`} data-k={item.k} data-kind={entityKind} name={item.k} readout={`${personReadout(kind, item)}${item.identity_labels?.length ? ' · ' + item.identity_labels.join(' / ') : ''}`}
-            big={big} following={item.following} onPress={() => props.openEntity(entityKind, item.k)}>
+            big={big} following={item.following} summary={<SceneFeedbackSummary value={item.scene_feedback} />} onPress={() => props.openEntity(entityKind, item.k)}>
             <Ring html={avatar.html} face={avatar.face} company={company} big={big} />
           </Cell>
         );
