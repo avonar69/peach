@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "Ngưỡng ghép nhanh (%)",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Dùng điểm đã lưu mà không tìm kiếm lại. Ngưỡng này chỉ dành cho ghép nhanh; ghép thông thường vẫn dùng ngưỡng trong cài đặt.",
   "Choose a quick matching threshold from 0 to 100.": "Chọn ngưỡng ghép nhanh từ 0 đến 100.",
-  "No saved StashDB matches meet this threshold safely.": "Không có kết quả StashDB đã lưu nào có thể áp dụng an toàn ở ngưỡng này."
+  "No saved StashDB matches meet this threshold safely.": "Không có kết quả StashDB đã lưu nào có thể áp dụng an toàn ở ngưỡng này.",
+  "Change studio": "Đổi hãng",
+  "Add actor": "Thêm diễn viên",
+  "Recently added videos (days)": "Video mới thêm gần đây (ngày)",
+  "Match recently added videos with StashDB": "Ghép video mới thêm với StashDB",
+  "Enter a valid name.": "Nhập tên hợp lệ.",
+  "Enter a valid number of days.": "Nhập số ngày hợp lệ.",
+  "No videos match this date range.": "Không có video trong khoảng ngày này."
 }

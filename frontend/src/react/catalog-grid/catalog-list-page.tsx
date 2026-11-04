@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from 
 import { ChevronSortDown } from '@/components/foundations/icons/chevrons';
 import { apiGet } from '../../api';
 import { ArtSlot } from '../components/art-slot';
+import { MediaBadges } from '../components/media-badges';
 import { DataTableFrame } from '../components/data-table-frame';
 import { DataTableFooter, DataTableSort } from '../components/table-controls';
 import { RetryNote } from '../components/grid-reveal';
@@ -164,7 +165,7 @@ function ListIdentity({ item, props, disabled }: { item: MediaItem; props: Catal
       const open = props.filters?.state === 'trash' ? props.actions.openResource : props.actions.open;
       open(item, event.currentTarget);
     }}>
-      <span data-list-picture="">{artwork.html
+      <span data-list-picture=""><MediaBadges item={item} compact />{artwork.html
         ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} /> : <span>无预览</span>}</span>
       <span data-list-text=""><span data-list-name="" title={name}>{name}</span>
         <span data-list-byline="">{who || '未归属'}<span data-list-mobile-metrics="">{fmtDur(item.duration)} · {fmtSize(item.size)}</span></span>

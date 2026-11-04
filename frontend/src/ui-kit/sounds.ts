@@ -152,7 +152,7 @@ export function wireUiSounds(root:Document|Element=document):void{
   soundRoots.add(root);
   root.addEventListener('click',event=>{
     const control=(event.target as Element|null)?.closest?.(CLICKABLE);
-    if(!control||inert(control))return;
+    if(!control||inert(control)||control.hasAttribute('data-explicit-click-sound'))return;
     playUiSound('click');
   },{capture:true});
   root.addEventListener('change',event=>{

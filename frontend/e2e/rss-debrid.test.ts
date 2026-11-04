@@ -127,7 +127,7 @@ describe('RSS and debrid downloads', () => {
         assert.fail(`${String(error)}\n${(await page.locator('body').innerText()).slice(0, 4000)}\n${JSON.stringify(opened.problems)}`);
       });
       assert.equal(await icon.count(), 1);
-      assert.ok((await icon.locator('..').innerText()).includes('rg.to'));
+      assert.ok((await icon.locator('xpath=ancestor::div[1]').innerText()).includes('rg.to'));
       await icon.click();
       await page.locator('article').getByRole('progressbar', { name: 'Download progress', exact: true }).waitFor();
       assert.ok(posts.some(post => post.path === '/api/rss/resolve' && post.body.entry_id === 1 && post.body.link_index === 0));

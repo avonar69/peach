@@ -42,9 +42,9 @@ it('NZBGet 与 SABnzbd 目的地分别保留发送状态', async () => {
   expect(buttonNamed('Send to SABnzbd', host)?.disabled).toBe(false);
   expect(buttonNamed('Sent to NZBGet', host)?.parentElement?.querySelector('.text-notification-success-foreground')).not.toBeNull();
   const restored = await mount(<QueryClientProvider client={queryClient}><RSSDownloads readOnly={false} toast={vi.fn()} /></QueryClientProvider>);
-  expect(buttonNamed('Sent to NZBGet', restored)?.disabled).toBe(true);
+  expect(buttonNamed('Send to NZBGet', restored)?.disabled).toBe(false);
   expect(buttonNamed('Send to SABnzbd', restored)?.disabled).toBe(false);
-  expect(buttonNamed('Sent to NZBGet', restored)?.parentElement?.querySelector('.text-notification-success-foreground')).not.toBeNull();
+  expect(buttonNamed('Send to NZBGet', restored)?.parentElement?.querySelector('.text-notification-success-foreground')).not.toBeNull();
 });
 
 it('多选来源保存到本浏览器并加入分页请求', async () => {
@@ -91,10 +91,11 @@ it('RSS 原始链接旁的一次点击准备链接并开始浏览器下载', asy
   </QueryClientProvider>);
   const icon = host.querySelector<HTMLButtonElement>('button[aria-label="Download with AllDebrid"]');
   expect(icon).not.toBeNull();
-  expect(icon?.parentElement?.querySelector('a')?.href).toBe(link.url);
+  expect(icon?.closest('div')?.querySelector('a')?.href).toBe(link.url);
   await click(icon);
   expect(served.posts[0]).toEqual({ path: '/api/rss/resolve', body: { entry_id: 1, link_index: 0, provider: 'alldebrid', auto_download: false } });
   expect(download).toHaveBeenCalledWith('https://cdn.example.org/video');
+  expect(icon?.parentElement?.querySelector('.text-notification-success-foreground')).not.toBeNull();
 });
 
 it('配置目录后同一枚图标提交目录下载', async () => {

@@ -329,7 +329,7 @@
   "RSS update schedule saved.": "已儲存 RSS 更新計劃。",
   "RSS update started.": "RSS 更新開始。",
   "RSS updates": "RSS 更新",
-  "Rating": "Rating",
+  "Rating": "評分",
   "Ready": "就緒",
   "Release date differs": "發布日期不同",
   "Release date matches": "發布日期匹配",
@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "快速匹配門檻（%）",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已儲存的分數，不重新搜尋。此門檻僅用於快速匹配；一般匹配仍使用設定中的門檻。",
   "Choose a quick matching threshold from 0 to 100.": "請選擇 0 到 100 的快速匹配門檻。",
-  "No saved StashDB matches meet this threshold safely.": "沒有可按此門檻安全套用的已儲存 StashDB 匹配。"
+  "No saved StashDB matches meet this threshold safely.": "沒有可按此門檻安全套用的已儲存 StashDB 匹配。",
+  "Change studio": "變更廠牌",
+  "Add actor": "新增演員",
+  "Recently added videos (days)": "最近入庫影片（天）",
+  "Match recently added videos with StashDB": "使用 StashDB 匹配最近入庫影片",
+  "Enter a valid name.": "請輸入有效名稱。",
+  "Enter a valid number of days.": "請輸入有效天數。",
+  "No videos match this date range.": "此日期範圍內沒有影片。"
 }

@@ -6,12 +6,17 @@ LABELS = {'stashdb_actors': 'Resync Actors', 'stashdb_studios': 'Resync Studios'
           'stashdb_scenes': 'Resync Scenes',
           'stashdb_review': 'Rerun pending StashDB matches',
           'stashdb_quick': 'Quick StashDB matching',
+          'stashdb_recent': 'Match recently added videos with StashDB',
           'stashdb_ignored': 'Rematch ignored filenames with StashDB',
           'filename_ignored': 'Rematch actors and studios from filenames'}
-REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored', 'stashdb_review', 'stashdb_quick')
+REMATCH_STAGES = ('stashdb_ignored', 'filename_ignored', 'stashdb_review', 'stashdb_quick', 'stashdb_recent')
 
 
-def selection(config, database, stage, selected=None, *, minimum=None):
+def selection(config, database, stage, selected=None, *, minimum=None, recent_days=7):
+    if stage == 'stashdb_recent':
+        if not stashdb_client.settings(config)['api_key_set']:
+            raise ValueError('Save a StashDB API key before rematching.')
+        return recent_assets(database, recent_days, selected)
     if stage in ('stashdb_review', 'stashdb_quick'):
         from .stashdb import review_queue
         queue = review_queue(config, database, limit=None)
@@ -50,7 +55,7 @@ def run(config, database, stage, *, selected, progress, issue, active, previous,
     rows = selection(config, database, stage, selected)
     progress(stage=LABELS[stage], total=len(rows), checked=0)
     completed = previous.get('rematched_asset_ids', [])
-    if stage in ('stashdb_ignored', 'stashdb_review'):
+    if stage in ('stashdb_ignored', 'stashdb_review', 'stashdb_recent'):
         from .stashdb import scan_assets
         baseline = {key: previous.get('stashdb_' + key, 0) for key in ('applied', 'review')}
         def publish(**values):
@@ -63,6 +68,15 @@ def run(config, database, stage, *, selected, progress, issue, active, previous,
             active=active, force=True, completed=completed)
         return {'stashdb_' + key: value + baseline.get(key, 0) for key, value in result.items()}
     return _filename(config, database, rows, progress, active, completed, previous.get('filename_matched', 0))
+
+
+def recent_assets(database, days, selected=None):
+    if type(days) is not int or not 1 <= days <= 36500:
+        raise ValueError('Enter a valid number of days.')
+    with database.read_connection() as connection:
+        clause = " AND datetime(first_seen)>=datetime('now','localtime',?)" if selected is None else ''
+        rows = connection.execute("SELECT id,name,path,first_seen FROM asset WHERE medium='video' AND disposal IS NULL" + clause + ' ORDER BY id', (f'-{days} days',) if selected is None else ())
+        return [dict(row) for row in rows if selected is None or row['id'] in selected]
 
 
 def _filename(config, database, rows, progress, active, completed, count):

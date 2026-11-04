@@ -24,7 +24,7 @@ async function open(job: DebridJob, readOnly = false, related: DebridJob[] = [])
 }
 
 const job: DebridJob = { id: 'file-one', entry_id: 1, provider: 'alldebrid', kind: 'download', status: 'downloading',
-  filename: 'Example video.mp4', bytes: 500, total: 1000 };
+  filename: 'Example video.mp4', bytes: 500, total: 1000, bytes_per_second: 2097152 };
 
 it('跟踪准备链接时保留已完成传输并提供清除入口', async () => {
   const parent: DebridJob = { id: 'parent', entry_id: 1, provider: 'alldebrid', kind: 'resolve', status: 'ready',
@@ -47,6 +47,8 @@ it('下载浮层复用后台任务通知栈并显示真实字节进度和取消�
   const bar = host.querySelector('progress')!;
   expect(bar.value).toBe(500);
   expect(bar.max).toBe(1000);
+  expect(host.textContent).toContain('2.0 MB/s');
+  expect(host.textContent).toContain('Σ 2.0 MB/s');
   await click(buttonNamed('Cancel download', host));
   expect(posts).toContainEqual({ id: 'file-one' });
 });

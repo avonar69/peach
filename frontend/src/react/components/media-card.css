@@ -226,6 +226,8 @@ body[data-surface="/trash"] .peach-react button[data-media-title] {
   transition: opacity .15s ease;
 }
 .peach-react [data-media-badge] > span { width: 20px; height: 20px; padding: 0; background: transparent; }
+.peach-react [data-media-badge] { top: auto; left: auto; bottom: 6px; right: 6px; }
+.peach-react [data-media-card] [data-media-duration] { right: 42px; }
 .peach-react [data-media-duration] {
   position: absolute;
   right: 6px;

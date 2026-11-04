@@ -1,0 +1,9 @@
+.peach-react [data-media-status] { position: absolute; z-index: 4; display: inline-flex; align-items: center; gap: 3px; padding: 3px 5px; border-radius: 6px; background: rgb(0 0 0 / .7); color: white; font-size: 12px; pointer-events: none; }
+.peach-react [data-media-status] svg { width: 15px; height: 15px; }
+.peach-react [data-media-status="watched"] { top: 6px; left: 6px; }
+.peach-react [data-media-status="rating"] { top: 6px; right: 6px; color: #ffd65a; }
+.peach-react [data-media-status="liked"] { bottom: 6px; left: 6px; }
+.peach-react [data-media-card]:has([data-media-status="rating"]) [data-media-group] { right: 60px; }
+@media (hover: hover) {
+  .peach-react :is([data-media-card],[data-list-picture]):hover [data-media-status] { visibility: hidden; }
+}

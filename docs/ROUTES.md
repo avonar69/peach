@@ -1,5 +1,9 @@
 # 页面路由
 
+`POST /api/batch` 支持 `operation=studio|actor`，`name` 为非空且最多 200 字符的名称。厂牌更新与演员追加均使用手工归属；演员追加保留已有规范出演关系，事务失败整批回滚。`GET /api/items` 返回 `liked`，供卡片喜欢标记使用。
+
+`POST /api/library-processing` 的 `stage=stashdb_recent` 接受 `recent_days`（整数 1–36500，默认 7），按 `first_seen` 选定有效视频并固定 `asset_ids`，恢复时沿用该范围。下载任务状态增加 `bytes_per_second`，只对传输中的任务展示和合计。
+
 `POST /api/library-processing` 的 `stage=stashdb_quick` 接受整数 `quick_threshold`（0–100），从完整待复核队列冻结达标候选的作品范围，不受页面显示上限影响。任务只读取已有候选分数，跳过同分、冲突、截断及本地证据已变化的记录；只请求入选作品详情和已启用的图片，不搜索或重新计算分数。阈值保存在任务状态和恢复请求中，不写入 StashDB 来源设置；沿用原有进度、取消、恢复和字段归属保护。没有符合条件的记录时返回错误，不扩大到全库。
 
 扫描终态的 `discovered_asset_ids` 保存新增资产 ID。扫描后启动的 `/api/thumbnail-jobs` 请求携带 `asset_ids`，只查询该范围内本地、有效且时长足够的视频；活动定向任务追加新 ID 并写入恢复断点。显式生成未传 `asset_ids` 时保留全库语义。相同或更密的时间轴沿用既有跳过判据。

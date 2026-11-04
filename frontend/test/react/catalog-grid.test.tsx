@@ -4,6 +4,7 @@ import { act, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { MediaCard, cardRatio, type MediaCardVariant } from '../../src/react/components/media-card';
+import { MediaBadges } from '../../src/react/components/media-badges';
 import {
   MIX_SLOT, SHORTS_BATCH, arrangeTiles, catalogParams, collapseGroups, fetchCatalogPage, latestCatalogPages, mixSeed, nextOffset,
   shortsBoundaries, shortsParams, replaceCatalogItem, type GridPage,
@@ -230,10 +231,20 @@ describe('作品卡', () => {
   });
 
   it('看到一半的画一条进度，分卷组不画；比例写进封面格', async () => {
-    const { host } = await render(item(13, { duration: 600, play_seconds: 150 }));
+    const { host } = await render(item(13, { duration: 600, play_seconds: 1900, leave_ratio: .25, rating: 4, play_count: 2, liked: 1 }));
     const bar = host.querySelector('[data-media-progress]');
     expect([bar?.getAttribute('role'), bar?.getAttribute('aria-label'), bar?.getAttribute('aria-valuenow')]).toEqual(['progressbar', '观看进度', '25']);
     expect(host.querySelector<HTMLElement>('[data-media-pic]')!.style.getPropertyValue('--card-ratio')).toBe(String(16 / 9));
+    expect(host.querySelector('[data-media-status="rating"]')?.textContent).toBe('4');
+    expect(host.querySelector('[data-media-status="watched"]')).not.toBeNull();
+    expect(host.querySelector('[data-media-status="liked"]')).not.toBeNull();
+    localStorage.setItem('peach.playback-position.v1:item:1303', '300');
+    const resumed = await render(item(1303, { duration: 600, leave_ratio: .25, play_seconds: 1900 }));
+    expect(resumed.host.querySelector('[data-media-progress]')?.getAttribute('aria-valuenow')).toBe('50');
+    localStorage.removeItem('peach.playback-position.v1:item:1303');
+    const compact = await mount(<MediaBadges compact item={item(1304, { rating: 5, play_count: 1, liked: 1 })} />);
+    expect(compact.querySelector('[data-media-status="liked"]')).toBeNull();
+    expect(compact.querySelector('[data-media-status="rating"]')?.textContent).toBe('5');
 
     const group = await render(item(14, { duration: 600, play_seconds: 150, part_group: { key: 'P', seed_id: 14, count: 2 } }));
     expect(group.host.querySelector('[data-media-progress]')).toBeNull();

@@ -359,7 +359,9 @@ def q_items(contract: WebContract, args):
            "a.play_seconds,a.max_reached,a.seek_count,a.region,"
            f"{EFFECTIVE_REGION_SQL} AS effective_region,"
            "EXISTS(SELECT 1 FROM watch_queue w WHERE w.asset_id=a.id "
-           f"AND w.profile_id='{DEFAULT_PROFILE_ID}') AS watch_later "
+           f"AND w.profile_id='{DEFAULT_PROFILE_ID}') AS watch_later, "
+           "EXISTS(SELECT 1 FROM asset_preference p WHERE p.asset_id=a.id "
+           f"AND p.profile_id='{DEFAULT_PROFILE_ID}' AND p.liked=1) AS liked "
            "FROM asset a WHERE " + " AND ".join(where) + f" ORDER BY {order} LIMIT ? OFFSET ?")
     with contract.read_connection() as c:
         rows = [dict(r) for r in c.execute(sql, par + [fetch_limit, off])]

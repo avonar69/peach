@@ -8,7 +8,7 @@ import { pushFollowFeed } from './follow.js';
 import { batchDockApi, loadBatchDock } from '../react/application-residents';
 import { censorOn, preferencesState } from './preferences.js';
 import { configureHoverPreview, releaseHoverPreviews } from './../card-art/hover';
-import { $, api } from '../core';
+import { $, api, esc } from '../core';
 import { loadingState } from './loading.js';
 import { applicationEffects } from './effects';
 import { confirmModal, formModal, setActionBusy } from '../ui-kit';
@@ -53,6 +53,7 @@ export function toggleFollowSelection(id,range=false) {
   }
 
 export async function runCatalogBatch(operation,button){
+  if(operation==='studio'||operation==='actor')return editBatchMetadata(operation);
   const labels={like:'喜欢',seen:'标为看过',later:'加入稍后看',dispose:'移入回收站',restore:'还原',delete:'彻底删除'};
   const titles={like:'喜欢所选项目',seen:'标记为已看',later:'加入稍后看',dispose:'移入回收站',restore:'还原所选项目',delete:'永久删除所选项目'};
   const ids=[...selected];if(!ids.length)return;
@@ -75,6 +76,21 @@ export async function runCatalogBatch(operation,button){
   catch(error){setActionBusy(button,false);throw error}
   finally{setActionBusy(button,false);paintSelection()}
   }});
+}
+
+async function editBatchMetadata(operation){
+  const ids=[...selected];if(!ids.length)return;
+  const title=operation==='studio'?'Change studio':'Add actor';
+  const choices=operation==='studio'?await api('/api/index?kind=studios&limit=1000'):null;
+  const options=(choices?.items||[]).map(row=>`<option value="${esc(row.k||row.name||'')}"></option>`).join('');
+  const modal=formModal({title,confirmLabel:'Apply',body:`<label class="modalfield"><span>${esc(title)}</span><input class="geist-input" name="metadata-name" list="batch-studios" maxlength="200" required></label><datalist id="batch-studios">${options}</datalist>`,
+    onConfirm:async()=>{
+      const name=modal.dialog.querySelector('[name="metadata-name"]').value.trim();
+      if(!name)throw new Error('Enter a valid name.');
+      return api('/api/batch',{method:'POST',body:JSON.stringify({ids,operation,name})});
+    }});
+  const result=await modal.done;
+  if(result.confirmed){setSelectMode(false,true);await reloadAfterWrite()}
 }
 
 export async function pickBatchRegion(){

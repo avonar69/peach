@@ -329,7 +329,7 @@
   "RSS update schedule saved.": "Calendario de actualización de RSS guardado.",
   "RSS update started.": "Se inició la actualización RSS.",
   "RSS updates": "Actualizaciones RSS",
-  "Rating": "Clasificación",
+  "Rating": "Valoración",
   "Ready": "Listo",
   "Release date differs": "La fecha de lanzamiento difiere",
   "Release date matches": "Coincidencias de fecha de lanzamiento",
@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "Umbral de coincidencia rápida (%)",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa las puntuaciones guardadas sin volver a buscar. Este umbral solo se aplica a la coincidencia rápida; la coincidencia normal conserva el umbral configurado.",
   "Choose a quick matching threshold from 0 to 100.": "Elige un umbral de coincidencia rápida de 0 a 100.",
-  "No saved StashDB matches meet this threshold safely.": "Ninguna coincidencia guardada de StashDB se puede aplicar de forma segura con este umbral."
+  "No saved StashDB matches meet this threshold safely.": "Ninguna coincidencia guardada de StashDB se puede aplicar de forma segura con este umbral.",
+  "Change studio": "Cambiar estudio",
+  "Add actor": "Añadir actor",
+  "Recently added videos (days)": "Vídeos añadidos recientemente (días)",
+  "Match recently added videos with StashDB": "Buscar vídeos recientes en StashDB",
+  "Enter a valid name.": "Introduce un nombre válido.",
+  "Enter a valid number of days.": "Introduce un número válido de días.",
+  "No videos match this date range.": "No hay vídeos en este intervalo."
 }

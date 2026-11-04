@@ -19,6 +19,8 @@ export interface MediaItem {
   release_date?: string | null;
   play_seconds?: number | null;
   play_count?: number | null;
+  rating?: number | null;
+  liked?: boolean | number;
   leave_ratio?: number | null;
   has_cover?: boolean;
   cover_key?: string;

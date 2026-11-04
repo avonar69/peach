@@ -32,6 +32,26 @@ def scene(identity=SCENE, **values):
 
 
 class StashDBTests(unittest.TestCase):
+    def test_recent_scan_uses_import_time_and_preserves_frozen_scope(self):
+        from peach.matching_jobs import recent_assets
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET first_seen=datetime('now','localtime','-3 days') WHERE id=1")
+            connection.execute("INSERT INTO asset(id,location,path,name,medium,first_seen) VALUES(2,'local','R:\\old.mp4','old.mp4','video',datetime('now','localtime','-20 days'))")
+        self.assertEqual([row['id'] for row in recent_assets(self.database, 7)], [1])
+        self.assertEqual([row['id'] for row in recent_assets(self.database, 30)], [1, 2])
+        self.assertEqual([row['id'] for row in recent_assets(self.database, 7, [2])], [2])
+
+    def test_bulk_actor_addition_preserves_cast_and_studio_is_manual(self):
+        from peach import batch_metadata
+        with self.database.write_transaction() as connection:
+            upsert_asset_entity(connection, kind='performer', name='Existing Actor', asset_id=1, role='performer', source='scan:filename-actors')
+            batch_metadata.apply(connection, [1], 'actor', {'name': 'New Actor'}, None)
+            batch_metadata.apply(connection, [1], 'studio', {'name': 'Example Studio'}, None)
+            cast = {row[0] for row in connection.execute("SELECT e.canonical_name FROM entity e JOIN asset_entity ae ON ae.entity_id=e.id WHERE ae.asset_id=1 AND e.kind='performer'")}
+            self.assertEqual(cast, {'Existing Actor', 'New Actor'})
+            row = connection.execute('SELECT studio,field_owners FROM asset WHERE id=1').fetchone()
+            self.assertEqual(row['studio'], 'Example Studio')
+            self.assertEqual(json.loads(row['field_owners'])['studio'], 'user:manual')
     def test_quick_matching_applies_saved_score_without_search_or_changing_default(self):
         from peach import stashdb_quick
         from peach.fsutil import atomic_write_text

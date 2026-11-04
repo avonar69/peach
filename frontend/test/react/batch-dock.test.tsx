@@ -112,7 +112,7 @@ describe('每种语境的键', () => {
   it('从左到右的顺序，「取消」总在最后，危险操作只有移出与彻底删除', () => {
     const shape = (context: Parameters<typeof batchActions>[0], dismissed = false) =>
       batchActions(context, dismissed).map((action) => `${action.label}${action.danger ? '!' : ''}`);
-    expect(shape('catalog')).toEqual(['喜欢', '看过', '稍后看', '判定产地', '移入回收站!', '取消']);
+    expect(shape('catalog')).toEqual(['喜欢', 'Change studio', 'Add actor', '看过', '稍后看', '判定产地', '移入回收站!', '取消']);
     expect(shape('trash')).toEqual(['还原', '彻底删除!', '取消']);
     expect(shape('junk')).toEqual(['不是垃圾', '移入回收站!', '取消']);
     expect(shape('junk', true)).toEqual(['重新判断', '移入回收站!', '取消']);
@@ -152,7 +152,7 @@ describe('浮条', () => {
     const keys = [...root.querySelectorAll<HTMLButtonElement>('[data-selection-dock] button')];
     expect(keys.filter((key) => key.hasAttribute('data-danger')).map((key) => key.dataset.batchAction)).toEqual(['dispose']);
     expect(keys.map((key) => key.querySelector('use')?.getAttribute('href')))
-      .toEqual(['#i-thumbs-up', '#i-eye', '#i-bookmark-plus', '#i-globe', '#i-trash', '#i-x']);
+      .toEqual(['#i-thumbs-up', '#i-folder', '#i-user-plus', '#i-eye', '#i-bookmark-plus', '#i-globe', '#i-trash', '#i-x']);
   });
 
   it('点一颗键把分组、操作与这颗键交回壳', async () => {

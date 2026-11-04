@@ -17,6 +17,7 @@ export function StashDBQuick({ readOnly, queued, started }: {
 }) {
   const configuration = useQuery({ queryKey: CONFIGURATION_KEY, queryFn: ({ signal }) => fetchConfiguration(signal) });
   const [input, setInput] = useState<string | null>(null);
+  const [days, setDays] = useState('7');
   const value = input ?? String(configuration.data?.stashdb?.minimum_confidence ?? 85);
   const minimum = Number(value);
   const valid = value.trim() !== '' && Number.isInteger(minimum) && minimum >= 0 && minimum <= 100;
@@ -33,5 +34,10 @@ export function StashDBQuick({ readOnly, queued, started }: {
         }, 'POST', signal), started),
       })}>Quick StashDB matching</Button></div>
     {action.error ? <ErrorText>{action.error}</ErrorText> : null}
+    <Input label="Recently added videos (days)" type="number" value={days} onChange={setDays} isDisabled={readOnly} />
+    <div><Button type="button" variant="secondary" disabled={readOnly || Boolean(action.busy) || !Number.isInteger(Number(days)) || Number(days) < 1 || Number(days) > 36500}
+      {...busyProps(action.busy === 'recent')} onClick={() => void action.run('recent', signal => apiSend('/api/library-processing', {
+        stage: 'stashdb_recent', recent_days: Number(days),
+      }, 'POST', signal), started)}>Match recently added videos with StashDB</Button></div>
   </div>;
 }

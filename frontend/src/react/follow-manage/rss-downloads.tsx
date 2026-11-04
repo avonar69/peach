@@ -15,6 +15,7 @@ import type { DebridProvider } from '../settings/debrid-settings';
 import { DebridTaskProgress, fileDownload, fileNeedsDownload, trackDebridJob, type DebridJob as Job } from './debrid-progress';
 import { MultiChoiceMenu } from '../components/multi-choice-menu';
 import { rssSelection, saveRSSSelection } from '../../rss-selection';
+import { playUiSound } from '../../ui-kit/sounds';
 
 interface Link { url: string; kind: string; size?: string; group?: string; group_url?: string }
 interface Picture { src: string; href: string }
@@ -28,9 +29,9 @@ interface Data { providers: DebridProvider[]; sources: Source[]; items: Entry[];
 const KEY = ['rss-downloads'];
 const SENT_NZBS = 'peach.rss-sent-nzbs';
 
-function savedNZBs(): string[] {
+function savedNZBs(storageKey = SENT_NZBS): string[] {
   try {
-    const value: unknown = JSON.parse(localStorage.getItem(SENT_NZBS) || '[]');
+    const value: unknown = JSON.parse(localStorage.getItem(storageKey) || '[]');
     return Array.isArray(value) ? value.filter((key): key is string => typeof key === 'string').slice(-10000) : [];
   } catch { return []; }
 }
@@ -63,6 +64,8 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
   const [name, setName] = useState(''), [url, setUrl] = useState(''), [offset, setOffset] = useState(0);
   const [selected, setSelected] = useState(rssSelection);
   const [sentNZBs, setSentNZBs] = useState(savedNZBs);
+  const [sentThisVisit, setSentThisVisit] = useState<string[]>([]);
+  const [browserDownloads, setBrowserDownloads] = useState(() => savedNZBs('peach.rss-browser-downloads'));
   const [pageSize, setPageSize] = useState(() => {
     try { const saved = Number(localStorage.getItem('peach.rss-page-size')); return [10, 20, 50, 100].includes(saved) ? saved : 20; }
     catch { return 20; }
@@ -96,7 +99,14 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
       const result = await apiSend<{ id: string }>('/api/rss/download', { id: job.id, file_index: index }, 'POST');
       trackDebridJob(result.id);
       toast('Download queued.'); refresh();
-    } else download(file.url);
+    } else {
+      download(file.url);
+      setBrowserDownloads(previous => {
+        const saved = [...new Set([...previous, `${job.id}:${index}`])].slice(-10000);
+        try { localStorage.setItem('peach.rss-browser-downloads', JSON.stringify(saved)); } catch { /* 页面保留下载交接回执。 */ }
+        return saved;
+      });
+    }
   };
   useEffect(() => {
     if (!data) return;
@@ -111,6 +121,7 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
     }
   }, [data, waiting]); // eslint-disable-line react-hooks/exhaustive-deps
   const clickDebrid = (entry: Entry, index: number, provider: DebridProvider) => {
+    playUiSound('click');
     void action.run('resolve', signal => apiSend<{ id: string }>('/api/rss/resolve', {
       entry_id: entry.id, link_index: index, provider: provider.id, auto_download: !!provider.download_folder,
     }, 'POST', signal), result => {
@@ -202,28 +213,33 @@ export function RSSDownloads({ readOnly, toast, feedOnly = false, onVisibleCount
         <a href={link.url} className="min-w-0 break-all underline" rel="noreferrer" target="_blank"
           type={link.kind === 'nzb' ? 'application/x-nzb' : undefined}>
           {link.kind === 'nzb' ? 'Download NZB' : <span data-i18n-ignore="">{link.url}</span>}</a>
-        {link.kind === 'nzb' ? (['sabnzbd', 'nzbget'] as const).filter(provider => data[provider]?.configured).map(provider => <span key={provider} className="inline-flex items-center gap-2"><Button size="small" variant="secondary" disabled={readOnly || sentNZBs.includes(`${provider}:${entry.id}:${index}`)}
+        {link.kind === 'nzb' ? (['sabnzbd', 'nzbget'] as const).filter(provider => data[provider]?.configured).map(provider => <span key={provider} className="inline-flex items-center gap-2"><Button size="small" variant="secondary" disabled={readOnly || sentThisVisit.includes(`${provider}:${entry.id}:${index}`)}
           {...busyProps(action.busy === provider)} onClick={() => void action.run(provider, signal => apiSend(`/api/rss/${provider}`, {
             entry_id: entry.id, link_index: index,
           }, 'POST', signal), () => {
+            setSentThisVisit(previous => [...previous, `${provider}:${entry.id}:${index}`]);
             setSentNZBs(previous => {
               const saved = [...new Set([...savedNZBs(), ...previous, `${provider}:${entry.id}:${index}`])].slice(-10000);
               try { localStorage.setItem(SENT_NZBS, JSON.stringify(saved)); } catch { /* 当前页面仍保留回执。 */ }
               return saved;
             }); toast(formatTranslation('NZB sent to {0}.', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet'));
-          })}>{formatTranslation(sentNZBs.includes(`${provider}:${entry.id}:${index}`) ? 'Sent to {0}' : 'Send to {0}', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet')}</Button>
+          })}>{formatTranslation(sentThisVisit.includes(`${provider}:${entry.id}:${index}`) ? 'Sent to {0}' : 'Send to {0}', provider === 'sabnzbd' ? 'SABnzbd' : 'NZBGet')}</Button>
           {sentNZBs.includes(`${provider}:${entry.id}:${index}`) ? <RiCheckLine aria-hidden="true" className="size-5 shrink-0 text-notification-success-foreground" /> : null}</span>) : null}
-        {data.providers.filter(provider => supports(provider, link)).map(provider => <Button key={provider.id} size="small" variant="secondary" iconOnly
+        {data.providers.filter(provider => supports(provider, link)).map(provider => <span key={provider.id} className="inline-flex items-center gap-2"><Button size="small" variant="secondary" iconOnly data-explicit-click-sound=""
           leadingIcon={RiDownloadCloud2Line} title={formatTranslation('Download with {0}', provider.label)} aria-label={formatTranslation('Download with {0}', provider.label)}
-          disabled={readOnly} {...busyProps(action.busy === 'resolve')} onClick={() => clickDebrid(entry, index, provider)} />)}
+          disabled={readOnly} {...busyProps(action.busy === 'resolve')} onClick={() => clickDebrid(entry, index, provider)} />
+          {data.jobs.some(parent => parent.entry_id === entry.id && parent.provider === provider.id && parent.source?.url === link.url
+            && (browserDownloads.some(key => key.startsWith(`${parent.id}:`)) || data.jobs.some(child => child.parent_id === parent.id && child.status === 'complete')))
+            ? <RiCheckLine aria-hidden="true" className="size-5 text-notification-success-foreground" /> : null}</span>)}
       </div>)}
       {data.jobs.filter(job => job.entry_id === entry.id).map(job => <div key={job.id} className="flex flex-col gap-2">
         <DebridTaskProgress job={job} cancel={id => send('cancel', { id })} readOnly={readOnly} />
         {job.files?.map((file, index) => file.url ? <div key={index} className="flex flex-wrap items-center gap-2">
           <a href={file.url} rel="noreferrer" target="_blank" className="break-all underline" data-i18n-ignore="">{file.filename || file.url}</a>
+          {browserDownloads.includes(`${job.id}:${index}`) ? <RiCheckLine aria-hidden="true" className="size-5 text-notification-success-foreground" /> : null}
           {fileNeedsDownload(fileDownload(data.jobs, job, index)) ? <Button size="small" variant="secondary" disabled={readOnly}
             onClick={() => void deliver(job, index).catch(() => toast('The download could not be started. Check the folder settings.'))}>Download file</Button>
-            : fileDownload(data.jobs, job, index)?.status === 'complete' ? <span>Download complete</span> : null}
+            : fileDownload(data.jobs, job, index)?.status === 'complete' ? <span className="inline-flex items-center gap-2"><RiCheckLine aria-hidden="true" className="size-5 text-notification-success-foreground" /><span>Download complete</span></span> : null}
         </div> : null)}
       </div>)}
     </article>)}

@@ -17,7 +17,7 @@ export interface DebridJob { id: string; entry_id: number; provider: string; kin
   source?: { url: string; kind: string }; files?: Array<{ url?: string; filename?: string; size?: number; download_id?: string }>;
   parent_id?: string; file_index?: number;
   dismissed?: boolean;
-  filename?: string; bytes?: number; total?: number; path?: string;
+  filename?: string; bytes?: number; total?: number; path?: string; bytes_per_second?: number;
   import_state?: string; import_error?: string; imported_asset_id?: number }
 interface ProgressData { jobs: DebridJob[]; providers: DebridProvider[]; read_only?: boolean }
 const KEY = ['debrid-jobs'];
@@ -60,6 +60,7 @@ export function DebridTaskProgress({ job, cancel, readOnly, compact = false }: {
 }) {
   return <div className="flex min-w-0 flex-wrap items-center gap-2 text-caption-1-regular">
     <span>{translate(statusLabels[job.status] || job.status)}</span>
+    {job.status === 'downloading' ? <span data-i18n-ignore="">{((job.bytes_per_second || 0) / 1048576).toFixed(1)} MB/s</span> : null}
     {job.kind === 'download' && job.total ? <progress aria-label="Download progress" max={job.total} value={job.bytes || 0} /> : null}
     {job.filename && !compact ? <span className="break-all" data-i18n-ignore="">{job.filename}</span> : null}
     {job.kind === 'download' && job.total ? <span>{formatTranslation('{0} of {1} MB',
@@ -88,6 +89,7 @@ function DownloadPanel({ jobs, providers, readOnly, problem }: {
     icon={<RiDownloadCloud2Line aria-hidden className="size-5 shrink-0" />}
     subtitle={<p className="text-caption-1-regular text-text-secondary">{formatTranslation('Active downloads: {0}', String(running))}</p>}
     footer={<div className="flex flex-wrap items-center gap-2">
+      <span data-i18n-ignore="">Σ {(jobs.reduce((sum, job) => sum + (job.status === 'downloading' ? job.bytes_per_second || 0 : 0), 0) / 1048576).toFixed(1)} MB/s</span>
       <LinkButton href="/subscriptions?tab=rss" variant="secondary" size="small">View RSS downloads</LinkButton>
       <Button size="small" variant="secondary" disabled={readOnly || !finished || !!action.busy} onClick={() => {
         void action.run('clear-finished', signal => apiSend('/api/rss/clear-finished', {}, 'POST', signal), refresh);

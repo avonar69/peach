@@ -1,6 +1,7 @@
 """下载到已配置目录，使用独立临时文件与带验证器的 Range 续传。"""
 import os
 import re
+import time
 from pathlib import Path
 
 import httpx
@@ -41,7 +42,8 @@ def transfer(task, *, update, active, client=None):
             if response.status_code not in (200, 206):
                 raise ValueError(f'Download failed (HTTP {response.status_code}). Regenerate the link if it expired.')
             resume, done, total, etag = _response_state(response, offset, task)
-            update(bytes=done, total=total, etag=etag)
+            initial_bytes, started = done, time.monotonic()
+            update(bytes=done, total=total, etag=etag, bytes_per_second=0)
             with part.open('ab' if resume else 'wb') as output:
                 for chunk in response.iter_bytes(1024 * 1024):
                     if not active():
@@ -49,7 +51,8 @@ def transfer(task, *, update, active, client=None):
                     guard.check()
                     output.write(chunk)
                     done += len(chunk)
-                    update(bytes=done, total=total, etag=etag)
+                    update(bytes=done, total=total, etag=etag,
+                           bytes_per_second=(done - initial_bytes) / max(time.monotonic() - started, .001))
             if total and done != total:
                 raise ValueError('The download ended before the complete file arrived.')
             if task.get('size') and done != task['size']:
@@ -58,7 +61,7 @@ def transfer(task, *, update, active, client=None):
                 raise InterruptedError('Download cancelled.')
             # 硬链接以排他方式发布已完成文件；原名文件不被覆盖。
             _publish(part, target, active)
-            update(status='complete', path=str(target), bytes=done, total=done)
+            update(status='complete', path=str(target), bytes=done, total=done, bytes_per_second=0)
     finally:
         if owned:
             client.close()

@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "Schwellenwert für Schnellabgleich (%)",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Verwendet gespeicherte Bewertungen ohne erneute Suche. Dieser Schwellenwert gilt nur für den Schnellabgleich; reguläre Abgleiche behalten den eingestellten Schwellenwert.",
   "Choose a quick matching threshold from 0 to 100.": "Wähle einen Schwellenwert für den Schnellabgleich von 0 bis 100.",
-  "No saved StashDB matches meet this threshold safely.": "Keine gespeicherten StashDB-Treffer können bei diesem Schwellenwert sicher angewendet werden."
+  "No saved StashDB matches meet this threshold safely.": "Keine gespeicherten StashDB-Treffer können bei diesem Schwellenwert sicher angewendet werden.",
+  "Change studio": "Studio ändern",
+  "Add actor": "Darsteller hinzufügen",
+  "Recently added videos (days)": "Kürzlich hinzugefügte Videos (Tage)",
+  "Match recently added videos with StashDB": "Neue Videos mit StashDB abgleichen",
+  "Enter a valid name.": "Gib einen gültigen Namen ein.",
+  "Enter a valid number of days.": "Gib eine gültige Anzahl von Tagen ein.",
+  "No videos match this date range.": "Keine Videos in diesem Zeitraum."
 }

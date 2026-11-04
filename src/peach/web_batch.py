@@ -44,6 +44,7 @@ BATCH_LABELS = {
     "dispose": "批量移入回收站", "restore": "批量还原", "delete": "批量永久删除",
     "dismiss-junk": "批量确认不是垃圾", "reconsider-junk": "批量重新判定垃圾",
     "region": "批量判定产地",
+    "studio": "Change studio", "actor": "Add actor",
 }
 
 
@@ -846,7 +847,7 @@ def w_batch(contract: WebContract, body):
     operation = body.get("operation")
     if operation not in {
         "like", "seen", "later", "dispose", "restore", "delete",
-        "dismiss-junk", "reconsider-junk", "region",
+        "dismiss-junk", "reconsider-junk", "region", "studio", "actor",
     }:
         raise ValueError("unsupported batch operation")
     # 产地的取值在这里就要认出来，别等到写库那一步才发现拼错了。
@@ -893,11 +894,11 @@ def w_batch(contract: WebContract, body):
                     "DELETE FROM review_decision WHERE category='junk_file' AND item_key=?",
                     [(str(asset_id),) for asset_id in valid_ids],
                 )
-            elif operation == "region":
+            elif operation in {"region", "studio", "actor"}:
                 # 走 `write_owned_fields` 而不是直接 UPDATE：产地是真相字段，用户这一
                 # 笔要压得住后面每一轮刮削与推断，归属列是它唯一的凭据。
-                write_owned_fields(connection, valid_ids,
-                                   {"region": region_value}, USER_MANUAL)
+                from .batch_metadata import apply as apply_metadata
+                apply_metadata(connection, valid_ids, operation, body, region_value)
             elif operation == "later":
                 connection.executemany(
                     "INSERT OR IGNORE INTO watch_queue(profile_id,asset_id,added_at,source) "

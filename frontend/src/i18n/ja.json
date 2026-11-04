@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "高速マッチングのしきい値（%）",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "再検索せず保存済みのスコアを使用します。このしきい値は高速マッチングのみに適用され、通常のマッチングは設定済みのしきい値を使用します。",
   "Choose a quick matching threshold from 0 to 100.": "高速マッチングのしきい値を0から100で選択してください。",
-  "No saved StashDB matches meet this threshold safely.": "このしきい値で安全に適用できる保存済みStashDB候補はありません。"
+  "No saved StashDB matches meet this threshold safely.": "このしきい値で安全に適用できる保存済みStashDB候補はありません。",
+  "Change studio": "スタジオを変更",
+  "Add actor": "出演者を追加",
+  "Recently added videos (days)": "最近追加された動画（日数）",
+  "Match recently added videos with StashDB": "最近の動画をStashDBで照合",
+  "Enter a valid name.": "有効な名前を入力してください。",
+  "Enter a valid number of days.": "有効な日数を入力してください。",
+  "No videos match this date range.": "この期間の動画はありません。"
 }

@@ -576,5 +576,13 @@
   "Quick match threshold (%)": "快速匹配阈值（%）",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已保存的分数，不重新搜索。此阈值仅用于快速匹配；常规匹配仍使用配置中的阈值。",
   "Choose a quick matching threshold from 0 to 100.": "请选择 0 到 100 的快速匹配阈值。",
-  "No saved StashDB matches meet this threshold safely.": "没有可按此阈值安全应用的已保存 StashDB 匹配。"
+  "No saved StashDB matches meet this threshold safely.": "没有可按此阈值安全应用的已保存 StashDB 匹配。",
+  "Change studio": "更改厂牌",
+  "Add actor": "添加演员",
+  "Recently added videos (days)": "最近入库视频（天）",
+  "Match recently added videos with StashDB": "用 StashDB 匹配最近入库视频",
+  "Enter a valid name.": "请输入有效名称。",
+  "Enter a valid number of days.": "请输入有效天数。",
+  "No videos match this date range.": "此日期范围内没有视频。",
+  "Rating": "评分"
 }

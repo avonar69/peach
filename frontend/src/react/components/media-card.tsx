@@ -20,6 +20,8 @@
  * 标签，其余落到整张卡上就是打开。 */
 import { memo, useCallback, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { cardRatio as layoutRatio } from '@peach/appearance';
+import { playbackKey, playbackPosition } from '../../player/progress';
+import { MediaBadges } from './media-badges';
 import {
   cardArtwork, cardIdentity, entityAvatar, performerLabel, relayoutCovers, releaseHover, wireHover,
 } from '@peach/card-art';
@@ -200,8 +202,8 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
   const titleHtml = helpers.titleHtml(item, rawName).trim() || esc(UNNAMED);
   const shownSize = parts?.total_size ?? item.size;
   const shownDuration = parts?.total_duration ?? item.duration;
-  const watched = !parts && Number(item.play_seconds) > 0 && Number(item.duration) > 0
-    ? Math.min(Number(item.play_seconds) / Number(item.duration), 1) : 0;
+  const watched = !parts && Number(item.duration) > 0
+    ? Math.min(playbackPosition(playbackKey('item', item), item) / Number(item.duration), 1) : 0;
   const { avatar, who } = identityParts(item);
   const tags = (item.follow_tags || item.tags || []).slice(0, 3);
   const flags = [item.feedback === 'dislike' && 'dislike', item.feedback === 'seen' && 'seen',
@@ -235,6 +237,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
         ? <ArtSlot artwork={artwork} identity={identity} relayout={(root) => relayoutCovers(root, size)} />
         : <span data-media-nopic="">无预览</span>}
       <div data-media-badge="" dangerouslySetInnerHTML={{ __html: helpers.badgeHtml(item.location || '', item.cost || '') }} />
+      <MediaBadges item={item} />
       <span data-media-check=""><Icon name="check" /></span>
       <span data-media-trash-mark=""><Icon name="trash" /><b>回收站</b></span>
       {parts && !editions ? <span data-media-group="">{`${Number(parts.count).toLocaleString()} 卷`}</span> : null}
@@ -250,13 +253,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
             <i style={{ '--media-fill': `${(watched * 100).toFixed(1)}%` } as CSSProperties} />
           </div>
         )
-        : item.leave_ratio != null
-          ? (
-            <div data-media-scrub="">
-              <i style={{ '--media-fill': `${Math.round(item.leave_ratio * 100)}%` } as CSSProperties} />
-            </div>
-          )
-          : null}
+        : null}
       <PreviewCounter />
       {!selectMode ? <LaterButton item={item} actions={actions} /> : null}
       {!selectMode ? <div data-media-seek="">

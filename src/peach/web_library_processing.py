@@ -196,7 +196,10 @@ def _processing_request(contract, config, previous, body):
     from .matching_jobs import REMATCH_STAGES, selection
     if stage in REMATCH_STAGES:
         asset_ids = [row['id'] for row in selection(config, contract.database, stage, asset_ids or retry_ids,
-                                                   minimum=(body or {}).get('quick_threshold'))]
+                                                   minimum=(body or {}).get('quick_threshold'),
+                                                   recent_days=(body or {}).get('recent_days', 7))]
+        if stage == 'stashdb_recent' and not asset_ids:
+            raise ValueError('No videos match this date range.')
         if stage == 'stashdb_quick' and not asset_ids:
             raise ValueError('No saved StashDB matches meet this threshold safely.')
         retry_ids = None

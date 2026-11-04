@@ -571,5 +571,13 @@
   "Quick match threshold (%)",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.",
   "Choose a quick matching threshold from 0 to 100.",
-  "No saved StashDB matches meet this threshold safely."
+  "No saved StashDB matches meet this threshold safely.",
+  "Change studio",
+  "Add actor",
+  "Recently added videos (days)",
+  "Match recently added videos with StashDB",
+  "Enter a valid name.",
+  "Enter a valid number of days.",
+  "No videos match this date range.",
+  "Rating"
 ]

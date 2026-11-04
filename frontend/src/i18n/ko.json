@@ -329,7 +329,7 @@
   "RSS update schedule saved.": "RSS 업데이트 일정이 저장되었습니다.",
   "RSS update started.": "RSS 업데이트가 시작되었습니다.",
   "RSS updates": "RSS 업데이트",
-  "Rating": "평가",
+  "Rating": "평점",
   "Ready": "준비",
   "Release date differs": "출시일이 다릅니다",
   "Release date matches": "출시일 일치",
@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "빠른 매칭 기준값 (%)",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "다시 검색하지 않고 저장된 점수를 사용합니다. 이 기준값은 빠른 매칭에만 적용되며 일반 매칭은 설정된 기준값을 유지합니다.",
   "Choose a quick matching threshold from 0 to 100.": "빠른 매칭 기준값을 0에서 100 사이로 선택하세요.",
-  "No saved StashDB matches meet this threshold safely.": "이 기준값에서 안전하게 적용할 수 있는 저장된 StashDB 매칭이 없습니다."
+  "No saved StashDB matches meet this threshold safely.": "이 기준값에서 안전하게 적용할 수 있는 저장된 StashDB 매칭이 없습니다.",
+  "Change studio": "스튜디오 변경",
+  "Add actor": "배우 추가",
+  "Recently added videos (days)": "최근 추가된 동영상 (일)",
+  "Match recently added videos with StashDB": "최근 동영상을 StashDB로 매칭",
+  "Enter a valid name.": "올바른 이름을 입력하세요.",
+  "Enter a valid number of days.": "올바른 일수를 입력하세요.",
+  "No videos match this date range.": "해당 기간에 동영상이 없습니다."
 }

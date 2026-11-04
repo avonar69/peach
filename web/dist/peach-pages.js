@@ -13931,7 +13931,7 @@ var p = /* @__PURE__ */ o(((e) => {
 	"RSS update schedule saved.": "Calendario de actualización de RSS guardado.",
 	"RSS update started.": "Se inició la actualización RSS.",
 	"RSS updates": "Actualizaciones RSS",
-	Rating: "Clasificación",
+	Rating: "Valoración",
 	Ready: "Listo",
 	"Release date differs": "La fecha de lanzamiento difiere",
 	"Release date matches": "Coincidencias de fecha de lanzamiento",
@@ -18153,7 +18153,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "Umbral de coincidencia rápida (%)",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa las puntuaciones guardadas sin volver a buscar. Este umbral solo se aplica a la coincidencia rápida; la coincidencia normal conserva el umbral configurado.",
 	"Choose a quick matching threshold from 0 to 100.": "Elige un umbral de coincidencia rápida de 0 a 100.",
-	"No saved StashDB matches meet this threshold safely.": "Ninguna coincidencia guardada de StashDB se puede aplicar de forma segura con este umbral."
+	"No saved StashDB matches meet this threshold safely.": "Ninguna coincidencia guardada de StashDB se puede aplicar de forma segura con este umbral.",
+	"Change studio": "Cambiar estudio",
+	"Add actor": "Añadir actor",
+	"Recently added videos (days)": "Vídeos añadidos recientemente (días)",
+	"Match recently added videos with StashDB": "Buscar vídeos recientes en StashDB",
+	"Enter a valid name.": "Introduce un nombre válido.",
+	"Enter a valid number of days.": "Introduce un número válido de días.",
+	"No videos match this date range.": "No hay vídeos en este intervalo."
 }, E = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -18485,7 +18492,7 @@ var p = /* @__PURE__ */ o(((e) => {
 	"RSS update schedule saved.": "Calendrier de mise à jour RSS enregistré.",
 	"RSS update started.": "a démarré.",
 	"RSS updates": "Mises à jour RSS",
-	Rating: "Notation",
+	Rating: "Note",
 	Ready: "Prêt",
 	"Release date differs": "La date de sortie diffère",
 	"Release date matches": "Correspondances de date de sortie",
@@ -22707,7 +22714,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "Seuil de correspondance rapide (%)",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Utilise les scores enregistrés sans nouvelle recherche. Ce seuil concerne uniquement la correspondance rapide ; la correspondance habituelle conserve le seuil configuré.",
 	"Choose a quick matching threshold from 0 to 100.": "Choisissez un seuil de correspondance rapide de 0 à 100.",
-	"No saved StashDB matches meet this threshold safely.": "Aucune correspondance StashDB enregistrée ne peut être appliquée en toute sécurité avec ce seuil."
+	"No saved StashDB matches meet this threshold safely.": "Aucune correspondance StashDB enregistrée ne peut être appliquée en toute sécurité avec ce seuil.",
+	"Change studio": "Changer de studio",
+	"Add actor": "Ajouter un acteur",
+	"Recently added videos (days)": "Vidéos récemment ajoutées (jours)",
+	"Match recently added videos with StashDB": "Rechercher les vidéos récentes sur StashDB",
+	"Enter a valid name.": "Saisissez un nom valide.",
+	"Enter a valid number of days.": "Saisissez un nombre de jours valide.",
+	"No videos match this date range.": "Aucune vidéo dans cette période."
 }, D = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -27261,7 +27275,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "Schwellenwert für Schnellabgleich (%)",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Verwendet gespeicherte Bewertungen ohne erneute Suche. Dieser Schwellenwert gilt nur für den Schnellabgleich; reguläre Abgleiche behalten den eingestellten Schwellenwert.",
 	"Choose a quick matching threshold from 0 to 100.": "Wähle einen Schwellenwert für den Schnellabgleich von 0 bis 100.",
-	"No saved StashDB matches meet this threshold safely.": "Keine gespeicherten StashDB-Treffer können bei diesem Schwellenwert sicher angewendet werden."
+	"No saved StashDB matches meet this threshold safely.": "Keine gespeicherten StashDB-Treffer können bei diesem Schwellenwert sicher angewendet werden.",
+	"Change studio": "Studio ändern",
+	"Add actor": "Darsteller hinzufügen",
+	"Recently added videos (days)": "Kürzlich hinzugefügte Videos (Tage)",
+	"Match recently added videos with StashDB": "Neue Videos mit StashDB abgleichen",
+	"Enter a valid name.": "Gib einen gültigen Namen ein.",
+	"Enter a valid number of days.": "Gib eine gültige Anzahl von Tagen ein.",
+	"No videos match this date range.": "Keine Videos in diesem Zeitraum."
 }, O = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -27593,7 +27614,7 @@ var p = /* @__PURE__ */ o(((e) => {
 	"RSS update schedule saved.": "Programação de atualização RSS salva.",
 	"RSS update started.": "iniciada.",
 	"RSS updates": "Atualizações RSS",
-	Rating: "Classificação",
+	Rating: "Avaliação",
 	Ready: "Pronto",
 	"Release date differs": "A data de lançamento é diferente",
 	"Release date matches": "A data de lançamento corresponde",
@@ -31815,7 +31836,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "Limite de correspondência rápida (%)",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa as pontuações salvas sem pesquisar novamente. Este limite vale apenas para a correspondência rápida; a correspondência normal mantém o limite configurado.",
 	"Choose a quick matching threshold from 0 to 100.": "Escolha um limite de correspondência rápida de 0 a 100.",
-	"No saved StashDB matches meet this threshold safely.": "Nenhuma correspondência salva do StashDB pode ser aplicada com segurança neste limite."
+	"No saved StashDB matches meet this threshold safely.": "Nenhuma correspondência salva do StashDB pode ser aplicada com segurança neste limite.",
+	"Change studio": "Alterar estúdio",
+	"Add actor": "Adicionar ator",
+	"Recently added videos (days)": "Vídeos adicionados recentemente (dias)",
+	"Match recently added videos with StashDB": "Buscar vídeos recentes no StashDB",
+	"Enter a valid name.": "Digite um nome válido.",
+	"Enter a valid number of days.": "Digite um número válido de dias.",
+	"No videos match this date range.": "Não há vídeos neste período."
 }, k = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -36369,7 +36397,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "高速マッチングのしきい値（%）",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "再検索せず保存済みのスコアを使用します。このしきい値は高速マッチングのみに適用され、通常のマッチングは設定済みのしきい値を使用します。",
 	"Choose a quick matching threshold from 0 to 100.": "高速マッチングのしきい値を0から100で選択してください。",
-	"No saved StashDB matches meet this threshold safely.": "このしきい値で安全に適用できる保存済みStashDB候補はありません。"
+	"No saved StashDB matches meet this threshold safely.": "このしきい値で安全に適用できる保存済みStashDB候補はありません。",
+	"Change studio": "スタジオを変更",
+	"Add actor": "出演者を追加",
+	"Recently added videos (days)": "最近追加された動画（日数）",
+	"Match recently added videos with StashDB": "最近の動画をStashDBで照合",
+	"Enter a valid name.": "有効な名前を入力してください。",
+	"Enter a valid number of days.": "有効な日数を入力してください。",
+	"No videos match this date range.": "この期間の動画はありません。"
 }, A = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -36701,7 +36736,7 @@ var p = /* @__PURE__ */ o(((e) => {
 	"RSS update schedule saved.": "RSS 업데이트 일정이 저장되었습니다.",
 	"RSS update started.": "RSS 업데이트가 시작되었습니다.",
 	"RSS updates": "RSS 업데이트",
-	Rating: "평가",
+	Rating: "평점",
 	Ready: "준비",
 	"Release date differs": "출시일이 다릅니다",
 	"Release date matches": "출시일 일치",
@@ -40923,7 +40958,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "빠른 매칭 기준값 (%)",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "다시 검색하지 않고 저장된 점수를 사용합니다. 이 기준값은 빠른 매칭에만 적용되며 일반 매칭은 설정된 기준값을 유지합니다.",
 	"Choose a quick matching threshold from 0 to 100.": "빠른 매칭 기준값을 0에서 100 사이로 선택하세요.",
-	"No saved StashDB matches meet this threshold safely.": "이 기준값에서 안전하게 적용할 수 있는 저장된 StashDB 매칭이 없습니다."
+	"No saved StashDB matches meet this threshold safely.": "이 기준값에서 안전하게 적용할 수 있는 저장된 StashDB 매칭이 없습니다.",
+	"Change studio": "스튜디오 변경",
+	"Add actor": "배우 추가",
+	"Recently added videos (days)": "최근 추가된 동영상 (일)",
+	"Match recently added videos with StashDB": "최근 동영상을 StashDB로 매칭",
+	"Enter a valid name.": "올바른 이름을 입력하세요.",
+	"Enter a valid number of days.": "올바른 일수를 입력하세요.",
+	"No videos match this date range.": "해당 기간에 동영상이 없습니다."
 }, j = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -45477,7 +45519,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "Ngưỡng ghép nhanh (%)",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Dùng điểm đã lưu mà không tìm kiếm lại. Ngưỡng này chỉ dành cho ghép nhanh; ghép thông thường vẫn dùng ngưỡng trong cài đặt.",
 	"Choose a quick matching threshold from 0 to 100.": "Chọn ngưỡng ghép nhanh từ 0 đến 100.",
-	"No saved StashDB matches meet this threshold safely.": "Không có kết quả StashDB đã lưu nào có thể áp dụng an toàn ở ngưỡng này."
+	"No saved StashDB matches meet this threshold safely.": "Không có kết quả StashDB đã lưu nào có thể áp dụng an toàn ở ngưỡng này.",
+	"Change studio": "Đổi hãng",
+	"Add actor": "Thêm diễn viên",
+	"Recently added videos (days)": "Video mới thêm gần đây (ngày)",
+	"Match recently added videos with StashDB": "Ghép video mới thêm với StashDB",
+	"Enter a valid name.": "Nhập tên hợp lệ.",
+	"Enter a valid number of days.": "Nhập số ngày hợp lệ.",
+	"No videos match this date range.": "Không có video trong khoảng ngày này."
 }, M = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -45809,7 +45858,7 @@ var p = /* @__PURE__ */ o(((e) => {
 	"RSS update schedule saved.": "已儲存 RSS 更新計劃。",
 	"RSS update started.": "RSS 更新開始。",
 	"RSS updates": "RSS 更新",
-	Rating: "Rating",
+	Rating: "評分",
 	Ready: "就緒",
 	"Release date differs": "發布日期不同",
 	"Release date matches": "發布日期匹配",
@@ -50031,7 +50080,14 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "快速匹配門檻（%）",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已儲存的分數，不重新搜尋。此門檻僅用於快速匹配；一般匹配仍使用設定中的門檻。",
 	"Choose a quick matching threshold from 0 to 100.": "請選擇 0 到 100 的快速匹配門檻。",
-	"No saved StashDB matches meet this threshold safely.": "沒有可按此門檻安全套用的已儲存 StashDB 匹配。"
+	"No saved StashDB matches meet this threshold safely.": "沒有可按此門檻安全套用的已儲存 StashDB 匹配。",
+	"Change studio": "變更廠牌",
+	"Add actor": "新增演員",
+	"Recently added videos (days)": "最近入庫影片（天）",
+	"Match recently added videos with StashDB": "使用 StashDB 匹配最近入庫影片",
+	"Enter a valid name.": "請輸入有效名稱。",
+	"Enter a valid number of days.": "請輸入有效天數。",
+	"No videos match this date range.": "此日期範圍內沒有影片。"
 }, ee = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -50610,7 +50666,15 @@ var p = /* @__PURE__ */ o(((e) => {
 	"Quick match threshold (%)": "快速匹配阈值（%）",
 	"Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "使用已保存的分数，不重新搜索。此阈值仅用于快速匹配；常规匹配仍使用配置中的阈值。",
 	"Choose a quick matching threshold from 0 to 100.": "请选择 0 到 100 的快速匹配阈值。",
-	"No saved StashDB matches meet this threshold safely.": "没有可按此阈值安全应用的已保存 StashDB 匹配。"
+	"No saved StashDB matches meet this threshold safely.": "没有可按此阈值安全应用的已保存 StashDB 匹配。",
+	"Change studio": "更改厂牌",
+	"Add actor": "添加演员",
+	"Recently added videos (days)": "最近入库视频（天）",
+	"Match recently added videos with StashDB": "用 StashDB 匹配最近入库视频",
+	"Enter a valid name.": "请输入有效名称。",
+	"Enter a valid number of days.": "请输入有效天数。",
+	"No videos match this date range.": "此日期范围内没有视频。",
+	Rating: "评分"
 }, te = [
 	["en", "English"],
 	["zh-CN", "简体中文"],

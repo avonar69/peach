@@ -66,6 +66,8 @@ export function batchActions(context: BatchContext, junkDismissed = false): Batc
     default:
       return [
         { group: 'batch', operation: 'like', label: '喜欢', glyph: 'thumbs-up' },
+        { group: 'batch', operation: 'studio', label: 'Change studio', glyph: 'folder' },
+        { group: 'batch', operation: 'actor', label: 'Add actor', glyph: 'user-plus' },
         { group: 'batch', operation: 'seen', label: '看过', glyph: 'eye' },
         { group: 'batch', operation: 'later', label: '稍后看', glyph: 'bookmark-plus' },
         { group: 'region', operation: 'region', label: '判定产地', glyph: 'globe' },

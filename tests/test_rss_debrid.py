@@ -477,6 +477,8 @@ class RSSDebridTests(unittest.TestCase):
         self.assertEqual(path.parent, self.root)
         self.assertEqual(path.read_bytes(), b'firstlast!')
         self.assertFalse(partial.exists())
+        self.assertTrue(any(change.get('bytes_per_second', 0) > 0 for change in changes))
+        self.assertEqual(changes[-1]['bytes_per_second'], 0)
 
     def test_short_download_is_not_published_and_existing_files_are_not_overwritten(self):
         task = {'id': '2' * 32, 'folder': str(self.root), 'filename': 'video.mp4', 'url': 'https://cdn.example.org/file', 'size': 100}

@@ -329,7 +329,7 @@
   "RSS update schedule saved.": "Programação de atualização RSS salva.",
   "RSS update started.": "iniciada.",
   "RSS updates": "Atualizações RSS",
-  "Rating": "Classificação",
+  "Rating": "Avaliação",
   "Ready": "Pronto",
   "Release date differs": "A data de lançamento é diferente",
   "Release date matches": "A data de lançamento corresponde",
@@ -4551,5 +4551,12 @@
   "Quick match threshold (%)": "Limite de correspondência rápida (%)",
   "Uses saved scores without searching again. This threshold applies only to quick matching; regular matching keeps its configured threshold.": "Usa as pontuações salvas sem pesquisar novamente. Este limite vale apenas para a correspondência rápida; a correspondência normal mantém o limite configurado.",
   "Choose a quick matching threshold from 0 to 100.": "Escolha um limite de correspondência rápida de 0 a 100.",
-  "No saved StashDB matches meet this threshold safely.": "Nenhuma correspondência salva do StashDB pode ser aplicada com segurança neste limite."
+  "No saved StashDB matches meet this threshold safely.": "Nenhuma correspondência salva do StashDB pode ser aplicada com segurança neste limite.",
+  "Change studio": "Alterar estúdio",
+  "Add actor": "Adicionar ator",
+  "Recently added videos (days)": "Vídeos adicionados recentemente (dias)",
+  "Match recently added videos with StashDB": "Buscar vídeos recentes no StashDB",
+  "Enter a valid name.": "Digite um nome válido.",
+  "Enter a valid number of days.": "Digite um número válido de dias.",
+  "No videos match this date range.": "Não há vídeos neste período."
 }
