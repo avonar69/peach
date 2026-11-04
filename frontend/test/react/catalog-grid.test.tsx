@@ -231,7 +231,7 @@ describe('作品卡', () => {
   });
 
   it('看到一半的画一条进度，分卷组不画；比例写进封面格', async () => {
-    const { host } = await render(item(13, { duration: 600, play_seconds: 1900, leave_ratio: .25, rating: 4, play_count: 2, liked: 1 }));
+    const { host } = await render(item(13, { duration: 600, play_seconds: 1900, leave_ratio: .25, rating: 80, play_count: 2, liked: 1 }));
     const bar = host.querySelector('[data-media-progress]');
     expect([bar?.getAttribute('role'), bar?.getAttribute('aria-label'), bar?.getAttribute('aria-valuenow')]).toEqual(['progressbar', '观看进度', '25']);
     expect(host.querySelector<HTMLElement>('[data-media-pic]')!.style.getPropertyValue('--card-ratio')).toBe(String(16 / 9));
@@ -242,9 +242,15 @@ describe('作品卡', () => {
     const resumed = await render(item(1303, { duration: 600, leave_ratio: .25, play_seconds: 1900 }));
     expect(resumed.host.querySelector('[data-media-progress]')?.getAttribute('aria-valuenow')).toBe('50');
     localStorage.removeItem('peach.playback-position.v1:item:1303');
-    const compact = await mount(<MediaBadges compact item={item(1304, { rating: 5, play_count: 1, liked: 1 })} />);
+    const compact = await mount(<MediaBadges compact item={item(1304, { rating: 100, play_count: 1, liked: 1 })} />);
     expect(compact.querySelector('[data-media-status="liked"]')).toBeNull();
     expect(compact.querySelector('[data-media-status="rating"]')?.textContent).toBe('5');
+    for (const compact of [false, true]) {
+      for (const rating of [0, 20, 40, 60, 80, 100]) {
+        const badge = await mount(<MediaBadges compact={compact} item={item(1400 + rating, { rating })} />);
+        expect(badge.querySelector('[data-media-status="rating"]')?.textContent).toBe(rating ? String(rating / 20) : undefined);
+      }
+    }
 
     const group = await render(item(14, { duration: 600, play_seconds: 150, part_group: { key: 'P', seed_id: 14, count: 2 } }));
     expect(group.host.querySelector('[data-media-progress]')).toBeNull();

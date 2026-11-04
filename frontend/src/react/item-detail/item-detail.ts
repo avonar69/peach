@@ -365,11 +365,11 @@ export function identityGroups(item: DetailItem): IdentityGroups {
 
 /* ── 评分 ──
    评分落在 `asset.rating`，量纲是 0–100：这一列是 Stash 的 rating100 直接导进来的，taste_history
-   也按 rating/20 折算成 0–5 分。所以第 n 颗星送出的是 n*20，不是 n。再点当前那一颗表示撤销，
+   也按 rating/20 折算成 0–5 分。星数 n 保存为 n*20，半星对应 10。再点当前那一颗表示撤销，
    送 0，后端写回 NULL——「没评过」和「评了一星」在排序上必须是两件事。 */
 export const RATING_STEP = 20;
 export const clampRating = (value: number | null | undefined) => Math.min(Math.max(value || 0, 0), 100);
-export const ratingStars = (value: number | null | undefined) => Math.round(clampRating(value) / RATING_STEP);
+export const ratingStars = (value: number | null | undefined) => clampRating(value) / RATING_STEP;
 export const ratingText = (value: number | null | undefined) => {
   const stars = ratingStars(value);
   return stars ? `${stars} 星` : '未评分';

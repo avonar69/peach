@@ -1004,6 +1004,8 @@ class WebDataTests(unittest.TestCase):
             self.contract, {"id": 1, "kind": "rate", "value": 60},
         )["rating"], 60)
         self.assertEqual(self.row()["rating"], 60)
+        self.assertEqual(rm_web.w_feedback(self.contract, {"id": 1, "kind": "rate", "value": 70})["rating"], 70)
+        self.assertEqual(self.row()["rating"], 70)
         self.assertIsNone(rm_web.w_feedback(
             self.contract, {"id": 1, "kind": "rate", "value": 0},
         )["rating"])

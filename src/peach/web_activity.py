@@ -86,7 +86,7 @@ def w_feedback(contract: ActivityContract, body):
             )
         elif kind == "rate":
             # 这一列的量纲是 0–100：它是 Stash 的 rating100 原样导进来的，
-            # taste_history 也按 rating/20 折算成 0–5 分。五颗星送出的因此是 20 的倍数。
+            # taste_history 也按 rating/20 折算成 0–5 分，半星选择对应 10 的倍数。
             # 撤销评分写回 NULL 而不是 0：排序用的是 NULLS LAST，写 0 会把「没评过」和
             # 「评了最低分」并成一档，没评过的一整库反而排在评了一星的前面。
             value = max(0, min(100, int(body.get("value", 0))))

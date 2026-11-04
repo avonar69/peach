@@ -4558,5 +4558,6 @@
   "Match recently added videos with StashDB": "Neue Videos mit StashDB abgleichen",
   "Enter a valid name.": "Gib einen gültigen Namen ein.",
   "Enter a valid number of days.": "Gib eine gültige Anzahl von Tagen ein.",
-  "No videos match this date range.": "Keine Videos in diesem Zeitraum."
+  "No videos match this date range.": "Keine Videos in diesem Zeitraum.",
+  "Half-star rating": "Bewertung in halben Sternen"
 }

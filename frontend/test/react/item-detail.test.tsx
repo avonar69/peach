@@ -241,6 +241,7 @@ describe('身份与标签', () => {
   it('评分：第 n 颗送 n×20，再点当前那一颗送 0', () => {
     expect([nextRating(60, 3), nextRating(60, 4), nextRating(null, 1)]).toEqual([0, 80, 20]);
     expect([ratingText(60), ratingText(0), ratingText(null)]).toEqual(['3 星', '未评分', '未评分']);
+    expect([nextRating(60, 3.5), nextRating(70, 3.5), ratingText(70)]).toEqual([70, 0, '3.5 星']);
   });
 
   it('播放区挡在前面的说明：没挂载、在线作品反查不到、计费来源', () => {
@@ -473,6 +474,20 @@ async function typeText(field: HTMLTextAreaElement | null, value: string) {
 }
 
 describe('侧栏怎么读', () => {
+  it('半星选项保存七十分并显示三点五星，清除写零', async () => {
+    const fetcher = serve((_url, body) => ({ ok: true, rating: Number(body.value) || null }));
+    const { host } = await show(item(1, { rating: 60 }));
+    const select = host.querySelector<HTMLSelectElement>('[data-rating-select]')!;
+    await act(async () => { select.value = '3.5'; select.dispatchEvent(new Event('change', { bubbles: true })); });
+    await settle();
+    expect(posts(fetcher).map(([, body]) => body.value)).toEqual([70]);
+    expect(host.querySelector('[data-rating-value]')?.textContent).toBe('3.5 星');
+    expect(host.querySelectorAll('[data-star-half]')).toHaveLength(1);
+    await act(async () => { select.value = '0'; select.dispatchEvent(new Event('change', { bubbles: true })); });
+    await settle();
+    expect(posts(fetcher).map(([, body]) => body.value)).toEqual([70, 0]);
+    expect(host.querySelector('[data-rating-value]')?.textContent).toBe('未评分');
+  });
   it('评分夹在标题与规格行之间，当前那一颗的读屏名说的是撤销；规格行每项前面是图标', async () => {
     serve();
     const { host } = await show(item(1, { width: 1920, height: 1080, release_date: '2026-08-01' }));

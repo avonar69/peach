@@ -21942,7 +21942,8 @@ var Go = {
 	"Match recently added videos with StashDB": "Buscar vídeos recientes en StashDB",
 	"Enter a valid name.": "Introduce un nombre válido.",
 	"Enter a valid number of days.": "Introduce un número válido de días.",
-	"No videos match this date range.": "No hay vídeos en este intervalo."
+	"No videos match this date range.": "No hay vídeos en este intervalo.",
+	"Half-star rating": "Valoración con medias estrellas"
 }, Jo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Ajouter un suivi",
 	"# 浏览记录口味分析": "# Analyse du goût de l'historique de navigation",
@@ -26503,7 +26504,8 @@ var Go = {
 	"Match recently added videos with StashDB": "Rechercher les vidéos récentes sur StashDB",
 	"Enter a valid name.": "Saisissez un nom valide.",
 	"Enter a valid number of days.": "Saisissez un nombre de jours valide.",
-	"No videos match this date range.": "Aucune vidéo dans cette période."
+	"No videos match this date range.": "Aucune vidéo dans cette période.",
+	"Half-star rating": "Note par demi-étoiles"
 }, Yo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Folgen hinzufügen",
 	"# 浏览记录口味分析": "# Geschmacksanalyse des Browserverlaufs",
@@ -31064,7 +31066,8 @@ var Go = {
 	"Match recently added videos with StashDB": "Neue Videos mit StashDB abgleichen",
 	"Enter a valid name.": "Gib einen gültigen Namen ein.",
 	"Enter a valid number of days.": "Gib eine gültige Anzahl von Tagen ein.",
-	"No videos match this date range.": "Keine Videos in diesem Zeitraum."
+	"No videos match this date range.": "Keine Videos in diesem Zeitraum.",
+	"Half-star rating": "Bewertung in halben Sternen"
 }, Xo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">Adicionar seguir",
 	"# 浏览记录口味分析": "# Análise de sabor do histórico de navegação",
@@ -35625,7 +35628,8 @@ var Go = {
 	"Match recently added videos with StashDB": "Buscar vídeos recentes no StashDB",
 	"Enter a valid name.": "Digite um nome válido.",
 	"Enter a valid number of days.": "Digite um número válido de dias.",
-	"No videos match this date range.": "Não há vídeos neste período."
+	"No videos match this date range.": "Não há vídeos neste período.",
+	"Half-star rating": "Avaliação com meias estrelas"
 }, Zo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">フォローを追加",
 	"# 浏览记录口味分析": "# 閲覧履歴嗜好分析",
@@ -40186,7 +40190,8 @@ var Go = {
 	"Match recently added videos with StashDB": "最近の動画をStashDBで照合",
 	"Enter a valid name.": "有効な名前を入力してください。",
 	"Enter a valid number of days.": "有効な日数を入力してください。",
-	"No videos match this date range.": "この期間の動画はありません。"
+	"No videos match this date range.": "この期間の動画はありません。",
+	"Half-star rating": "半星単位の評価"
 }, Qo = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">팔로우 추가",
 	"# 浏览记录口味分析": "# 검색기록 취향 분석",
@@ -44747,7 +44752,8 @@ var Go = {
 	"Match recently added videos with StashDB": "최근 동영상을 StashDB로 매칭",
 	"Enter a valid name.": "올바른 이름을 입력하세요.",
 	"Enter a valid number of days.": "올바른 일수를 입력하세요.",
-	"No videos match this date range.": "해당 기간에 동영상이 없습니다."
+	"No videos match this date range.": "해당 기간에 동영상이 없습니다.",
+	"Half-star rating": "반 별 단위 평점"
 }, $o = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# Phân tích khẩu vị theo lịch sử duyệt web",
@@ -49308,7 +49314,8 @@ var Go = {
 	"Match recently added videos with StashDB": "Ghép video mới thêm với StashDB",
 	"Enter a valid name.": "Nhập tên hợp lệ.",
 	"Enter a valid number of days.": "Nhập số ngày hợp lệ.",
-	"No videos match this date range.": "Không có video trong khoảng ngày này."
+	"No videos match this date range.": "Không có video trong khoảng ngày này.",
+	"Half-star rating": "Đánh giá nửa sao"
 }, es = {
 	"\" href=\"/subscriptions?tab=add\">添加关注": "\" href=\"/subscriptions?tab=add\">添加关注",
 	"# 浏览记录口味分析": "# 瀏覽記錄口味分析",
@@ -53869,7 +53876,8 @@ var Go = {
 	"Match recently added videos with StashDB": "使用 StashDB 匹配最近入庫影片",
 	"Enter a valid name.": "請輸入有效名稱。",
 	"Enter a valid number of days.": "請輸入有效天數。",
-	"No videos match this date range.": "此日期範圍內沒有影片。"
+	"No videos match this date range.": "此日期範圍內沒有影片。",
+	"Half-star rating": "半星評分"
 }, ts = {
 	"A configured folder receives downloads from the debrid icons. Leave it blank to download in your browser.": "配置的文件夹接收来自清除图标的下载。将其留空以在浏览器中下载。",
 	"A scan is already running. Stop it or wait for it to finish, then start resync.": "扫描已在运行。停止它或等待它完成，然后开始重新同步。",
@@ -54456,7 +54464,8 @@ var Go = {
 	"Enter a valid name.": "请输入有效名称。",
 	"Enter a valid number of days.": "请输入有效天数。",
 	"No videos match this date range.": "此日期范围内没有视频。",
-	Rating: "评分"
+	Rating: "评分",
+	"Half-star rating": "半星评分"
 }, ns = [
 	["en", "English"],
 	["zh-CN", "简体中文"],
@@ -74883,7 +74892,7 @@ function ime(e) {
 		unowned: !i.length && !c.length && !String(e.creator || "").trim()
 	};
 }
-var ame = (e) => Math.min(Math.max(e || 0, 0), 100), pD = (e) => Math.round(ame(e) / 20), ome = (e) => {
+var ame = (e) => Math.min(Math.max(e || 0, 0), 100), pD = (e) => ame(e) / 20, ome = (e) => {
 	let t = pD(e);
 	return t ? `${t} 星` : "未评分";
 }, sme = (e, t) => {
@@ -90189,7 +90198,7 @@ function $I({ message: e, onRetry: t }) {
 //#endregion
 //#region src/react/components/media-badges.tsx
 function eL({ item: e, compact: t = !1 }) {
-	let n = Math.min(5, Math.max(0, Number(e.rating) || 0));
+	let n = Math.min(5, Math.max(0, (Number(e.rating) || 0) / 20));
 	return /* @__PURE__ */ K(T.Fragment, { children: [
 		e.feedback === "seen" || Number(e.play_count) > 0 ? /* @__PURE__ */ G("span", {
 			"data-media-status": "watched",
@@ -124236,29 +124245,51 @@ function sBe({ item: e, write: t }) {
 		"data-item-rating": "",
 		"aria-label": "评分",
 		"data-value": ame(e.rating),
-		children: [/* @__PURE__ */ G("div", {
-			"data-rating-stars": "",
-			children: [
-				1,
-				2,
-				3,
-				4,
-				5
-			].map((e) => /* @__PURE__ */ G("button", {
-				type: "button",
-				"data-rate": e,
-				"data-on": String(e <= n),
-				title: e === n ? "再点一次取消评分" : `${e} 星`,
-				"aria-label": e === n ? `取消评分（当前 ${e} 星）` : `评为 ${e} 星`,
-				...t.busyAttrs(`rate:${e}`),
-				onClick: () => t.rate(e),
-				children: /* @__PURE__ */ G(lJ, { name: "star" })
-			}, e))
-		}), /* @__PURE__ */ G("span", {
-			"data-rating-value": "",
-			"aria-live": "polite",
-			children: ome(e.rating)
-		})]
+		children: [
+			/* @__PURE__ */ G("div", {
+				"data-rating-stars": "",
+				children: [
+					1,
+					2,
+					3,
+					4,
+					5
+				].map((e) => /* @__PURE__ */ K("button", {
+					type: "button",
+					"data-rate": e,
+					"data-on": String(e <= n),
+					title: e === n ? "再点一次取消评分" : `${e} 星`,
+					"aria-label": e === n ? `取消评分（当前 ${e} 星）` : `评为 ${e} 星`,
+					...t.busyAttrs(`rate:${e}`),
+					onClick: () => t.rate(e),
+					children: [/* @__PURE__ */ G(lJ, { name: "star" }), e > n && e - 1 < n ? /* @__PURE__ */ G("span", {
+						"data-star-half": "",
+						"aria-hidden": "true",
+						children: /* @__PURE__ */ G(lJ, { name: "star" })
+					}) : null]
+				}, e))
+			}),
+			/* @__PURE__ */ G("span", {
+				"data-rating-value": "",
+				"aria-live": "polite",
+				children: ome(e.rating)
+			}),
+			/* @__PURE__ */ K("select", {
+				className: "geist-input",
+				"data-rating-select": "",
+				"aria-label": "Half-star rating",
+				value: String(n),
+				...t.busyAttrs(`rate:${n}`),
+				onChange: (e) => t.rate(Number(e.target.value)),
+				children: [n * 2 === Math.round(n * 2) ? null : /* @__PURE__ */ G("option", {
+					value: n,
+					children: ome(e.rating)
+				}), Array.from({ length: 11 }, (e, t) => t / 2).map((e) => /* @__PURE__ */ G("option", {
+					value: e,
+					children: e ? `${e} 星` : "未评分"
+				}, e))]
+			})
+		]
 	});
 }
 function cBe({ item: e, actions: t }) {

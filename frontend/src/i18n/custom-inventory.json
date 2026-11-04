@@ -579,5 +579,6 @@
   "Enter a valid name.",
   "Enter a valid number of days.",
   "No videos match this date range.",
-  "Rating"
+  "Rating",
+  "Half-star rating"
 ]

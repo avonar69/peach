@@ -4558,5 +4558,6 @@
   "Match recently added videos with StashDB": "Ghép video mới thêm với StashDB",
   "Enter a valid name.": "Nhập tên hợp lệ.",
   "Enter a valid number of days.": "Nhập số ngày hợp lệ.",
-  "No videos match this date range.": "Không có video trong khoảng ngày này."
+  "No videos match this date range.": "Không có video trong khoảng ngày này.",
+  "Half-star rating": "Đánh giá nửa sao"
 }

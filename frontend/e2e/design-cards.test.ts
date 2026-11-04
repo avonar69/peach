@@ -69,7 +69,7 @@ describe('设计决定：作品卡、管理页与复核', () => {
        目录那一页给前三条挂半程观看进度，量进度条的颜色。 */
     const opened = await openCatalogFixture(browser, (payload, url) => {
       if (url.searchParams.get('state') !== 'trash') {
-        for (const item of payload.items.slice(0, 3)) Object.assign(item, { duration: 600, play_seconds: 300, leave_ratio: .5, rating: 4, liked: 1, play_count: 1 });
+        for (const item of payload.items.slice(0, 3)) Object.assign(item, { duration: 600, play_seconds: 300, leave_ratio: .5, rating: 80, liked: 1, play_count: 1 });
         return;
       }
       const item = payload.items[1];

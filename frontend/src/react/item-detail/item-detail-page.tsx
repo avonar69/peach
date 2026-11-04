@@ -515,10 +515,17 @@ function Rating({ item, write }: { item: DetailItem; write: DetailWrite }) {
           <button key={star} type="button" data-rate={star} data-on={String(star <= on)}
             title={star === on ? '再点一次取消评分' : `${star} 星`}
             aria-label={star === on ? `取消评分（当前 ${star} 星）` : `评为 ${star} 星`}
-            {...write.busyAttrs(`rate:${star}`)} onClick={() => write.rate(star)}><Glyph name="star" /></button>
+            {...write.busyAttrs(`rate:${star}`)} onClick={() => write.rate(star)}><Glyph name="star" />
+            {star > on && star - 1 < on ? <span data-star-half="" aria-hidden="true"><Glyph name="star" /></span> : null}</button>
         ))}
       </div>
       <span data-rating-value="" aria-live="polite">{ratingText(item.rating)}</span>
+      <select className="geist-input" data-rating-select="" aria-label="Half-star rating" value={String(on)}
+        {...write.busyAttrs(`rate:${on}`)} onChange={event => write.rate(Number(event.target.value))}>
+        {on * 2 !== Math.round(on * 2) ? <option value={on}>{ratingText(item.rating)}</option> : null}
+        {Array.from({ length: 11 }, (_, index) => index / 2).map(value =>
+          <option key={value} value={value}>{value ? `${value} 星` : '未评分'}</option>)}
+      </select>
     </div>
   );
 }
