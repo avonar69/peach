@@ -25,7 +25,6 @@ from typing import Sequence
 
 from .catalog_rules import duration_clusters, is_jav_code, normalise_code_key
 from .config import GENERATED_DIR, LOCATION_ROOT_DECLARATIONS
-from .field_owners import USER_MANUAL, write_owned_fields
 from .media_sources import SCANNABLE_LOCATIONS
 from .personal_records import ASSET_REFERENCE_TABLES, VANISHED
 from .platform import is_unmapped, root_online, translate_ledger_path, within_root
