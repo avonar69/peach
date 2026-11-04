@@ -1,6 +1,6 @@
 # 复用清单
 
-演员与厂牌的个人评分汇总由 `entity_feedback.summaries` 批量读取，复用 `web_entity.scope_predicate` 的实体范围、子厂牌递归与本地喜欢记录。React 的 `SceneFeedbackSummary` 同时供资料页和名册使用，复用 Remix Icon 星级及偏好图标，无新增依赖或汇总表。
+演员与厂牌的个人评分汇总由 `web_entity_feedback.summaries` 批量读取，复用 `web_entity.scope_predicate` 的实体范围、子厂牌递归与本地喜欢记录。React 的 `SceneFeedbackSummary` 同时供资料页和名册使用，复用 Remix Icon 星级及偏好图标，无新增依赖或汇总表。
 
 StashDB 指纹查询遵循官方 [FingerprintQueryInput](https://github.com/stashapp/stash-box/blob/master/graphql/schema/types/scene.graphql) 和 [FindScenesBySceneFingerprints](https://github.com/stashapp/stash/blob/develop/graphql/stash-box/query.graphql)，复用既有 HTTPX 客户端、主机限流及本地路径转换。OSHASH 以文件大小加首尾 64 KiB 的小端 64 位整数和计算，使用 Python 标准库 `struct`，不新增依赖或提交指纹。Stash 官方配置文档明确该读取范围；PHASH 需要视频解码与专用算法，本功能仅支持 OSHASH，不以图片 dHash 代替。指纹的已举报记录不作为正向证据，缺失本地文件回退线索搜索。
 

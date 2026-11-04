@@ -1,4 +1,4 @@
-"""实体名下视频的个人评分和偏好汇总，按视频去除重复来源关系。"""
+"""资料页与名册的个人评分和偏好汇总，按视频去除重复来源关系。"""
 from .web_activity import DEFAULT_PROFILE_ID
 
 EMPTY = dict(average_stars=None, rated_count=0, thumbs_up=0, thumbs_down=0)

@@ -1,4 +1,4 @@
-"""批量手工厂牌与演员沿用作品编辑的规范关系及字段归属。"""
+"""页面批量手工厂牌与演员沿用作品编辑的规范关系及字段归属。"""
 from .field_owners import USER_MANUAL, write_owned_fields
 from .web_scene_metadata import _relations
 

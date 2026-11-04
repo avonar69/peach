@@ -33,7 +33,7 @@ def scene(identity=SCENE, **values):
 
 class StashDBTests(unittest.TestCase):
     def test_entity_feedback_averages_only_rated_active_videos_and_deduplicates_links(self):
-        from peach.entity_feedback import summaries, attach
+        from peach.web_entity_feedback import summaries, attach
         with self.database.write_transaction() as connection:
             connection.execute("UPDATE asset SET rating=40 WHERE id=1")
             for identity, rating, medium, disposal in [(2,80,'video',None),(3,None,'video',None),
@@ -78,11 +78,11 @@ class StashDBTests(unittest.TestCase):
         self.assertEqual([row['id'] for row in recent_assets(self.database, 7, [2])], [2])
 
     def test_bulk_actor_addition_preserves_cast_and_studio_is_manual(self):
-        from peach import batch_metadata
+        from peach import web_batch_metadata
         with self.database.write_transaction() as connection:
             upsert_asset_entity(connection, kind='performer', name='Existing Actor', asset_id=1, role='performer', source='scan:filename-actors')
-            batch_metadata.apply(connection, [1], 'actor', {'name': 'New Actor'}, None)
-            batch_metadata.apply(connection, [1], 'studio', {'name': 'Example Studio'}, None)
+            web_batch_metadata.apply(connection, [1], 'actor', {'name': 'New Actor'}, None)
+            web_batch_metadata.apply(connection, [1], 'studio', {'name': 'Example Studio'}, None)
             cast = {row[0] for row in connection.execute("SELECT e.canonical_name FROM entity e JOIN asset_entity ae ON ae.entity_id=e.id WHERE ae.asset_id=1 AND e.kind='performer'")}
             self.assertEqual(cast, {'Existing Actor', 'New Actor'})
             row = connection.execute('SELECT studio,field_owners FROM asset WHERE id=1').fetchone()

@@ -896,7 +896,7 @@ def w_batch(contract: WebContract, body):
             elif operation in {"region", "studio", "actor"}:
                 # 走 `write_owned_fields` 而不是直接 UPDATE：产地是真相字段，用户这一
                 # 笔要压得住后面每一轮刮削与推断，归属列是它唯一的凭据。
-                from .batch_metadata import apply as apply_metadata
+                from .web_batch_metadata import apply as apply_metadata
                 apply_metadata(connection, valid_ids, operation, body, region_value)
             elif operation == "later":
                 connection.executemany(
